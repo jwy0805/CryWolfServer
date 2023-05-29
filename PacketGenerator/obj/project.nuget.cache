@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "O1NMhSxGrPbNhjLuUWVNsOzRk5Q997BaYABVh14sijqxABsDmqJLdWbtvOcTDL2ytQSE9exq7HcRObM7gmTLtA==",
+  "success": true,
+  "projectFilePath": "/Users/jwy/Documents/dev/CryWolf/Server/PacketGenerator/PacketGenerator.csproj",
+  "expectedPackageFiles": [
+    "/Users/jwy/.nuget/packages/google.protobuf/3.22.3/google.protobuf.3.22.3.nupkg.sha512"
+  ],
+  "logs": []
+}
