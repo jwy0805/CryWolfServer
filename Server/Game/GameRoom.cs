@@ -24,9 +24,9 @@ public class GameRoom
                 newPlayer.Session.Send(enterPacket);
 
                 S_Spawn spawnPacket = new();
-                foreach (var player in _players)
+                foreach (var p in _players)
                 {
-                    if (newPlayer != player) spawnPacket.Objects.Add(player.Info);
+                    if (newPlayer != p) spawnPacket.Objects.Add(p.Info);
                 }
                 newPlayer.Session.Send(spawnPacket);
             }
@@ -35,9 +35,9 @@ public class GameRoom
             {
                 S_Spawn spawnPacket = new();
                 spawnPacket.Objects.Add(newPlayer.Info);
-                foreach (var player in _players)
+                foreach (var p in _players)
                 {
-                    if (newPlayer != player) player.Session.Send(spawnPacket);
+                    if (newPlayer != p) p.Session.Send(spawnPacket);
                 }
             }
         }
@@ -47,7 +47,27 @@ public class GameRoom
     {
         lock (_lock)
         {
+            Player player = _players.Find(p => p.Info.ObjectId == playerId);
+            if (player == null) return;
+
+            _players.Remove(player);
+            player.Room = null;
             
+            // 본인에게 정보 전송
+            {
+                S_LeaveGame leavePacket = new();
+                player.Session.Send(leavePacket);
+            }
+            
+            // 타인에게 정보 전송
+            {
+                S_Despawn despawnPacket = new();
+                despawnPacket.ObjectIds.Add(player.Info.ObjectId);
+                foreach (var p in _players)
+                {
+                    if (player != p) p.Session.Send(despawnPacket);
+                }
+            }
         }
     }
 }

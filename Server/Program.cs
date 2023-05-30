@@ -22,7 +22,7 @@ public class Program
         IPAddress ipAddress = ipHost.AddressList[3];
         // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
         IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777);
-        _listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
+        _listener.Init(endPoint, () => SessionManager.Instance.Generate());
         Console.WriteLine($"Listening... {endPoint}");
 
         JobTimer.Instance.Push(FlushRoom);
@@ -30,8 +30,6 @@ public class Program
         while (true)
         {
             JobTimer.Instance.Flush();
-            // Room.Push(() => Room.Flush());
-            // Thread.Sleep(250);
         }
     }
 }

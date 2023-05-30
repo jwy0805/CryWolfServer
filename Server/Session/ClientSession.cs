@@ -28,8 +28,18 @@ public class ClientSession : PacketSession
     {
         Console.WriteLine($"OnConnected : {endPoint}");
 
+        MyPlayer = PlayerManager.Instance.Add();
+        {
+            MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
+            MyPlayer.Info.PosInfo.State = CreatureState.Idle;
+            MyPlayer.Info.PosInfo.PosX = 0f;
+            MyPlayer.Info.PosInfo.PosY = 6f;
+            MyPlayer.Info.PosInfo.PosZ = 0f;
+            MyPlayer.Info.PosInfo.RotY = 0f;
+        }
+        
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
-        RoomManager.Instance.Find(1).EnterGame(MyPlayer);
+        RoomManager.Instance.Find(1)?.EnterGame(MyPlayer);
         
     }
 
@@ -40,11 +50,13 @@ public class ClientSession : PacketSession
     
     public override void OnDisconnected(EndPoint endPoint)
     {
-        throw new NotImplementedException();
+        RoomManager.Instance.Find(1)?.LeaveGame(MyPlayer.Info.ObjectId);
+        SessionManager.Instance.Remove(this);
+        Console.WriteLine($"OnDisconnected : {endPoint}");
     }
 
     public override void OnSend(int numOfBytes)
     {
-        throw new NotImplementedException();
+        
     }
 }
