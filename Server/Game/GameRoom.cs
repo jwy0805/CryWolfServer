@@ -1,3 +1,4 @@
+using Google.Protobuf;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
@@ -17,7 +18,6 @@ public class GameRoom
         {
             _players.Add(newPlayer);
             newPlayer.Room = this;
-            
             // 본인에게 정보 전송
             {
                 S_EnterGame enterPacket = new() { Player = newPlayer.Info };
@@ -67,6 +67,17 @@ public class GameRoom
                 {
                     if (player != p) p.Session.Send(despawnPacket);
                 }
+            }
+        }
+    }
+
+    public void Broadcast(IMessage packet)
+    {
+        lock (_lock)
+        {
+            foreach (var p in _players)
+            {
+                p.Session.Send(packet);
             }
         }
     }

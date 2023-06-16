@@ -34,24 +34,26 @@ namespace Google.Protobuf.Protocol {
             "bCIMCgpTX0NoYW5nZUhwIgcKBVNfRGllIhoKC1NfQ29ubmVjdGVkEgsKA3Rt",
             "cBgBIAEoBSJVCgpPYmplY3RJbmZvEhAKCG9iamVjdElkGAEgASgFEgwKBG5h",
             "bWUYAiABKAkSJwoHcG9zSW5mbxgDIAEoCzIWLlByb3RvY29sLlBvc2l0aW9u",
-            "SW5mbyJuCgxQb3NpdGlvbkluZm8SJgoFc3RhdGUYASABKA4yFy5Qcm90b2Nv",
-            "bC5DcmVhdHVyZVN0YXRlEgwKBHBvc1gYAyABKAISDAoEcG9zWRgEIAEoAhIM",
-            "CgRwb3NaGAUgASgCEgwKBHJvdFkYBiABKAIqqgEKCU1lc3NhZ2VJZBIQCgxT",
-            "X0VOVEVSX0dBTUUQABIQCgxTX0xFQVZFX0dBTUUQARILCgdTX1NQQVdOEAIS",
-            "DQoJU19ERVNQQVdOEAMSCgoGQ19NT1ZFEAQSCgoGU19NT1ZFEAUSCwoHQ19T",
-            "S0lMTBAGEgsKB1NfU0tJTEwQBxIPCgtTX0NIQU5HRV9IUBAIEgkKBVNfRElF",
-            "EAkSDwoLU19DT05ORUNURUQQCio6Cg1DcmVhdHVyZVN0YXRlEggKBElETEUQ",
-            "ABIKCgZNT1ZJTkcQARIJCgVTS0lMTBACEggKBERFQUQQAypwCg5HYW1lT2Jq",
-            "ZWN0VHlwZRIICgROT05FEAASCgoGUExBWUVSEAESCQoFVE9XRVIQAhILCgdN",
-            "T05TVEVSEAMSDgoKUFJPSkVDVElMRRAEEgoKBkVGRkVDVBAFEgkKBVNIRUVQ",
-            "EAYSCQoFRkVOQ0UQBypBCglTa2lsbFR5cGUSDgoKU0tJTExfTk9ORRAAEg4K",
-            "ClNLSUxMX0FVVE8QARIUChBTS0lMTF9QUk9KRUNUSUxFEAIqWgoRUGxheWVy",
-            "U2VydmVyU3RhdGUSFgoSU0VSVkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVS",
-            "X1NUQVRFX0xPQkJZEAESFQoRU0VSVkVSX1NUQVRFX0dBTUUQAkIbqgIYR29v",
-            "Z2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
+            "SW5mbyJmCgxQb3NpdGlvbkluZm8SHgoFc3RhdGUYASABKA4yDy5Qcm90b2Nv",
+            "bC5TdGF0ZRIMCgRwb3NYGAIgASgCEgwKBHBvc1kYAyABKAISDAoEcG9zWhgE",
+            "IAEoAhIMCgRyb3RZGAUgASgCKqoBCglNZXNzYWdlSWQSEAoMU19FTlRFUl9H",
+            "QU1FEAASEAoMU19MRUFWRV9HQU1FEAESCwoHU19TUEFXThACEg0KCVNfREVT",
+            "UEFXThADEgoKBkNfTU9WRRAEEgoKBlNfTU9WRRAFEgsKB0NfU0tJTEwQBhIL",
+            "CgdTX1NLSUxMEAcSDwoLU19DSEFOR0VfSFAQCBIJCgVTX0RJRRAJEg8KC1Nf",
+            "Q09OTkVDVEVEEAoqhAEKBVN0YXRlEggKBElETEUQABIKCgZNT1ZJTkcQARIK",
+            "CgZBVFRBQ0sQAhIJCgVTS0lMTBADEgoKBlNLSUxMMhAEEggKBFJVU0gQBRII",
+            "CgRKVU1QEAYSDQoJS25vY2tCYWNrEAcSCQoFRkFJTlQQCBIHCgNESUUQCRIL",
+            "CgdTVEFOREJZEAoqcAoOR2FtZU9iamVjdFR5cGUSCAoETk9ORRAAEgoKBlBM",
+            "QVlFUhABEgkKBVRPV0VSEAISCwoHTU9OU1RFUhADEg4KClBST0pFQ1RJTEUQ",
+            "BBIKCgZFRkZFQ1QQBRIJCgVTSEVFUBAGEgkKBUZFTkNFEAcqQQoJU2tpbGxU",
+            "eXBlEg4KClNLSUxMX05PTkUQABIOCgpTS0lMTF9BVVRPEAESFAoQU0tJTExf",
+            "UFJPSkVDVElMRRACKloKEVBsYXllclNlcnZlclN0YXRlEhYKElNFUlZFUl9T",
+            "VEFURV9MT0dJThAAEhYKElNFUlZFUl9TVEFURV9MT0JCWRABEhUKEVNFUlZF",
+            "Ul9TVEFURV9HQU1FEAJCG6oCGEdvb2dsZS5Qcm90b2J1Zi5Qcm90b2NvbGIG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.CreatureState), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_EnterGame), global::Google.Protobuf.Protocol.S_EnterGame.Parser, new[]{ "Player" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_LeaveGame), global::Google.Protobuf.Protocol.S_LeaveGame.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_Spawn), global::Google.Protobuf.Protocol.S_Spawn.Parser, new[]{ "Objects" }, null, null, null, null),
@@ -85,11 +87,18 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("S_CONNECTED")] SConnected = 10,
   }
 
-  public enum CreatureState {
+  public enum State {
     [pbr::OriginalName("IDLE")] Idle = 0,
     [pbr::OriginalName("MOVING")] Moving = 1,
-    [pbr::OriginalName("SKILL")] Skill = 2,
-    [pbr::OriginalName("DEAD")] Dead = 3,
+    [pbr::OriginalName("ATTACK")] Attack = 2,
+    [pbr::OriginalName("SKILL")] Skill = 3,
+    [pbr::OriginalName("SKILL2")] Skill2 = 4,
+    [pbr::OriginalName("RUSH")] Rush = 5,
+    [pbr::OriginalName("JUMP")] Jump = 6,
+    [pbr::OriginalName("KnockBack")] KnockBack = 7,
+    [pbr::OriginalName("FAINT")] Faint = 8,
+    [pbr::OriginalName("DIE")] Die = 9,
+    [pbr::OriginalName("STANDBY")] Standby = 10,
   }
 
   public enum GameObjectType {
@@ -2378,10 +2387,10 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "state" field.</summary>
     public const int StateFieldNumber = 1;
-    private global::Google.Protobuf.Protocol.CreatureState state_ = global::Google.Protobuf.Protocol.CreatureState.Idle;
+    private global::Google.Protobuf.Protocol.State state_ = global::Google.Protobuf.Protocol.State.Idle;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Google.Protobuf.Protocol.CreatureState State {
+    public global::Google.Protobuf.Protocol.State State {
       get { return state_; }
       set {
         state_ = value;
@@ -2389,7 +2398,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "posX" field.</summary>
-    public const int PosXFieldNumber = 3;
+    public const int PosXFieldNumber = 2;
     private float posX_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2401,7 +2410,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "posY" field.</summary>
-    public const int PosYFieldNumber = 4;
+    public const int PosYFieldNumber = 3;
     private float posY_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2413,7 +2422,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "posZ" field.</summary>
-    public const int PosZFieldNumber = 5;
+    public const int PosZFieldNumber = 4;
     private float posZ_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2425,7 +2434,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "rotY" field.</summary>
-    public const int RotYFieldNumber = 6;
+    public const int RotYFieldNumber = 5;
     private float rotY_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2463,7 +2472,7 @@ namespace Google.Protobuf.Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) hash ^= State.GetHashCode();
+      if (State != global::Google.Protobuf.Protocol.State.Idle) hash ^= State.GetHashCode();
       if (PosX != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PosX);
       if (PosY != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PosY);
       if (PosZ != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PosZ);
@@ -2486,24 +2495,24 @@ namespace Google.Protobuf.Protocol {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
+      if (State != global::Google.Protobuf.Protocol.State.Idle) {
         output.WriteRawTag(8);
         output.WriteEnum((int) State);
       }
       if (PosX != 0F) {
-        output.WriteRawTag(29);
+        output.WriteRawTag(21);
         output.WriteFloat(PosX);
       }
       if (PosY != 0F) {
-        output.WriteRawTag(37);
+        output.WriteRawTag(29);
         output.WriteFloat(PosY);
       }
       if (PosZ != 0F) {
-        output.WriteRawTag(45);
+        output.WriteRawTag(37);
         output.WriteFloat(PosZ);
       }
       if (RotY != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(45);
         output.WriteFloat(RotY);
       }
       if (_unknownFields != null) {
@@ -2516,24 +2525,24 @@ namespace Google.Protobuf.Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
+      if (State != global::Google.Protobuf.Protocol.State.Idle) {
         output.WriteRawTag(8);
         output.WriteEnum((int) State);
       }
       if (PosX != 0F) {
-        output.WriteRawTag(29);
+        output.WriteRawTag(21);
         output.WriteFloat(PosX);
       }
       if (PosY != 0F) {
-        output.WriteRawTag(37);
+        output.WriteRawTag(29);
         output.WriteFloat(PosY);
       }
       if (PosZ != 0F) {
-        output.WriteRawTag(45);
+        output.WriteRawTag(37);
         output.WriteFloat(PosZ);
       }
       if (RotY != 0F) {
-        output.WriteRawTag(53);
+        output.WriteRawTag(45);
         output.WriteFloat(RotY);
       }
       if (_unknownFields != null) {
@@ -2546,7 +2555,7 @@ namespace Google.Protobuf.Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
+      if (State != global::Google.Protobuf.Protocol.State.Idle) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) State);
       }
       if (PosX != 0F) {
@@ -2573,7 +2582,7 @@ namespace Google.Protobuf.Protocol {
       if (other == null) {
         return;
       }
-      if (other.State != global::Google.Protobuf.Protocol.CreatureState.Idle) {
+      if (other.State != global::Google.Protobuf.Protocol.State.Idle) {
         State = other.State;
       }
       if (other.PosX != 0F) {
@@ -2604,22 +2613,22 @@ namespace Google.Protobuf.Protocol {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            State = (global::Google.Protobuf.Protocol.CreatureState) input.ReadEnum();
+            State = (global::Google.Protobuf.Protocol.State) input.ReadEnum();
             break;
           }
-          case 29: {
+          case 21: {
             PosX = input.ReadFloat();
             break;
           }
-          case 37: {
+          case 29: {
             PosY = input.ReadFloat();
             break;
           }
-          case 45: {
+          case 37: {
             PosZ = input.ReadFloat();
             break;
           }
-          case 53: {
+          case 45: {
             RotY = input.ReadFloat();
             break;
           }
@@ -2639,22 +2648,22 @@ namespace Google.Protobuf.Protocol {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            State = (global::Google.Protobuf.Protocol.CreatureState) input.ReadEnum();
+            State = (global::Google.Protobuf.Protocol.State) input.ReadEnum();
             break;
           }
-          case 29: {
+          case 21: {
             PosX = input.ReadFloat();
             break;
           }
-          case 37: {
+          case 29: {
             PosY = input.ReadFloat();
             break;
           }
-          case 45: {
+          case 37: {
             PosZ = input.ReadFloat();
             break;
           }
-          case 53: {
+          case 45: {
             RotY = input.ReadFloat();
             break;
           }

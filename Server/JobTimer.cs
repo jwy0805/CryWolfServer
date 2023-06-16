@@ -23,7 +23,7 @@ public class JobTimer
     public void Push(Action action, int tickAfter = 0)
     {
         JobTimerElem job;
-        job.execTick = System.Environment.TickCount + tickAfter;
+        job.execTick = Environment.TickCount + tickAfter;
         job.action = action;
 
         lock (_lock)
