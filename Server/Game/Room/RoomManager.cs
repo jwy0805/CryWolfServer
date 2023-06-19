@@ -2,7 +2,7 @@ namespace Server.Game;
 
 public class RoomManager
 {
-    public static RoomManager Instance { get; } = new RoomManager();
+    public static RoomManager Instance { get; } = new();
 
     private readonly object _lock = new();
     private Dictionary<int, GameRoom> _rooms = new();

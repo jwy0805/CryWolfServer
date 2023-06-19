@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using Server.Game;
 using ServerCore;
 
@@ -22,15 +20,17 @@ public class Program
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();
         IPHostEntry ipHost = Dns.GetHostEntry(host);
-        IPAddress ipAddress = ipHost.AddressList[4];
-        // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
-        IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777);
-        _listener.Init(endPoint, () => SessionManager.Instance.Generate());
-        Console.WriteLine($"Listening... {endPoint}");
-
-        for (int i = 0; i < 5; i++)
+        IPAddress? ipAddress = null;
+        foreach (var ip in ipHost.AddressList)
         {
-            Console.WriteLine(new IPEndPoint(ipHost.AddressList[i], 7777));
+            if (ip.ToString().Contains("172")) ipAddress = ip;
+        }
+        // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+        if (ipAddress != null)
+        {
+            IPEndPoint endPoint = new IPEndPoint(ipAddress, 7777);
+            _listener.Init(endPoint, () => SessionManager.Instance.Generate());
+            Console.WriteLine($"Listening... {endPoint}");
         }
 
         JobTimer.Instance.Push(FlushRoom);

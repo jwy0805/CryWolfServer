@@ -38,7 +38,8 @@ class PacketManager
 		ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
 		count += 2;
 
-		if (_onRecv.TryGetValue(id, out var action))
+		Action<PacketSession, ArraySegment<byte>, ushort> action = null;
+		if (_onRecv.TryGetValue(id, out action))
 			action.Invoke(session, buffer, id);
 	}
 
@@ -53,14 +54,16 @@ class PacketManager
 		}
 		else
 		{
-			if (_handler.TryGetValue(id, out var action))
+			Action<PacketSession, IMessage> action = null;
+			if (_handler.TryGetValue(id, out action))
 				action.Invoke(session, pkt);
 		}
 	}
 
 	public Action<PacketSession, IMessage> GetPacketHandler(ushort id)
 	{
-		if (_handler.TryGetValue(id, out var action))
+		Action<PacketSession, IMessage> action = null;
+		if (_handler.TryGetValue(id, out action))
 			return action;
 		return null;
 	}

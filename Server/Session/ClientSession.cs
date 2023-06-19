@@ -35,7 +35,7 @@ public class ClientSession : PacketSession
             MyPlayer.Info.PosInfo.PosX = 0f;
             MyPlayer.Info.PosInfo.PosY = 6f;
             MyPlayer.Info.PosInfo.PosZ = 0f;
-            MyPlayer.Info.PosInfo.RotY = 0f;
+            MyPlayer.Info.PosInfo.Dir = 0f;
             MyPlayer.Session = this;
         }
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록

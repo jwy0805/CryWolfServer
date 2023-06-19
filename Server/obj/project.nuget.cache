@@ -1,13 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Cj3v3x2jQAi8kMYka5nWo3GNmXlSJjqgY3aMk6ZIteBPQ4Egy3aY4Sv1DlUho5OChWdTjh4P0y0vK3oCSRxSog==",
+  "dgSpecHash": "ZPVIRPJJFUw34OW9A6Tkye9XHfMs7l4yDXkAUfem+OxbNui+y7Q4ydF/4PZK/bJZS/CJ2etq09VnCavwvyw3KA==",
   "success": true,
   "projectFilePath": "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj",
   "expectedPackageFiles": [
-    "/Users/jwy/.nuget/packages/google.protobuf/3.22.3/google.protobuf.3.22.3.nupkg.sha512",
-    "/Users/jwy/.nuget/packages/microsoft.netcore.app.ref/6.0.16/microsoft.netcore.app.ref.6.0.16.nupkg.sha512",
-    "/Users/jwy/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.16/microsoft.aspnetcore.app.ref.6.0.16.nupkg.sha512",
-    "/Users/jwy/.nuget/packages/microsoft.netcore.app.host.osx-arm64/6.0.16/microsoft.netcore.app.host.osx-arm64.6.0.16.nupkg.sha512"
+    "/Users/jwy/.nuget/packages/google.protobuf/3.22.3/google.protobuf.3.22.3.nupkg.sha512"
   ],
   "logs": []
 }
