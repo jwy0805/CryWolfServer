@@ -5,6 +5,7 @@ namespace Server.Game;
 
 public class GameObject
 {
+    public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     public int Id
     {
         get => Info.ObjectId;
@@ -13,7 +14,7 @@ public class GameObject
 
     public GameRoom Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
-    public PositionInfo PosInfo { get; private set; } = new();
+    public PositionInfo PosInfo { get;  set; } = new();
 
     public State State
     {

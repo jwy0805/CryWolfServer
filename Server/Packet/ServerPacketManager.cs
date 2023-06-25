@@ -23,6 +23,10 @@ class PacketManager
 
 	public void Register()
 	{		
+		_onRecv.Add((ushort)MessageId.CSpawn, MakePacket<C_Spawn>);
+		_handler.Add((ushort)MessageId.CSpawn, PacketHandler.C_SpawnHandler);		
+		_onRecv.Add((ushort)MessageId.CPlayerMove, MakePacket<C_PlayerMove>);
+		_handler.Add((ushort)MessageId.CPlayerMove, PacketHandler.C_PlayerMoveHandler);		
 		_onRecv.Add((ushort)MessageId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MessageId.CMove, PacketHandler.C_MoveHandler);		
 		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);

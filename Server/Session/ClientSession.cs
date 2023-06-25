@@ -28,7 +28,7 @@ public class ClientSession : PacketSession
     {
         Console.WriteLine($"OnConnected : {endPoint}");
 
-        MyPlayer = PlayerManager.Instance.Add();
+        MyPlayer = ObjectManager.Instance.Add<Player>();
         {
             MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
             MyPlayer.Info.PosInfo.State = State.Idle;

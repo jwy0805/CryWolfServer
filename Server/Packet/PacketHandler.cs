@@ -1,10 +1,40 @@
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server;
+using Server.Game;
 using ServerCore;
 
 public class PacketHandler
 {
+    public static void C_SpawnHandler(PacketSession session, IMessage packet)
+    {
+        C_Spawn spawnPacket = (C_Spawn)packet;
+        ClientSession clientSession = (ClientSession)session;
+
+        Console.WriteLine($"TowerId {spawnPacket.Id}");
+        
+        Player player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom room = player.Room;
+        if (room == null) return;
+        
+        
+        room.HandleSpawn(player, spawnPacket);
+    }
+
+    public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)
+    {
+        C_PlayerMove pMovePacket = (C_PlayerMove)packet;
+        ClientSession clientSession = (ClientSession)session;
+
+        Player player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom room = player.Room;
+        if (room == null) return;
+        
+        room.HandlePlayerMove(player, pMovePacket);
+    }
+    
     public static void C_MoveHandler(PacketSession session, IMessage packet)
     {
         C_Move movePacket = (C_Move)packet;
@@ -12,19 +42,12 @@ public class PacketHandler
 
         Console.WriteLine($"C_Move ({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ})");
 
-        if (clientSession.MyPlayer == null) return;
-        if (clientSession.MyPlayer.Room == null) return;
+        Player player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom room = player.Room;
+        if (room == null) return;
 
-        ObjectInfo info = clientSession.MyPlayer.Info;
-        info.PosInfo = movePacket.PosInfo;
-
-        S_Move responseMovePacket = new S_Move
-        {
-            ObjectId = clientSession.MyPlayer.Info.ObjectId,
-            PosInfo = movePacket.PosInfo
-        };
-
-        clientSession.MyPlayer.Room.Broadcast(responseMovePacket);
+        room.HandleMove(player, movePacket);
     }
 
     public static void C_SkillHandler(PacketSession session, IMessage packet)

@@ -2,9 +2,12 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class Player
+public class Player : GameObject
 {
-    public ObjectInfo Info { get; set; } = new() { PosInfo = new PositionInfo() };
-    public GameRoom Room { get; set; }
     public ClientSession Session { get; set; }
+
+    public Player()
+    {
+        ObjectType = GameObjectType.Player;
+    }
 }
