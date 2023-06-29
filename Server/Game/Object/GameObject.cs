@@ -12,7 +12,7 @@ public class GameObject
         set => Info.ObjectId = value;
     }
 
-    public GameRoom Room { get; set; }
+    public GameRoom? Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
     public PositionInfo PosInfo { get;  set; } = new();
 
@@ -39,6 +39,4 @@ public class GameObject
             PosInfo.PosZ = value.Z;
         }
     }
-    
-    
 }

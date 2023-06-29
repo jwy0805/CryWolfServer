@@ -26,8 +26,8 @@ class PacketManager
 		Register();
 	}}
 
-	Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>> _onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>>();
-	Dictionary<ushort, Action<PacketSession, IMessage>> _handler = new Dictionary<ushort, Action<PacketSession, IMessage>>();
+	Dictionary<ushort, Action<PacketSession, ArraySegment<byte>, ushort>> _onRecv = new();
+	Dictionary<ushort, Action<PacketSession, IMessage>> _handler = new();
 		
 	public Action<PacketSession, IMessage, ushort> CustomHandler {{ get; set; }}
 
@@ -44,8 +44,7 @@ class PacketManager
 		ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
 		count += 2;
 
-		Action<PacketSession, ArraySegment<byte>, ushort> action = null;
-		if (_onRecv.TryGetValue(id, out action))
+		if (_onRecv.TryGetValue(id, out var action))
 			action.Invoke(session, buffer, id);
 	}}
 
@@ -60,16 +59,14 @@ class PacketManager
 		}}
 		else
 		{{
-			Action<PacketSession, IMessage> action = null;
-			if (_handler.TryGetValue(id, out action))
+			if (_handler.TryGetValue(id, out var action))
 				action.Invoke(session, pkt);
 		}}
 	}}
 
 	public Action<PacketSession, IMessage> GetPacketHandler(ushort id)
 	{{
-		Action<PacketSession, IMessage> action = null;
-		if (_handler.TryGetValue(id, out action))
+		if (_handler.TryGetValue(id, out var action))
 			return action;
 		return null;
 	}}

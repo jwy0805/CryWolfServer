@@ -10,11 +10,10 @@ public class GameRoom
 
     private Dictionary<int, Player> _players = new();
     private Dictionary<int, Tower> _towers = new();
+    private Dictionary<int, Monster> _monsters = new();
 
     public void EnterGame(GameObject gameObject)
     {
-        if (gameObject == null) return;
-
         GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
         
         lock (_lock)
@@ -47,8 +46,18 @@ public class GameRoom
                     break;
                 case GameObjectType.Tower:
                     Tower tower = (Tower)gameObject;
+                    gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
+                    gameObject.PosInfo.State = State.Idle;
+                    gameObject.Info.PosInfo = gameObject.PosInfo;
                     _towers.Add(gameObject.Id, tower);
                     tower.Room = this;
+                    break;
+                case GameObjectType.Monster:
+                    Monster monster = (Monster)gameObject;
+                    gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
+                    gameObject.PosInfo.State = State.Idle;
+                    gameObject.Info.PosInfo = gameObject.PosInfo;
+                    monster.Room = this;
                     break;
             }
             // 타인에게 정보 전송
@@ -89,14 +98,21 @@ public class GameRoom
             }
         }
     }
-
+    
     public void HandlePlayerMove(Player player, C_PlayerMove pMovePacket)
     {
         if (player == null) return;
 
         lock (_lock)
         {
+            S_PlayerMove playerMovePacket = new S_PlayerMove
+            {
+                State = pMovePacket.State,
+                ObjectId = player.Id,
+                DestPos = pMovePacket.DestPos
+            };
             
+            Broadcast(playerMovePacket);
         }
     }
     
@@ -125,17 +141,23 @@ public class GameRoom
     public void HandleSpawn(Player player, C_Spawn spawnPacket)
     {
         if (player == null) return;
+        GameObjectType type = spawnPacket.Type;
 
         lock (_lock)
         {
-            ObjectInfo info = player.Info;
-
-            switch (spawnPacket.Type)
+            switch (type)
             {
                 case GameObjectType.Tower:
                     Tower tower = ObjectManager.Instance.Add<Tower>();
                     tower.PosInfo = spawnPacket.PosInfo;
+                    tower.TowerNo = spawnPacket.Num;
                     EnterGame(tower);
+                    break;
+                case GameObjectType.Monster:
+                    Monster monster = ObjectManager.Instance.Add<Monster>();
+                    monster.PosInfo = spawnPacket.PosInfo;
+                    monster.MonsterNo = spawnPacket.Num;
+                    EnterGame(monster);
                     break;
             }
         }

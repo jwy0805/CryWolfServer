@@ -10,14 +10,11 @@ public class PacketHandler
     {
         C_Spawn spawnPacket = (C_Spawn)packet;
         ClientSession clientSession = (ClientSession)session;
-
-        Console.WriteLine($"TowerId {spawnPacket.Id}");
         
         Player player = clientSession.MyPlayer;
         if (player == null) return;
         GameRoom room = player.Room;
         if (room == null) return;
-        
         
         room.HandleSpawn(player, spawnPacket);
     }
