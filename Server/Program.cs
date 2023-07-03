@@ -15,7 +15,7 @@ public class Program
     
     private static void Main(string[] args)
     {
-        RoomManager.Instance.Add();
+        RoomManager.Instance.Add(1);
         
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();

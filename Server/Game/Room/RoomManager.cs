@@ -8,9 +8,10 @@ public class RoomManager
     private Dictionary<int, GameRoom> _rooms = new();
     private int _roomId = 1;
     
-    public GameRoom Add()
+    public GameRoom Add(int mapId)
     {
         GameRoom gameRoom = new();
+        gameRoom.Init(mapId);
 
         lock (_lock)
         {

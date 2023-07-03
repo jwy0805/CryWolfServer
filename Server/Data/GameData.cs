@@ -19,6 +19,50 @@ public class GameData
     };
     
     public static float RoundTime = 30.0f;
+
+    #region MapData
+
+    public static List<Vector3> WestMap = new()
+    {
+        new Vector3(-62, 0, -16),
+        new Vector3(-19, 0, -16),
+        new Vector3(-19, 0, 20),
+        new Vector3(-62, 0, 20)
+    };
+
+    public static List<Vector3> SouthMap = new()
+    {
+        new Vector3(-13, 0, -16),
+        new Vector3(-13, 0, -21),
+        new Vector3(13, 0, -21),
+        new Vector3(13, 0, -16)
+    };
+
+    public static List<Vector3> EastMap = new()
+    {
+        new Vector3(13, 0, 10),
+        new Vector3(13, 0, -16),
+        new Vector3(70, 0, -16),
+        new Vector3(70, 0, 10),
+    };
+
+    public static List<Vector3> NorthMap = new()
+    {
+        new Vector3(-19, 0, 50),
+        new Vector3(-19, 0, 20),
+        new Vector3(15, 0, 20),
+        new Vector3(15, 0, 50)
+    };
+    
+    public List<Vector3> MidMap = new()
+    {
+        new Vector3(-19, 0, 20),
+        new Vector3(-19, 0, -16),
+        new Vector3(19, 0, -16),
+        new Vector3(19, 0, 20)
+    };
+
+    #endregion
     
     #region FenceData
 

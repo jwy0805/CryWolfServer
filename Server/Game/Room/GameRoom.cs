@@ -1,5 +1,6 @@
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -11,6 +12,14 @@ public class GameRoom
     private Dictionary<int, Player> _players = new();
     private Dictionary<int, Tower> _towers = new();
     private Dictionary<int, Monster> _monsters = new();
+
+    public Map Map { get; private set; } = new Map();
+
+    public void Init(int mapId)
+    {
+        Map.LoadMap(mapId);
+        Map.MapSetting();
+    }
 
     public void EnterGame(GameObject gameObject)
     {

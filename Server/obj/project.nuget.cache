@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "ZPVIRPJJFUw34OW9A6Tkye9XHfMs7l4yDXkAUfem+OxbNui+y7Q4ydF/4PZK/bJZS/CJ2etq09VnCavwvyw3KA==",
+  "dgSpecHash": "KTiUxpXcq/u7oT/uCaejzUzlKJmfmL6DDuPEkkZ8P0zlYWzODNxj++4PxJsRmqz+dITxECrGC8BYBPbbVNBOOA==",
   "success": true,
   "projectFilePath": "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj",
   "expectedPackageFiles": [
-    "/Users/jwy/.nuget/packages/google.protobuf/3.22.3/google.protobuf.3.22.3.nupkg.sha512"
+    "/Users/jwy/.nuget/packages/google.protobuf/3.22.3/google.protobuf.3.22.3.nupkg.sha512",
+    "/Users/jwy/.nuget/packages/newtonsoft.json/13.0.3/newtonsoft.json.13.0.3.nupkg.sha512"
   ],
   "logs": []
 }
