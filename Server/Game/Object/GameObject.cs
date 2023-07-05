@@ -22,6 +22,12 @@ public class GameObject
         set => PosInfo.State = value;
     }
 
+    public float Dir
+    {
+        get => PosInfo.Dir;
+        set => PosInfo.Dir = value;
+    }
+    
     public GameObject()
     {
         Info.PosInfo = PosInfo;

@@ -38,6 +38,7 @@ public class ClientSession : PacketSession
             MyPlayer.Info.PosInfo.Dir = 0f;
             MyPlayer.Session = this;
         }
+        
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
         RoomManager.Instance.Find(1)?.EnterGame(MyPlayer);
     }

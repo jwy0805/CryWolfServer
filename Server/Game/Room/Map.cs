@@ -13,24 +13,42 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos)
+    public bool CanGoGround(Vector3 cellPos, int unitSize = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
         int x = (int)((cellPos.X - MinX) * 4);
         int z = (int)(MaxZ - cellPos.Z * 4);
-        return !_collisionGround[z, x];
+        int cnt = 0;
+        for (int i = x - (unitSize - 1); i <= x + (unitSize - 1); i++)
+        {
+            for (int j = z - (unitSize - 1); j <= z - (unitSize - 1); j++)
+            {
+                if (_collisionGround[j, i]) cnt++;
+            }
+        }
+
+        return cnt == 0;
     }
-    
-    public bool CanGoAir(Vector3 cellPos)
+
+    public bool CanGoAir(Vector3 cellPos, int unitSize = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
         int x = (int)((cellPos.X - MinX) * 4);
         int z = (int)(MaxZ - cellPos.Z * 4);
-        return !_collisionAir[z, x];
+        int cnt = 0;
+        for (int i = x - (unitSize - 1); i <= x + (unitSize - 1); i++)
+        {
+            for (int j = z - (unitSize - 1); j <= z - (unitSize - 1); j++)
+            {
+                if (_collisionGround[j, i]) cnt++;
+            }
+        }
+
+        return cnt == 0;
     }
 
     public GameObject? Find(Vector3 cellPos)

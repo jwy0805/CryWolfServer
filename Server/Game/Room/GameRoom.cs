@@ -1,6 +1,8 @@
+using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -12,13 +14,44 @@ public class GameRoom
     private Dictionary<int, Player> _players = new();
     private Dictionary<int, Tower> _towers = new();
     private Dictionary<int, Monster> _monsters = new();
+    private Dictionary<int, Sheep> _sheeps = new();
+    private Dictionary<int, Fence> _fences = new();
 
     public Map Map { get; private set; } = new Map();
 
+    private int _storageLevel = 0;
+
+    public int StorageLevel
+    {
+        get => _storageLevel;
+        set
+        {
+            _storageLevel = value;
+            if (_storageLevel > 3) _storageLevel = 3;
+            GameData.StorageLevel = _storageLevel;
+
+            lock (_lock)
+            {
+                // 울타리 생성
+                if (_storageLevel != 1 && _fences.Count > 0)
+                {
+                    foreach (var fenceId in _fences.Keys) LeaveGame(fenceId);
+                }
+                
+            }
+        }
+    }
+    
+    private void GameInit()
+    {
+        
+    }
+    
     public void Init(int mapId)
     {
         Map.LoadMap(mapId);
         Map.MapSetting();
+        GameInit();
     }
 
     public void EnterGame(GameObject gameObject)
@@ -58,6 +91,7 @@ public class GameRoom
                     gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
                     gameObject.PosInfo.State = State.Idle;
                     gameObject.Info.PosInfo = gameObject.PosInfo;
+                    tower.Info = gameObject.Info;
                     _towers.Add(gameObject.Id, tower);
                     tower.Room = this;
                     break;
@@ -66,7 +100,15 @@ public class GameRoom
                     gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
                     gameObject.PosInfo.State = State.Idle;
                     gameObject.Info.PosInfo = gameObject.PosInfo;
+                    monster.Info = gameObject.Info;
+                    _monsters.Add(gameObject.Id, monster);
                     monster.Room = this;
+                    break;
+                case GameObjectType.Fence:
+                    Fence fence = (Fence)gameObject;
+                    fence.Info = gameObject.Info;
+                    _fences.Add(gameObject.Id, fence);
+                    fence.Room = this;
                     break;
             }
             // 타인에게 정보 전송
@@ -169,6 +211,62 @@ public class GameRoom
                     EnterGame(monster);
                     break;
             }
+        }
+    }
+
+    public GameObject? FindTarget(List<GameObjectType> typeList, GameObject gameObject)
+    {
+        // 어그로 끌린 상태면 리턴하는 코드
+        //
+        Dictionary<int, GameObject> targetDict = new();
+
+        foreach (var t in typeList)
+        {
+            switch (t)
+            {
+                case GameObjectType.Monster:
+                    foreach (var (key, monster) in _monsters) targetDict.Add(key, monster);
+                    break;
+                case GameObjectType.Tower:
+                    foreach (var (key, tower) in _towers) targetDict.Add(key, tower);
+                    break;
+                case GameObjectType.Sheep:
+                    foreach (var (key, sheep) in _sheeps) targetDict.Add(key, sheep);
+                    break;
+                case GameObjectType.Fence:
+                    foreach (var (key, fence) in _fences) targetDict.Add(key, fence);
+                    break;
+            }
+        }
+
+        if (targetDict.Count == 0) return null;
+        GameObject? target = null;
+        
+        float closestDist = 5000f;
+        foreach (var (key, obj) in targetDict)
+        {
+            PositionInfo pos = obj.PosInfo;
+            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            bool targetable = true; // Stat의 Targetable 반드시 설정
+            float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+            if (dist < closestDist && targetable)
+            {
+                closestDist = dist;
+                target = obj;
+            }
+        }
+
+        return target;
+    }
+
+    private void SpawnFence(int lv = 1)
+    {
+        Vector3[] fencePos = GameData.GetPos(GameData.FenceCnt[lv], GameData.FenceRow[lv], GameData.FenceStartPos[lv]);
+        float[] fenceRotation = GameData.GetRotation(GameData.FenceCnt[lv], GameData.FenceRow[lv]);
+
+        for (int i = 0; i < GameData.FenceCnt[lv]; i++)
+        {
+            
         }
     }
     
