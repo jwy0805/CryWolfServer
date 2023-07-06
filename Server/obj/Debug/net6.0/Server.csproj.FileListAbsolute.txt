@@ -54,3 +54,4 @@
 /Users/jwy/Documents/dev/CryWolf/Server/Server/obj/Debug/net6.0/Server.pdb
 /Users/jwy/Documents/dev/CryWolf/Server/Server/obj/Debug/net6.0/Server.genruntimeconfig.cache
 /Users/jwy/Documents/dev/CryWolf/Server/Server/obj/Debug/net6.0/ref/Server.dll
+/Users/jwy/Documents/dev/CryWolf/Server/Server/bin/Debug/net6.0/Newtonsoft.Json.dll

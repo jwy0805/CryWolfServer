@@ -12,6 +12,9 @@ public class ClientSession : PacketSession
     public Player MyPlayer { get; set; }
     public int SessionId { get; set; }
 
+    private readonly object _lock = new();
+    private List<ArraySegment<byte>> _reserveQueue = new();
+    
     public void Send(IMessage packet)
     {
         string messageName = packet.Descriptor.Name.Replace("_", string.Empty);
@@ -21,7 +24,26 @@ public class ClientSession : PacketSession
         Array.Copy(BitConverter.GetBytes((ushort)(size + 4)), 0, sendBuffer, 0, sizeof(ushort));
         Array.Copy(BitConverter.GetBytes((ushort)messageId), 0, sendBuffer, 2, sizeof(ushort));
         Array.Copy(packet.ToByteArray(), 0, sendBuffer, 4, size);
-        Send(new ArraySegment<byte>(sendBuffer));
+
+        lock (_lock)
+        {
+            _reserveQueue.Add(sendBuffer);
+        }
+    }
+
+    public void FlushSend()
+    {
+        List<ArraySegment<byte>> sendList;
+
+        lock (_lock)
+        {
+            if (_reserveQueue.Count == 0) return;
+
+            sendList = _reserveQueue;
+            _reserveQueue = new List<ArraySegment<byte>>();
+        }
+        
+        Send(sendList);
     }
     
     public override void OnConnected(EndPoint endPoint)

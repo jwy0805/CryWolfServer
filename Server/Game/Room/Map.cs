@@ -109,7 +109,7 @@ public partial class Map
         string mapName = "Map_" + mapId.ToString("000");
         
         // Collision 관련 파일
-        string txt = File.ReadAllText($"Map/{mapName}");
+        string txt = File.ReadAllText($"{pathPrefix}/{mapName}.txt");
         StringReader reader = new StringReader(txt);
         
         int xCount = (int)((MaxX - MinX) * 4 + 1);

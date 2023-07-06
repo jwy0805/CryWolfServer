@@ -89,52 +89,115 @@ public class GameData
         new Vector3(10, 6, 12), new Vector3(12, 6, 16)
     };
 
-    // public static Bounds FenceBounds;
-    //
-    // public static Bounds[] NorthFenceBounds =
-    // {
-    //     new Bounds(), 
-    //     new Bounds(FenceCenter[1] + new Vector3(0, 0, FenceSize[1].z / 2), 
-    //         new Vector3(FenceSize[1].x / 2, 10, 1)),
-    //     new Bounds(FenceCenter[2] + new Vector3(0, 0, FenceSize[2].z / 2),
-    //         new Vector3(FenceSize[2].x / 2, 10, 1.5f)),
-    //     new Bounds(FenceCenter[3] + new Vector3(0, 0, FenceSize[3].z / 2),
-    //         new Vector3(FenceSize[3].x / 2, 10, 2)),
-    // };
-    //
-    // public static Bounds[] EastFenceBounds =
-    // {
-    //     new Bounds(),
-    //     new Bounds(FenceCenter[1] + new Vector3(-FenceSize[1].x / 2, 0, 0),
-    //         new Vector3(1, 10, FenceSize[1].z / 2)),
-    //     new Bounds(FenceCenter[2] + new Vector3(-FenceSize[2].x / 2, 0, 0),
-    //         new Vector3(1.5f, 10, FenceSize[2].z / 2)),
-    //     new Bounds(FenceCenter[3] + new Vector3(-FenceSize[3].x / 2, 0, 0),
-    //         new Vector3(2, 10, FenceSize[3].z / 2)),
-    // };
-    //
-    // public static Bounds[] WestFenceBounds =
-    // {
-    //     new Bounds(),
-    //     new Bounds(FenceCenter[1] + new Vector3(FenceSize[1].x / 2, 0, 0),
-    //         new Vector3(1, 10, FenceSize[1].z / 2)),
-    //     new Bounds(FenceCenter[2] + new Vector3(FenceSize[2].x / 2, 0, 0),
-    //         new Vector3(1.5f, 10, FenceSize[2].z / 2)),
-    //     new Bounds(FenceCenter[3] + new Vector3(FenceSize[3].x / 2, 0, 0),
-    //         new Vector3(2, 10, FenceSize[3].z / 2)),
-    // };
-    //
+    public static List<Vector3> FenceBounds;
+    
+    public static List<Vector3>[] NorthFenceBounds =
+    {
+        new List<Vector3>(),
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 + 1),  
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 - 1),  
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 - 1),  
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 + 1)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 + 1.5f),  
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 - 1.5f),  
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 - 1.5f),  
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 + 1.5f)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 + 2),  
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 - 2),  
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 - 2),  
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 + 2)  
+        },
+    };
+    
+    public static List<Vector3>[] WestFenceBounds =
+    {
+        new List<Vector3>(),
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 + 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 + 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 + 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 + 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2)  
+        },
+    };
+    
+    public static List<Vector3>[] EastFenceBounds =
+    {
+        new List<Vector3>(),
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
+          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
+          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2)  
+        },
+        new List<Vector3>
+        {
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
+          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2)  
+        },
+    };
+    
     // public static Bounds NorthBounds;
     // public static Bounds WestBounds;
     // public static Bounds EastBounds;
     //
-    // public static Bounds[] SheepBounds =
-    // {
-    //     new Bounds(),
-    //     new Bounds(Center, new Vector3(3, 10, 2)),
-    //     new Bounds(new Vector3(0, 6, 2), new Vector3(5, 10, 7)),
-    //     new Bounds(new Vector3(3, 6, 0), new Vector3(10, 10, 9)),
-    // };
+    public static List<Vector3>[] SheepBounds =
+    {
+        new List<Vector3>(),
+        new List<Vector3>()
+        {
+            new Vector3(Center.X - 1.5f, Center.Y, Center.Z + 1),
+            new Vector3(Center.X - 1.5f, Center.Y, Center.Z - 1),
+            new Vector3(Center.X + 1.5f, Center.Y, Center.Z - 1),
+            new Vector3(Center.X + 1.5f, Center.Y, Center.Z + 1),
+        },
+        new List<Vector3>()
+        {
+            new Vector3(-2.5f, Center.Y, 5.5f),
+            new Vector3(-2.5f, Center.Y, -1.5f),
+            new Vector3(2.5f, Center.Y, -1.5f),
+            new Vector3(2.5f, Center.Y, 5.5f),
+        },
+        new List<Vector3>()
+        {
+            new Vector3(-5, Center.Y, 7),
+            new Vector3(-5, Center.Y, -1),
+            new Vector3(5, Center.Y, -1),
+            new Vector3(5, Center.Y, 7),
+        },
+    };
         
     public static Vector3[] GetPos(int cnt, int row, Vector3 startPos)
     {

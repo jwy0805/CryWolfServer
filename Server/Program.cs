@@ -8,14 +8,32 @@ public class Program
 {
     private static Listener _listener = new Listener();
 
-    private static void FlushRoom()
+    private static void GameLogicTask()
     {
-        JobTimer.Instance.Push(FlushRoom, 250);
+        while (true)
+        {
+            GameLogic.Instance.Update();
+            Thread.Sleep(0);
+        }
+    }
+
+    private static void NetworkTask()
+    {
+        while (true)
+        {
+            List<ClientSession> sessions = SessionManager.Instance.GetSessions();
+            foreach (var session in sessions)
+            {
+                session.FlushSend();
+            }
+            
+            Thread.Sleep(0);
+        }
     }
     
     private static void Main(string[] args)
     {
-        RoomManager.Instance.Add(1);
+        GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
         
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();
@@ -33,11 +51,10 @@ public class Program
             Console.WriteLine($"Listening... {endPoint}");
         }
 
-        JobTimer.Instance.Push(FlushRoom);
-        
-        while (true)
-        {
-            JobTimer.Instance.Flush();
-        }
+        Task gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
+        gameLogicTask.Start();
+
+        Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
+        networkTask.Start();
     }
 }

@@ -9,6 +9,18 @@ public class SessionManager
     private Dictionary<int, ClientSession> _sessions = new();
     private readonly object _lock = new();
 
+    public List<ClientSession> GetSessions()
+    {
+        List<ClientSession> sessions = new();
+
+        lock (_lock)
+        {
+            sessions = _sessions.Values.ToList();
+        }
+
+        return sessions;
+    }
+    
     public ClientSession Generate()
     {
         lock (_lock)
