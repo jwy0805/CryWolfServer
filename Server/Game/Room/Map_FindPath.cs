@@ -48,7 +48,9 @@ public partial class Map
     
     private bool[,] _collisionGround;
     private bool[,] _collisionAir;
-    private GameObject?[,] _objects;
+    private GameObject?[,] _objectsGround;
+    private GameObject?[,] _objectsAir;
+    private ushort[,] _objectPlayer;
 
     private int _regionIdGenerator = 0;
     private List<Region> _regionGraph = new();

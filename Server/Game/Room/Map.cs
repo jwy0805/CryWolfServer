@@ -13,17 +13,17 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos, int unitSize = 1)
+    public bool CanGoGround(Vector3 cellPos, int xSize = 1, int zSize = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
         int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)(MaxZ - cellPos.Z * 4);
+        int z = (int)((MaxZ - cellPos.Z) * 4);
         int cnt = 0;
-        for (int i = x - (unitSize - 1); i <= x + (unitSize - 1); i++)
+        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
-            for (int j = z - (unitSize - 1); j <= z - (unitSize - 1); j++)
+            for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
             {
                 if (_collisionGround[j, i]) cnt++;
             }
@@ -38,13 +38,13 @@ public partial class Map
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
         int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)(MaxZ - cellPos.Z * 4);
+        int z = (int)((MaxZ - cellPos.Z) * 4);
         int cnt = 0;
         for (int i = x - (unitSize - 1); i <= x + (unitSize - 1); i++)
         {
             for (int j = z - (unitSize - 1); j <= z - (unitSize - 1); j++)
             {
-                if (_collisionGround[j, i]) cnt++;
+                if (_collisionAir[j, i]) cnt++;
             }
         }
 
@@ -57,24 +57,71 @@ public partial class Map
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return null;
 
         int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)(MaxZ - cellPos.Z * 4);
-        return _objects[z, x];
+        int z = (int)((MaxZ - cellPos.Z) * 4);
+        return _objectsGround[z, x];
     }
 
     public bool ApplyLeave(GameObject gameObject)
     {
         PositionInfo posInfo = gameObject.PosInfo;
+        GameObjectType type = gameObject.ObjectType;
         if (posInfo.PosX < MinX || posInfo.PosX > MaxX) return false;
         if (posInfo.PosZ < MinZ || posInfo.PosZ > MaxZ) return false;
 
         int x = (int)((posInfo.PosX - MinX) * 4);
-        int z = (int)(MaxZ - posInfo.PosZ * 4);
-        if (_objects[z, x] == gameObject) _objects[z, x] = null;
+        int z = (int)((MaxZ - posInfo.PosZ) * 4);
+        
+        switch (type)   
+        {
+            case GameObjectType.Monsterair:
+                _objectsAir[z, x] = null;
+                break;
+            case GameObjectType.Towerair:
+                _objectsAir[z, x] = null;
+                break;
+            case GameObjectType.Player:
+                _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] >> 1);
+                break;
+            default:
+                _objectsGround[z, x] = null;
+                break;
+        }
         
         return true;
     }
 
-    public List<Vector3> ApplyMove(GameObject gameObject, Vector3 startCell, Vector3 destCell)
+    public bool ApplyMap(GameObject gameObject, Vector3 currentCell)
+    {
+        ApplyLeave(gameObject);
+        if (gameObject.Room == null) return false;
+        if (gameObject.Room.Map != this) return false;
+
+        PositionInfo posInfo = gameObject.PosInfo;
+        GameObjectType type = gameObject.ObjectType;
+
+        int x = (int)((currentCell.X - MinX) * 4);
+        int z = (int)((MaxZ - currentCell.Z) * 4);
+        
+        switch (type)   
+        {
+            case GameObjectType.Monsterair:
+                _objectsAir[z, x] = gameObject;
+                break;
+            case GameObjectType.Towerair:
+                _objectsAir[z, x] = gameObject;
+                break;
+            case GameObjectType.Player:
+                _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] << 1);
+                break;
+            default:
+                _objectsGround[z, x] = gameObject;
+                break;
+        }
+        
+        return true;
+    }
+    
+    public List<Vector3> Move(GameObject gameObject, Vector3 startCell, Vector3 destCell)
     {
         int startRegionId = GetRegionByVector(Cell2Pos(startCell));
         int destRegionId = GetRegionByVector(Cell2Pos(destCell));
@@ -116,6 +163,9 @@ public partial class Map
         int zCount = (int)((MaxZ - MinZ) * 4 + 1);
         _collisionGround = new bool[zCount, xCount];
         _collisionAir = new bool[zCount, xCount];
+        _objectsGround = new GameObject[zCount, xCount];
+        _objectsAir = new GameObject[zCount, xCount];
+        _objectPlayer = new ushort[zCount, xCount];
 
         for (int z = 0; z < zCount; z++)
         {

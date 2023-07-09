@@ -62,7 +62,11 @@ public class ClientSession : PacketSession
         }
         
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
-        RoomManager.Instance.Find(1)?.EnterGame(MyPlayer);
+        GameLogic.Instance.Push(() =>
+        {
+            GameRoom? room = GameLogic.Instance.Find(1);
+            room?.Push(room.EnterGame, MyPlayer);
+        });
     }
 
     public override void OnRecvPacket(ArraySegment<byte> buffer)
@@ -72,7 +76,11 @@ public class ClientSession : PacketSession
     
     public override void OnDisconnected(EndPoint endPoint)
     {
-        RoomManager.Instance.Find(1)?.LeaveGame(MyPlayer.Info.ObjectId);
+        GameLogic.Instance.Push(() =>
+        {
+            GameRoom? room = GameLogic.Instance.Find(1);
+            room?.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
+        });
         SessionManager.Instance.Remove(this);
         Console.WriteLine($"OnDisconnected : {endPoint}");
     }

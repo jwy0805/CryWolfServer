@@ -15,27 +15,24 @@ public partial class GameRoom : JobSerializer
             _storageLevel = value;
             if (_storageLevel > 3) _storageLevel = 3;
             GameData.StorageLevel = _storageLevel;
-
-            lock (_lock)
+            
+            // 울타리 생성
+            if (_storageLevel != 1 && _fences.Count > 0)
             {
-                // 울타리 생성
-                if (_storageLevel != 1 && _fences.Count > 0)
-                {
-                    foreach (var fenceId in _fences.Keys) LeaveGame(fenceId);
-                }
-
-                Vector3 center = GameData.FenceCenter[_storageLevel];
-                Vector3 size = GameData.FenceSize[_storageLevel];
-                GameData.FenceBounds = new List<Vector3>
-                {
-                    new Vector3(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
-                    new Vector3(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
-                    new Vector3(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
-                    new Vector3(center.X + size.X / 2 , 6, center.Z + size.Z / 2),
-                };
-                
-                SpawnFence(_storageLevel);
+                foreach (var fenceId in _fences.Keys) Push(LeaveGame, fenceId);
             }
+
+            Vector3 center = GameData.FenceCenter[_storageLevel];
+            Vector3 size = GameData.FenceSize[_storageLevel];
+            GameData.FenceBounds = new List<Vector3>
+            {
+                new Vector3(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
+                new Vector3(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
+                new Vector3(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
+                new Vector3(center.X + size.X / 2 , 6, center.Z + size.Z / 2),
+            };
+            
+            SpawnFence(_storageLevel);
         }
     }
     
@@ -49,40 +46,34 @@ public partial class GameRoom : JobSerializer
     public void HandlePlayerMove(Player player, C_PlayerMove pMovePacket)
     {
         if (player == null) return;
-
-        lock (_lock)
+        
+        S_PlayerMove playerMovePacket = new S_PlayerMove
         {
-            S_PlayerMove playerMovePacket = new S_PlayerMove
-            {
-                State = pMovePacket.State,
-                ObjectId = player.Id,
-                DestPos = pMovePacket.DestPos
-            };
-            
-            Broadcast(playerMovePacket);
-        }
+            State = pMovePacket.State,
+            ObjectId = player.Id,
+            DestPos = pMovePacket.DestPos
+        };
+        
+        Broadcast(playerMovePacket);
     }
     
     public void HandleMove(Player player, C_Move movePacket)
     {
         if (player == null) return;
 
-        lock (_lock)
+        PositionInfo movePosInfo = movePacket.PosInfo;
+        ObjectInfo info = player.Info;
+
+        info.PosInfo.State = movePosInfo.State;
+        info.PosInfo.Dir = movePosInfo.Dir;
+
+        S_Move resMovePacket = new S_Move
         {
-            PositionInfo movePosInfo = movePacket.PosInfo;
-            ObjectInfo info = player.Info;
-
-            info.PosInfo.State = movePosInfo.State;
-            info.PosInfo.Dir = movePosInfo.Dir;
-
-            S_Move resMovePacket = new S_Move
-            {
-                ObjectId = player.Info.ObjectId,
-                PosInfo = movePacket.PosInfo
-            };
-            
-            Broadcast(resMovePacket);
-        }
+            ObjectId = player.Info.ObjectId,
+            PosInfo = movePacket.PosInfo
+        };
+        
+        Broadcast(resMovePacket);
     }
 
     public void HandleSpawn(Player player, C_Spawn spawnPacket)
@@ -90,23 +81,20 @@ public partial class GameRoom : JobSerializer
         if (player == null) return;
         GameObjectType type = spawnPacket.Type;
 
-        lock (_lock)
+        switch (type)
         {
-            switch (type)
-            {
-                case GameObjectType.Tower:
-                    Tower tower = ObjectManager.Instance.Add<Tower>();
-                    tower.PosInfo = spawnPacket.PosInfo;
-                    tower.TowerNo = spawnPacket.Num;
-                    EnterGame(tower);
-                    break;
-                case GameObjectType.Monster:
-                    Monster monster = ObjectManager.Instance.Add<Monster>();
-                    monster.PosInfo = spawnPacket.PosInfo;
-                    monster.MonsterNo = spawnPacket.Num;
-                    EnterGame(monster);
-                    break;
-            }
+            case GameObjectType.Tower:
+                Tower tower = ObjectManager.Instance.Add<Tower>();
+                tower.PosInfo = spawnPacket.PosInfo;
+                tower.TowerNo = spawnPacket.Num;
+                Push(EnterGame, tower);
+                break;
+            case GameObjectType.Monster:
+                Monster monster = ObjectManager.Instance.Add<Monster>();
+                monster.PosInfo = spawnPacket.PosInfo;
+                monster.MonsterNo = spawnPacket.Num;
+                Push(EnterGame, monster);
+                break;
         }
     }
 
@@ -166,7 +154,7 @@ public partial class GameRoom : JobSerializer
             fence.Info.Name = GameData.FenceName[storageLv];
             fence.CellPos = fencePos[i];
             fence.Dir = fenceRotation[i];
-            EnterGame(fence);
+            Push(EnterGame, fence);
         }
     }
 }

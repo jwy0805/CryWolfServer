@@ -37,96 +37,104 @@ public partial class GameRoom : JobSerializer
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
         
-        lock (_lock)
+        switch (type)
         {
-            switch (type)
+            case GameObjectType.Player:
+                Player player = (Player)gameObject;
+                _players.Add(gameObject.Id, player);
+                player.Room = this;
+
+                // 본인에게 정보 전송
             {
-                case GameObjectType.Player:
-                    Player player = (Player)gameObject;
-                    _players.Add(gameObject.Id, player);
-                    player.Room = this;
+                S_EnterGame enterPacket = new S_EnterGame { Player = player.Info };
+                player.Session.Send(enterPacket);
 
-                    // 본인에게 정보 전송
-                {
-                    S_EnterGame enterPacket = new S_EnterGame { Player = player.Info };
-                    player.Session.Send(enterPacket);
-
-                    S_Spawn spawnPacket = new S_Spawn();
-                    foreach (var p in _players.Values)
-                    {
-                        if (player != p) spawnPacket.Objects.Add(p.Info);
-                    }
-
-                    foreach (var t in _towers.Values)
-                    {
-                        spawnPacket.Objects.Add(t.Info);
-                    }
-                    
-                    player.Session.Send(spawnPacket);
-                }
-                    break;
-                case GameObjectType.Tower:
-                    Tower tower = (Tower)gameObject;
-                    gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
-                    gameObject.PosInfo.State = State.Idle;
-                    gameObject.Info.PosInfo = gameObject.PosInfo;
-                    tower.Info = gameObject.Info;
-                    _towers.Add(gameObject.Id, tower);
-                    tower.Room = this;
-                    break;
-                case GameObjectType.Monster:
-                    Monster monster = (Monster)gameObject;
-                    gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
-                    gameObject.PosInfo.State = State.Idle;
-                    gameObject.Info.PosInfo = gameObject.PosInfo;
-                    monster.Info = gameObject.Info;
-                    _monsters.Add(gameObject.Id, monster);
-                    monster.Room = this;
-                    break;
-                case GameObjectType.Fence:
-                    Fence fence = (Fence)gameObject;
-                    fence.Info = gameObject.Info;
-                    _fences.Add(gameObject.Id, fence);
-                    fence.Room = this;
-                    break;
-            }
-            // 타인에게 정보 전송
-            {
                 S_Spawn spawnPacket = new S_Spawn();
-                spawnPacket.Objects.Add(gameObject.Info);
-                foreach (Player p in _players.Values)
+                foreach (var p in _players.Values)
                 {
-                    if (p.Id != gameObject.Id)
-                        p.Session.Send(spawnPacket);
+                    if (player != p) spawnPacket.Objects.Add(p.Info);
                 }
+
+                foreach (var f in _fences.Values)
+                {
+                    spawnPacket.Objects.Add(f.Info);
+                }
+                foreach (var t in _towers.Values)
+                {
+                    spawnPacket.Objects.Add(t.Info);
+                }
+                
+                player.Session.Send(spawnPacket);
+            }
+                break;
+            case GameObjectType.Tower:
+                Tower tower = (Tower)gameObject;
+                gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
+                gameObject.PosInfo.State = State.Idle;
+                gameObject.Info.PosInfo = gameObject.PosInfo;
+                tower.Info = gameObject.Info;
+                _towers.Add(gameObject.Id, tower);
+                tower.Room = this;
+                break;
+            case GameObjectType.Monster:
+                Monster monster = (Monster)gameObject;
+                gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
+                gameObject.PosInfo.State = State.Idle;
+                gameObject.Info.PosInfo = gameObject.PosInfo;
+                monster.Info = gameObject.Info;
+                _monsters.Add(gameObject.Id, monster);
+                monster.Room = this;
+                break;
+            case GameObjectType.Fence:
+                Fence fence = (Fence)gameObject;
+                fence.Info = gameObject.Info;
+                _fences.Add(gameObject.Id, fence);
+                fence.Room = this;
+                break;
+        }
+        // 타인에게 정보 전송
+        {
+            S_Spawn spawnPacket = new S_Spawn();
+            spawnPacket.Objects.Add(gameObject.Info);
+            foreach (Player p in _players.Values)
+            {
+                if (p.Id != gameObject.Id) p.Session.Send(spawnPacket);
             }
         }
+        
     }
 
     public void LeaveGame(int objectId)
     {
-        lock (_lock)
+        if (_players.Remove(objectId, out var player) == false) return;
+        
+        player.Room = null;
+        
+        // 본인에게 정보 전송
         {
-            if (_players.Remove(objectId, out var player) == false) return;
-            
-            player.Room = null;
-            
-            // 본인에게 정보 전송
+            S_LeaveGame leavePacket = new();
+            player.Session.Send(leavePacket);
+        }
+        
+        // 타인에게 정보 전송
+        {
+            S_Despawn despawnPacket = new();
+            despawnPacket.ObjectIds.Add(player.Info.ObjectId);
+            foreach (var p in _players.Values)
             {
-                S_LeaveGame leavePacket = new();
-                player.Session.Send(leavePacket);
-            }
-            
-            // 타인에게 정보 전송
-            {
-                S_Despawn despawnPacket = new();
-                despawnPacket.ObjectIds.Add(player.Info.ObjectId);
-                foreach (var p in _players.Values)
-                {
-                    if (player != p) p.Session.Send(despawnPacket);
-                }
+                if (player != p) p.Session.Send(despawnPacket);
             }
         }
+    }
+
+    public Player? FindPlayer(Func<GameObject, bool> condition)
+    {
+        foreach (var player in _players.Values)
+        {
+            if (condition.Invoke(player)) return player;
+        }
+
+        return null;
     }
     
     public void Broadcast(IMessage packet)

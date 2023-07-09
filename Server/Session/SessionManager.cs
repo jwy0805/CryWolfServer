@@ -11,7 +11,7 @@ public class SessionManager
 
     public List<ClientSession> GetSessions()
     {
-        List<ClientSession> sessions = new();
+        List<ClientSession> sessions;
 
         lock (_lock)
         {

@@ -16,7 +16,7 @@ public class PacketHandler
         GameRoom room = player.Room;
         if (room == null) return;
         
-        room.HandleSpawn(player, spawnPacket);
+        room.Push(room.HandleSpawn, player, spawnPacket);
     }
 
     public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)
@@ -29,7 +29,7 @@ public class PacketHandler
         GameRoom room = player.Room;
         if (room == null) return;
         
-        room.HandlePlayerMove(player, pMovePacket);
+        room.Push(room.HandlePlayerMove, player, pMovePacket);
     }
     
     public static void C_MoveHandler(PacketSession session, IMessage packet)
@@ -43,8 +43,8 @@ public class PacketHandler
         if (player == null) return;
         GameRoom room = player.Room;
         if (room == null) return;
-
-        room.HandleMove(player, movePacket);
+        
+        room.Push(room.HandleMove, player, movePacket);
     }
 
     public static void C_SkillHandler(PacketSession session, IMessage packet)

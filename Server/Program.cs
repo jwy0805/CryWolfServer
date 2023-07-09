@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Server.DB;
 using Server.Game;
 using ServerCore;
 
@@ -30,6 +31,15 @@ public class Program
             Thread.Sleep(0);
         }
     }
+
+    private static void DbTask()
+    {
+        while (true)
+        {
+            DbTransaction.Instance.Flush();
+            Thread.Sleep(0);
+        }
+    }
     
     private static void Main(string[] args)
     {
@@ -56,5 +66,7 @@ public class Program
 
         Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
         networkTask.Start();
+        
+        DbTask();
     }
 }

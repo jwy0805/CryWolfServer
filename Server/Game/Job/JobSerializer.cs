@@ -35,7 +35,10 @@ public class JobSerializer
     {
         while (true)
         {
-            IJob job = Pop();
+            IJob? job = Pop();
+            if (job == null) return;
+            
+            job.Execute();
         }
     }
 
