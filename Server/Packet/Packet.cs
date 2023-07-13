@@ -44,44 +44,45 @@ namespace Google.Protobuf.Protocol {
             "cm90b2NvbC5TdGF0SW5mbyIpCgZWZWN0b3ISCQoBeBgBIAEoAhIJCgF5GAIg",
             "ASgCEgkKAXoYAyABKAIiZQoMUG9zaXRpb25JbmZvEh4KBXN0YXRlGAEgASgO",
             "Mg8uUHJvdG9jb2wuU3RhdGUSDAoEcG9zWBgCIAEoAhIMCgRwb3NZGAMgASgC",
-            "EgwKBHBvc1oYBCABKAISCwoDZGlyGAUgASgCIqQDCghTdGF0SW5mbxINCgVs",
-            "ZXZlbBgBIAEoBRIMCgRzaXplGAIgASgFEgoKAmhwGAMgASgFEg0KBW1heEhw",
-            "GAQgASgFEgoKAm1wGAUgASgFEg0KBW1heE1wGAYgASgFEg4KBmF0dGFjaxgH",
-            "IAEoBRIPCgdkZWZlbmNlGAggASgFEhIKCmZpcmVSZXNpc3QYCSABKAUSFAoM",
-            "cG9pc29uUmVzaXN0GAogASgFEhEKCW1vdmVTcGVlZBgLIAEoAhITCgthdHRh",
-            "Y2tTcGVlZBgMIAEoAhITCgthdHRhY2tSYW5nZRgNIAEoAhIWCg5jcml0aWNh",
-            "bENoYW5jZRgOIAEoAhIaChJjcml0aWNhbE11bHRpcGxpZXIYDyABKAISEAoI",
-            "YWNjdXJhY3kYECABKAISDwoHZXZhc2lvbhgRIAEoAhISCgp0YXJnZXRhYmxl",
-            "GBIgASgIEg0KBWFnZ3JvGBMgASgIEhIKCnJlZmxlY3Rpb24YFCABKAgSFwoP",
-            "cmVmbGVjdGlvblNraWxsGBUgASgIEhYKDnJlZmxlY3Rpb25SYXRlGBYgASgC",
-            "Kt0BCglNZXNzYWdlSWQSEAoMU19FTlRFUl9HQU1FEAASEAoMU19MRUFWRV9H",
-            "QU1FEAESCwoHQ19TUEFXThACEgsKB1NfU1BBV04QAxINCglTX0RFU1BBV04Q",
-            "BBIRCg1DX1BMQVlFUl9NT1ZFEAUSEQoNU19QTEFZRVJfTU9WRRAGEgoKBkNf",
-            "TU9WRRAHEgoKBlNfTU9WRRAIEgsKB0NfU0tJTEwQCRILCgdTX1NLSUxMEAoS",
-            "DwoLU19DSEFOR0VfSFAQCxIJCgVTX0RJRRAMEg8KC1NfQ09OTkVDVEVEEA0q",
-            "hAEKBVN0YXRlEggKBElETEUQABIKCgZNT1ZJTkcQARIKCgZBVFRBQ0sQAhIJ",
-            "CgVTS0lMTBADEgoKBlNLSUxMMhAEEggKBFJVU0gQBRIICgRKVU1QEAYSDQoJ",
-            "S25vY2tCYWNrEAcSCQoFRkFJTlQQCBIHCgNESUUQCRILCgdTVEFOREJZEAoq",
-            "jgEKDkdhbWVPYmplY3RUeXBlEggKBE5PTkUQABIKCgZQTEFZRVIQARIJCgVU",
-            "T1dFUhACEgwKCFRPV0VSQUlSEAMSCwoHTU9OU1RFUhAEEg4KCk1PTlNURVJB",
-            "SVIQBRIJCgVTSEVFUBAGEgkKBUZFTkNFEAcSDgoKUFJPSkVDVElMRRAIEgoK",
-            "BkVGRkVDVBAJKkEKCVNraWxsVHlwZRIOCgpTS0lMTF9OT05FEAASDgoKU0tJ",
-            "TExfQVVUTxABEhQKEFNLSUxMX1BST0pFQ1RJTEUQAirtAQoJTW9uc3Rlcklk",
-            "EgsKB1dvbGZQdXAQABIICgRXb2xmEAESDAoIV2VyZXdvbGYQAhIKCgZMdXJr",
-            "ZXIQAxILCgdDcmVlcGVyEAQSCgoGSG9ycm9yEAUSDAoIU25ha2VsZXQQBhIJ",
-            "CgVTbmFrZRAHEg0KCVNuYWtlTmFnYRAIEg8KC01vc3F1aXRvQnVnEAkSEgoO",
-            "TW9zcXVpdG9QZXN0ZXIQChITCg9Nb3NxdWl0b1N0aW5nZXIQCxIJCgVTaGVs",
-            "bBAMEgkKBVNwaWtlEA0SCgoGSGVybWl0EA4SEgoOVW5rbm93bk1vbnN0ZXIQ",
-            "Dyr8AQoHVG93ZXJJZBIHCgNCdWQQABIJCgVCbG9vbRABEgsKB0Jsb3Nzb20Q",
-            "AhIRCg1QcmFjdGljZUR1bW15EAMSDwoLVGFyZ2V0RHVtbXkQBBIRCg1UcmFp",
-            "bmluZ0R1bW15EAUSDgoKU3VuQmxvc3NvbRAGEhIKDlN1bmZsb3dlckZhaXJ5",
-            "EAcSEQoNU3VuZmxvcmFQaXhpZRAIEgwKCE1vdGhMdW5hEAkSDAoITW90aE1v",
-            "b24QChIRCg1Nb3RoQ2VsZXN0aWFsEAsSCAoEU291bBAMEgkKBUhhdW50EA0S",
-            "DAoIU291bE1hZ2UQDhIQCgxVbmtub3duVG93ZXIQDypaChFQbGF5ZXJTZXJ2",
-            "ZXJTdGF0ZRIWChJTRVJWRVJfU1RBVEVfTE9HSU4QABIWChJTRVJWRVJfU1RB",
-            "VEVfTE9CQlkQARIVChFTRVJWRVJfU1RBVEVfR0FNRRACKjIKCFNwYXduV2F5",
-            "EggKBFdFU1QQABIJCgVOT1JUSBABEggKBEVBU1QQAhIHCgNBTlkQA0IbqgIY",
-            "R29vZ2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
+            "EgwKBHBvc1oYBCABKAISCwoDZGlyGAUgASgCIsMDCghTdGF0SW5mbxINCgVs",
+            "ZXZlbBgBIAEoBRINCgVzaXplWBgCIAEoBRINCgVzaXplWhgDIAEoBRIKCgJo",
+            "cBgEIAEoBRINCgVtYXhIcBgFIAEoBRIKCgJtcBgGIAEoBRINCgVtYXhNcBgH",
+            "IAEoBRIOCgZhdHRhY2sYCCABKAUSDQoFc2tpbGwYCSABKAUSDwoHZGVmZW5j",
+            "ZRgKIAEoBRISCgpmaXJlUmVzaXN0GAsgASgFEhQKDHBvaXNvblJlc2lzdBgM",
+            "IAEoBRIRCgltb3ZlU3BlZWQYDSABKAISEwoLYXR0YWNrU3BlZWQYDiABKAIS",
+            "EwoLYXR0YWNrUmFuZ2UYDyABKAISFgoOY3JpdGljYWxDaGFuY2UYECABKAIS",
+            "GgoSY3JpdGljYWxNdWx0aXBsaWVyGBEgASgCEhAKCGFjY3VyYWN5GBIgASgF",
+            "Eg8KB2V2YXNpb24YEyABKAUSEgoKdGFyZ2V0YWJsZRgdIAEoCBINCgVhZ2dy",
+            "bxgVIAEoCBISCgpyZWZsZWN0aW9uGBYgASgIEhcKD3JlZmxlY3Rpb25Ta2ls",
+            "bBgXIAEoCBIWCg5yZWZsZWN0aW9uUmF0ZRgYIAEoAirdAQoJTWVzc2FnZUlk",
+            "EhAKDFNfRU5URVJfR0FNRRAAEhAKDFNfTEVBVkVfR0FNRRABEgsKB0NfU1BB",
+            "V04QAhILCgdTX1NQQVdOEAMSDQoJU19ERVNQQVdOEAQSEQoNQ19QTEFZRVJf",
+            "TU9WRRAFEhEKDVNfUExBWUVSX01PVkUQBhIKCgZDX01PVkUQBxIKCgZTX01P",
+            "VkUQCBILCgdDX1NLSUxMEAkSCwoHU19TS0lMTBAKEg8KC1NfQ0hBTkdFX0hQ",
+            "EAsSCQoFU19ESUUQDBIPCgtTX0NPTk5FQ1RFRBANKoQBCgVTdGF0ZRIICgRJ",
+            "RExFEAASCgoGTU9WSU5HEAESCgoGQVRUQUNLEAISCQoFU0tJTEwQAxIKCgZT",
+            "S0lMTDIQBBIICgRSVVNIEAUSCAoESlVNUBAGEg0KCUtub2NrQmFjaxAHEgkK",
+            "BUZBSU5UEAgSBwoDRElFEAkSCwoHU1RBTkRCWRAKKo4BCg5HYW1lT2JqZWN0",
+            "VHlwZRIICgROT05FEAASCgoGUExBWUVSEAESCQoFVE9XRVIQAhIMCghUT1dF",
+            "UkFJUhADEgsKB01PTlNURVIQBBIOCgpNT05TVEVSQUlSEAUSCQoFU0hFRVAQ",
+            "BhIJCgVGRU5DRRAHEg4KClBST0pFQ1RJTEUQCBIKCgZFRkZFQ1QQCSpBCglT",
+            "a2lsbFR5cGUSDgoKU0tJTExfTk9ORRAAEg4KClNLSUxMX0FVVE8QARIUChBT",
+            "S0lMTF9QUk9KRUNUSUxFEAIq7QEKCU1vbnN0ZXJJZBILCgdXb2xmUHVwEAAS",
+            "CAoEV29sZhABEgwKCFdlcmV3b2xmEAISCgoGTHVya2VyEAMSCwoHQ3JlZXBl",
+            "chAEEgoKBkhvcnJvchAFEgwKCFNuYWtlbGV0EAYSCQoFU25ha2UQBxINCglT",
+            "bmFrZU5hZ2EQCBIPCgtNb3NxdWl0b0J1ZxAJEhIKDk1vc3F1aXRvUGVzdGVy",
+            "EAoSEwoPTW9zcXVpdG9TdGluZ2VyEAsSCQoFU2hlbGwQDBIJCgVTcGlrZRAN",
+            "EgoKBkhlcm1pdBAOEhIKDlVua25vd25Nb25zdGVyEA8q/AEKB1Rvd2VySWQS",
+            "BwoDQnVkEAASCQoFQmxvb20QARILCgdCbG9zc29tEAISEQoNUHJhY3RpY2VE",
+            "dW1teRADEg8KC1RhcmdldER1bW15EAQSEQoNVHJhaW5pbmdEdW1teRAFEg4K",
+            "ClN1bkJsb3Nzb20QBhISCg5TdW5mbG93ZXJGYWlyeRAHEhEKDVN1bmZsb3Jh",
+            "UGl4aWUQCBIMCghNb3RoTHVuYRAJEgwKCE1vdGhNb29uEAoSEQoNTW90aENl",
+            "bGVzdGlhbBALEggKBFNvdWwQDBIJCgVIYXVudBANEgwKCFNvdWxNYWdlEA4S",
+            "EAoMVW5rbm93blRvd2VyEA8qWgoRUGxheWVyU2VydmVyU3RhdGUSFgoSU0VS",
+            "VkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVSX1NUQVRFX0xPQkJZEAESFQoR",
+            "U0VSVkVSX1NUQVRFX0dBTUUQAioyCghTcGF3bldheRIICgRXRVNUEAASCQoF",
+            "Tk9SVEgQARIICgRFQVNUEAISBwoDQU5ZEANCG6oCGEdvb2dsZS5Qcm90b2J1",
+            "Zi5Qcm90b2NvbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.MonsterId), typeof(global::Google.Protobuf.Protocol.TowerId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -102,7 +103,7 @@ namespace Google.Protobuf.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.ObjectInfo), global::Google.Protobuf.Protocol.ObjectInfo.Parser, new[]{ "ObjectId", "Name", "PosInfo", "StatInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.Vector), global::Google.Protobuf.Protocol.Vector.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.PositionInfo), global::Google.Protobuf.Protocol.PositionInfo.Parser, new[]{ "State", "PosX", "PosY", "PosZ", "Dir" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.StatInfo), global::Google.Protobuf.Protocol.StatInfo.Parser, new[]{ "Level", "Size", "Hp", "MaxHp", "Mp", "MaxMp", "Attack", "Defence", "FireResist", "PoisonResist", "MoveSpeed", "AttackSpeed", "AttackRange", "CriticalChance", "CriticalMultiplier", "Accuracy", "Evasion", "Targetable", "Aggro", "Reflection", "ReflectionSkill", "ReflectionRate" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.StatInfo), global::Google.Protobuf.Protocol.StatInfo.Parser, new[]{ "Level", "SizeX", "SizeZ", "Hp", "MaxHp", "Mp", "MaxMp", "Attack", "Skill", "Defence", "FireResist", "PoisonResist", "MoveSpeed", "AttackSpeed", "AttackRange", "CriticalChance", "CriticalMultiplier", "Accuracy", "Evasion", "Targetable", "Aggro", "Reflection", "ReflectionSkill", "ReflectionRate" }, null, null, null, null)
           }));
     }
     #endregion
@@ -3883,12 +3884,14 @@ namespace Google.Protobuf.Protocol {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public StatInfo(StatInfo other) : this() {
       level_ = other.level_;
-      size_ = other.size_;
+      sizeX_ = other.sizeX_;
+      sizeZ_ = other.sizeZ_;
       hp_ = other.hp_;
       maxHp_ = other.maxHp_;
       mp_ = other.mp_;
       maxMp_ = other.maxMp_;
       attack_ = other.attack_;
+      skill_ = other.skill_;
       defence_ = other.defence_;
       fireResist_ = other.fireResist_;
       poisonResist_ = other.poisonResist_;
@@ -3925,20 +3928,32 @@ namespace Google.Protobuf.Protocol {
       }
     }
 
-    /// <summary>Field number for the "size" field.</summary>
-    public const int SizeFieldNumber = 2;
-    private int size_;
+    /// <summary>Field number for the "sizeX" field.</summary>
+    public const int SizeXFieldNumber = 2;
+    private int sizeX_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int Size {
-      get { return size_; }
+    public int SizeX {
+      get { return sizeX_; }
       set {
-        size_ = value;
+        sizeX_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "sizeZ" field.</summary>
+    public const int SizeZFieldNumber = 3;
+    private int sizeZ_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SizeZ {
+      get { return sizeZ_; }
+      set {
+        sizeZ_ = value;
       }
     }
 
     /// <summary>Field number for the "hp" field.</summary>
-    public const int HpFieldNumber = 3;
+    public const int HpFieldNumber = 4;
     private int hp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3950,7 +3965,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "maxHp" field.</summary>
-    public const int MaxHpFieldNumber = 4;
+    public const int MaxHpFieldNumber = 5;
     private int maxHp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3962,7 +3977,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "mp" field.</summary>
-    public const int MpFieldNumber = 5;
+    public const int MpFieldNumber = 6;
     private int mp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3974,7 +3989,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "maxMp" field.</summary>
-    public const int MaxMpFieldNumber = 6;
+    public const int MaxMpFieldNumber = 7;
     private int maxMp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3986,7 +4001,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "attack" field.</summary>
-    public const int AttackFieldNumber = 7;
+    public const int AttackFieldNumber = 8;
     private int attack_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -3997,8 +4012,20 @@ namespace Google.Protobuf.Protocol {
       }
     }
 
+    /// <summary>Field number for the "skill" field.</summary>
+    public const int SkillFieldNumber = 9;
+    private int skill_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Skill {
+      get { return skill_; }
+      set {
+        skill_ = value;
+      }
+    }
+
     /// <summary>Field number for the "defence" field.</summary>
-    public const int DefenceFieldNumber = 8;
+    public const int DefenceFieldNumber = 10;
     private int defence_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4010,7 +4037,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "fireResist" field.</summary>
-    public const int FireResistFieldNumber = 9;
+    public const int FireResistFieldNumber = 11;
     private int fireResist_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4022,7 +4049,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "poisonResist" field.</summary>
-    public const int PoisonResistFieldNumber = 10;
+    public const int PoisonResistFieldNumber = 12;
     private int poisonResist_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4034,7 +4061,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "moveSpeed" field.</summary>
-    public const int MoveSpeedFieldNumber = 11;
+    public const int MoveSpeedFieldNumber = 13;
     private float moveSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4046,7 +4073,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "attackSpeed" field.</summary>
-    public const int AttackSpeedFieldNumber = 12;
+    public const int AttackSpeedFieldNumber = 14;
     private float attackSpeed_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4058,7 +4085,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "attackRange" field.</summary>
-    public const int AttackRangeFieldNumber = 13;
+    public const int AttackRangeFieldNumber = 15;
     private float attackRange_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4070,7 +4097,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "criticalChance" field.</summary>
-    public const int CriticalChanceFieldNumber = 14;
+    public const int CriticalChanceFieldNumber = 16;
     private float criticalChance_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4082,7 +4109,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "criticalMultiplier" field.</summary>
-    public const int CriticalMultiplierFieldNumber = 15;
+    public const int CriticalMultiplierFieldNumber = 17;
     private float criticalMultiplier_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4094,11 +4121,11 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "accuracy" field.</summary>
-    public const int AccuracyFieldNumber = 16;
-    private float accuracy_;
+    public const int AccuracyFieldNumber = 18;
+    private int accuracy_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Accuracy {
+    public int Accuracy {
       get { return accuracy_; }
       set {
         accuracy_ = value;
@@ -4106,11 +4133,11 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "evasion" field.</summary>
-    public const int EvasionFieldNumber = 17;
-    private float evasion_;
+    public const int EvasionFieldNumber = 19;
+    private int evasion_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Evasion {
+    public int Evasion {
       get { return evasion_; }
       set {
         evasion_ = value;
@@ -4118,7 +4145,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "targetable" field.</summary>
-    public const int TargetableFieldNumber = 18;
+    public const int TargetableFieldNumber = 29;
     private bool targetable_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4130,7 +4157,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "aggro" field.</summary>
-    public const int AggroFieldNumber = 19;
+    public const int AggroFieldNumber = 21;
     private bool aggro_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4142,7 +4169,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflection" field.</summary>
-    public const int ReflectionFieldNumber = 20;
+    public const int ReflectionFieldNumber = 22;
     private bool reflection_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4154,7 +4181,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflectionSkill" field.</summary>
-    public const int ReflectionSkillFieldNumber = 21;
+    public const int ReflectionSkillFieldNumber = 23;
     private bool reflectionSkill_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4166,7 +4193,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflectionRate" field.</summary>
-    public const int ReflectionRateFieldNumber = 22;
+    public const int ReflectionRateFieldNumber = 24;
     private float reflectionRate_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -4193,12 +4220,14 @@ namespace Google.Protobuf.Protocol {
         return true;
       }
       if (Level != other.Level) return false;
-      if (Size != other.Size) return false;
+      if (SizeX != other.SizeX) return false;
+      if (SizeZ != other.SizeZ) return false;
       if (Hp != other.Hp) return false;
       if (MaxHp != other.MaxHp) return false;
       if (Mp != other.Mp) return false;
       if (MaxMp != other.MaxMp) return false;
       if (Attack != other.Attack) return false;
+      if (Skill != other.Skill) return false;
       if (Defence != other.Defence) return false;
       if (FireResist != other.FireResist) return false;
       if (PoisonResist != other.PoisonResist) return false;
@@ -4207,8 +4236,8 @@ namespace Google.Protobuf.Protocol {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AttackRange, other.AttackRange)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CriticalChance, other.CriticalChance)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CriticalMultiplier, other.CriticalMultiplier)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Accuracy, other.Accuracy)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Evasion, other.Evasion)) return false;
+      if (Accuracy != other.Accuracy) return false;
+      if (Evasion != other.Evasion) return false;
       if (Targetable != other.Targetable) return false;
       if (Aggro != other.Aggro) return false;
       if (Reflection != other.Reflection) return false;
@@ -4222,12 +4251,14 @@ namespace Google.Protobuf.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (Level != 0) hash ^= Level.GetHashCode();
-      if (Size != 0) hash ^= Size.GetHashCode();
+      if (SizeX != 0) hash ^= SizeX.GetHashCode();
+      if (SizeZ != 0) hash ^= SizeZ.GetHashCode();
       if (Hp != 0) hash ^= Hp.GetHashCode();
       if (MaxHp != 0) hash ^= MaxHp.GetHashCode();
       if (Mp != 0) hash ^= Mp.GetHashCode();
       if (MaxMp != 0) hash ^= MaxMp.GetHashCode();
       if (Attack != 0) hash ^= Attack.GetHashCode();
+      if (Skill != 0) hash ^= Skill.GetHashCode();
       if (Defence != 0) hash ^= Defence.GetHashCode();
       if (FireResist != 0) hash ^= FireResist.GetHashCode();
       if (PoisonResist != 0) hash ^= PoisonResist.GetHashCode();
@@ -4236,8 +4267,8 @@ namespace Google.Protobuf.Protocol {
       if (AttackRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AttackRange);
       if (CriticalChance != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CriticalChance);
       if (CriticalMultiplier != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CriticalMultiplier);
-      if (Accuracy != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Accuracy);
-      if (Evasion != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Evasion);
+      if (Accuracy != 0) hash ^= Accuracy.GetHashCode();
+      if (Evasion != 0) hash ^= Evasion.GetHashCode();
       if (Targetable != false) hash ^= Targetable.GetHashCode();
       if (Aggro != false) hash ^= Aggro.GetHashCode();
       if (Reflection != false) hash ^= Reflection.GetHashCode();
@@ -4265,89 +4296,97 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(Level);
       }
-      if (Size != 0) {
+      if (SizeX != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(Size);
+        output.WriteInt32(SizeX);
+      }
+      if (SizeZ != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(SizeZ);
       }
       if (Hp != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(32);
         output.WriteInt32(Hp);
       }
       if (MaxHp != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(40);
         output.WriteInt32(MaxHp);
       }
       if (Mp != 0) {
-        output.WriteRawTag(40);
+        output.WriteRawTag(48);
         output.WriteInt32(Mp);
       }
       if (MaxMp != 0) {
-        output.WriteRawTag(48);
+        output.WriteRawTag(56);
         output.WriteInt32(MaxMp);
       }
       if (Attack != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(64);
         output.WriteInt32(Attack);
       }
+      if (Skill != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(Skill);
+      }
       if (Defence != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(80);
         output.WriteInt32(Defence);
       }
       if (FireResist != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(88);
         output.WriteInt32(FireResist);
       }
       if (PoisonResist != 0) {
-        output.WriteRawTag(80);
+        output.WriteRawTag(96);
         output.WriteInt32(PoisonResist);
       }
       if (MoveSpeed != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(109);
         output.WriteFloat(MoveSpeed);
       }
       if (AttackSpeed != 0F) {
-        output.WriteRawTag(101);
+        output.WriteRawTag(117);
         output.WriteFloat(AttackSpeed);
       }
       if (AttackRange != 0F) {
-        output.WriteRawTag(109);
+        output.WriteRawTag(125);
         output.WriteFloat(AttackRange);
       }
       if (CriticalChance != 0F) {
-        output.WriteRawTag(117);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
-        output.WriteRawTag(125);
+        output.WriteRawTag(141, 1);
         output.WriteFloat(CriticalMultiplier);
       }
-      if (Accuracy != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(Accuracy);
-      }
-      if (Evasion != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(Evasion);
-      }
-      if (Targetable != false) {
+      if (Accuracy != 0) {
         output.WriteRawTag(144, 1);
-        output.WriteBool(Targetable);
+        output.WriteInt32(Accuracy);
+      }
+      if (Evasion != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteInt32(Evasion);
       }
       if (Aggro != false) {
-        output.WriteRawTag(152, 1);
+        output.WriteRawTag(168, 1);
         output.WriteBool(Aggro);
       }
       if (Reflection != false) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(176, 1);
         output.WriteBool(Reflection);
       }
       if (ReflectionSkill != false) {
-        output.WriteRawTag(168, 1);
+        output.WriteRawTag(184, 1);
         output.WriteBool(ReflectionSkill);
       }
       if (ReflectionRate != 0F) {
-        output.WriteRawTag(181, 1);
+        output.WriteRawTag(197, 1);
         output.WriteFloat(ReflectionRate);
+      }
+      if (Targetable != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(Targetable);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -4363,89 +4402,97 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(Level);
       }
-      if (Size != 0) {
+      if (SizeX != 0) {
         output.WriteRawTag(16);
-        output.WriteInt32(Size);
+        output.WriteInt32(SizeX);
+      }
+      if (SizeZ != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(SizeZ);
       }
       if (Hp != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(32);
         output.WriteInt32(Hp);
       }
       if (MaxHp != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(40);
         output.WriteInt32(MaxHp);
       }
       if (Mp != 0) {
-        output.WriteRawTag(40);
+        output.WriteRawTag(48);
         output.WriteInt32(Mp);
       }
       if (MaxMp != 0) {
-        output.WriteRawTag(48);
+        output.WriteRawTag(56);
         output.WriteInt32(MaxMp);
       }
       if (Attack != 0) {
-        output.WriteRawTag(56);
+        output.WriteRawTag(64);
         output.WriteInt32(Attack);
       }
+      if (Skill != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(Skill);
+      }
       if (Defence != 0) {
-        output.WriteRawTag(64);
+        output.WriteRawTag(80);
         output.WriteInt32(Defence);
       }
       if (FireResist != 0) {
-        output.WriteRawTag(72);
+        output.WriteRawTag(88);
         output.WriteInt32(FireResist);
       }
       if (PoisonResist != 0) {
-        output.WriteRawTag(80);
+        output.WriteRawTag(96);
         output.WriteInt32(PoisonResist);
       }
       if (MoveSpeed != 0F) {
-        output.WriteRawTag(93);
+        output.WriteRawTag(109);
         output.WriteFloat(MoveSpeed);
       }
       if (AttackSpeed != 0F) {
-        output.WriteRawTag(101);
+        output.WriteRawTag(117);
         output.WriteFloat(AttackSpeed);
       }
       if (AttackRange != 0F) {
-        output.WriteRawTag(109);
+        output.WriteRawTag(125);
         output.WriteFloat(AttackRange);
       }
       if (CriticalChance != 0F) {
-        output.WriteRawTag(117);
+        output.WriteRawTag(133, 1);
         output.WriteFloat(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
-        output.WriteRawTag(125);
+        output.WriteRawTag(141, 1);
         output.WriteFloat(CriticalMultiplier);
       }
-      if (Accuracy != 0F) {
-        output.WriteRawTag(133, 1);
-        output.WriteFloat(Accuracy);
-      }
-      if (Evasion != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(Evasion);
-      }
-      if (Targetable != false) {
+      if (Accuracy != 0) {
         output.WriteRawTag(144, 1);
-        output.WriteBool(Targetable);
+        output.WriteInt32(Accuracy);
+      }
+      if (Evasion != 0) {
+        output.WriteRawTag(152, 1);
+        output.WriteInt32(Evasion);
       }
       if (Aggro != false) {
-        output.WriteRawTag(152, 1);
+        output.WriteRawTag(168, 1);
         output.WriteBool(Aggro);
       }
       if (Reflection != false) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(176, 1);
         output.WriteBool(Reflection);
       }
       if (ReflectionSkill != false) {
-        output.WriteRawTag(168, 1);
+        output.WriteRawTag(184, 1);
         output.WriteBool(ReflectionSkill);
       }
       if (ReflectionRate != 0F) {
-        output.WriteRawTag(181, 1);
+        output.WriteRawTag(197, 1);
         output.WriteFloat(ReflectionRate);
+      }
+      if (Targetable != false) {
+        output.WriteRawTag(232, 1);
+        output.WriteBool(Targetable);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -4460,8 +4507,11 @@ namespace Google.Protobuf.Protocol {
       if (Level != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Level);
       }
-      if (Size != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Size);
+      if (SizeX != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SizeX);
+      }
+      if (SizeZ != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SizeZ);
       }
       if (Hp != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Hp);
@@ -4477,6 +4527,9 @@ namespace Google.Protobuf.Protocol {
       }
       if (Attack != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Attack);
+      }
+      if (Skill != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Skill);
       }
       if (Defence != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Defence);
@@ -4497,16 +4550,16 @@ namespace Google.Protobuf.Protocol {
         size += 1 + 4;
       }
       if (CriticalChance != 0F) {
-        size += 1 + 4;
+        size += 2 + 4;
       }
       if (CriticalMultiplier != 0F) {
-        size += 1 + 4;
-      }
-      if (Accuracy != 0F) {
         size += 2 + 4;
       }
-      if (Evasion != 0F) {
-        size += 2 + 4;
+      if (Accuracy != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Accuracy);
+      }
+      if (Evasion != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(Evasion);
       }
       if (Targetable != false) {
         size += 2 + 1;
@@ -4538,8 +4591,11 @@ namespace Google.Protobuf.Protocol {
       if (other.Level != 0) {
         Level = other.Level;
       }
-      if (other.Size != 0) {
-        Size = other.Size;
+      if (other.SizeX != 0) {
+        SizeX = other.SizeX;
+      }
+      if (other.SizeZ != 0) {
+        SizeZ = other.SizeZ;
       }
       if (other.Hp != 0) {
         Hp = other.Hp;
@@ -4555,6 +4611,9 @@ namespace Google.Protobuf.Protocol {
       }
       if (other.Attack != 0) {
         Attack = other.Attack;
+      }
+      if (other.Skill != 0) {
+        Skill = other.Skill;
       }
       if (other.Defence != 0) {
         Defence = other.Defence;
@@ -4580,10 +4639,10 @@ namespace Google.Protobuf.Protocol {
       if (other.CriticalMultiplier != 0F) {
         CriticalMultiplier = other.CriticalMultiplier;
       }
-      if (other.Accuracy != 0F) {
+      if (other.Accuracy != 0) {
         Accuracy = other.Accuracy;
       }
-      if (other.Evasion != 0F) {
+      if (other.Evasion != 0) {
         Evasion = other.Evasion;
       }
       if (other.Targetable != false) {
@@ -4621,87 +4680,95 @@ namespace Google.Protobuf.Protocol {
             break;
           }
           case 16: {
-            Size = input.ReadInt32();
+            SizeX = input.ReadInt32();
             break;
           }
           case 24: {
-            Hp = input.ReadInt32();
+            SizeZ = input.ReadInt32();
             break;
           }
           case 32: {
-            MaxHp = input.ReadInt32();
+            Hp = input.ReadInt32();
             break;
           }
           case 40: {
-            Mp = input.ReadInt32();
+            MaxHp = input.ReadInt32();
             break;
           }
           case 48: {
-            MaxMp = input.ReadInt32();
+            Mp = input.ReadInt32();
             break;
           }
           case 56: {
-            Attack = input.ReadInt32();
+            MaxMp = input.ReadInt32();
             break;
           }
           case 64: {
-            Defence = input.ReadInt32();
+            Attack = input.ReadInt32();
             break;
           }
           case 72: {
-            FireResist = input.ReadInt32();
+            Skill = input.ReadInt32();
             break;
           }
           case 80: {
+            Defence = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            FireResist = input.ReadInt32();
+            break;
+          }
+          case 96: {
             PoisonResist = input.ReadInt32();
             break;
           }
-          case 93: {
+          case 109: {
             MoveSpeed = input.ReadFloat();
             break;
           }
-          case 101: {
+          case 117: {
             AttackSpeed = input.ReadFloat();
             break;
           }
-          case 109: {
+          case 125: {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 117: {
+          case 133: {
             CriticalChance = input.ReadFloat();
             break;
           }
-          case 125: {
+          case 141: {
             CriticalMultiplier = input.ReadFloat();
             break;
           }
-          case 133: {
-            Accuracy = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            Evasion = input.ReadFloat();
-            break;
-          }
           case 144: {
-            Targetable = input.ReadBool();
+            Accuracy = input.ReadInt32();
             break;
           }
           case 152: {
-            Aggro = input.ReadBool();
-            break;
-          }
-          case 160: {
-            Reflection = input.ReadBool();
+            Evasion = input.ReadInt32();
             break;
           }
           case 168: {
+            Aggro = input.ReadBool();
+            break;
+          }
+          case 176: {
+            Reflection = input.ReadBool();
+            break;
+          }
+          case 184: {
             ReflectionSkill = input.ReadBool();
             break;
           }
-          case 181: {
+          case 197: {
             ReflectionRate = input.ReadFloat();
+            break;
+          }
+          case 232: {
+            Targetable = input.ReadBool();
             break;
           }
         }
@@ -4724,87 +4791,95 @@ namespace Google.Protobuf.Protocol {
             break;
           }
           case 16: {
-            Size = input.ReadInt32();
+            SizeX = input.ReadInt32();
             break;
           }
           case 24: {
-            Hp = input.ReadInt32();
+            SizeZ = input.ReadInt32();
             break;
           }
           case 32: {
-            MaxHp = input.ReadInt32();
+            Hp = input.ReadInt32();
             break;
           }
           case 40: {
-            Mp = input.ReadInt32();
+            MaxHp = input.ReadInt32();
             break;
           }
           case 48: {
-            MaxMp = input.ReadInt32();
+            Mp = input.ReadInt32();
             break;
           }
           case 56: {
-            Attack = input.ReadInt32();
+            MaxMp = input.ReadInt32();
             break;
           }
           case 64: {
-            Defence = input.ReadInt32();
+            Attack = input.ReadInt32();
             break;
           }
           case 72: {
-            FireResist = input.ReadInt32();
+            Skill = input.ReadInt32();
             break;
           }
           case 80: {
+            Defence = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            FireResist = input.ReadInt32();
+            break;
+          }
+          case 96: {
             PoisonResist = input.ReadInt32();
             break;
           }
-          case 93: {
+          case 109: {
             MoveSpeed = input.ReadFloat();
             break;
           }
-          case 101: {
+          case 117: {
             AttackSpeed = input.ReadFloat();
             break;
           }
-          case 109: {
+          case 125: {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 117: {
+          case 133: {
             CriticalChance = input.ReadFloat();
             break;
           }
-          case 125: {
+          case 141: {
             CriticalMultiplier = input.ReadFloat();
             break;
           }
-          case 133: {
-            Accuracy = input.ReadFloat();
-            break;
-          }
-          case 141: {
-            Evasion = input.ReadFloat();
-            break;
-          }
           case 144: {
-            Targetable = input.ReadBool();
+            Accuracy = input.ReadInt32();
             break;
           }
           case 152: {
-            Aggro = input.ReadBool();
-            break;
-          }
-          case 160: {
-            Reflection = input.ReadBool();
+            Evasion = input.ReadInt32();
             break;
           }
           case 168: {
+            Aggro = input.ReadBool();
+            break;
+          }
+          case 176: {
+            Reflection = input.ReadBool();
+            break;
+          }
+          case 184: {
             ReflectionSkill = input.ReadBool();
             break;
           }
-          case 181: {
+          case 197: {
             ReflectionRate = input.ReadFloat();
+            break;
+          }
+          case 232: {
+            Targetable = input.ReadBool();
             break;
           }
         }

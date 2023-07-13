@@ -38,11 +38,16 @@ public partial class GameRoom : JobSerializer
     
     private void GameInit()
     {
+        // TEMP
+        Monster monster = ObjectManager.Instance.Add<Monster>();
+        monster.Init(0);
+        monster.Info.Name = "WolfPup";
+        monster.CellPos = new Vector3(2, 6, 10);
+        Push(EnterGame, monster);
+        
         StorageLevel = 1;
     }
-    
-    
-    
+
     public void HandlePlayerMove(Player player, C_PlayerMove pMovePacket)
     {
         if (player == null) return;

@@ -13,7 +13,26 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos, int xSize = 1, int zSize = 1)
+    public bool CanGoGround(Vector3 cellPos, int xSize = 1, int zSize = 1, bool checkObjects = true)
+    {
+        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+
+        int x = (int)((cellPos.X - MinX) * 4);
+        int z = (int)((MaxZ - cellPos.Z) * 4);
+        int cnt = 0;
+        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        {
+            for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+            {
+                if (_collisionGround[j, i]) cnt++;
+            }
+        }
+
+        return cnt == 0 && (!checkObjects || _objectsGround[z, x] == null);
+    }
+
+    public bool CanGoAir(Vector3 cellPos, int xSize = 1, int zSize = 1, bool checkObjects = true)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -24,25 +43,6 @@ public partial class Map
         for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
             for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
-            {
-                if (_collisionGround[j, i]) cnt++;
-            }
-        }
-
-        return cnt == 0;
-    }
-
-    public bool CanGoAir(Vector3 cellPos, int unitSize = 1)
-    {
-        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
-
-        int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)((MaxZ - cellPos.Z) * 4);
-        int cnt = 0;
-        for (int i = x - (unitSize - 1); i <= x + (unitSize - 1); i++)
-        {
-            for (int j = z - (unitSize - 1); j <= z - (unitSize - 1); j++)
             {
                 if (_collisionAir[j, i]) cnt++;
             }
@@ -70,23 +70,31 @@ public partial class Map
 
         int x = (int)((posInfo.PosX - MinX) * 4);
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
+        int xSize = gameObject.Stat.SizeX;
+        int zSize = gameObject.Stat.SizeZ;
         
-        switch (type)   
+        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
-            case GameObjectType.Monsterair:
-                _objectsAir[z, x] = null;
-                break;
-            case GameObjectType.Towerair:
-                _objectsAir[z, x] = null;
-                break;
-            case GameObjectType.Player:
-                _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] >> 1);
-                break;
-            default:
-                _objectsGround[z, x] = null;
-                break;
+            for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
+            {
+                switch (type)   
+                {
+                    case GameObjectType.Monsterair:
+                        _objectsAir[z, x] = null;
+                        break;
+                    case GameObjectType.Towerair:
+                        _objectsAir[z, x] = null;
+                        break;
+                    case GameObjectType.Player:
+                        _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] >> 1);
+                        break;
+                    default:
+                        _objectsGround[z, x] = null;
+                        break;
+                }
+            }
         }
-        
+
         return true;
     }
 
@@ -101,54 +109,70 @@ public partial class Map
 
         int x = (int)((currentCell.X - MinX) * 4);
         int z = (int)((MaxZ - currentCell.Z) * 4);
+        int xSize = gameObject.Stat.SizeX;
+        int zSize = gameObject.Stat.SizeZ;
         
-        switch (type)   
+        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
-            case GameObjectType.Monsterair:
-                _objectsAir[z, x] = gameObject;
-                break;
-            case GameObjectType.Towerair:
-                _objectsAir[z, x] = gameObject;
-                break;
-            case GameObjectType.Player:
-                _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] << 1);
-                break;
-            default:
-                _objectsGround[z, x] = gameObject;
-                break;
+            for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+            {
+                switch (type)   
+                {
+                    case GameObjectType.Monsterair:
+                        _objectsAir[z, x] = gameObject;
+                        break;
+                    case GameObjectType.Towerair:
+                        _objectsAir[z, x] = gameObject;
+                        break;
+                    case GameObjectType.Player:
+                        _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] << 1);
+                        break;
+                    default:
+                        _objectsGround[z, x] = gameObject;
+                        break;
+                }
+            }
         }
         
         return true;
     }
     
-    public List<Vector3> Move(GameObject gameObject, Vector3 startCell, Vector3 destCell)
+    public (List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 startCell, Vector3 destCell)
     {
         int startRegionId = GetRegionByVector(Cell2Pos(startCell));
         int destRegionId = GetRegionByVector(Cell2Pos(destCell));
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        List<Vector3> center = new List<Vector3>();
+        List<Vector3> center = new();
         for (int i = 0; i < regionPath.Count; i++) center.Add(Pos2Cell(_regionGraph[i].CenterPos));
-        List<Vector3> path = new List<Vector3>();
+        List<Vector3> path = new();
+        List<double> arctan = new();
         Vector3 start = startCell;
 
         if (regionPath.Count == 0)
         {
-            path = FindPath(startCell, destCell);
+            path = FindPath(gameObject, startCell, destCell);
         }
         else
         {
             for (int i = 0; i < center.Count; i++)
             {
-                List<Vector3> aStar = FindPath(start, center[i]);
+                List<Vector3> aStar = FindPath(gameObject, start, center[i]);
                 path.AddRange(aStar);
                 start = path.Last();
             }
 
-            List<Vector3> lastPath = FindPath(center.Last(), destCell);
+            List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell);
             path.AddRange(lastPath);
         }
-
-        return path;
+        
+        for (int i = 0; i < path.Count - 1; i++)
+        {
+            double atan2 =
+                Math.Round(Math.Atan2(path[i + 1].Z - path[i].Z, path[i + 1].X - path[i].X) * (180 / Math.PI), 2);
+            arctan.Add(atan2);
+        }
+        
+        return (path, arctan);
     }
 
     public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")

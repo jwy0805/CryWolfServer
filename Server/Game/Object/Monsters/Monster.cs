@@ -1,4 +1,6 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -11,6 +13,17 @@ public class Monster : GameObject
         ObjectType = GameObjectType.Monster;
     }
 
+    public void Init(int monsterNo)
+    {
+        MonsterNo = monsterNo;
+
+        DataManager.MonsterDict.TryGetValue(MonsterNo, out var monsterData);
+        Stat.MergeFrom(monsterData!.stat);
+        Stat.Hp = monsterData.stat.MaxHp;
+
+        State = State.Idle;
+    }
+    
     public override void Update()
     {
         switch (State)
@@ -46,25 +59,76 @@ public class Monster : GameObject
         }
     }
 
-    private GameObject _target;
+    private GameObject? _target;
     private long _nextSearchTick = 0;
     protected virtual void UpdateIdle()
     {
         if (_nextSearchTick > Environment.TickCount64) return;
         _nextSearchTick = Environment.TickCount64 + 500;
 
-        List<GameObjectType> targetList = new List<GameObjectType>
+        Tags = new List<GameObjectType>
             { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         
-        GameObject? target = Room.FindTarget(targetList, this);
+        GameObject? target = Room?.FindTarget(Tags, this);
         if (target == null) return;
         _target = target;
+
+        if (Room == null) return;
+        (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
         State = State.Moving;
     }
 
+    private long _nextMoveTick = 0;
+    private int _len = 1;
     protected virtual void UpdateMoving()
     {
+        if (_nextMoveTick > Environment.TickCount64) return;
+
+        if (_target == null || _target.Room != Room)
+        {
+            _target = null;
+            State = State.Idle;
+            BroadcastMove();
+            return;
+        }
+
+        // target이랑 너무 가까운 경우
+        if (Path.Count - _len < Math.Max(Stat.SizeX, Stat.SizeZ) + Math.Max(_target.Stat.SizeX, _target.Stat.SizeZ))
+        {
+            _len = 1;
+            State = State.Idle;
+            BroadcastMove();
+            return;
+        }
         
+        if (Room != null)
+        {
+            // path에 object가 있어서 갈 수 없는 경우
+            if (Room.Map.CanGoGround(Path[_len]) == false)
+            {
+                State = State.Idle;
+                BroadcastMove();
+            }
+            
+            // 이동
+            int moveTick;
+            if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) moveTick = (int)(1000 / (MoveSpeed * 4.0));
+            else moveTick = (int)(1000 / (MoveSpeed * (4.0 / Math.Sqrt(2))));
+        
+            _nextMoveTick = Environment.TickCount64 + moveTick;
+            CellPos = Path[_len];
+            Dir = (float)Atan[_len];
+            _len++;
+
+            Room.Map.ApplyMap(this, CellPos);
+            BroadcastMove();
+        }
+    }
+
+    private void BroadcastMove()
+    {
+        S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
+        Room?.Broadcast(movePacket);
     }
 
     protected virtual void UpdateAttack()

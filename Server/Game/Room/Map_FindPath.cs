@@ -410,10 +410,10 @@ public partial class Map
     private static int[] _deltaZ = { 1, 1, 0, -1, -1, -1, 0, 1 };
     private static int[] _deltaX = { 0, -1, -1, -1, 0, 1, 1, 1 };
     private static int[] _cost = { 10, 14, 10, 14, 10, 14, 10, 14 };
-    
-    public List<Vector3> FindPath(Vector3 startCellPos, Vector3 destCellPos, bool ignoreDestCollision = false)
+
+    public List<Vector3> FindPath(GameObject gameObject, Vector3 startCellPos, Vector3 destCellPos,
+        bool checkObjects = true)
     {
-        List<Pos> path = new List<Pos>();
         bool[,] closed = new bool[SizeZ, SizeX];
         double[,] open = new double[SizeZ, SizeX];
 
@@ -444,9 +444,10 @@ public partial class Map
             for (int i = 0; i < _deltaZ.Length; i++)
             {
                 Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
-                if (!ignoreDestCollision || next.Z != dest.Z || next.X != dest.X)
+                if (next.Z != dest.Z || next.X != dest.X)
                 {
-                    if (CanGoGround(Pos2Cell(next)) == false) continue;
+                    if (CanGoGround(Pos2Cell(next), gameObject.Stat.SizeX, gameObject.Stat.SizeZ, checkObjects) == false)
+                        continue;
                 }
 
                 if (closed[next.Z, next.X]) continue;
