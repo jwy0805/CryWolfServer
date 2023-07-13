@@ -59,6 +59,12 @@ public partial class GameRoom : JobSerializer
                 {
                     spawnPacket.Objects.Add(f.Info);
                 }
+
+                foreach (var m in _monsters.Values)
+                {
+                    spawnPacket.Objects.Add(m.Info);
+                }
+                
                 foreach (var t in _towers.Values)
                 {
                     spawnPacket.Objects.Add(t.Info);
@@ -67,6 +73,7 @@ public partial class GameRoom : JobSerializer
                 player.Session.Send(spawnPacket);
             }
                 break;
+            
             case GameObjectType.Tower:
                 Tower tower = (Tower)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
@@ -76,6 +83,7 @@ public partial class GameRoom : JobSerializer
                 _towers.Add(gameObject.Id, tower);
                 tower.Room = this;
                 break;
+            
             case GameObjectType.Monster:
                 Monster monster = (Monster)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
@@ -84,7 +92,10 @@ public partial class GameRoom : JobSerializer
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);
                 monster.Room = this;
+                monster.Init();
+                monster.Update();
                 break;
+            
             case GameObjectType.Fence:
                 Fence fence = (Fence)gameObject;
                 fence.Info = gameObject.Info;

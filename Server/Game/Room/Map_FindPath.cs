@@ -1,4 +1,5 @@
 using System.Numerics;
+using Google.Protobuf.Protocol;
 using Server.Data;
 using ServerCore;
 
@@ -174,6 +175,35 @@ public partial class Map
         return new Pos { Z = -1, X = -1 };
     }
 
+    private Pos FindNearestNoneCollision(Pos pos, int sizeZ, int sizeX, GameObjectType type)
+    {
+        int cnt = 0;
+        sizeZ--;
+        sizeX--;
+
+        do
+        {
+            for (int i = pos.Z - sizeZ; i <= pos.Z + sizeZ; i++)
+            {
+                for (int j = pos.X - sizeX; j <= pos.X + sizeX; j++)
+                {
+                    if (type is GameObjectType.Monsterair or GameObjectType.Towerair)
+                    {
+                        if (_collisionAir[i, j]) cnt++;
+                    }
+                    else
+                    {
+                        if (_collisionGround[i, j]) cnt++;
+                    }
+                }
+            }
+
+            if (cnt == 0) return new Pos();
+        } while (cnt < 1);
+
+        return new Pos();
+    }
+
     public void DivideRegion(List<Vector3> region, float lenSide)
     {
         float minX = region.Min(v => v.X);
@@ -187,19 +217,21 @@ public partial class Map
         int remainX = (int)(maxX - minX) % sideX;
         int remainZ = (int)(maxZ - minZ) % sideZ;
 
-        for (float i = minZ; i < maxZ; i += sideZ)
+        for (float i = minZ; i < maxZ - remainZ; i += sideZ)
         {
-            for (float j = minX; j < maxX; j += sideX)
+            for (float j = minX; j < maxX - remainX; j += sideX)
             {
-                if (i + 2 * sideZ > maxZ) i += remainZ;
-                if (j + 2 * sideX > maxX) j += remainX;
-                
+                int lenZ = sideZ;
+                int lenX = sideX;
+                if (i + 2 * sideZ > maxZ) lenZ += remainZ;
+                if (j + 2 * sideX > maxX) lenX += remainX;
+
                 List<Pos> vertices = new List<Pos>
                 {
                     Cell2Pos(new Vector3(j, 0, i)),
-                    Cell2Pos(new Vector3(j, 0, i + sideZ)),
-                    Cell2Pos(new Vector3(j + sideX, 0, i + sideZ)),
-                    Cell2Pos(new Vector3(j + sideX, 0, i))
+                    Cell2Pos(new Vector3(j, 0, i + lenZ)),
+                    Cell2Pos(new Vector3(j + lenX, 0, i + lenZ)),
+                    Cell2Pos(new Vector3(j + lenX, 0, i))
                 };
                 
                 SortPointsCcw(vertices);
@@ -371,13 +403,13 @@ public partial class Map
     private Pos Cell2Pos(Vector3 cell)
     {
         // CellPos -> ArrayPos
-        return new Pos((int)(MaxZ - cell.Z), (int)(cell.X - MinX));
+        return new Pos((int)(MaxZ - cell.Z) * 4, (int)(cell.X - MinX) * 4);
     }
 
     private Vector3 Pos2Cell(Pos pos)
     {
         // ArrayPos -> CellPos
-        return new Vector3(pos.X+ MinX, 0,  MaxZ - pos.Z);
+        return new Vector3(pos.X * 0.25f + MinX, 0, MaxZ - pos.Z * 0.25f);
     }
 
     private int GetSideLen(float len, float minSide)
@@ -388,19 +420,18 @@ public partial class Map
     private int GetRegionByVector(Pos pos)
     {
         int crosses = 0;
+       
         foreach (var region in _regionGraph)
         {
             List<Pos> v = region.Vertices;
             for (int i = 0; i < v.Count; i++)
             {
                 int j = (i + 1) % v.Count;
-                if (v[i].X > pos.X != v[j].X > pos.X)
-                {
-                    double meetZ = (v[j].Z - v[i].Z) * (pos.X - v[i].X) / (v[j].X - v[i].X) + v[i].Z;
-                    if (pos.Z < meetZ) crosses++;
-                }
+                if (v[i].X > pos.X == v[j].X > pos.X) continue;
+                double meetZ = (v[j].Z - v[i].Z) * (pos.X - v[i].X) / (v[j].X - v[i].X) + v[i].Z;
+                if (pos.Z < meetZ) crosses++;
             }
-
+        
             if (crosses % 2 > 0) return region.Id;
         }
 

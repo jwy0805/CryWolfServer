@@ -38,13 +38,14 @@ public partial class GameRoom : JobSerializer
     
     private void GameInit()
     {
-        // TEMP
-        Monster monster = ObjectManager.Instance.Add<Monster>();
-        monster.Init(0);
-        monster.Info.Name = "WolfPup";
-        monster.CellPos = new Vector3(2, 6, 10);
-        Push(EnterGame, monster);
-        
+        // // TEMP
+        // Monster monster = ObjectManager.Instance.Add<Monster>();
+        // monster.Init(1);
+        // monster.Info.Name = "Wolf";
+        // monster.State = State.Idle;
+        // monster.CellPos = new Vector3(-1.533f, 6, 44.11144f);
+        // Push(EnterGame, monster);
+
         StorageLevel = 1;
     }
 
@@ -96,6 +97,7 @@ public partial class GameRoom : JobSerializer
                 break;
             case GameObjectType.Monster:
                 Monster monster = ObjectManager.Instance.Add<Monster>();
+                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.PosInfo = spawnPacket.PosInfo;
                 monster.MonsterNo = spawnPacket.Num;
                 Push(EnterGame, monster);

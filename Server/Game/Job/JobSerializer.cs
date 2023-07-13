@@ -2,9 +2,9 @@ namespace Server.Game;
 
 public class JobSerializer
 {
-    private JobTimer _timer = new JobTimer();
-    private Queue<IJob> _jobQueue = new Queue<IJob>();
-    private object _lock = new object();
+    private JobTimer _timer = new();
+    private Queue<IJob> _jobQueue = new();
+    private object _lock = new();
     private bool _flush = false;
 
     public IJob PushAfter(int tickAfter, Action action) { return PushAfter(tickAfter, new Job(action));}
@@ -33,6 +33,8 @@ public class JobSerializer
 
     public void Flush()
     {
+        _timer.Flush();
+        
         while (true)
         {
             IJob? job = Pop();

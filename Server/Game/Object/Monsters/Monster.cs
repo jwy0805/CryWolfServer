@@ -13,10 +13,8 @@ public class Monster : GameObject
         ObjectType = GameObjectType.Monster;
     }
 
-    public void Init(int monsterNo)
+    public void Init()
     {
-        MonsterNo = monsterNo;
-
         DataManager.MonsterDict.TryGetValue(MonsterNo, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
         Stat.Hp = monsterData.stat.MaxHp;
@@ -24,6 +22,18 @@ public class Monster : GameObject
         State = State.Idle;
     }
     
+    public void Init(int monsterNo)
+    {
+        MonsterNo = monsterNo;
+    
+        DataManager.MonsterDict.TryGetValue(MonsterNo, out var monsterData);
+        Stat.MergeFrom(monsterData!.stat);
+        Stat.Hp = monsterData.stat.MaxHp;
+    
+        State = State.Idle;
+    }
+
+    private IJob _job;
     public override void Update()
     {
         switch (State)
@@ -57,6 +67,8 @@ public class Monster : GameObject
             case State.Standby:
                 break;
         }
+
+        if (Room != null) _job = Room.PushAfter(200, Update);
     }
 
     private GameObject? _target;
@@ -65,14 +77,14 @@ public class Monster : GameObject
     {
         if (_nextSearchTick > Environment.TickCount64) return;
         _nextSearchTick = Environment.TickCount64 + 500;
-
+        
         Tags = new List<GameObjectType>
             { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         
         GameObject? target = Room?.FindTarget(Tags, this);
         if (target == null) return;
         _target = target;
-
+        
         if (Room == null) return;
         (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
         State = State.Moving;

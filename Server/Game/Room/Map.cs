@@ -204,4 +204,26 @@ public partial class Map
             }
         }
     }
+
+    public Vector3 FindSpawnPos(GameObject gameObject, SpawnWay? way = null)
+    {
+        GameObjectType type = gameObject.ObjectType;
+
+        if (type == GameObjectType.Monster)
+        {
+            switch (way)
+            {
+                case SpawnWay.West:
+                    break;
+                case SpawnWay.North:
+                    break;
+                case SpawnWay.East:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return new Vector3();
+    }
 }
