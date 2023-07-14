@@ -43,13 +43,13 @@ public partial class GameRoom : JobSerializer
         // monster.Init(1);
         // monster.Info.Name = "Wolf";
         // monster.State = State.Idle;
-        // monster.CellPos = new Vector3(-1.533f, 6, 44.11144f);
+        // monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
         // Push(EnterGame, monster);
 
         StorageLevel = 1;
     }
 
-    public void HandlePlayerMove(Player player, C_PlayerMove pMovePacket)
+    public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
     {
         if (player == null) return;
         
@@ -63,7 +63,7 @@ public partial class GameRoom : JobSerializer
         Broadcast(playerMovePacket);
     }
     
-    public void HandleMove(Player player, C_Move movePacket)
+    public void HandleMove(Player? player, C_Move movePacket)
     {
         if (player == null) return;
 
@@ -82,7 +82,7 @@ public partial class GameRoom : JobSerializer
         Broadcast(resMovePacket);
     }
 
-    public void HandleSpawn(Player player, C_Spawn spawnPacket)
+    public void HandleSpawn(Player? player, C_Spawn spawnPacket)
     {
         if (player == null) return;
         GameObjectType type = spawnPacket.Type;
@@ -97,8 +97,10 @@ public partial class GameRoom : JobSerializer
                 break;
             case GameObjectType.Monster:
                 Monster monster = ObjectManager.Instance.Add<Monster>();
-                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
+                monster.Init();
                 monster.PosInfo = spawnPacket.PosInfo;
+                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
+                monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNo = spawnPacket.Num;
                 Push(EnterGame, monster);
                 break;

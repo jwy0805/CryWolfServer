@@ -9,7 +9,7 @@ namespace Server;
 
 public class ClientSession : PacketSession
 {
-    public Player MyPlayer { get; set; }
+    public Player? MyPlayer { get; set; }
     public int SessionId { get; set; }
 
     private readonly object _lock = new();

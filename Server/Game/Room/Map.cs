@@ -208,22 +208,33 @@ public partial class Map
     public Vector3 FindSpawnPos(GameObject gameObject, SpawnWay? way = null)
     {
         GameObjectType type = gameObject.ObjectType;
-
+        Vector3 cell = new Vector3();
         if (type == GameObjectType.Monster)
         {
             switch (way)
             {
                 case SpawnWay.West:
+                    cell = GameData.SpawnerPos[0];
                     break;
                 case SpawnWay.North:
+                    cell = GameData.SpawnerPos[1];
                     break;
                 case SpawnWay.East:
+                    cell = GameData.SpawnerPos[2];
                     break;
                 default:
+                    cell = GameData.SpawnerPos[1];
                     break;
             }
         }
+        else if (type == GameObjectType.Sheep)
+        {
+            cell = new Vector3(0, 0, 0);
+        }
 
-        return new Vector3();
+        Pos pos = FindNearestEmptySpace(Cell2Pos(cell), type, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
+        Vector3 result = Pos2Cell(pos);
+        
+        return result;
     }
 }

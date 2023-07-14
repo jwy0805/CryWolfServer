@@ -11,9 +11,9 @@ public class PacketHandler
         C_Spawn spawnPacket = (C_Spawn)packet;
         ClientSession clientSession = (ClientSession)session;
         
-        Player player = clientSession.MyPlayer;
+        Player? player = clientSession.MyPlayer;
         if (player == null) return;
-        GameRoom room = player.Room;
+        GameRoom? room = player.Room;
         if (room == null) return;
         
         room.Push(room.HandleSpawn, player, spawnPacket);
@@ -24,9 +24,9 @@ public class PacketHandler
         C_PlayerMove pMovePacket = (C_PlayerMove)packet;
         ClientSession clientSession = (ClientSession)session;
 
-        Player player = clientSession.MyPlayer;
+        Player? player = clientSession.MyPlayer;
         if (player == null) return;
-        GameRoom room = player.Room;
+        GameRoom? room = player.Room;
         if (room == null) return;
         
         room.Push(room.HandlePlayerMove, player, pMovePacket);
@@ -39,9 +39,9 @@ public class PacketHandler
 
         Console.WriteLine($"C_Move ({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ})");
 
-        Player player = clientSession.MyPlayer;
+        Player? player = clientSession.MyPlayer;
         if (player == null) return;
-        GameRoom room = player.Room;
+        GameRoom? room = player.Room;
         if (room == null) return;
         
         room.Push(room.HandleMove, player, movePacket);

@@ -175,33 +175,42 @@ public partial class Map
         return new Pos { Z = -1, X = -1 };
     }
 
-    private Pos FindNearestNoneCollision(Pos pos, int sizeZ, int sizeX, GameObjectType type)
+    public Pos FindNearestEmptySpace(Pos pos, GameObjectType type, int sizeZ = 1, int sizeX = 1)
     {
         int cnt = 0;
+        int move = 0;
         sizeZ--;
         sizeX--;
 
         do
         {
-            for (int i = pos.Z - sizeZ; i <= pos.Z + sizeZ; i++)
+            for (int i = -move; i <= move; i++)
             {
-                for (int j = pos.X - sizeX; j <= pos.X + sizeX; j++)
+                pos.Z += i;
+                for (int j = -move; j <= move; j++)
                 {
-                    if (type is GameObjectType.Monsterair or GameObjectType.Towerair)
+                    pos.X += j;
+                    for (int k = pos.Z - sizeZ; k <= pos.Z + sizeZ; k++)
                     {
-                        if (_collisionAir[i, j]) cnt++;
+                        for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
+                        {
+                            if (type is GameObjectType.Monsterair or GameObjectType.Towerair)
+                            {
+                                if (_collisionAir[k, l]) cnt++;
+                            }
+                            else
+                            {
+                                if (_collisionGround[k, l]) cnt++;
+                            }
+                        }
                     }
-                    else
-                    {
-                        if (_collisionGround[i, j]) cnt++;
-                    }
+                    if (cnt == 0) return pos;
+                    cnt = 0;
                 }
             }
-
-            if (cnt == 0) return new Pos();
-        } while (cnt < 1);
-
-        return new Pos();
+            
+            move++;
+        } while (true);
     }
 
     public void DivideRegion(List<Vector3> region, float lenSide)
@@ -400,13 +409,13 @@ public partial class Map
         return path;
     }
     
-    private Pos Cell2Pos(Vector3 cell)
+    public Pos Cell2Pos(Vector3 cell)
     {
         // CellPos -> ArrayPos
         return new Pos((int)(MaxZ - cell.Z) * 4, (int)(cell.X - MinX) * 4);
     }
 
-    private Vector3 Pos2Cell(Pos pos)
+    public Vector3 Pos2Cell(Pos pos)
     {
         // ArrayPos -> CellPos
         return new Vector3(pos.X * 0.25f + MinX, 0, MaxZ - pos.Z * 0.25f);

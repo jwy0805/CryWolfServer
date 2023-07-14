@@ -75,19 +75,19 @@ public class Monster : GameObject
     private long _nextSearchTick = 0;
     protected virtual void UpdateIdle()
     {
-        if (_nextSearchTick > Environment.TickCount64) return;
-        _nextSearchTick = Environment.TickCount64 + 500;
-        
-        Tags = new List<GameObjectType>
-            { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        
-        GameObject? target = Room?.FindTarget(Tags, this);
-        if (target == null) return;
-        _target = target;
-        
-        if (Room == null) return;
-        (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
-        State = State.Moving;
+        // if (_nextSearchTick > Environment.TickCount64) return;
+        // _nextSearchTick = Environment.TickCount64 + 500;
+        //
+        // Tags = new List<GameObjectType>
+        //     { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+        //
+        // GameObject? target = Room?.FindTarget(Tags, this);
+        // if (target == null) return;
+        // _target = target;
+        //
+        // if (Room == null) return;
+        // (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
+        // State = State.Moving;
     }
 
     private long _nextMoveTick = 0;
