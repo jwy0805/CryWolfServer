@@ -13,7 +13,7 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos, int xSize = 1, int zSize = 1, bool checkObjects = true)
+    public bool CanGoGround(Vector3 cellPos, bool checkObjects = true, int xSize = 1, int zSize = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -234,7 +234,7 @@ public partial class Map
 
         Pos pos = FindNearestEmptySpace(Cell2Pos(cell), type, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
         Vector3 result = Pos2Cell(pos);
-        
+
         return result;
     }
 }

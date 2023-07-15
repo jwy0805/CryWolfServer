@@ -13,9 +13,9 @@ public class GameData
     
     public static int SpawnersCnt = 3;
     public static Vector3[] SpawnerPos { get; set; } = {
-        new Vector3(-45.0f, 6.0f, 0.0f), // West
-        new Vector3(0.0f, 6.0f, 45.0f),  // North
-        new Vector3(45.0f, 6.0f, 0.0f)  // East
+        new Vector3(-40.0f, 6.0f, 0.0f), // West
+        new Vector3(0.0f, 6.0f, 40.0f),  // North
+        new Vector3(40.0f, 6.0f, 0.0f)  // East
     };
     
     public static float RoundTime = 30.0f;

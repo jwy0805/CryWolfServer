@@ -260,75 +260,24 @@ public partial class Map
 
     public void DivideRegionMid(int level)
     {
-        Vector3[] fenceSize = GameData.FenceSize;
-        Vector3[] fenceCenter = GameData.FenceCenter;
-        float lenFenceX = fenceSize[level].X;
-        float lenFenceZ = fenceSize[level].Z;
-        List<Pos>[] verticesList = new List<Pos>[5];
-
-        List<Pos> fenceVertices = new List<Pos>
+        List<Pos> vertices = new List<Pos>
         {
-            Cell2Pos(new Vector3(fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z + lenFenceZ / 2)),
-            Cell2Pos(new Vector3(fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z - lenFenceZ / 2)),
-            Cell2Pos(new Vector3(fenceCenter[level].X + lenFenceX / 2, 0, fenceCenter[level].Z + lenFenceZ / 2)),
-            Cell2Pos(new Vector3(fenceCenter[level].X + lenFenceX / 2, 0, fenceCenter[level].Z - lenFenceZ / 2))
+            Cell2Pos(new Vector3(-19, 0, 20)),
+            Cell2Pos(new Vector3(15, 0, 20)),
+            Cell2Pos(new Vector3(-19, 0, -16)),
+            Cell2Pos(new Vector3(15, 0, -16)),
         };
-
-        List<Vector3> upper = new List<Vector3>
-        {
-            new (-19, 0, 20),
-            new (-19, 0, fenceCenter[level].Z),
-            new (fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z),
-            new (fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z + lenFenceZ / 2),
-            new (fenceCenter[level].X, 0, fenceCenter[level].Z + lenFenceZ / 2),
-            new (fenceCenter[level].X, 0, 20)
-        };
-
-        List<Vector3> lower = new List<Vector3>
-        {
-            new(-19, 0, fenceCenter[level].Z),
-            new(-19, 0, -16),
-            new(fenceCenter[level].X, 0, -16),
-            new(fenceCenter[level].X, 0, fenceCenter[level].Z - lenFenceZ / 2),
-            new(fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z - lenFenceZ / 2),
-            new(fenceCenter[level].X - lenFenceX / 2, 0, fenceCenter[level].Z),
-        };
-
-
-        for (int i = 0; i < verticesList.Length; i++)
-        {
-            verticesList[i] = new List<Pos>();
-        }
-
-        verticesList[0] = fenceVertices;
         
-        foreach (var v in upper)
+        SortPointsCcw(vertices);
+        Region newRegion = new Region
         {
-            verticesList[1].Add(Cell2Pos(v));
-            Vector3 vec = new Vector3(-v.X, v.Y, v.Z);
-            verticesList[2].Add(Cell2Pos(vec));
-        }
+            Id = _regionIdGenerator,
+            CenterPos = FindCenter(vertices),
+            Vertices = vertices,
+        };
         
-        foreach (var v in lower)
-        {
-            verticesList[3].Add(Cell2Pos(v));
-            Vector3 vec = new Vector3(-v.X, v.Y, v.Z);
-            verticesList[4].Add(Cell2Pos(vec));
-        }
-
-        foreach (var t in verticesList)
-        {
-            SortPointsCcw(t);
-            Region newRegion = new Region()
-            {
-                Id = _regionIdGenerator,
-                CenterPos = FindCenter(t),
-                Vertices = t,
-            };
-
-            _regionGraph.Add(newRegion);
-            _regionIdGenerator++;
-        }
+        _regionGraph.Add(newRegion);
+        _regionIdGenerator++;
     }
 
     private int[,] RegionConnectivity()
@@ -418,7 +367,13 @@ public partial class Map
     public Vector3 Pos2Cell(Pos pos)
     {
         // ArrayPos -> CellPos
-        return new Vector3(pos.X * 0.25f + MinX, 0, MaxZ - pos.Z * 0.25f);
+        return new Vector3(pos.X * 0.25f + MinX, 6, MaxZ - pos.Z * 0.25f);
+    }
+    
+    public Vector3 Pos2CellAir(Pos pos)
+    {
+        // ArrayPos -> CellPos
+        return new Vector3(pos.X * 0.25f + MinX, 9, MaxZ - pos.Z * 0.25f);
     }
 
     private int GetSideLen(float len, float minSide)
@@ -467,7 +422,7 @@ public partial class Map
         Pos pos = Cell2Pos(startCellPos);
         Pos dest = Cell2Pos(destCellPos);
 
-        double hVal =  Math.Sqrt(Math.Pow((dest.Z - pos.Z), 2) + Math.Pow(dest.X - pos.X, 2));
+        double hVal =  Math.Sqrt(Math.Pow(dest.Z - pos.Z, 2) + Math.Pow(dest.X - pos.X, 2));
         open[pos.Z, pos.X] = hVal;
         pq.Push(new PQNode { F = -hVal, G = 0, Z = pos.Z, X = pos.X});
         parent[pos.Z, pos.X] = new Pos(pos.Z, pos.X);
@@ -486,7 +441,8 @@ public partial class Map
                 Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 if (next.Z != dest.Z || next.X != dest.X)
                 {
-                    if (CanGoGround(Pos2Cell(next), gameObject.Stat.SizeX, gameObject.Stat.SizeZ, checkObjects) == false)
+                    // if (CanGoGround(Pos2Cell(next), checkObjects) == false, gameObject.Stat.SizeX, gameObject.Stat.SizeZ)
+                    if (CanGoGround(Pos2Cell(next), checkObjects) == false)
                         continue;
                 }
 

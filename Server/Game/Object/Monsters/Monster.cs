@@ -75,19 +75,28 @@ public class Monster : GameObject
     private long _nextSearchTick = 0;
     protected virtual void UpdateIdle()
     {
-        // if (_nextSearchTick > Environment.TickCount64) return;
-        // _nextSearchTick = Environment.TickCount64 + 500;
-        //
-        // Tags = new List<GameObjectType>
-        //     { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        //
-        // GameObject? target = Room?.FindTarget(Tags, this);
-        // if (target == null) return;
-        // _target = target;
-        //
-        // if (Room == null) return;
-        // (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
-        // State = State.Moving;
+        if (_nextSearchTick > Environment.TickCount64) return;
+        _nextSearchTick = Environment.TickCount64 + 500;
+        
+        Tags = new List<GameObjectType>
+            { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+        
+        GameObject? target = Room?.FindTarget(Tags, this);
+        if (target == null) return;
+        _target = target;
+        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Z}");
+        Console.WriteLine();
+        
+        if (Room == null) return;
+        (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
+        State = State.Moving;
+
+        for (int i = 0; i < Path.Count; i++)
+        {
+            Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
+        }
+
+        Console.WriteLine();
     }
 
     private long _nextMoveTick = 0;
@@ -95,7 +104,7 @@ public class Monster : GameObject
     protected virtual void UpdateMoving()
     {
         if (_nextMoveTick > Environment.TickCount64) return;
-
+        
         if (_target == null || _target.Room != Room)
         {
             _target = null;
@@ -103,7 +112,7 @@ public class Monster : GameObject
             BroadcastMove();
             return;
         }
-
+        
         // target이랑 너무 가까운 경우
         if (Path.Count - _len < Math.Max(Stat.SizeX, Stat.SizeZ) + Math.Max(_target.Stat.SizeX, _target.Stat.SizeZ))
         {
@@ -124,22 +133,23 @@ public class Monster : GameObject
             
             // 이동
             int moveTick;
-            if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) moveTick = (int)(1000 / (MoveSpeed * 4.0));
-            else moveTick = (int)(1000 / (MoveSpeed * (4.0 / Math.Sqrt(2))));
+            if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) moveTick = (int)(1000 / (MoveSpeed * 4));
+            else moveTick = (int)(1000 / (MoveSpeed * (4 / Math.Sqrt(2))));
         
             _nextMoveTick = Environment.TickCount64 + moveTick;
             CellPos = Path[_len];
             Dir = (float)Atan[_len];
             _len++;
-
+        
             Room.Map.ApplyMap(this, CellPos);
-            BroadcastMove();
+            if (Math.Abs(Atan[--_len] - Atan[_len]) != 0) BroadcastMove();
         }
     }
 
     private void BroadcastMove()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
+        // Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
         Room?.Broadcast(movePacket);
     }
 
