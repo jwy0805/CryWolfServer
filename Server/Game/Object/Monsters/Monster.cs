@@ -7,7 +7,8 @@ namespace Server.Game;
 public class Monster : GameObject
 {
     public int MonsterNo;
-    
+    private const int CallCycle = 200;
+
     public Monster()
     {
         ObjectType = GameObjectType.Monster;
@@ -68,7 +69,7 @@ public class Monster : GameObject
                 break;
         }
 
-        if (Room != null) _job = Room.PushAfter(200, Update);
+        if (Room != null) _job = Room.PushAfter(CallCycle, Update);
     }
 
     private GameObject? _target;
@@ -91,20 +92,16 @@ public class Monster : GameObject
         (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
         State = State.Moving;
 
-        for (int i = 0; i < Path.Count; i++)
-        {
-            Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
-        }
-
-        Console.WriteLine();
+        // for (int i = 0; i < Path.Count; i++)
+        // {
+        //     Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
+        // }
+        // Console.WriteLine();
     }
 
-    private long _nextMoveTick = 0;
-    private int _len = 1;
+    private int _len;
     protected virtual void UpdateMoving()
     {
-        if (_nextMoveTick > Environment.TickCount64) return;
-        
         if (_target == null || _target.Room != Room)
         {
             _target = null;
@@ -114,9 +111,9 @@ public class Monster : GameObject
         }
         
         // target이랑 너무 가까운 경우
-        if (Path.Count - _len < Math.Max(Stat.SizeX, Stat.SizeZ) + Math.Max(_target.Stat.SizeX, _target.Stat.SizeZ))
+        if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)
         {
-            _len = 1;
+            _len = 0;
             State = State.Idle;
             BroadcastMove();
             return;
@@ -132,24 +129,28 @@ public class Monster : GameObject
             }
             
             // 이동
-            int moveTick;
-            if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) moveTick = (int)(1000 / (MoveSpeed * 4));
-            else moveTick = (int)(1000 / (MoveSpeed * (4 / Math.Sqrt(2))));
-        
-            _nextMoveTick = Environment.TickCount64 + moveTick;
-            CellPos = Path[_len];
-            Dir = (float)Atan[_len];
-            _len++;
-        
-            Room.Map.ApplyMap(this, CellPos);
-            if (Math.Abs(Atan[--_len] - Atan[_len]) != 0) BroadcastMove();
+            int cost = 0;
+            while (CallCycle * MoveSpeed > cost * 25)
+            {
+                Room.Map.ApplyLeave(this);
+                if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) cost += 10;
+                else cost += 14;
+
+                CellPos = Path[_len];
+                Dir = (float)Atan[_len];
+                _len++;
+                Room.Map.ApplyMap(this);
+                // if (Math.Abs(Atan[_len - 1] - Atan[_len]) != 0) BroadcastMove();
+            }
+
+            BroadcastMove();
         }
     }
 
     private void BroadcastMove()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
-        // Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
+        Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
         Room?.Broadcast(movePacket);
     }
 

@@ -80,10 +80,10 @@ public partial class Map
 
     private static List<Vector3> _east = new()
     {
-        new Vector3(13, 0, 10),
-        new Vector3(13, 0, -16),
-        new Vector3(70, 0, -16),
-        new Vector3(70, 0, 10),
+        new Vector3(15, 0, 10),
+        new Vector3(15, 0, -16),
+        new Vector3(54, 0, -16),
+        new Vector3(54, 0, 10)
     };
 
     private static List<Vector3> _north = new()
@@ -249,6 +249,7 @@ public partial class Map
                 {
                     Id = _regionIdGenerator,
                     CenterPos = FindCenter(vertices),
+                    Neighbor = new List<int>(),
                     Vertices = vertices,
                 };
                 
@@ -273,6 +274,7 @@ public partial class Map
         {
             Id = _regionIdGenerator,
             CenterPos = FindCenter(vertices),
+            Neighbor = new List<int>(),
             Vertices = vertices,
         };
         
@@ -286,13 +288,79 @@ public partial class Map
         
         for (int i = 0; i < _regionGraph.Count; i++)
         {
-            List<Pos> region = _regionGraph[i].Vertices;
+            List<Pos> regionOrigin = _regionGraph[i].Vertices;
+            float xMinOrigin = regionOrigin.Min(v => v.X);
+            float xMaxOrigin = regionOrigin.Max(v => v.X);
+            float zMinOrigin = regionOrigin.Min(v => v.Z);
+            float zMaxOrigin = regionOrigin.Max(v => v.Z);
+            
             for (int j = 0; j < _regionGraph.Count; j++)
             {
-                List<Pos> intersection = region.Intersect(_regionGraph[j].Vertices).ToList();
-                if (region.SequenceEqual(intersection)) connectionMatrix[i, j] = 0;
-                if (intersection.Count == 0)connectionMatrix[i, j] = -1;
-                else connectionMatrix[i, j] = intersection.Count % 2 == 0 ? 10 : 14;
+                List<Pos> regionCompare = _regionGraph[j].Vertices;
+                List<int> zOrigin = new List<int>();
+                List<int> xOrigin = new List<int>();
+                List<int> zCompared = new List<int>();
+                List<int> xCompared = new List<int>();
+
+                if (i < j)
+                {
+                    foreach (var p in regionOrigin)
+                    {
+                        zOrigin.Add(p.Z);
+                        xOrigin.Add(p.X);
+                    }
+
+                    foreach (var p in regionCompare)
+                    {
+                        zCompared.Add(p.Z);
+                        xCompared.Add(p.X);
+                    }
+
+                    List<int> zIntersection = zOrigin.Intersect(zCompared).ToList();
+                    List<int> xIntersection = xOrigin.Intersect(xCompared).ToList();
+                    bool adjacent = false;
+
+                    if (zIntersection.Count != 0 && i != j)
+                    {
+                        for (int k = 0; k < regionCompare.Count; k++)
+                        {
+                            if (regionCompare[k].X > xMinOrigin && regionCompare[k].X < xMaxOrigin)
+                                adjacent = true;
+                        }
+                    }
+                    else if (xIntersection.Count != 0 && i != j)
+                    {
+                        for (int k = 0; k < regionCompare.Count; k++)
+                        {
+                            if (regionCompare[k].Z > zMinOrigin && regionCompare[k].Z < zMaxOrigin)
+                                adjacent = true;
+                        }
+                    }
+                    else
+                    {
+                        connectionMatrix[i, j] = -1;
+                        continue;
+                    }
+
+                    if (adjacent)
+                    {
+                        connectionMatrix[i, j] = 10;
+                    }
+                    else
+                    {
+                        List<Pos> vIntersection = regionOrigin.Intersect(_regionGraph[j].Vertices).ToList();
+                        connectionMatrix[i, j] = vIntersection.Count switch { 1 => 14, > 1 => 10, _ => -1 };
+                    }
+                }
+                else
+                {
+                    connectionMatrix[i, j] = connectionMatrix[j, i];
+                }
+                
+                if (connectionMatrix[i, j] != -1)
+                {
+                    _regionGraph[i].Neighbor.Add(_regionGraph[j].Id);
+                }
             }
         }
 
@@ -453,7 +521,7 @@ public partial class Map
                 if (open[next.Z, next.X] < g + h) continue;
                 
                 open[dest.Z, dest.X] = g + h;
-                pq.Push(new PQNode() { F = -(g + h), G = g, Z = next.Z, X = next.X });
+                pq.Push(new PQNode { F = -(g + h), G = g, Z = next.Z, X = next.X });
                 parent[next.Z, next.X] = new Pos(node.Z, node.X);
             }
         }

@@ -13,7 +13,7 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos, bool checkObjects = true, int xSize = 1, int zSize = 1)
+    public bool CanGoGround(Vector3 cellPos, bool checkObjects = true, int size = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -21,9 +21,9 @@ public partial class Map
         int x = (int)((cellPos.X - MinX) * 4);
         int z = (int)((MaxZ - cellPos.Z) * 4);
         int cnt = 0;
-        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        for (int i = x - (size - 1); i <= x + (size - 1); i++)
         {
-            for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+            for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
                 if (_collisionGround[j, i]) cnt++;
             }
@@ -32,7 +32,7 @@ public partial class Map
         return cnt == 0 && (!checkObjects || _objectsGround[z, x] == null);
     }
 
-    public bool CanGoAir(Vector3 cellPos, int xSize = 1, int zSize = 1, bool checkObjects = true)
+    public bool CanGoAir(Vector3 cellPos, bool checkObjects = true, int size = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -40,9 +40,9 @@ public partial class Map
         int x = (int)((cellPos.X - MinX) * 4);
         int z = (int)((MaxZ - cellPos.Z) * 4);
         int cnt = 0;
-        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        for (int i = x - (size - 1); i <= x + (size - 1); i++)
         {
-            for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
+            for (int j = z - (size - 1); j <= z - (size - 1); j++)
             {
                 if (_collisionAir[j, i]) cnt++;
             }
@@ -98,7 +98,7 @@ public partial class Map
         return true;
     }
 
-    public bool ApplyMap(GameObject gameObject, Vector3 currentCell)
+    public bool ApplyMap(GameObject gameObject)
     {
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
@@ -107,8 +107,8 @@ public partial class Map
         PositionInfo posInfo = gameObject.PosInfo;
         GameObjectType type = gameObject.ObjectType;
 
-        int x = (int)((currentCell.X - MinX) * 4);
-        int z = (int)((MaxZ - currentCell.Z) * 4);
+        int x = (int)((gameObject.CellPos.X - MinX) * 4);
+        int z = (int)((MaxZ - gameObject.CellPos.X) * 4);
         int xSize = gameObject.Stat.SizeX;
         int zSize = gameObject.Stat.SizeZ;
         
@@ -143,7 +143,7 @@ public partial class Map
         int destRegionId = GetRegionByVector(Cell2Pos(destCell));
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
         List<Vector3> center = new();
-        for (int i = 0; i < regionPath.Count; i++) center.Add(Pos2Cell(_regionGraph[i].CenterPos));
+        for (int i = 0; i < regionPath.Count; i++) center.Add(Pos2Cell(_regionGraph[regionPath[i]].CenterPos));
         List<Vector3> path = new();
         List<double> arctan = new();
         Vector3 start = startCell;
@@ -164,15 +164,19 @@ public partial class Map
             List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell);
             path.AddRange(lastPath);
         }
-        
-        for (int i = 0; i < path.Count - 1; i++)
+
+        HashSet<Vector3> set = new HashSet<Vector3>(path);
+        List<Vector3> uniquePath = set.ToList();
+
+        for (int i = 0; i < uniquePath.Count; i++)
         {
-            double atan2 =
-                Math.Round(Math.Atan2(path[i + 1].Z - path[i].Z, path[i + 1].X - path[i].X) * (180 / Math.PI), 2);
+            double atan2 = i == 0 ?
+                Math.Round(Math.Atan2(uniquePath[i].X - startCell.X, uniquePath[i].Z - startCell.Z)):
+                Math.Round(Math.Atan2(uniquePath[i].X - uniquePath[i - 1].X, uniquePath[i].Z - uniquePath[i - 1].Z) * (180 / Math.PI), 2);
             arctan.Add(atan2);
         }
         
-        return (path, arctan);
+        return (uniquePath, arctan);
     }
 
     public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")

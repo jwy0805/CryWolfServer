@@ -82,6 +82,7 @@ public partial class GameRoom : JobSerializer
                 tower.Info = gameObject.Info;
                 _towers.Add(gameObject.Id, tower);
                 tower.Room = this;
+                Map.ApplyMap(tower);
                 break;
             
             case GameObjectType.Monster:
@@ -91,6 +92,7 @@ public partial class GameRoom : JobSerializer
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);
                 monster.Room = this;
+                Map.ApplyMap(monster);
                 monster.Update();
                 break;
             
@@ -99,6 +101,7 @@ public partial class GameRoom : JobSerializer
                 fence.Info = gameObject.Info;
                 _fences.Add(gameObject.Id, fence);
                 fence.Room = this;
+                Map.ApplyMap(fence);
                 break;
         }
         // 타인에게 정보 전송
