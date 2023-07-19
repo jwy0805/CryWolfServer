@@ -73,8 +73,8 @@ public class GameData
 
     public static Vector3[] FenceStartPos =
     {
-        new Vector3(0, 0, 0), new Vector3(-4, 6.5f, -7),
-        new Vector3(-5, 5.8f, -7), new Vector3(-6, 5.8f, -8)
+        new Vector3(0, 0, 0), new Vector3(-3, 6, -7),
+        new Vector3(-4, 6, -7), new Vector3(-5, 6, -8)
     };
 
     public static Vector3[] FenceCenter =
@@ -204,17 +204,17 @@ public class GameData
         Vector3[] posArr = new Vector3[cnt];
         int col = cnt / 2 - row;
 
-        for (int i = 0; i < row + 1; i++)
+        for (int i = 0; i < row; i++)
         {
-            posArr[i] = new Vector3(startPos.X + (i * 2), startPos.Y, startPos.Z);
-            posArr[row + col + i] = new Vector3(-startPos.X - (i * 2), startPos.Y, startPos.Z + col * 2);
+            posArr[i] = new Vector3(startPos.X + (i * 2), startPos.Y, startPos.Z); // south fence
+            posArr[row + col + i] = new Vector3(startPos.X + (i * 2), startPos.Y, startPos.Z + 2 * col); // north fence
         }
 
-        for (int i = 0; i < col - 1; i++)
+        for (int i = 0; i < col; i++)
         {
-            posArr[row + 1 + i] = new Vector3(-startPos.X , startPos.Y, startPos.Z + ((i + 1)* 2));
-            posArr[row + col + row + 1 + i] =
-                new Vector3(startPos.X, startPos.Y, (startPos.Z + col * 2) - ((i + 1) * 2));
+            posArr[row + i] = new Vector3(row , startPos.Y, startPos.Z + 1 + 2 * i); // east fence
+            posArr[row + col + row + i] =
+                new Vector3(-row, startPos.Y, startPos.Z + 1 + 2 * i); // west fence
         }
 
         return posArr;

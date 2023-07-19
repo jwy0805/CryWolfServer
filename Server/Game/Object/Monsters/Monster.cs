@@ -92,11 +92,11 @@ public class Monster : GameObject
         (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
         State = State.Moving;
 
-        // for (int i = 0; i < Path.Count; i++)
-        // {
-        //     Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
-        // }
-        // Console.WriteLine();
+        for (int i = 0; i < Path.Count; i++)
+        {
+            Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
+        }
+        Console.WriteLine();
     }
 
     private int _len;
@@ -138,7 +138,13 @@ public class Monster : GameObject
 
                 CellPos = Path[_len];
                 Dir = (float)Atan[_len];
+                if (_len >= Path.Count - 1)
+                {
+                    State = State.Idle;
+                    break;
+                }
                 _len++;
+                
                 Room.Map.ApplyMap(this);
                 // if (Math.Abs(Atan[_len - 1] - Atan[_len]) != 0) BroadcastMove();
             }
