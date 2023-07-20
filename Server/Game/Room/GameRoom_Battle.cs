@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -7,6 +8,8 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
+    public readonly Stopwatch Stopwatch = new();
+    
     public int StorageLevel
     {
         get => _storageLevel;
@@ -38,6 +41,7 @@ public partial class GameRoom : JobSerializer
     
     private void GameInit()
     {
+        Stopwatch.Start();
         // // TEMP
         // Monster monster = ObjectManager.Instance.Add<Monster>();
         // monster.Init(1);
@@ -106,14 +110,50 @@ public partial class GameRoom : JobSerializer
                 break;
         }
     }
+    
+    private void SpawnFence(int storageLv = 1)
+    {
+        Vector3[] fencePos = GameData.GetPos(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv], GameData.FenceStartPos[storageLv]);
+        float[] fenceRotation = GameData.GetRotation(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv]);
 
-    public GameObject? FindTarget(List<GameObjectType> typeList, GameObject gameObject)
+        for (int i = 0; i < GameData.FenceCnt[storageLv]; i++)
+        {
+            Fence fence = ObjectManager.Instance.Add<Fence>();
+            fence.Init();
+            fence.Info.Name = GameData.FenceName[storageLv];
+            fence.CellPos = fencePos[i];
+            fence.Dir = fenceRotation[i];
+            Push(EnterGame, fence);
+        }
+    }
+
+    public GameObject? FindTarget(GameObject gameObject)
     {
         // 어그로 끌린 상태면 리턴하는 코드
         //
+
+        List<GameObjectType> targetType = new();
+        switch (gameObject.ObjectType)
+        {
+            case GameObjectType.Monster:
+                if (ReachableInFence())
+                {
+                    targetType = new List<GameObjectType>
+                        { GameObjectType.Fence, GameObjectType.Monster, GameObjectType.Sheep };
+                }
+                else
+                {
+                    targetType = new List<GameObjectType> { GameObjectType.Fence, GameObjectType.Monster };
+                }
+                break;
+            case GameObjectType.Tower:
+                targetType = new List<GameObjectType> { GameObjectType.Monster };
+                break;
+        }
+        
         Dictionary<int, GameObject> targetDict = new();
 
-        foreach (var t in typeList)
+        foreach (var t in targetType)
         {
             switch (t)
             {
@@ -152,18 +192,8 @@ public partial class GameRoom : JobSerializer
         return target;
     }
 
-    private void SpawnFence(int storageLv = 1)
+    public bool ReachableInFence()
     {
-        Vector3[] fencePos = GameData.GetPos(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv], GameData.FenceStartPos[storageLv]);
-        float[] fenceRotation = GameData.GetRotation(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv]);
-
-        for (int i = 0; i < GameData.FenceCnt[storageLv]; i++)
-        {
-            Fence fence = ObjectManager.Instance.Add<Fence>();
-            fence.Info.Name = GameData.FenceName[storageLv];
-            fence.CellPos = fencePos[i];
-            fence.Dir = fenceRotation[i];
-            Push(EnterGame, fence);
-        }
+        return _fences.Count < GameData.FenceCnt[_storageLevel];
     }
 }

@@ -548,4 +548,52 @@ public partial class Map
 
         return cells;
     }
+
+    public Vector3 GetClosestPoint(Vector3 cellPos, GameObject target)
+    {
+        Vector3 targetCellPos = target.CellPos;
+        Vector3 destVector = new Vector3();
+        if (target.ObjectType != GameObjectType.Fence)
+        {
+            int size = target.Stat.SizeX;
+            double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
+            double deltaZ = cellPos.Z - targetCellPos.Z;
+            double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
+            double x = 0;
+            double z = 0;
+
+            double slope = deltaZ / deltaX;;
+            double zIntercept = targetCellPos.Z - slope * targetCellPos.X;
+            
+            switch (theta)
+            {
+                case >= 45 and <= 135:
+                    z = targetCellPos.Z + size;
+                    x = (z - zIntercept) / slope;
+                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                    break;
+                case <= -45 and >= -135:
+                    z = targetCellPos.Z - size;
+                    x = (z - zIntercept) / slope;
+                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                    break;
+                case > -45 and < 45:
+                    x = targetCellPos.X + size;
+                    z = slope * x - zIntercept;
+                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                    break;
+                default:
+                    x = targetCellPos.X - size;
+                    z = slope * x - zIntercept;
+                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                    break;
+            }
+        }
+        else
+        {
+            
+        }
+
+        return destVector;
+    }
 }

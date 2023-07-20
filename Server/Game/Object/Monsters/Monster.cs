@@ -73,22 +73,17 @@ public class Monster : GameObject
     }
 
     private GameObject? _target;
-    private long _nextSearchTick = 0;
+    private const int SearchTick = 800;
+    private int _lastSearch = 0;
     protected virtual void UpdateIdle()
     {
-        if (_nextSearchTick > Environment.TickCount64) return;
-        _nextSearchTick = Environment.TickCount64 + 500;
-        
-        Tags = new List<GameObjectType>
-            { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        
-        GameObject? target = Room?.FindTarget(Tags, this);
-        if (target == null) return;
+        GameObject? target = Room?.FindTarget(this);
+        if (target == null || Room == null) return;
+        _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         _target = target;
         Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Z}");
         Console.WriteLine();
         
-        if (Room == null) return;
         (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
         State = State.Moving;
 
@@ -102,6 +97,22 @@ public class Monster : GameObject
     private int _len;
     protected virtual void UpdateMoving()
     {
+        // Targeting
+        int timeNow = Room!.Stopwatch.Elapsed.Milliseconds;
+        GameObject? target = null;
+        if (timeNow > _lastSearch + SearchTick)
+        {
+            _lastSearch = timeNow;
+            target = Room?.FindTarget(this);
+        }
+
+        if (_target?.Id != target?.Id)
+        {
+            _target = target;
+            (Path, Atan) = Room!.Map.Move(this, CellPos, _target!.CellPos);
+            _len = 0;
+        }
+        
         if (_target == null || _target.Room != Room)
         {
             _target = null;
@@ -109,15 +120,24 @@ public class Monster : GameObject
             BroadcastMove();
             return;
         }
-        
+
         // target이랑 너무 가까운 경우
-        if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)
+        // Attack
+        StatInfo targetStat = _target.Stat;
+        Vector3 position = CellPos;
+        if (targetStat.Targetable)
         {
-            _len = 0;
-            State = State.Idle;
-            BroadcastMove();
-            return;
+            // Vector3 targetCollider = Map.
+            // float distance = ()
         }
+
+        // if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)
+        // {
+        //     _len = 0;
+        //     State = State.Idle;
+        //     BroadcastMove();
+        //     return;
+        // }
         
         if (Room != null)
         {
