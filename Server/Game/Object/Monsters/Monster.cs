@@ -1,6 +1,7 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -109,7 +110,8 @@ public class Monster : GameObject
         if (_target?.Id != target?.Id)
         {
             _target = target;
-            (Path, Atan) = Room!.Map.Move(this, CellPos, _target!.CellPos);
+            Vector3 destPos = Room!.Map.GetClosestPoint(CellPos, target!);
+            (Path, Atan) = Room!.Map.Move(this, CellPos, destPos);
             _len = 0;
         }
         
@@ -127,8 +129,14 @@ public class Monster : GameObject
         Vector3 position = CellPos;
         if (targetStat.Targetable)
         {
-            // Vector3 targetCollider = Map.
-            // float distance = ()
+            Vector3 targetCollider = Room!.Map.GetClosestPoint(CellPos, _target);
+            float distance = new Vector3().SqrMagnitude(targetCollider - CellPos);
+            if (distance <= AttackRange)
+            {
+                CellPos = position;
+                State = State.Attack;
+                BroadcastMove();
+            }
         }
 
         // if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)

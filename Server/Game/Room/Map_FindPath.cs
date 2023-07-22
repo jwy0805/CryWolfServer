@@ -175,7 +175,7 @@ public partial class Map
         return new Pos { Z = -1, X = -1 };
     }
 
-    public Pos FindNearestEmptySpace(Pos pos, GameObjectType type, int sizeZ = 1, int sizeX = 1)
+    public Pos FindNearestEmptySpace(Pos pos, GameObject gameObject, int sizeZ = 1, int sizeX = 1)
     {
         int cnt = 0;
         int move = 0;
@@ -194,7 +194,7 @@ public partial class Map
                     {
                         for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
                         {
-                            if (type is GameObjectType.Monsterair or GameObjectType.Towerair)
+                            if (gameObject.Stat.UnitType == 1) // 1 = air
                             {
                                 if (_collisionAir[k, l]) cnt++;
                             }
@@ -562,27 +562,27 @@ public partial class Map
             double x = 0;
             double z = 0;
 
-            double slope = deltaZ / deltaX;;
+            double slope = deltaZ / deltaX;
             double zIntercept = targetCellPos.Z - slope * targetCellPos.X;
             
             switch (theta)
             {
-                case >= 45 and <= 135:
+                case >= 45 and <= 135:          // up
                     z = targetCellPos.Z + size;
                     x = (z - zIntercept) / slope;
                     destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                     break;
-                case <= -45 and >= -135:
+                case <= -45 and >= -135:        // down
                     z = targetCellPos.Z - size;
                     x = (z - zIntercept) / slope;
                     destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                     break;
-                case > -45 and < 45:
+                case > -45 and < 45:            // right
                     x = targetCellPos.X + size;
                     z = slope * x - zIntercept;
                     destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                     break;
-                default:
+                default:                        // left
                     x = targetCellPos.X - size;
                     z = slope * x - zIntercept;
                     destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));

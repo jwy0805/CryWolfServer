@@ -64,32 +64,29 @@ public partial class Map
     public bool ApplyLeave(GameObject gameObject)
     {
         PositionInfo posInfo = gameObject.PosInfo;
-        GameObjectType type = gameObject.ObjectType;
+        StatInfo stat = gameObject.Stat;
         if (posInfo.PosX < MinX || posInfo.PosX > MaxX) return false;
         if (posInfo.PosZ < MinZ || posInfo.PosZ > MaxZ) return false;
 
         int x = (int)((posInfo.PosX - MinX) * 4);
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
-        int xSize = gameObject.Stat.SizeX;
-        int zSize = gameObject.Stat.SizeZ;
+        int xSize = stat.SizeX;
+        int zSize = stat.SizeZ;
         
         for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
             for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
             {
-                switch (type)   
+                switch (stat.UnitType)
                 {
-                    case GameObjectType.Monsterair:
-                        _objectsAir[z, x] = null;
-                        break;
-                    case GameObjectType.Towerair:
-                        _objectsAir[z, x] = null;
-                        break;
-                    case GameObjectType.Player:
-                        _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] >> 1);
-                        break;
-                    default:
+                    case 0: // 0 -> ground
                         _objectsGround[z, x] = null;
+                        break;
+                    case 1: // 1 -> air
+                        _objectsAir[z, x] = null;
+                        break;
+                    case 2: // 2 -> player
+                        _objectPlayer[z, x] = 0;
                         break;
                 }
             }
@@ -105,30 +102,27 @@ public partial class Map
         if (gameObject.Room.Map != this) return false;
 
         PositionInfo posInfo = gameObject.PosInfo;
-        GameObjectType type = gameObject.ObjectType;
-
+        StatInfo stat = gameObject.Stat;
+        
         int x = (int)((gameObject.CellPos.X - MinX) * 4);
         int z = (int)((MaxZ - gameObject.CellPos.X) * 4);
-        int xSize = gameObject.Stat.SizeX;
-        int zSize = gameObject.Stat.SizeZ;
+        int xSize = stat.SizeX;
+        int zSize = stat.SizeZ;
         
         for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
             for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
             {
-                switch (type)   
+                switch (stat.UnitType)
                 {
-                    case GameObjectType.Monsterair:
-                        _objectsAir[z, x] = gameObject;
-                        break;
-                    case GameObjectType.Towerair:
-                        _objectsAir[z, x] = gameObject;
-                        break;
-                    case GameObjectType.Player:
-                        _objectPlayer[z, x] = (ushort)(_objectPlayer[z, x] << 1);
-                        break;
-                    default:
+                    case 0: // 0 -> ground
                         _objectsGround[z, x] = gameObject;
+                        break;
+                    case 1: // 1 -> air
+                        _objectsAir[z, x] = gameObject;
+                        break;
+                    case 2: // 2 -> player
+                        _objectPlayer[z, x] = 1;
                         break;
                 }
             }
@@ -236,7 +230,7 @@ public partial class Map
             cell = new Vector3(0, 0, 0);
         }
 
-        Pos pos = FindNearestEmptySpace(Cell2Pos(cell), type, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
+        Pos pos = FindNearestEmptySpace(Cell2Pos(cell), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
         Vector3 result = Pos2Cell(pos);
 
         return result;
