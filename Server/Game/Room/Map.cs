@@ -72,7 +72,17 @@ public partial class Map
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
-        
+
+        if (xSize != zSize)
+        {
+            switch (gameObject.PosInfo.Dir)
+            {
+                case >= -45 and <= 45:
+                    break;
+                case > 45 and < 135:
+                    break;
+            }
+        }
         for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
         {
             for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)

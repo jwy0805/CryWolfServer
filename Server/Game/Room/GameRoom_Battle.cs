@@ -139,11 +139,11 @@ public partial class GameRoom : JobSerializer
                 if (ReachableInFence())
                 {
                     targetType = new List<GameObjectType>
-                        { GameObjectType.Fence, GameObjectType.Monster, GameObjectType.Sheep };
+                        { GameObjectType.Fence, GameObjectType.Tower, GameObjectType.Sheep };
                 }
                 else
                 {
-                    targetType = new List<GameObjectType> { GameObjectType.Fence, GameObjectType.Monster };
+                    targetType = new List<GameObjectType> { GameObjectType.Fence, GameObjectType.Tower };
                 }
                 break;
             case GameObjectType.Tower:

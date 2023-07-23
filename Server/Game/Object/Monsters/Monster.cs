@@ -136,6 +136,7 @@ public class Monster : GameObject
                 CellPos = position;
                 State = State.Attack;
                 BroadcastMove();
+                return;
             }
         }
 

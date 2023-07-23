@@ -227,14 +227,14 @@ public class GameData
 
         for (int i = 0; i < row; i++)
         {
-            rotationArr[i] = -90;
-            rotationArr[row + col + i] = 90;
+            rotationArr[i] = 0;
+            rotationArr[row + col + i] = 180;
         }
 
         for (int i = 0; i < col; i++)
         {
-            rotationArr[row + i] = 180;
-            rotationArr[row + col + row + i] = 0;
+            rotationArr[row + i] = 90;
+            rotationArr[row + col + row + i] = -90;
         }
 
         return rotationArr;
