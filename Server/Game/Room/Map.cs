@@ -75,12 +75,15 @@ public partial class Map
 
         if (xSize != zSize)
         {
-            switch (gameObject.PosInfo.Dir)
+            if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
+            
+            if (gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315)) // 왼쪽 오른쪽 보고 있음
             {
-                case >= -45 and <= 45:
-                    break;
-                case > 45 and < 135:
-                    break;
+                
+            }
+            else
+            {
+                
             }
         }
         for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)

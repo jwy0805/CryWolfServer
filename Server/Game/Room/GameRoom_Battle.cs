@@ -42,13 +42,13 @@ public partial class GameRoom : JobSerializer
     private void GameInit()
     {
         Stopwatch.Start();
-        // // TEMP
-        // Monster monster = ObjectManager.Instance.Add<Monster>();
-        // monster.Init(1);
-        // monster.Info.Name = "Wolf";
-        // monster.State = State.Idle;
-        // monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
-        // Push(EnterGame, monster);
+        // TEMP
+        Monster monster = ObjectManager.Instance.Add<Monster>();
+        monster.Init(1);
+        monster.Info.Name = "Wolf";
+        monster.State = State.Idle;
+        monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
+        Push(EnterGame, monster);
 
         StorageLevel = 1;
     }
