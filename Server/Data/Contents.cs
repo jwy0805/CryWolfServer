@@ -27,6 +27,12 @@ public class FenceData
     public StatInfo stat;
 }
 
+public class PlayerData
+{
+    public int no;
+    public StatInfo stat;
+}
+
 [Serializable]
 public class MonsterLoader : ILoader<int, MonsterData>
 {
@@ -57,5 +63,16 @@ public class FenceLoader : ILoader<int, FenceData>
     public Dictionary<int, FenceData> MakeDict()
     {
         return fences.ToDictionary(fence => fence.no);
+    }
+}
+
+[Serializable]
+public class PlayerLoader : ILoader<int, PlayerData>
+{
+    public List<PlayerData> players = new();
+    
+    public Dictionary<int, PlayerData> MakeDict()
+    {
+        return players.ToDictionary(player => player.no);
     }
 }

@@ -100,24 +100,24 @@ public class Monster : GameObject
     {
         // Targeting
         int timeNow = Room!.Stopwatch.Elapsed.Milliseconds;
-        GameObject? target = null;
         if (timeNow > _lastSearch + SearchTick)
         {
             _lastSearch = timeNow;
-            target = Room?.FindTarget(this);
-        }
-
-        if (_target?.Id != target?.Id)
-        {
-            _target = target;
-            Vector3 destPos = Room!.Map.GetClosestPoint(CellPos, target!);
-            (Path, Atan) = Room!.Map.Move(this, CellPos, destPos);
-            _len = 0;
+            GameObject? target = Room?.FindTarget(this);
+            if (_target?.Id != target?.Id)
+            {
+                _target = target;
+                if (_target != null)
+                {
+                    Vector3 destPos = Room!.Map.GetClosestPoint(CellPos, _target);
+                    (Path, Atan) = Room!.Map.Move(this, CellPos, destPos);
+                    _len = 0;
+                }
+            }
         }
         
         if (_target == null || _target.Room != Room)
         {
-            _target = null;
             State = State.Idle;
             BroadcastMove();
             return;
@@ -161,7 +161,6 @@ public class Monster : GameObject
             int cost = 0;
             while (CallCycle * MoveSpeed > cost * 25)
             {
-                Room.Map.ApplyLeave(this);
                 if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) cost += 10;
                 else cost += 14;
 

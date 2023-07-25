@@ -42,6 +42,8 @@ public partial class GameRoom : JobSerializer
     private void GameInit()
     {
         Stopwatch.Start();
+        StorageLevel = 1;
+
         // TEMP
         Monster monster = ObjectManager.Instance.Add<Monster>();
         monster.Init(1);
@@ -49,8 +51,6 @@ public partial class GameRoom : JobSerializer
         monster.State = State.Idle;
         monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
         Push(EnterGame, monster);
-
-        StorageLevel = 1;
     }
 
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)

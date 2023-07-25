@@ -552,46 +552,42 @@ public partial class Map
     public Vector3 GetClosestPoint(Vector3 cellPos, GameObject target)
     {
         Vector3 targetCellPos = target.CellPos;
-        Vector3 destVector = new Vector3();
-        if (target.ObjectType != GameObjectType.Fence)
-        {
-            int size = target.Stat.SizeX;
-            double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
-            double deltaZ = cellPos.Z - targetCellPos.Z;
-            double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
-            double x = 0;
-            double z = 0;
+        Vector3 destVector;
+        
+        int sizeX = target.Stat.SizeX;
+        int sizeZ = target.Stat.SizeZ;
+        
+        double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
+        double deltaZ = cellPos.Z - targetCellPos.Z;
+        double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
+        double x = 0;
+        double z = 0;
 
-            double slope = deltaZ / deltaX;
-            double zIntercept = targetCellPos.Z - slope * targetCellPos.X;
-            
-            switch (theta)
-            {
-                case >= 45 and <= 135:          // up
-                    z = targetCellPos.Z + size;
-                    x = (z - zIntercept) / slope;
-                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
-                    break;
-                case <= -45 and >= -135:        // down
-                    z = targetCellPos.Z - size;
-                    x = (z - zIntercept) / slope;
-                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
-                    break;
-                case > -45 and < 45:            // right
-                    x = targetCellPos.X + size;
-                    z = slope * x - zIntercept;
-                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
-                    break;
-                default:                        // left
-                    x = targetCellPos.X - size;
-                    z = slope * x - zIntercept;
-                    destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
-                    break;
-            }
-        }
-        else
+        double slope = deltaZ / deltaX;
+        double zIntercept = targetCellPos.Z - slope * targetCellPos.X;
+
+        switch (theta)
         {
-            
+            case >= 45 and <= 135:          // up
+                z = targetCellPos.Z + sizeX;
+                x = (z - zIntercept) / slope;
+                destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z))); // 0.27 이런좌표를 0.25로 변환 
+                break;
+            case <= -45 and >= -135:        // down
+                z = targetCellPos.Z - sizeX;
+                x = (z - zIntercept) / slope;
+                destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                break;
+            case > -45 and < 45:            // right
+                x = targetCellPos.X + sizeZ;
+                z = slope * x - zIntercept;
+                destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                break;
+            default:                        // left
+                x = targetCellPos.X - sizeZ;
+                z = slope * x - zIntercept;
+                destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
+                break;
         }
 
         return destVector;

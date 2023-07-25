@@ -72,37 +72,44 @@ public partial class Map
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
+        List<(int, int)> coordinate = new List<(int, int)>();
 
         if (xSize != zSize)
         {
             if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
             
-            if (gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315)) // 왼쪽 오른쪽 보고 있음
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
-                
-            }
-            else
-            {
-                
-            }
-        }
-        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-        {
-            for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
-            {
-                switch (stat.UnitType)
+                for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
                 {
-                    case 0: // 0 -> ground
-                        _objectsGround[z, x] = null;
-                        break;
-                    case 1: // 1 -> air
-                        _objectsAir[z, x] = null;
-                        break;
-                    case 2: // 2 -> player
-                        _objectPlayer[z, x] = 0;
-                        break;
+                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
                 }
             }
+        }
+        else
+        {
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            {
+                for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
+                {
+                    coordinate.Add((j, i));
+                }
+            }
+        }
+
+        switch (stat.UnitType)
+        {
+            case 0: // 0 -> ground
+                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = null;
+                break;
+            case 1: // 1 -> air
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
+                break;
+            case 2: // 2 -> player
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
+                break;
+            default:
+                break;
         }
 
         return true;
@@ -117,28 +124,48 @@ public partial class Map
         PositionInfo posInfo = gameObject.PosInfo;
         StatInfo stat = gameObject.Stat;
         
-        int x = (int)((gameObject.CellPos.X - MinX) * 4);
-        int z = (int)((MaxZ - gameObject.CellPos.X) * 4);
+        int x = (int)((posInfo.PosX - MinX) * 4);
+        int z = (int)((MaxZ - posInfo.PosZ) * 4);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
+        List<(int, int)> coordinate = new List<(int, int)>();
         
-        for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        if (xSize != zSize)
         {
-            for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+            if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
+            
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
-                switch (stat.UnitType)
+                for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
                 {
-                    case 0: // 0 -> ground
-                        _objectsGround[z, x] = gameObject;
-                        break;
-                    case 1: // 1 -> air
-                        _objectsAir[z, x] = gameObject;
-                        break;
-                    case 2: // 2 -> player
-                        _objectPlayer[z, x] = 1;
-                        break;
+                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
                 }
             }
+        }
+        else
+        {
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            {
+                for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
+                {
+                    coordinate.Add((j, i));
+                }
+            }
+        }
+
+        switch (stat.UnitType)
+        {
+            case 0: // 0 -> ground
+                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 1: // 1 -> air
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 2: // 2 -> player
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
+                break;
+            default:
+                break;
         }
         
         return true;
