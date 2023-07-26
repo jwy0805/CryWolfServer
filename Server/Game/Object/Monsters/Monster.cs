@@ -9,6 +9,7 @@ public class Monster : GameObject
 {
     public int MonsterNo;
     private const int CallCycle = 200;
+    private Vector3 _destPos;
 
     public Monster()
     {
@@ -82,10 +83,11 @@ public class Monster : GameObject
         if (target == null || Room == null) return;
         _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         _target = target;
+        _destPos = Room!.Map.GetClosestPoint(CellPos, _target);
         Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Z}");
         Console.WriteLine();
         
-        (Path, Atan) = Room.Map.Move(this, CellPos, _target.CellPos);
+        (Path, Atan) = Room.Map.Move(this, CellPos, _destPos);
         State = State.Moving;
 
         for (int i = 0; i < Path.Count; i++)
@@ -109,8 +111,8 @@ public class Monster : GameObject
                 _target = target;
                 if (_target != null)
                 {
-                    Vector3 destPos = Room!.Map.GetClosestPoint(CellPos, _target);
-                    (Path, Atan) = Room!.Map.Move(this, CellPos, destPos);
+                    _destPos = Room!.Map.GetClosestPoint(CellPos, _target);
+                    (Path, Atan) = Room!.Map.Move(this, CellPos, _destPos);
                     _len = 0;
                 }
             }
@@ -121,23 +123,6 @@ public class Monster : GameObject
             State = State.Idle;
             BroadcastMove();
             return;
-        }
-
-        // target이랑 너무 가까운 경우
-        // Attack
-        StatInfo targetStat = _target.Stat;
-        Vector3 position = CellPos;
-        if (targetStat.Targetable)
-        {
-            Vector3 targetCollider = Room!.Map.GetClosestPoint(CellPos, _target);
-            float distance = new Vector3().SqrMagnitude(targetCollider - CellPos);
-            if (distance <= AttackRange)
-            {
-                CellPos = position;
-                State = State.Attack;
-                BroadcastMove();
-                return;
-            }
         }
 
         // if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)
@@ -161,6 +146,23 @@ public class Monster : GameObject
             int cost = 0;
             while (CallCycle * MoveSpeed > cost * 25)
             {
+                // target이랑 너무 가까운 경우
+                // Attack
+                StatInfo targetStat = _target.Stat;
+                Vector3 position = CellPos;
+                if (targetStat.Targetable)
+                {
+                    float distance = new Vector3().SqrMagnitude(_destPos - CellPos); // 거리의 제곱
+                    if (distance <= Math.Pow(AttackRange, 2))
+                    {
+                        CellPos = position;
+                        State = State.Attack;
+                        BroadcastMove();
+                        return;
+                    }
+                }
+                
+                // 이동
                 if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) cost += 10;
                 else cost += 14;
 
@@ -190,7 +192,14 @@ public class Monster : GameObject
 
     protected virtual void UpdateAttack()
     {
+        if (_target == null || _target.Room != Room || Room == null) return;
+        if (_target.Stat.Targetable == false) return;
+
+        double deltaX = CellPos.X - _target.CellPos.X;
+        double deltaZ = CellPos.Z - _target.CellPos.Z;
+        Dir = (float)Math.Atan2(deltaZ, deltaX);
         
+        BroadcastMove();
     }
 
     protected virtual void UpdateSkill()

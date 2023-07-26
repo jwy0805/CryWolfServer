@@ -16,7 +16,7 @@ public class DataManager
         MonsterDict = LoadJson<MonsterLoader, int, MonsterData>("MonsterData")!.MakeDict();
         TowerDict = LoadJson<TowerLoader, int, TowerData>("TowerData")!.MakeDict();
         FenceDict = LoadJson<FenceLoader, int, FenceData>("FenceData")!.MakeDict();
-        PlayerDict = LoadJson<PlayerLoader, int, PlayerData>("FenceData")!.MakeDict();
+        PlayerDict = LoadJson<PlayerLoader, int, PlayerData>("PlayerData")!.MakeDict();
     }
 
     private static TLoader? LoadJson<TLoader, TKey, TValue>(string path) where TLoader : ILoader<TKey, TValue>

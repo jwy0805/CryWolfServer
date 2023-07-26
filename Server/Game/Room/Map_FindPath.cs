@@ -560,8 +560,8 @@ public partial class Map
         double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
         double deltaZ = cellPos.Z - targetCellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
-        double x = 0;
-        double z = 0;
+        double x;
+        double z;
 
         double slope = deltaZ / deltaX;
         double zIntercept = targetCellPos.Z - slope * targetCellPos.X;
@@ -569,22 +569,22 @@ public partial class Map
         switch (theta)
         {
             case >= 45 and <= 135:          // up
-                z = targetCellPos.Z + sizeX;
+                z = targetCellPos.Z + sizeZ;
                 x = (z - zIntercept) / slope;
                 destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z))); // 0.27 이런좌표를 0.25로 변환 
                 break;
             case <= -45 and >= -135:        // down
-                z = targetCellPos.Z - sizeX;
+                z = targetCellPos.Z - sizeZ;
                 x = (z - zIntercept) / slope;
                 destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                 break;
             case > -45 and < 45:            // right
-                x = targetCellPos.X + sizeZ;
+                x = targetCellPos.X + sizeX;
                 z = slope * x - zIntercept;
                 destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                 break;
             default:                        // left
-                x = targetCellPos.X - sizeZ;
+                x = targetCellPos.X - sizeX;
                 z = slope * x - zIntercept;
                 destVector = Pos2Cell(Cell2Pos(new Vector3((float)x, 6, (float)z)));
                 break;
