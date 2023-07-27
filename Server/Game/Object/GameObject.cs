@@ -78,4 +78,16 @@ public class GameObject
             PosInfo.PosZ = value.Z;
         }
     }
+
+    public virtual void OnDamaged(GameObject attacker, int damage)
+    {
+        if (Room == null) return;
+        damage = Math.Max(damage - TotalDefence, 0);
+        
+    }
+
+    public virtual void OnDead(GameObject attacker)
+    {
+        if (Room == null) return;
+    }
 }
