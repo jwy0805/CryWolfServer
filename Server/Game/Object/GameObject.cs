@@ -5,7 +5,6 @@ namespace Server.Game;
 
 public class GameObject
 {
-    protected List<GameObjectType> Tags = new();
     protected List<Vector3> Path = new();
     protected List<double> Atan = new();
     

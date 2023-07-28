@@ -152,8 +152,8 @@ public class Monster : GameObject
                 Vector3 position = CellPos;
                 if (targetStat.Targetable)
                 {
-                    float distance = new Vector3().SqrMagnitude(_destPos - CellPos); // 거리의 제곱
-                    if (distance <= Math.Pow(AttackRange, 2))
+                    float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(_destPos - CellPos)); // 거리의 제곱
+                    if (distance <= AttackRange)
                     {
                         CellPos = position;
                         State = State.Attack;
@@ -195,9 +195,9 @@ public class Monster : GameObject
         if (_target == null || _target.Room != Room || Room == null) return;
         if (_target.Stat.Targetable == false) return;
 
-        double deltaX = CellPos.X - _target.CellPos.X;
-        double deltaZ = CellPos.Z - _target.CellPos.Z;
-        Dir = (float)Math.Atan2(deltaZ, deltaX);
+        double deltaX = _target.CellPos.X - CellPos.X;
+        double deltaZ = _target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
         BroadcastMove();
     }

@@ -52,7 +52,7 @@ public partial class GameRoom : JobSerializer
         monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
         Push(EnterGame, monster);
     }
-
+    
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
     {
         if (player == null) return;

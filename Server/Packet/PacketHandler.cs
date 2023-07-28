@@ -18,7 +18,7 @@ public class PacketHandler
         
         room.Push(room.HandleSpawn, player, spawnPacket);
     }
-
+    
     public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)
     {
         C_PlayerMove pMovePacket = (C_PlayerMove)packet;
