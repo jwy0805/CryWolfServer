@@ -76,14 +76,14 @@ public partial class GameRoom : JobSerializer
 
         info.PosInfo.State = movePosInfo.State;
         info.PosInfo.Dir = movePosInfo.Dir;
-
-        S_Move resMovePacket = new S_Move
-        {
-            ObjectId = player.Info.ObjectId,
-            PosInfo = movePacket.PosInfo
-        };
         
-        Broadcast(resMovePacket);
+        // S_Move resMovePacket = new S_Move
+        // {
+        //     ObjectId = player.Info.ObjectId,
+        //     PosInfo = movePacket.PosInfo
+        // };
+        //
+        // Broadcast(resMovePacket);
     }
 
     public void HandleSpawn(Player? player, C_Spawn spawnPacket)

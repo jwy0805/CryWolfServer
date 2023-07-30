@@ -176,8 +176,7 @@ public partial class Map
         int startRegionId = GetRegionByVector(Cell2Pos(startCell));
         int destRegionId = GetRegionByVector(Cell2Pos(destCell));
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        List<Vector3> center = new();
-        for (int i = 0; i < regionPath.Count; i++) center.Add(Pos2Cell(_regionGraph[regionPath[i]].CenterPos));
+        List<Vector3> center = regionPath.Select(t => Pos2Cell(_regionGraph[t].CenterPos)).ToList();
         List<Vector3> path = new();
         List<double> arctan = new();
         Vector3 start = startCell;
@@ -199,18 +198,29 @@ public partial class Map
             path.AddRange(lastPath);
         }
 
-        HashSet<Vector3> set = new HashSet<Vector3>(path);
-        List<Vector3> uniquePath = set.ToList();
-
-        for (int i = 0; i < uniquePath.Count; i++)
+        List<Vector3> uniquePath = path.Distinct().ToList();
+        arctan.Add(Math.Round(Math.Atan2(uniquePath[0].X - startCell.X, uniquePath[0].Z - startCell.Z))); // i = 0
+        for (int i = 1; i < uniquePath.Count; i++)
         {
-            double atan2 = i == 0 ?
-                Math.Round(Math.Atan2(uniquePath[i].X - startCell.X, uniquePath[i].Z - startCell.Z)):
+            double atan2 = 
                 Math.Round(Math.Atan2(uniquePath[i].X - uniquePath[i - 1].X, uniquePath[i].Z - uniquePath[i - 1].Z) * (180 / Math.PI), 2);
             arctan.Add(atan2);
         }
         
-        return (uniquePath, arctan);
+        List<Vector3> destList = new List<Vector3>();
+        List<double> atanList = new List<double>();
+        for (int i = 1; i < arctan.Count - 1; i++)
+        {
+            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) destList.Add(uniquePath[i]);
+        }
+        for (int i = 0; i < arctan.Count - 1; i++)
+        {
+            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) atanList.Add(arctan[i + 1]);
+        }
+
+        destList.Add(uniquePath[^1]);
+
+        return (destList, atanList);
     }
 
     public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")

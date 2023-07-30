@@ -9,7 +9,8 @@ public class Monster : GameObject
 {
     public int MonsterNo;
     private const int CallCycle = 200;
-    private Vector3 _destPos;
+    protected Vector3 DestPos;
+    protected Vector3 TempDest;
 
     public Monster()
     {
@@ -83,11 +84,11 @@ public class Monster : GameObject
         if (target == null || Room == null) return;
         _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         _target = target;
-        _destPos = Room!.Map.GetClosestPoint(CellPos, _target);
+        DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
         Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Z}");
         Console.WriteLine();
         
-        (Path, Atan) = Room.Map.Move(this, CellPos, _destPos);
+        (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
         State = State.Moving;
 
         for (int i = 0; i < Path.Count; i++)
@@ -111,8 +112,8 @@ public class Monster : GameObject
                 _target = target;
                 if (_target != null)
                 {
-                    _destPos = Room!.Map.GetClosestPoint(CellPos, _target);
-                    (Path, Atan) = Room!.Map.Move(this, CellPos, _destPos);
+                    DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
+                    (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                     _len = 0;
                 }
             }
@@ -125,14 +126,6 @@ public class Monster : GameObject
             return;
         }
 
-        // if (Path.Count - _len < Stat.SizeX + _target.Stat.SizeX)
-        // {
-        //     _len = 0;
-        //     State = State.Idle;
-        //     BroadcastMove();
-        //     return;
-        // }
-        
         if (Room != null)
         {
             // path에 object가 있어서 갈 수 없는 경우
@@ -143,41 +136,31 @@ public class Monster : GameObject
             }
             
             // 이동
-            int cost = 0;
-            while (CallCycle * MoveSpeed > cost * 25)
+            // target이랑 너무 가까운 경우
+            // Attack
+            StatInfo targetStat = _target.Stat;
+            Vector3 position = CellPos;
+            if (targetStat.Targetable)
             {
-                // target이랑 너무 가까운 경우
-                // Attack
-                StatInfo targetStat = _target.Stat;
-                Vector3 position = CellPos;
-                if (targetStat.Targetable)
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                if (distance <= AttackRange)
                 {
-                    float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(_destPos - CellPos)); // 거리의 제곱
-                    if (distance <= AttackRange)
-                    {
-                        CellPos = position;
-                        State = State.Attack;
-                        BroadcastMove();
-                        return;
-                    }
+                    CellPos = position;
+                    State = State.Attack;
+                    BroadcastMove();
+                    return;
                 }
-                
-                // 이동
-                if (Path[_len].Z - CellPos.Z == 0 || Path[_len].X - CellPos.X == 0) cost += 10;
-                else cost += 14;
-
-                CellPos = Path[_len];
-                Dir = (float)Atan[_len];
-                if (_len >= Path.Count - 1)
-                {
-                    State = State.Idle;
-                    break;
-                }
-                _len++;
-                
-                Room.Map.ApplyMap(this);
-                // if (Math.Abs(Atan[_len - 1] - Atan[_len]) != 0) BroadcastMove();
             }
+            
+            // 이동
+
+            CellPos = Path[_len];
+            Dir = (float)Atan[_len];
+            if (_len >= Path.Count - 1)
+            {
+                State = State.Idle;
+            }
+            _len++;
 
             BroadcastMove();
         }
@@ -187,6 +170,20 @@ public class Monster : GameObject
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
         Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
+        Room?.Broadcast(movePacket);
+    }
+
+    private void BroadcastDest(Vector3 v)
+    {
+        PositionInfo tempDest = new PositionInfo
+        {
+            State = State,
+            Dir = Dir,
+            PosX = v.X,
+            PosY = v.Y,
+            PosZ = v.Z
+        };
+        S_Move movePacket = new() { ObjectId = Id, PosInfo = tempDest };
         Room?.Broadcast(movePacket);
     }
 
