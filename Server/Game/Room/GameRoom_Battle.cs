@@ -44,13 +44,13 @@ public partial class GameRoom : JobSerializer
         Stopwatch.Start();
         StorageLevel = 1;
 
-        // TEMP
-        Monster monster = ObjectManager.Instance.Add<Monster>();
-        monster.Init(1);
-        monster.Info.Name = "Wolf";
-        monster.State = State.Idle;
-        monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
-        Push(EnterGame, monster);
+        // // TEMP
+        // Monster monster = ObjectManager.Instance.Add<Monster>();
+        // monster.Init(1);
+        // monster.Info.Name = "Wolf";
+        // monster.State = State.Idle;
+        // monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
+        // Push(EnterGame, monster);
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
@@ -76,16 +76,24 @@ public partial class GameRoom : JobSerializer
 
         info.PosInfo.State = movePosInfo.State;
         info.PosInfo.Dir = movePosInfo.Dir;
+
+        int id = movePacket.ObjectId;
+        GameObject? go = FindGameObjectById(id);
+        if (go == null) return;
         
-        // S_Move resMovePacket = new S_Move
-        // {
-        //     ObjectId = player.Info.ObjectId,
-        //     PosInfo = movePacket.PosInfo
-        // };
-        //
-        // Broadcast(resMovePacket);
+        go.PosInfo = movePosInfo;
+        Map.ApplyMap(go);
     }
 
+    public void HandleSetDest(Player? player, C_SetDest destPacket)
+    {
+        if (player == null) return;
+
+        int id = destPacket.ObjectId;
+        GameObject? go = FindGameObjectById(id);
+        go?.BroadcastDest();
+    }
+    
     public void HandleSpawn(Player? player, C_Spawn spawnPacket)
     {
         if (player == null) return;
@@ -190,6 +198,31 @@ public partial class GameRoom : JobSerializer
         }
 
         return target;
+    }
+
+    public GameObject? FindGameObjectById(int id)
+    {
+        GameObject? go = new GameObject();
+        GameObjectType type = ObjectManager.GetObjectTypeById(id);
+        switch (type)
+        {
+            case GameObjectType.Tower:
+                if (_towers.ContainsKey(id)) go = _towers[id];
+                break;
+            case GameObjectType.Sheep:
+                if (_sheeps.ContainsKey(id)) go = _sheeps[id];
+                break;
+            case GameObjectType.Monster:
+                if (_monsters.ContainsKey(id)) go = _monsters[id];
+                break;
+            case GameObjectType.Projectile:
+                break;
+            default:
+                go = null;
+                break;
+        }
+
+        return go;
     }
 
     public bool ReachableInFence()

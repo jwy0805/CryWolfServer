@@ -85,20 +85,20 @@ public class Monster : GameObject
         _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         _target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
-        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Z}");
+        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
         Console.WriteLine();
         
         (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
+        BroadcastDest();
         State = State.Moving;
 
-        for (int i = 0; i < Path.Count; i++)
-        {
-            Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
-        }
-        Console.WriteLine();
+        // for (int i = 0; i < Path.Count; i++)
+        // {
+        //     Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
+        // }
+        // Console.WriteLine();
     }
 
-    private int _len;
     protected virtual void UpdateMoving()
     {
         // Targeting
@@ -114,7 +114,7 @@ public class Monster : GameObject
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
                     (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    _len = 0;
+                    BroadcastDest();
                 }
             }
         }
@@ -128,12 +128,12 @@ public class Monster : GameObject
 
         if (Room != null)
         {
-            // path에 object가 있어서 갈 수 없는 경우
-            if (Room.Map.CanGoGround(Path[_len]) == false)
-            {
-                State = State.Idle;
-                BroadcastMove();
-            }
+            // // path에 object가 있어서 갈 수 없는 경우
+            // if (Room.Map.CanGoGround(Path[_len]) == false)
+            // {
+            //     State = State.Idle;
+            //     BroadcastMove();
+            // }
             
             // 이동
             // target이랑 너무 가까운 경우
@@ -151,40 +151,9 @@ public class Monster : GameObject
                     return;
                 }
             }
-            
-            // 이동
-
-            CellPos = Path[_len];
-            Dir = (float)Atan[_len];
-            if (_len >= Path.Count - 1)
-            {
-                State = State.Idle;
-            }
-            _len++;
 
             BroadcastMove();
         }
-    }
-
-    private void BroadcastMove()
-    {
-        S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
-        Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
-        Room?.Broadcast(movePacket);
-    }
-
-    private void BroadcastDest(Vector3 v)
-    {
-        PositionInfo tempDest = new PositionInfo
-        {
-            State = State,
-            Dir = Dir,
-            PosX = v.X,
-            PosY = v.Y,
-            PosZ = v.Z
-        };
-        S_Move movePacket = new() { ObjectId = Id, PosInfo = tempDest };
-        Room?.Broadcast(movePacket);
     }
 
     protected virtual void UpdateAttack()

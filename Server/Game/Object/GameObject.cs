@@ -89,4 +89,28 @@ public class GameObject
     {
         if (Room == null) return;
     }
+    
+    protected virtual void BroadcastMove()
+    {
+        S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
+        Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
+        Room?.Broadcast(movePacket);
+    }
+
+    public virtual void BroadcastDest()
+    {
+        if (Path.Count == 0 || Atan.Count == 0) return;
+        S_SetDest destPacket = new() { ObjectId = Id };
+        DestVector destVector = new DestVector();
+        
+        for (int i = 0; i < Path.Count; i++)
+        {
+            destVector.X = Path[i].X;
+            destVector.Y = Path[i].Y;
+            destVector.Z = Path[i].Z;
+            destPacket.Dest.Add(destVector);
+            destPacket.Dir.Add(Atan[i]);
+        }
+        Room?.Broadcast(destPacket);
+    }
 }

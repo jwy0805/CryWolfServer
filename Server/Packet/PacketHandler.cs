@@ -37,7 +37,7 @@ public class PacketHandler
         C_Move movePacket = (C_Move)packet;
         ClientSession clientSession = (ClientSession)session;
 
-        Console.WriteLine($"C_Move ({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ})");
+        Console.WriteLine($"C_Move ({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosY}, {movePacket.PosInfo.PosZ})");
 
         Player? player = clientSession.MyPlayer;
         if (player == null) return;
@@ -47,6 +47,19 @@ public class PacketHandler
         room.Push(room.HandleMove, player, movePacket);
     }
 
+    public static void C_SetDestHandler(PacketSession session, IMessage packet)
+    {
+        C_SetDest destPacket = (C_SetDest)packet;
+        ClientSession clientSession = (ClientSession)session;
+        
+        Player? player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom? room = player.Room;
+        if (room == null) return;
+        
+        room.Push(room.HandleSetDest, player, destPacket);
+    }
+    
     public static void C_SkillHandler(PacketSession session, IMessage packet)
     {
         C_Skill skillPacket = (C_Skill)packet;

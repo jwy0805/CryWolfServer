@@ -123,7 +123,7 @@ public partial class Map
 
         PositionInfo posInfo = gameObject.PosInfo;
         StatInfo stat = gameObject.Stat;
-        
+
         int x = (int)((posInfo.PosX - MinX) * 4);
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
         int xSize = stat.SizeX;
@@ -167,7 +167,7 @@ public partial class Map
             default:
                 break;
         }
-        
+
         return true;
     }
     

@@ -29,6 +29,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CPlayerMove, PacketHandler.C_PlayerMoveHandler);		
 		_onRecv.Add((ushort)MessageId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MessageId.CMove, PacketHandler.C_MoveHandler);		
+		_onRecv.Add((ushort)MessageId.CSetDest, MakePacket<C_SetDest>);
+		_handler.Add((ushort)MessageId.CSetDest, PacketHandler.C_SetDestHandler);		
 		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);
 		_handler.Add((ushort)MessageId.CSkill, PacketHandler.C_SkillHandler);
 	}
