@@ -209,7 +209,7 @@ public partial class Map
         
         List<Vector3> destList = new List<Vector3>();
         List<double> atanList = new List<double>();
-        for (int i = 1; i < arctan.Count - 1; i++)
+        for (int i = 1; i < uniquePath.Count - 1; i++)
         {
             if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) destList.Add(uniquePath[i]);
         }

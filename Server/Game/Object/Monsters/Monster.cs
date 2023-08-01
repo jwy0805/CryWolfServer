@@ -9,8 +9,6 @@ public class Monster : GameObject
 {
     public int MonsterNo;
     private const int CallCycle = 200;
-    protected Vector3 DestPos;
-    protected Vector3 TempDest;
 
     public Monster()
     {
@@ -75,7 +73,6 @@ public class Monster : GameObject
         if (Room != null) _job = Room.PushAfter(CallCycle, Update);
     }
 
-    private GameObject? _target;
     private const int SearchTick = 800;
     private int _lastSearch = 0;
     protected virtual void UpdateIdle()
@@ -83,8 +80,8 @@ public class Monster : GameObject
         GameObject? target = Room?.FindTarget(this);
         if (target == null || Room == null) return;
         _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        _target = target;
-        DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
+        Target = target;
+        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
         Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
         Console.WriteLine();
         
@@ -107,19 +104,19 @@ public class Monster : GameObject
         {
             _lastSearch = timeNow;
             GameObject? target = Room?.FindTarget(this);
-            if (_target?.Id != target?.Id)
+            if (Target?.Id != target?.Id)
             {
-                _target = target;
-                if (_target != null)
+                Target = target;
+                if (Target != null)
                 {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, _target);
+                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
                     (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                     BroadcastDest();
                 }
             }
         }
         
-        if (_target == null || _target.Room != Room)
+        if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
             BroadcastMove();
@@ -138,7 +135,7 @@ public class Monster : GameObject
             // 이동
             // target이랑 너무 가까운 경우
             // Attack
-            StatInfo targetStat = _target.Stat;
+            StatInfo targetStat = Target.Stat;
             Vector3 position = CellPos;
             if (targetStat.Targetable)
             {
@@ -158,13 +155,13 @@ public class Monster : GameObject
 
     protected virtual void UpdateAttack()
     {
-        if (_target == null || _target.Room != Room || Room == null) return;
-        if (_target.Stat.Targetable == false) return;
+        if (Target == null || Target.Room != Room || Room == null) return;
+        if (Target.Stat.Targetable == false) State = State.Idle;
 
-        double deltaX = _target.CellPos.X - CellPos.X;
-        double deltaZ = _target.CellPos.Z - CellPos.Z;
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        
+
         BroadcastMove();
     }
 

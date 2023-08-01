@@ -59,10 +59,23 @@ public class PacketHandler
         
         room.Push(room.HandleSetDest, player, destPacket);
     }
+
+    public static void C_AttackHandler(PacketSession session, IMessage packet)
+    {
+        C_Attack attackPacket = (C_Attack)packet;
+        ClientSession clientSession = (ClientSession)session;
+
+        Player? player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom? room = player.Room;
+        if (room == null) return;
+        
+        room.Push(room.HandleAttack, player, attackPacket);
+    }
     
     public static void C_SkillHandler(PacketSession session, IMessage packet)
     {
         C_Skill skillPacket = (C_Skill)packet;
-        ClientSession serverSession = (ClientSession)session;
+        ClientSession clientSession = (ClientSession)session;
     }
 }

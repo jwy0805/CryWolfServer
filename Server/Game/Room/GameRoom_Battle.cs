@@ -135,6 +135,19 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void HandleAttack(Player? player, C_Attack attackPacket)
+    {
+        if (player == null) return;
+        int attackerId = attackPacket.ObjectId;
+        GameObject? attacker = FindGameObjectById(attackerId);
+        if (attacker == null) return;
+
+        int damage = attacker.TotalAttack;
+        GameObject? target = attacker.Target;
+        target?.OnDamaged(attacker, damage);
+        SetNextState(attacker);
+    }
+    
     public GameObject? FindTarget(GameObject gameObject)
     {
         // 어그로 끌린 상태면 리턴하는 코드
@@ -225,6 +238,34 @@ public partial class GameRoom : JobSerializer
         return go;
     }
 
+    private void SetNextState(GameObject attacker)
+    {
+        GameObject? target = attacker.Target;
+        State state;
+        if (target == null || target.Stat.Targetable == false)
+        {
+            state = State.Idle;
+        }
+        else
+        {
+            if (target.Hp > 0)
+            {
+                Vector3 targetPos = attacker.Room!.Map.GetClosestPoint(attacker.CellPos, target);
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - attacker.CellPos));
+                state = distance <= attacker.Stat.AttackRange ? State.Attack : State.Moving;
+            }
+            else
+            {
+                attacker.Target = null;
+                state = State.Idle;
+            }
+        }
+
+        if (target == null) return;
+        S_ChangeState statePacket = new S_ChangeState { ObjectId = target.Id, State = state };
+        Broadcast(statePacket);
+    }
+    
     public bool ReachableInFence()
     {
         return _fences.Count < GameData.FenceCnt[_storageLevel];
