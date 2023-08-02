@@ -38,6 +38,7 @@ public class Monster : GameObject
     private IJob _job;
     public override void Update()
     {
+        // Console.WriteLine($"{State} -> ");
         switch (State)
         {
             case State.Die:
@@ -82,12 +83,13 @@ public class Monster : GameObject
         _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
-        Console.WriteLine();
-        
+
         (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         State = State.Moving;
+        
+        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
+        Console.WriteLine();
 
         // for (int i = 0; i < Path.Count; i++)
         // {
@@ -155,13 +157,22 @@ public class Monster : GameObject
 
     protected virtual void UpdateAttack()
     {
-        if (Target == null || Target.Room != Room || Room == null) return;
-        if (Target.Stat.Targetable == false) State = State.Idle;
+        if (Room == null) return;
+        if (Target == null)
+        {
+            State = State.Idle;
+            return;
+        }
+        if (Target.Stat.Targetable == false || Target.Room != Room)
+        {
+            State = State.Idle;
+            return;
+        }
 
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-
+        Console.Write($"{Dir} / ");
         BroadcastMove();
     }
 

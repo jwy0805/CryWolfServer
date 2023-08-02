@@ -32,7 +32,7 @@ public partial class GameRoom : JobSerializer
                 new Vector3(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
                 new Vector3(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
                 new Vector3(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
-                new Vector3(center.X + size.X / 2 , 6, center.Z + size.Z / 2),
+                new Vector3(center.X + size.X / 2 , 6, center.Z + size.Z / 2)
             };
             
             SpawnFence(_storageLevel);

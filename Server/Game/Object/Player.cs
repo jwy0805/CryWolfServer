@@ -17,4 +17,9 @@ public class Player : GameObject
         Stat.MergeFrom(playerData!.stat);
         Stat.MoveSpeed = playerData.stat.MoveSpeed;
     }
+
+    public void OnLeaveGame()
+    {
+        
+    }
 }

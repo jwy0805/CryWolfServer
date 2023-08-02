@@ -104,29 +104,6 @@ public class GameObject
         room.LeaveGame(Id);
     }
     
-    public virtual void OnEnd()
-    {
-        if (Target != null)
-        {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                State = distance <= Stat.AttackRange ? State.Attack : State.Moving;
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
-        }
-        else
-        {
-            State = State.Idle;
-        }
-        
-    }
-    
     protected virtual void BroadcastMove()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };

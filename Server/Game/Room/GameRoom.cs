@@ -118,24 +118,47 @@ public partial class GameRoom : JobSerializer
 
     public void LeaveGame(int objectId)
     {
-        if (_players.Remove(objectId, out var player) == false) return;
-        
-        player.Room = null;
-        
-        // 본인에게 정보 전송
+        GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
+
+        switch (type)   
         {
-            S_LeaveGame leavePacket = new();
-            player.Session.Send(leavePacket);
+            case GameObjectType.Player:
+                if (_players.Remove(objectId, out var player) == false) return;
+                player.OnLeaveGame();
+                Map.ApplyLeave(player);
+                player.Room = null;
+
+                S_LeaveGame leavePacket = new S_LeaveGame();
+                player.Session.Send(leavePacket);
+                break;
+            
+            case GameObjectType.Monster:
+                if (_monsters.Remove(objectId, out var monster) == false) return;
+                Map.ApplyLeave(monster);
+                monster.Room = null;
+                break;
+            
+            case GameObjectType.Tower:
+                if (_towers.Remove(objectId, out var tower) == false) return;
+                Map.ApplyLeave(tower);
+                tower.Room = null;
+                break;
+            
+            case GameObjectType.Fence:
+                if (_fences.Remove(objectId, out var fence) == false) return;
+                Map.ApplyLeave(fence);
+                fence.Room = null;
+                break;
+            
+            case GameObjectType.Projectile:
+                break;
         }
-        
-        // 타인에게 정보 전송
+
+        S_Despawn despawnPacket = new S_Despawn();
+        despawnPacket.ObjectIds.Add(objectId);
+        foreach (var player in _players.Values)
         {
-            S_Despawn despawnPacket = new();
-            despawnPacket.ObjectIds.Add(player.Info.ObjectId);
-            foreach (var p in _players.Values)
-            {
-                if (player != p) p.Session.Send(despawnPacket);
-            }
+            if (player.Id != objectId) player.Session.Send(despawnPacket);
         }
     }
 
