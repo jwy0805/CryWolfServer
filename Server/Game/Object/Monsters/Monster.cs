@@ -90,12 +90,6 @@ public class Monster : GameObject
         
         Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
         Console.WriteLine();
-
-        // for (int i = 0; i < Path.Count; i++)
-        // {
-        //     Console.Write($"{Path[i].X}, {Path[i].Z} -> ");
-        // }
-        // Console.WriteLine();
     }
 
     protected virtual void UpdateMoving()
@@ -127,13 +121,6 @@ public class Monster : GameObject
 
         if (Room != null)
         {
-            // // path에 object가 있어서 갈 수 없는 경우
-            // if (Room.Map.CanGoGround(Path[_len]) == false)
-            // {
-            //     State = State.Idle;
-            //     BroadcastMove();
-            // }
-            
             // 이동
             // target이랑 너무 가까운 경우
             // Attack
@@ -144,7 +131,10 @@ public class Monster : GameObject
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
                 if (distance <= AttackRange)
                 {
+                    double deltaX = DestPos.X - CellPos.X;
+                    double deltaZ = DestPos.Z - CellPos.Z;
                     CellPos = position;
+                    Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
                     State = State.Attack;
                     BroadcastMove();
                     return;
@@ -172,7 +162,6 @@ public class Monster : GameObject
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        Console.Write($"{Dir} / ");
         BroadcastMove();
     }
 
