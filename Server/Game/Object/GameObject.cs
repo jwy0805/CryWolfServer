@@ -6,6 +6,10 @@ namespace Server.Game;
 
 public class GameObject
 {
+    private const int CallCycle = 200;
+    protected const int SearchTick = 600;
+    protected double LastSearch = 0;
+
     protected List<Vector3> Path = new();
     protected List<double> Atan = new();
     public GameObject? Target;
@@ -68,8 +72,6 @@ public class GameObject
         Info.StatInfo = Stat;
     }
     
-    public virtual void Update() { }
-
     public Vector3 CellPos
     {
         get => new Vector3(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ);
@@ -81,6 +83,53 @@ public class GameObject
         }
     }
 
+    protected IJob Job;
+    public virtual void Update()
+    {
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.Skill2:
+                UpdateSkill2();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }
+
+        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+    }
+    
+    protected virtual void UpdateIdle() { }
+    protected virtual void UpdateMoving() { }
+    protected virtual void UpdateAttack() { }
+    protected virtual void UpdateSkill() { }
+    protected virtual void UpdateSkill2() { }
+    protected virtual void UpdateKnockBack() { }
+    protected virtual void UpdateRush() { }
+    protected virtual void UpdateDie() { }
+    
     public virtual void OnDamaged(GameObject attacker, int damage)
     {
         if (Room == null) return;
@@ -123,5 +172,14 @@ public class GameObject
             destPacket.Dir.Add(Atan[i]);
         }
         Room?.Broadcast(destPacket);
+    }
+
+    public virtual void ApplyMap(Vector3 posInfo)
+    {
+        PosInfo.PosX = posInfo.X;
+        PosInfo.PosY = posInfo.Y;
+        PosInfo.PosZ = posInfo.Z;
+        bool canGo = Room!.Map.ApplyMap(this);
+        if (!canGo) State = State.Idle;
     }
 }

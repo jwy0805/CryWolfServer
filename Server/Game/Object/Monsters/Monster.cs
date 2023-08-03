@@ -8,7 +8,6 @@ namespace Server.Game;
 public class Monster : GameObject
 {
     public int MonsterNo;
-    private const int CallCycle = 200;
 
     public Monster()
     {
@@ -23,82 +22,27 @@ public class Monster : GameObject
 
         State = State.Idle;
     }
-    
-    public void Init(int monsterNo)
-    {
-        MonsterNo = monsterNo;
-    
-        DataManager.MonsterDict.TryGetValue(MonsterNo, out var monsterData);
-        Stat.MergeFrom(monsterData!.stat);
-        Stat.Hp = monsterData.stat.MaxHp;
-    
-        State = State.Idle;
-    }
 
-    private IJob _job;
-    public override void Update()
-    {
-        // Console.WriteLine($"{State} -> ");
-        switch (State)
-        {
-            case State.Die:
-                UpdateDie();
-                break;
-            case State.Moving:
-                UpdateMoving();
-                break;
-            case State.Idle:
-                UpdateIdle();
-                break;
-            case State.Rush:
-                UpdateRush();
-                break;
-            case State.Attack:
-                UpdateAttack();
-                break;
-            case State.Skill:
-                UpdateSkill();
-                break;
-            case State.Skill2:
-                UpdateSkill2();
-                break;
-            case State.KnockBack:
-                UpdateKnockBack();
-                break;
-            case State.Faint:
-                break;
-            case State.Standby:
-                break;
-        }
-
-        if (Room != null) _job = Room.PushAfter(CallCycle, Update);
-    }
-
-    private const int SearchTick = 800;
-    private int _lastSearch = 0;
-    protected virtual void UpdateIdle()
+    protected override void UpdateIdle()
     {
         GameObject? target = Room?.FindTarget(this);
         if (target == null || Room == null) return;
-        _lastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-
+        Console.WriteLine($"{DestPos.X}, {DestPos.Z}");
         (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         State = State.Moving;
-        
-        Console.WriteLine($"{target.CellPos.X}, {target.CellPos.Y}, {target.CellPos.Z}");
-        Console.WriteLine();
     }
 
-    protected virtual void UpdateMoving()
+    protected override void UpdateMoving()
     {
         // Targeting
-        int timeNow = Room!.Stopwatch.Elapsed.Milliseconds;
-        if (timeNow > _lastSearch + SearchTick)
+        double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
+        if (timeNow > LastSearch + SearchTick)
         {
-            _lastSearch = timeNow;
+            LastSearch = timeNow;
             GameObject? target = Room?.FindTarget(this);
             if (Target?.Id != target?.Id)
             {
@@ -129,23 +73,24 @@ public class Monster : GameObject
             if (targetStat.Targetable)
             {
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                double deltaX = DestPos.X - CellPos.X;
+                double deltaZ = DestPos.Z - CellPos.Z;
+                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
                 if (distance <= AttackRange)
                 {
-                    double deltaX = DestPos.X - CellPos.X;
-                    double deltaZ = DestPos.Z - CellPos.Z;
                     CellPos = position;
-                    Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
                     State = State.Attack;
                     BroadcastMove();
                     return;
                 }
             }
-
+            
+            Console.WriteLine($"CP: {CellPos.X}, {CellPos.Z} / DP: {DestPos.X}, {DestPos.Z} / Dir: {Dir} / Target: {Target.CellPos.X}, {Target.CellPos.Z}");
             BroadcastMove();
         }
     }
 
-    protected virtual void UpdateAttack()
+    protected override void UpdateAttack()
     {
         if (Room == null) return;
         if (Target == null)
@@ -163,30 +108,5 @@ public class Monster : GameObject
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         BroadcastMove();
-    }
-
-    protected virtual void UpdateSkill()
-    {
-        
-    }
-
-    protected virtual void UpdateSkill2()
-    {
-        
-    }
-
-    protected virtual void UpdateDie()
-    {
-        
-    }
-
-    protected virtual void UpdateKnockBack()
-    {
-        
-    }
-    
-    protected virtual void UpdateRush()
-    {
-        
     }
 }

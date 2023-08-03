@@ -554,8 +554,8 @@ public partial class Map
         Vector3 targetCellPos = target.CellPos;
         Vector3 destVector;
         
-        int sizeX = target.Stat.SizeX;
-        int sizeZ = target.Stat.SizeZ;
+        double sizeX = 0.25 * (target.Stat.SizeX - 1);
+        double sizeZ = 0.25 * (target.Stat.SizeZ - 1);
         
         double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
         double deltaZ = cellPos.Z - targetCellPos.Z;

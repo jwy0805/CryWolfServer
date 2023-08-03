@@ -43,14 +43,6 @@ public partial class GameRoom : JobSerializer
     {
         Stopwatch.Start();
         StorageLevel = 1;
-
-        // // TEMP
-        // Monster monster = ObjectManager.Instance.Add<Monster>();
-        // monster.Init(1);
-        // monster.Info.Name = "Wolf";
-        // monster.State = State.Idle;
-        // monster.CellPos = Map.FindSpawnPos(monster, SpawnWay.North);
-        // Push(EnterGame, monster);
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
@@ -71,18 +63,10 @@ public partial class GameRoom : JobSerializer
     {
         if (player == null) return;
 
-        PositionInfo movePosInfo = movePacket.PosInfo;
-        ObjectInfo info = player.Info;
-
-        info.PosInfo.State = movePosInfo.State;
-        info.PosInfo.Dir = movePosInfo.Dir;
-
         int id = movePacket.ObjectId;
         GameObject? go = FindGameObjectById(id);
-        if (go == null) return;
-        
-        go.PosInfo = movePosInfo;
-        Map.ApplyMap(go);
+        Vector3 cellPos = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
+        go?.ApplyMap(cellPos);
     }
 
     public void HandleSetDest(Player? player, C_SetDest destPacket)
@@ -201,7 +185,7 @@ public partial class GameRoom : JobSerializer
         {
             PositionInfo pos = obj.PosInfo;
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            bool targetable = true; // Stat의 Targetable 반드시 설정
+            bool targetable = obj.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
             if (dist < closestDist && targetable)
             {

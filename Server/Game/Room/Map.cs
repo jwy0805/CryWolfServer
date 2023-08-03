@@ -123,10 +123,26 @@ public partial class Map
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
         if (gameObject.Room.Map != this) return false;
-
-        PositionInfo posInfo = gameObject.PosInfo;
+       
         StatInfo stat = gameObject.Stat;
+        Vector3 v = new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ);
+        bool canGo;
+        switch (stat.UnitType)
+        {
+            case 0:
+                canGo = CanGoGround(v, true, gameObject.Stat.SizeX);
+                break;
+            case 1:
+                canGo = CanGoAir(v, true, gameObject.Stat.SizeX);
+                break;
+            default:
+                canGo = true;
+                break;
+        }
 
+        if (canGo == false) return false;
+        
+        PositionInfo posInfo = gameObject.PosInfo;
         int x = (int)((posInfo.PosX - MinX) * 4);
         int z = (int)((MaxZ - posInfo.PosZ) * 4);
         int xSize = stat.SizeX;
@@ -216,12 +232,13 @@ public partial class Map
         {
             if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) destList.Add(uniquePath[i]);
         }
-        for (int i = 0; i < arctan.Count - 1; i++)
+        for (int i = 0; i < arctan.Count - 2; i++)
         {
             if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) atanList.Add(arctan[i + 1]);
         }
 
         destList.Add(uniquePath[^1]);
+        atanList.Add(arctan[^1]);
 
         return (destList, atanList);
     }

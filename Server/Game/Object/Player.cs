@@ -13,7 +13,7 @@ public class Player : GameObject
     {
         ObjectType = GameObjectType.Player;
         
-        DataManager.PlayerDict.TryGetValue(PlayerNo, out var playerData);
+        DataManager.ObjectDict.TryGetValue(PlayerNo, out var playerData);
         Stat.MergeFrom(playerData!.stat);
         Stat.MoveSpeed = playerData.stat.MoveSpeed;
     }
