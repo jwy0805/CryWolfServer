@@ -1,6 +1,7 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -22,9 +23,10 @@ public class Sheep : GameObject
         State = State.Idle;
     }
 
-    protected override void UpdateIdle()
+    protected override async void UpdateIdle()
     {
-        DestPos = GetDestInFence();
+        await Wait();
+        DestPos = GetRandomDestInFence();
         (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         State = State.Moving;
@@ -32,10 +34,18 @@ public class Sheep : GameObject
 
     protected override void UpdateMoving()
     {
-        
+        if (Room != null)
+        {
+            // 이동
+            double deltaX = DestPos.X - CellPos.X;
+            double deltaZ = DestPos.Z - CellPos.Z;
+            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+            
+            BroadcastMove();
+        }
     }
 
-    private Vector3 GetDestInFence()
+    private Vector3 GetRandomDestInFence()
     {
         int level = Room!.StorageLevel;
         List<Vector3> sheepBound = GameData.SheepBounds[level];
@@ -51,9 +61,14 @@ public class Sheep : GameObject
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
             Vector3 dest = new Vector3(x, 6.0f, z);
             bool canGo = Room!.Map.CanGoGround(dest);
-            if (canGo) break;
+            if (canGo) return dest;
         } while (true);
-        
-        return new Vector3();
+    }
+
+    private async Task Wait()
+    {
+        Random random = new Random();
+        int millisecondsToDelay = random.Next(1000, 2501);
+        await Task.Delay(millisecondsToDelay);
     }
 }

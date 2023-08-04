@@ -297,7 +297,7 @@ public partial class Map
         }
         else if (type == GameObjectType.Sheep)
         {
-            cell = new Vector3(0, 0, 0);
+            cell = new Vector3(0, 6, 0);
         }
 
         Pos pos = FindNearestEmptySpace(Cell2Pos(cell), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);

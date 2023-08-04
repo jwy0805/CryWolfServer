@@ -62,9 +62,7 @@ public partial class GameRoom : JobSerializer
     public void HandleMove(Player? player, C_Move movePacket)
     {
         if (player == null) return;
-
-        int id = movePacket.ObjectId;
-        GameObject? go = FindGameObjectById(id);
+        GameObject? go = FindGameObjectById(movePacket.ObjectId);
         Vector3 cellPos = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
         go?.ApplyMap(cellPos);
     }
@@ -72,9 +70,7 @@ public partial class GameRoom : JobSerializer
     public void HandleSetDest(Player? player, C_SetDest destPacket)
     {
         if (player == null) return;
-
-        int id = destPacket.ObjectId;
-        GameObject? go = FindGameObjectById(id);
+        GameObject? go = FindGameObjectById(destPacket.ObjectId);
         go?.BroadcastDest();
     }
     
@@ -99,6 +95,14 @@ public partial class GameRoom : JobSerializer
                 monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNo = spawnPacket.Num;
                 Push(EnterGame, monster);
+                break;
+            case GameObjectType.Sheep:
+                Sheep sheep = ObjectManager.Instance.Add<Sheep>();
+                sheep.Init();
+                sheep.PosInfo = spawnPacket.PosInfo;
+                sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
+                sheep.Info.PosInfo = sheep.PosInfo;
+                Push(EnterGame, sheep);
                 break;
         }
     }
@@ -177,6 +181,17 @@ public partial class GameRoom : JobSerializer
             }
         }
 
+        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence())
+        {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
+            List<int> keysToRemove = new List<int>();
+            if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
+            {
+                keysToRemove.AddRange(from pair in targetDict 
+                    where pair.Value.ObjectType == GameObjectType.Fence select pair.Key);
+                foreach (var key in keysToRemove) targetDict.Remove(key);
+            }
+        }
+        
         if (targetDict.Count == 0) return null;
         GameObject? target = null;
         

@@ -103,6 +103,17 @@ public partial class GameRoom : JobSerializer
                 fence.Room = this;
                 Map.ApplyMap(fence);
                 break;
+            
+            case GameObjectType.Sheep:
+                Sheep sheep = (Sheep)gameObject;
+                gameObject.PosInfo.State = State.Idle;
+                gameObject.Info.Name = "Sheep";
+                sheep.Info = gameObject.Info;
+                _sheeps.Add(gameObject.Id, sheep);
+                sheep.Room = this;
+                Map.ApplyMap(sheep);
+                sheep.Update();
+                break;
         }
         // 타인에게 정보 전송
         {
@@ -148,6 +159,12 @@ public partial class GameRoom : JobSerializer
                 if (_fences.Remove(objectId, out var fence) == false) return;
                 Map.ApplyLeave(fence);
                 fence.Room = null;
+                break;
+            
+            case GameObjectType.Sheep:
+                if (_sheeps.Remove(objectId, out var sheep) == false) return;
+                Map.ApplyLeave(sheep);
+                sheep.Room = null;
                 break;
             
             case GameObjectType.Projectile:
