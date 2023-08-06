@@ -25,10 +25,10 @@ public class Sheep : GameObject
 
     protected override async void UpdateIdle()
     {
-        await Wait();
         DestPos = GetRandomDestInFence();
         (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
+        await Wait();
         State = State.Moving;
     }
 
