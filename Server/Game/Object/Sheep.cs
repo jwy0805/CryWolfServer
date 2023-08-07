@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -8,6 +9,9 @@ namespace Server.Game;
 public class Sheep : GameObject
 {
     public int SheepNo = 1;
+    private Stopwatch _stopwatch;
+    private long _lastSetDest = 0;
+    private int _tmpcnt;
 
     public Sheep()
     {
@@ -16,6 +20,8 @@ public class Sheep : GameObject
 
     public void Init()
     {
+        _stopwatch = new Stopwatch();
+        _stopwatch.Start();
         DataManager.ObjectDict.TryGetValue(SheepNo ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Stat.Hp = objectData.stat.MaxHp;
@@ -23,13 +29,23 @@ public class Sheep : GameObject
         State = State.Idle;
     }
 
-    protected override async void UpdateIdle()
+    protected override void UpdateIdle()
     {
-        DestPos = GetRandomDestInFence();
-        (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
-        await Wait();
-        State = State.Moving;
+        if (_tmpcnt > 0)
+        {
+            Console.WriteLine(_stopwatch.ElapsedMilliseconds);
+        }
+        if (_stopwatch.ElapsedMilliseconds > _lastSetDest + 2000)
+        {
+            _lastSetDest = _stopwatch.ElapsedMilliseconds;
+            DestPos = GetRandomDestInFence();
+            (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+            BroadcastDest();
+            State = State.Moving;
+            return;
+        }
+
+        // Console.WriteLine(_stopwatch.ElapsedMilliseconds);
     }
 
     protected override void UpdateMoving()
@@ -37,9 +53,20 @@ public class Sheep : GameObject
         if (Room != null)
         {
             // 이동
+            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
             double deltaX = DestPos.X - CellPos.X;
             double deltaZ = DestPos.Z - CellPos.Z;
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+            Console.WriteLine($"Dist: {distance} / {DestPos.X}, {DestPos.Z}");
+            
+            if (distance < 0.1)
+            {
+                _tmpcnt++;
+                Console.WriteLine(_tmpcnt);
+                State = State.Idle;
+                BroadcastMove();
+                return;
+            }
             
             BroadcastMove();
         }

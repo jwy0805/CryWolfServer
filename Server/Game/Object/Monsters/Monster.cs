@@ -30,7 +30,7 @@ public class Monster : GameObject
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        Console.WriteLine($"{DestPos.X}, {DestPos.Z}");
+        // Console.WriteLine($"{DestPos.X}, {DestPos.Z}");
         (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         State = State.Moving;
@@ -85,7 +85,7 @@ public class Monster : GameObject
                 }
             }
             
-            Console.WriteLine($"CP: {CellPos.X}, {CellPos.Z} / DP: {DestPos.X}, {DestPos.Z} / Dir: {Dir} / Target: {Target.CellPos.X}, {Target.CellPos.Z}");
+            // Console.WriteLine($"CP: {CellPos.X}, {CellPos.Z} / DP: {DestPos.X}, {DestPos.Z} / Dir: {Dir} / Target: {Target.CellPos.X}, {Target.CellPos.Z}");
             BroadcastMove();
         }
     }
