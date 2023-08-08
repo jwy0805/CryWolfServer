@@ -35,17 +35,16 @@ public class Sheep : GameObject
         {
             Console.WriteLine(_stopwatch.ElapsedMilliseconds);
         }
-        if (_stopwatch.ElapsedMilliseconds > _lastSetDest + 2000)
+        if (_stopwatch.ElapsedMilliseconds > _lastSetDest + new Random().Next(1000, 2500))
         {
             _lastSetDest = _stopwatch.ElapsedMilliseconds;
             DestPos = GetRandomDestInFence();
             (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
+            Console.WriteLine(_stopwatch.ElapsedMilliseconds);
             State = State.Moving;
-            return;
         }
 
-        // Console.WriteLine(_stopwatch.ElapsedMilliseconds);
     }
 
     protected override void UpdateMoving()
@@ -84,10 +83,12 @@ public class Sheep : GameObject
         do
         {
             Random random = new();
+            Map map = Room!.Map;
             float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
-            Vector3 dest = new Vector3(x, 6.0f, z);
-            bool canGo = Room!.Map.CanGoGround(dest);
+            Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
+            Console.WriteLine($"{x}, {z} / {dest.X}, {dest.Z}");
+            bool canGo = map.CanGoGround(dest);
             if (canGo) return dest;
         } while (true);
     }
