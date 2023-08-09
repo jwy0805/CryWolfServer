@@ -63,7 +63,8 @@ public partial class GameRoom : JobSerializer
     {
         if (player == null) return;
         GameObject? go = FindGameObjectById(movePacket.ObjectId);
-        Vector3 cellPos = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
+        Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
+        Vector3 cellPos = Util.Util.NearestCell(v);
         go?.ApplyMap(cellPos);
     }
 
@@ -123,17 +124,49 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void HandleState(Player? player, C_State statePacket)
+    {
+        if (player == null) return;
+        GameObject? go = FindGameObjectById(statePacket.ObjectId);
+        if (go == null) return;
+        go.State = statePacket.State;
+    }
+    
     public void HandleAttack(Player? player, C_Attack attackPacket)
     {
         if (player == null) return;
         int attackerId = attackPacket.ObjectId;
         GameObject? attacker = FindGameObjectById(attackerId);
-        if (attacker == null) return;
-
-        int damage = attacker.TotalAttack;
-        GameObject? target = attacker.Target;
-        target?.OnDamaged(attacker, damage);
-        SetNextState(attacker);
+        GameObject? target = attacker?.Target;
+        if (attacker == null || target == null) return;
+        if (target.Stat.Targetable == false) return;
+        
+        switch (attackPacket.AttackMethod)
+        {
+            case AttackMethod.BasicAttack:
+                int damage = attacker.TotalAttack;
+                target.OnDamaged(attacker, damage);
+                SetNextState(attacker);
+                break;
+            
+            case AttackMethod.EffectAttack:
+                Effect effect = ObjectManager.Instance.Add<Effect>();
+                effect.Init();
+                effect.PosInfo = target.PosInfo;
+                effect.Info.PosInfo = target.Info.PosInfo;
+                effect.Info.Name = attackPacket.EffectName;
+                Push(EnterGame, effect);
+                break;
+            
+            case AttackMethod.ProjectileAttack:
+                Projectile projectile = ObjectManager.Instance.Add<Projectile>();
+                projectile.Init();
+                projectile.PosInfo = attacker.PosInfo;
+                projectile.Info.PosInfo = projectile.PosInfo;
+                projectile.Info.Name = attackPacket.EffectName;
+                Push(EnterGame, projectile);
+                break;
+        }
     }
     
     public GameObject? FindTarget(GameObject gameObject)

@@ -47,6 +47,19 @@ public class PacketHandler
         room.Push(room.HandleMove, player, movePacket);
     }
 
+    public static void C_StateHandler(PacketSession session, IMessage packet)
+    {
+        C_State statePacket = (C_State)packet;
+        ClientSession clientSession = (ClientSession)session;
+        
+        Player? player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom? room = player.Room;
+        if (room == null) return;
+        
+        room.Push(room.HandleState, player, statePacket);
+    }
+    
     public static void C_SetDestHandler(PacketSession session, IMessage packet)
     {
         C_SetDest destPacket = (C_SetDest)packet;

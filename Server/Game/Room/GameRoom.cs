@@ -16,6 +16,8 @@ public partial class GameRoom : JobSerializer
     private Dictionary<int, Monster> _monsters = new();
     private Dictionary<int, Sheep> _sheeps = new();
     private Dictionary<int, Fence> _fences = new();
+    private Dictionary<int, Effect> _effects = new();
+    private Dictionary<int, Projectile> _projectiles = new();
 
     public Map Map { get; private set; } = new();
 
@@ -113,6 +115,29 @@ public partial class GameRoom : JobSerializer
                 sheep.Room = this;
                 Map.ApplyMap(sheep);
                 sheep.Update();
+                break;
+            
+            case GameObjectType.Effect:
+                Effect effect = (Effect)gameObject;
+                effect.Info = gameObject.Info;
+                _effects.Add(gameObject.Id, effect);
+                effect.Room = this;
+                break;
+            
+            case GameObjectType.Projectile:
+                string className = gameObject.Info.Name;
+                Type? classType = Type.GetType(className);
+
+                if (classType != null && classType.IsSubclassOf(typeof(Projectile)))
+                {
+                    
+                }
+                
+                
+                Projectile projectile = (Projectile)gameObject;
+                projectile.Info = gameObject.Info;
+                _projectiles.Add(projectile.Id, projectile);
+                projectile.Room = this;
                 break;
         }
         // 타인에게 정보 전송
