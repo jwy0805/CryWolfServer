@@ -86,8 +86,11 @@ public partial class GameRoom : JobSerializer
                 Tower tower = ObjectManager.Instance.Add<Tower>();
                 tower.PosInfo = spawnPacket.PosInfo;
                 tower.TowerNo = spawnPacket.Num;
+                tower.Player = player;
+                if (Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) tower.TowerId = (TowerId)spawnPacket.Num;
                 Push(EnterGame, tower);
                 break;
+            
             case GameObjectType.Monster:
                 Monster monster = ObjectManager.Instance.Add<Monster>();
                 monster.Init();
@@ -95,14 +98,18 @@ public partial class GameRoom : JobSerializer
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNo = spawnPacket.Num;
+                monster.Player = player;
+                if (Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) monster.MonsterId = (MonsterId)spawnPacket.Num;
                 Push(EnterGame, monster);
                 break;
+            
             case GameObjectType.Sheep:
                 Sheep sheep = ObjectManager.Instance.Add<Sheep>();
                 sheep.Init();
                 sheep.PosInfo = spawnPacket.PosInfo;
                 sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
                 sheep.Info.PosInfo = sheep.PosInfo;
+                sheep.Player = player;
                 Push(EnterGame, sheep);
                 break;
         }
@@ -150,7 +157,7 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case AttackMethod.EffectAttack:
-                Effect effect = ObjectManager.Instance.Add<Effect>();
+                Effect effect = SkillFactory.CreateEffect(attackPacket.EffectName);
                 effect.Init();
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
@@ -159,11 +166,13 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case AttackMethod.ProjectileAttack:
-                Projectile projectile = ObjectManager.Instance.Add<Projectile>();
+                Projectile projectile = SkillFactory.CreateProjectile(attackPacket.EffectName);
                 projectile.Init();
                 projectile.PosInfo = attacker.PosInfo;
                 projectile.Info.PosInfo = projectile.PosInfo;
                 projectile.Info.Name = attackPacket.EffectName;
+                projectile.Target = target;
+                projectile.Parent = attacker;
                 Push(EnterGame, projectile);
                 break;
         }

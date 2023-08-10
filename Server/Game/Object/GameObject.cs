@@ -6,13 +6,16 @@ namespace Server.Game;
 
 public class GameObject
 {
-    private const int CallCycle = 200;
+    public Player Player = new();
+    
+    protected const int CallCycle = 200;
     protected const int SearchTick = 600;
     protected double LastSearch = 0;
 
     protected List<Vector3> Path = new();
     protected List<double> Atan = new();
     public GameObject? Target;
+    public GameObject? Parent;
     protected Vector3 DestPos;
 
     public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
@@ -84,51 +87,7 @@ public class GameObject
     }
 
     protected IJob Job;
-    public virtual void Update()
-    {
-        switch (State)
-        {
-            case State.Die:
-                UpdateDie();
-                break;
-            case State.Moving:
-                UpdateMoving();
-                break;
-            case State.Idle:
-                UpdateIdle();
-                break;
-            case State.Rush:
-                UpdateRush();
-                break;
-            case State.Attack:
-                UpdateAttack();
-                break;
-            case State.Skill:
-                UpdateSkill();
-                break;
-            case State.Skill2:
-                UpdateSkill2();
-                break;
-            case State.KnockBack:
-                UpdateKnockBack();
-                break;
-            case State.Faint:
-                break;
-            case State.Standby:
-                break;
-        }
-
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
-    }
-    
-    protected virtual void UpdateIdle() { }
-    protected virtual void UpdateMoving() { }
-    protected virtual void UpdateAttack() { }
-    protected virtual void UpdateSkill() { }
-    protected virtual void UpdateSkill2() { }
-    protected virtual void UpdateKnockBack() { }
-    protected virtual void UpdateRush() { }
-    protected virtual void UpdateDie() { }
+    public virtual void Update() { }
     
     public virtual void OnDamaged(GameObject attacker, int damage)
     {
@@ -163,7 +122,7 @@ public class GameObject
     public virtual void BroadcastDest()
     {
         if (Path.Count == 0 || Atan.Count == 0) return;
-        S_SetDest destPacket = new() { ObjectId = Id };
+        S_SetDest destPacket = new S_SetDest { ObjectId = Id };
         
         for (int i = 0; i < Path.Count; i++)
         {

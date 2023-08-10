@@ -6,7 +6,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class Sheep : GameObject
+public class Sheep : Creature, ISkillObserver
 {
     public int SheepNo = 1;
     private Stopwatch _stopwatch;
@@ -75,5 +75,34 @@ public class Sheep : GameObject
             bool canGo = map.CanGoGround(dest);
             if (canGo) return dest;
         } while (true);
+    }
+
+    public void OnSkillUpgrade(Skill skill)
+    {
+        string skillName = skill.ToString();
+        string sheepName = "Sheep";
+        if (skillName.Contains(sheepName))
+        {
+            NewSkill = skill;
+            SkillList.Add(NewSkill);
+        }
+    }
+    
+    protected override void SkillInit()
+    {
+        List<Skill> skillUpgradedList = Player.SkillUpgradedList;
+        string sheepName = "Sheep";
+        if (skillUpgradedList.Count == 0) return;
+        
+        foreach (var skill in skillUpgradedList)
+        {
+            string skillName = skill.ToString();
+            if (skillName.Contains(sheepName)) SkillList.Add(skill);
+        }
+
+        if (SkillList.Count != 0)
+        {
+            foreach (var skill in SkillList) NewSkill = skill;
+        }
     }
 }

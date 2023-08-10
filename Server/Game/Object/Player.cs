@@ -6,6 +6,7 @@ namespace Server.Game;
 public class Player : GameObject
 {
     public int PlayerNo;
+    public List<Skill> SkillUpgradedList = new();
     
     public ClientSession Session { get; set; }
 

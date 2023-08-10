@@ -125,15 +125,6 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Projectile:
-                string className = gameObject.Info.Name;
-                Type? classType = Type.GetType(className);
-
-                if (classType != null && classType.IsSubclassOf(typeof(Projectile)))
-                {
-                    
-                }
-                
-                
                 Projectile projectile = (Projectile)gameObject;
                 projectile.Info = gameObject.Info;
                 _projectiles.Add(projectile.Id, projectile);
@@ -149,7 +140,6 @@ public partial class GameRoom : JobSerializer
                 if (p.Id != gameObject.Id) p.Session.Send(spawnPacket);
             }
         }
-        
     }
 
     public void LeaveGame(int objectId)
@@ -193,6 +183,8 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Projectile:
+                if (_projectiles.Remove(objectId, out var projectile) == false) return;
+                projectile.Room = null;
                 break;
         }
 

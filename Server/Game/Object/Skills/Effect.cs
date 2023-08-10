@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public class Effect : GameObject
 {
-    public void Init()
+    public virtual void Init()
     {
         
     }

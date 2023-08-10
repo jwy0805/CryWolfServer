@@ -5,9 +5,10 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class Monster : GameObject
+public class Monster : Creature, ISkillObserver
 {
     public int MonsterNo;
+    public MonsterId MonsterId;
 
     public Monster()
     {
@@ -108,5 +109,34 @@ public class Monster : GameObject
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         BroadcastMove();
+    }
+
+    public virtual void OnSkillUpgrade(Skill skill)
+    {
+        string skillName = skill.ToString();
+        string monsterName = MonsterId.ToString();
+        if (skillName.Contains(monsterName))
+        {
+            NewSkill = skill;
+            SkillList.Add(NewSkill);
+        }
+    }
+
+    protected override void SkillInit()
+    {
+        List<Skill> skillUpgradedList = Player.SkillUpgradedList;
+        string monsterName = MonsterId.ToString();
+        if (skillUpgradedList.Count == 0) return;
+        
+        foreach (var skill in skillUpgradedList)
+        {
+            string skillName = skill.ToString();
+            if (skillName.Contains(monsterName)) SkillList.Add(skill);
+        }
+
+        if (SkillList.Count != 0)
+        {
+            foreach (var skill in SkillList) NewSkill = skill;
+        }
     }
 }
