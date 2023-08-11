@@ -45,6 +45,7 @@ public partial class GameRoom : JobSerializer
                 Player player = (Player)gameObject;
                 _players.Add(gameObject.Id, player);
                 player.Room = this;
+                player.Init();
 
                 // 본인에게 정보 전송
             {
@@ -78,7 +79,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Tower:
                 Tower tower = (Tower)gameObject;
-                gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNo.ToString()).ToString();
+                gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNum.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
@@ -89,7 +90,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Monster:
                 Monster monster = (Monster)gameObject;
-                gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNo.ToString()).ToString();
+                gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNum.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);

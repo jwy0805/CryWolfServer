@@ -85,7 +85,7 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Tower:
                 Tower tower = ObjectManager.Instance.Add<Tower>();
                 tower.PosInfo = spawnPacket.PosInfo;
-                tower.TowerNo = spawnPacket.Num;
+                tower.TowerNum = spawnPacket.Num;
                 tower.Player = player;
                 if (Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) tower.TowerId = (TowerId)spawnPacket.Num;
                 Push(EnterGame, tower);
@@ -97,7 +97,7 @@ public partial class GameRoom : JobSerializer
                 monster.PosInfo = spawnPacket.PosInfo;
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.Info.PosInfo = monster.PosInfo;
-                monster.MonsterNo = spawnPacket.Num;
+                monster.MonsterNum = spawnPacket.Num;
                 monster.Player = player;
                 if (Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) monster.MonsterId = (MonsterId)spawnPacket.Num;
                 Push(EnterGame, monster);
@@ -176,6 +176,11 @@ public partial class GameRoom : JobSerializer
                 Push(EnterGame, projectile);
                 break;
         }
+    }
+
+    public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
+    {
+        player?.SkillSubject.SkillUpgraded(upgradePacket.Skill);
     }
     
     public GameObject? FindTarget(GameObject gameObject)

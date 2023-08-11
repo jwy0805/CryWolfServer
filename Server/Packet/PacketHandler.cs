@@ -91,4 +91,17 @@ public class PacketHandler
         C_Skill skillPacket = (C_Skill)packet;
         ClientSession clientSession = (ClientSession)session;
     }
+
+    public static void C_SkillUpgradeHandler(PacketSession session, IMessage packet)
+    {
+        C_SkillUpgrade upgradePacket = (C_SkillUpgrade)packet;
+        ClientSession clientSession = (ClientSession)session;
+
+        Player? player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom? room = player.Room;
+        if (room == null) return;
+        
+        room.Push(room.HandleSkillUpgrade, player, upgradePacket);
+    }
 }

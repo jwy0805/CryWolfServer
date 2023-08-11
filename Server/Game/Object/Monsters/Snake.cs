@@ -4,8 +4,6 @@ namespace Server.Game;
 
 public class Snake : Monster
 {
-    private bool _fire = false;
-    
     protected override Skill NewSkill
     {
         get => Skill;
@@ -27,9 +25,16 @@ public class Snake : Monster
                     Stat.Accuracy += 10;
                     break;
                 case Skill.SnakeFire:
-                    _fire = true;
+                    Room?.Broadcast(new S_SkillUpgrade
+                        { SkillType = SkillType.SkillProjectile, MonsterId = MonsterId });
                     break;
             }
         }
+    }
+
+    public override void Init()
+    {
+        base.Init();
+        MonsterId = MonsterId.Snake;
     }
 }

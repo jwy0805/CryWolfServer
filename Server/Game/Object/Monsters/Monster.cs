@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public class Monster : Creature, ISkillObserver
 {
-    public int MonsterNo;
+    public int MonsterNum;
     public MonsterId MonsterId;
 
     public Monster()
@@ -15,9 +15,9 @@ public class Monster : Creature, ISkillObserver
         ObjectType = GameObjectType.Monster;
     }
 
-    public void Init()
+    public virtual void Init()
     {
-        DataManager.MonsterDict.TryGetValue(MonsterNo, out var monsterData);
+        DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
         Stat.Hp = monsterData.stat.MaxHp;
 

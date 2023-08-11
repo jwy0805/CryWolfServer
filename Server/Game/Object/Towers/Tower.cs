@@ -5,7 +5,7 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    public int TowerNo;
+    public int TowerNum;
     public TowerId TowerId;
     
     public Tower()
@@ -15,9 +15,9 @@ public class Tower : Creature, ISkillObserver
 
     public void Init(int towerNo)
     {
-        TowerNo = towerNo;
+        TowerNum = towerNo;
 
-        DataManager.TowerDict.TryGetValue(TowerNo, out var towerData);
+        DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
         Stat.MergeFrom(towerData!.stat);
         Stat.Hp = towerData.stat.MaxHp;
 

@@ -36,7 +36,9 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CAttack, MakePacket<C_Attack>);
 		_handler.Add((ushort)MessageId.CAttack, PacketHandler.C_AttackHandler);		
 		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);
-		_handler.Add((ushort)MessageId.CSkill, PacketHandler.C_SkillHandler);
+		_handler.Add((ushort)MessageId.CSkill, PacketHandler.C_SkillHandler);		
+		_onRecv.Add((ushort)MessageId.CSkillUpgrade, MakePacket<C_SkillUpgrade>);
+		_handler.Add((ushort)MessageId.CSkillUpgrade, PacketHandler.C_SkillUpgradeHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

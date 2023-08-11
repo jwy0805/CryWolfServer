@@ -7,6 +7,7 @@ public class Player : GameObject
 {
     public int PlayerNo;
     public List<Skill> SkillUpgradedList = new();
+    public SkillSubject SkillSubject = new();
     
     public ClientSession Session { get; set; }
 
@@ -19,6 +20,11 @@ public class Player : GameObject
         Stat.MoveSpeed = playerData.stat.MoveSpeed;
     }
 
+    public void Init()
+    {
+        
+    }
+    
     public void OnLeaveGame()
     {
         
