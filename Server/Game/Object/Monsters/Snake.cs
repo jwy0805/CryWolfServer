@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class Snake : Monster
+public class Snake : Snakelet
 {
     protected override Skill NewSkill
     {
