@@ -13,16 +13,19 @@ public class Snake : Snakelet
             switch (Skill)
             {
                 case Skill.SnakeAttackSpeed:
-                    Stat.AttackSpeed += 0.15f;
+                    AttackSpeed += 0.15f;
+                    TotalAttackSpeed += 0.15f;
                     break;
                 case Skill.SnakeAttack:
-                    Stat.Attack += 10;
+                    Attack += 10;
+                    TotalAttack += 10;
                     break;
                 case Skill.SnakeRange:
-                    Stat.AttackRange += 2;
+                    AttackRange += 2;
                     break;
                 case Skill.SnakeAccuracy:
-                    Stat.Accuracy += 10;
+                    Accuracy += 10;
+                    TotalAccuracy += 10;
                     break;
                 case Skill.SnakeFire:
                     Room?.Broadcast(new S_SkillUpgrade

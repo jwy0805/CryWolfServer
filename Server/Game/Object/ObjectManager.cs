@@ -29,7 +29,7 @@ public class ObjectManager
         return gameObject;
     }
 
-    private int GenerateId(GameObjectType type)
+    public int GenerateId(GameObjectType type)
     {
         lock (_lock)
         {

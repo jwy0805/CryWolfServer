@@ -6,7 +6,7 @@ namespace Server.Game;
 
 public class GameObject
 {
-    public Player Player = new();
+    public Player Player;
     
     protected const int CallCycle = 200;
     protected const int SearchTick = 600;
@@ -29,9 +29,76 @@ public class GameObject
     public ObjectInfo Info { get; set; } = new();
     public PositionInfo PosInfo { get; set; } = new();
     public StatInfo Stat { get; private set; } = new();
-    public virtual int TotalAttack => Stat.Attack;
-    public virtual int TotalSkill => Stat.Attack; 
-    public virtual int TotalDefence => Stat.Defence;
+    public int TotalAttack;
+    public float TotalAttackSpeed;
+    public int TotalDefence;
+    public float TotalMoveSpeed;
+    public int TotalAccuracy;
+    public int TotalEvasion;
+    public int TotalFireResist;
+    public int TotalPoisonResist;
+
+    #region Stat
+    
+    public int Hp
+    {
+        get => Stat.Hp;
+        set => Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
+    }
+
+    public int MaxHp
+    {
+        get => Stat.MaxHp;
+        set => Stat.MaxHp = value;
+    }
+
+    public int Mp
+    {
+        get => Stat.Mp;
+        set => Stat.Mp = Math.Clamp(value, 0, Stat.Mp);
+    }
+
+    public int MaxMp
+    {
+        get => Stat.MaxMp;
+        set => Stat.MaxMp = value;
+    }
+
+    public int MpRecovery
+    {
+        get => Stat.MpRecovery;
+        set => Stat.MpRecovery = value;
+    }
+
+    public int Attack
+    {
+        get => Stat.Attack;
+        set => Stat.Attack = value;
+    }
+
+    public int SkillDamage
+    {
+        get => Stat.Skill;
+        set => Stat.Skill = value;
+    }
+
+    public int Defence
+    {
+        get => Stat.Defence;
+        set => Stat.Defence = value;
+    }
+
+    public int FireResist
+    {
+        get => Stat.FireResist;
+        set => Stat.FireResist = value;
+    }
+
+    public int PoisonResist
+    {
+        get => Stat.PoisonResist;
+        set => Stat.PoisonResist = value;
+    }
 
     public float MoveSpeed
     {
@@ -51,11 +118,73 @@ public class GameObject
         set => Stat.AttackRange = value;
     }
 
-    public int Hp
+    public int CriticalChance
     {
-        get => Stat.Hp;
-        set => Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
+        get => Stat.CriticalChance;
+        set => Stat.CriticalChance = value;
     }
+
+    public float CriticalMultiplier
+    {
+        get => Stat.CriticalMultiplier;
+        set => Stat.CriticalMultiplier = value;
+    }
+
+    public int Accuracy
+    {
+        get => Stat.Accuracy;
+        set => Stat.Accuracy = value;
+    }
+
+    public int Evasion
+    {
+        get => Stat.Evasion;
+        set => Stat.Evasion = value;
+    }
+
+    public bool Targetable
+    {
+        get => Stat.Targetable;
+        set => Stat.Targetable = value;
+    }
+
+    public bool Aggro
+    {
+        get => Stat.Aggro;
+        set => Stat.Aggro = value;
+    }
+
+    public bool Reflection
+    {
+        get => Stat.Reflection;
+        set => Stat.Reflection = value;
+    }
+
+    public bool ReflectionSkill
+    {
+        get => Stat.ReflectionSkill;
+        set => Stat.ReflectionSkill = value;
+    }
+
+    public float ReflectionRate
+    {
+        get => Stat.ReflectionRate;
+        set => Stat.ReflectionRate = value;
+    }
+
+    public int UnitType
+    {
+        get => Stat.UnitType;
+        set => Stat.UnitType = value;
+    }
+
+    public int AttackType
+    {
+        get => Stat.AttackType;
+        set => Stat.AttackType = value;
+    }
+    
+    #endregion
     
     public State State
     {
@@ -88,22 +217,35 @@ public class GameObject
 
     protected IJob Job;
     public virtual void Update() { }
+
+    protected virtual void StatInit()
+    {
+        TotalAttack = Attack;
+        TotalAttackSpeed = AttackSpeed;
+        TotalDefence = Defence;
+        TotalMoveSpeed = MoveSpeed;
+        TotalAccuracy = Accuracy;
+        TotalEvasion = Evasion;
+        TotalFireResist = FireResist;
+        TotalPoisonResist = PoisonResist;
+    }
+
     
     public virtual void OnDamaged(GameObject attacker, int damage)
     {
         if (Room == null) return;
         damage = Math.Max(damage - TotalDefence, 0);
-        Stat.Hp = Math.Max(Stat.Hp - damage, 0);
+        Hp = Math.Max(Stat.Hp - damage, 0);
 
-        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Stat.Hp };
+        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
         Room.Broadcast(hpPacket);
-        if (Stat.Hp <= 0) OnDead(attacker);
+        if (Hp <= 0) OnDead(attacker);
     }
 
     public virtual void OnDead(GameObject attacker)
     {
         if (Room == null) return;
-        if (attacker.Target != null) attacker.Target.Stat.Targetable = false;
+        if (attacker.Target != null) attacker.Target.Targetable = false;
         
         S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
         Room.Broadcast(diePacket);

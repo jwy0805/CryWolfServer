@@ -19,7 +19,8 @@ public class Monster : Creature, ISkillObserver
     {
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
-        Stat.Hp = monsterData.stat.MaxHp;
+        StatInit();
+        Hp = monsterData.stat.MaxHp;
 
         State = State.Idle;
     }

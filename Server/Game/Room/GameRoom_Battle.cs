@@ -92,14 +92,17 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Monster:
-                Monster monster = ObjectManager.Instance.Add<Monster>();
+                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                MonsterId monsterType = (MonsterId)spawnPacket.Num;
+                Monster monster = CreatureFactory.CreateMonster(monsterType);
+                monster.Id = ObjectManager.Instance.GenerateId(monster.ObjectType);
                 monster.Init();
                 monster.PosInfo = spawnPacket.PosInfo;
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNum = spawnPacket.Num;
                 monster.Player = player;
-                if (Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) monster.MonsterId = (MonsterId)spawnPacket.Num;
+                monster.MonsterId = monsterType;
                 Push(EnterGame, monster);
                 break;
             

@@ -66,7 +66,7 @@ namespace Google.Protobuf.Protocol {
             "Y2sYCSABKAUSDQoFc2tpbGwYCiABKAUSDwoHZGVmZW5jZRgLIAEoBRISCgpm",
             "aXJlUmVzaXN0GAwgASgFEhQKDHBvaXNvblJlc2lzdBgNIAEoBRIRCgltb3Zl",
             "U3BlZWQYDiABKAISEwoLYXR0YWNrU3BlZWQYDyABKAISEwoLYXR0YWNrUmFu",
-            "Z2UYECABKAISFgoOY3JpdGljYWxDaGFuY2UYESABKAISGgoSY3JpdGljYWxN",
+            "Z2UYECABKAISFgoOY3JpdGljYWxDaGFuY2UYESABKAUSGgoSY3JpdGljYWxN",
             "dWx0aXBsaWVyGBIgASgCEhAKCGFjY3VyYWN5GBMgASgFEg8KB2V2YXNpb24Y",
             "FCABKAUSEgoKdGFyZ2V0YWJsZRgVIAEoCBINCgVhZ2dybxgWIAEoCBISCgpy",
             "ZWZsZWN0aW9uGBcgASgIEhcKD3JlZmxlY3Rpb25Ta2lsbBgYIAEoCBIWCg5y",
@@ -6502,10 +6502,10 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "criticalChance" field.</summary>
     public const int CriticalChanceFieldNumber = 17;
-    private float criticalChance_;
+    private int criticalChance_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float CriticalChance {
+    public int CriticalChance {
       get { return criticalChance_; }
       set {
         criticalChance_ = value;
@@ -6663,7 +6663,7 @@ namespace Google.Protobuf.Protocol {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MoveSpeed, other.MoveSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AttackSpeed, other.AttackSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AttackRange, other.AttackRange)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CriticalChance, other.CriticalChance)) return false;
+      if (CriticalChance != other.CriticalChance) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CriticalMultiplier, other.CriticalMultiplier)) return false;
       if (Accuracy != other.Accuracy) return false;
       if (Evasion != other.Evasion) return false;
@@ -6697,7 +6697,7 @@ namespace Google.Protobuf.Protocol {
       if (MoveSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MoveSpeed);
       if (AttackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AttackSpeed);
       if (AttackRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AttackRange);
-      if (CriticalChance != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CriticalChance);
+      if (CriticalChance != 0) hash ^= CriticalChance.GetHashCode();
       if (CriticalMultiplier != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CriticalMultiplier);
       if (Accuracy != 0) hash ^= Accuracy.GetHashCode();
       if (Evasion != 0) hash ^= Evasion.GetHashCode();
@@ -6790,9 +6790,9 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(133, 1);
         output.WriteFloat(AttackRange);
       }
-      if (CriticalChance != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(CriticalChance);
+      if (CriticalChance != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt32(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
         output.WriteRawTag(149, 1);
@@ -6908,9 +6908,9 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(133, 1);
         output.WriteFloat(AttackRange);
       }
-      if (CriticalChance != 0F) {
-        output.WriteRawTag(141, 1);
-        output.WriteFloat(CriticalChance);
+      if (CriticalChance != 0) {
+        output.WriteRawTag(136, 1);
+        output.WriteInt32(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
         output.WriteRawTag(149, 1);
@@ -7010,8 +7010,8 @@ namespace Google.Protobuf.Protocol {
       if (AttackRange != 0F) {
         size += 2 + 4;
       }
-      if (CriticalChance != 0F) {
-        size += 2 + 4;
+      if (CriticalChance != 0) {
+        size += 2 + pb::CodedOutputStream.ComputeInt32Size(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
         size += 2 + 4;
@@ -7103,7 +7103,7 @@ namespace Google.Protobuf.Protocol {
       if (other.AttackRange != 0F) {
         AttackRange = other.AttackRange;
       }
-      if (other.CriticalChance != 0F) {
+      if (other.CriticalChance != 0) {
         CriticalChance = other.CriticalChance;
       }
       if (other.CriticalMultiplier != 0F) {
@@ -7215,8 +7215,8 @@ namespace Google.Protobuf.Protocol {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 141: {
-            CriticalChance = input.ReadFloat();
+          case 136: {
+            CriticalChance = input.ReadInt32();
             break;
           }
           case 149: {
@@ -7338,8 +7338,8 @@ namespace Google.Protobuf.Protocol {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 141: {
-            CriticalChance = input.ReadFloat();
+          case 136: {
+            CriticalChance = input.ReadInt32();
             break;
           }
           case 149: {

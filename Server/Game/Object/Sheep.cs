@@ -23,7 +23,7 @@ public class Sheep : Creature, ISkillObserver
         _stopwatch.Start();
         DataManager.ObjectDict.TryGetValue(SheepNo ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
-        Stat.Hp = objectData.stat.MaxHp;
+        Hp = objectData.stat.MaxHp;
 
         State = State.Idle;
     }
