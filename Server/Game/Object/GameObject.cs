@@ -4,7 +4,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class GameObject
+public class GameObject : IGameObject
 {
     public Player Player;
     
@@ -218,7 +218,12 @@ public class GameObject
     protected IJob Job;
     public virtual void Update() { }
 
-    protected virtual void StatInit()
+    public virtual void Init()
+    {
+        StatInit();
+    }
+    
+    private void StatInit()
     {
         TotalAttack = Attack;
         TotalAttackSpeed = AttackSpeed;

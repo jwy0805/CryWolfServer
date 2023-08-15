@@ -15,11 +15,11 @@ public class Monster : Creature, ISkillObserver
         ObjectType = GameObjectType.Monster;
     }
 
-    public virtual void Init()
+    public override void Init()
     {
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
-        StatInit();
+        base.Init();
         Hp = monsterData.stat.MaxHp;
 
         State = State.Idle;

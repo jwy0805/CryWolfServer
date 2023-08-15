@@ -90,29 +90,28 @@ public partial class GameRoom : JobSerializer
                 if (Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) tower.TowerId = (TowerId)spawnPacket.Num;
                 Push(EnterGame, tower);
                 break;
-            
+
             case GameObjectType.Monster:
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
                 MonsterId monsterType = (MonsterId)spawnPacket.Num;
-                Monster monster = CreatureFactory.CreateMonster(monsterType);
-                monster.Id = ObjectManager.Instance.GenerateId(monster.ObjectType);
-                monster.Init();
+                Monster monster = ObjectManager.Instance.CreateMonster(monsterType);
                 monster.PosInfo = spawnPacket.PosInfo;
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNum = spawnPacket.Num;
                 monster.Player = player;
                 monster.MonsterId = monsterType;
+                monster.Init();
                 Push(EnterGame, monster);
                 break;
             
             case GameObjectType.Sheep:
                 Sheep sheep = ObjectManager.Instance.Add<Sheep>();
-                sheep.Init();
                 sheep.PosInfo = spawnPacket.PosInfo;
                 sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
                 sheep.Info.PosInfo = sheep.PosInfo;
                 sheep.Player = player;
+                sheep.Init();
                 Push(EnterGame, sheep);
                 break;
         }
@@ -149,33 +148,35 @@ public partial class GameRoom : JobSerializer
         GameObject? attacker = FindGameObjectById(attackerId);
         GameObject? target = attacker?.Target;
         if (attacker == null || target == null) return;
-        if (target.Stat.Targetable == false) return;
+        if (target.Targetable == false) return;
         
         switch (attackPacket.AttackMethod)
         {
-            case AttackMethod.BasicAttack:
+            case AttackMethod.NormalAttack:
                 int damage = attacker.TotalAttack;
                 target.OnDamaged(attacker, damage);
                 SetNextState(attacker);
                 break;
             
             case AttackMethod.EffectAttack:
-                Effect effect = SkillFactory.CreateEffect(attackPacket.EffectName);
-                effect.Init();
+                if (!Enum.IsDefined(typeof(EffectId), attackPacket.Effect)) return;
+                Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
-                effect.Info.Name = attackPacket.EffectName;
+                effect.Info.Name = attackPacket.Effect.ToString();
+                effect.Init();
                 Push(EnterGame, effect);
                 break;
             
             case AttackMethod.ProjectileAttack:
-                Projectile projectile = SkillFactory.CreateProjectile(attackPacket.EffectName);
-                projectile.Init();
+                if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
+                Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
                 projectile.PosInfo = attacker.PosInfo;
                 projectile.Info.PosInfo = projectile.PosInfo;
-                projectile.Info.Name = attackPacket.EffectName;
+                projectile.Info.Name = attackPacket.Projectile.ToString();
                 projectile.Target = target;
                 projectile.Parent = attacker;
+                projectile.Init();
                 Push(EnterGame, projectile);
                 break;
         }
