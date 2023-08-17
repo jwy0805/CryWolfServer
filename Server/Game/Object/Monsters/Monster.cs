@@ -10,7 +10,7 @@ public class Monster : Creature, ISkillObserver
     public int MonsterNum;
     public MonsterId MonsterId;
 
-    public Monster()
+    protected Monster()
     {
         ObjectType = GameObjectType.Monster;
     }

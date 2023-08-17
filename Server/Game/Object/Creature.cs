@@ -42,7 +42,7 @@ public class Creature : GameObject
                 break;
         }
 
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+        base.Update();
     }
     
     protected virtual void UpdateIdle() { }

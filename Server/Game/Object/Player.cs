@@ -20,7 +20,7 @@ public class Player : GameObject
         Stat.MoveSpeed = playerData.stat.MoveSpeed;
     }
 
-    public void Init()
+    public override void Init()
     {
         
     }

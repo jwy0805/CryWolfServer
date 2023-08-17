@@ -130,6 +130,7 @@ public partial class GameRoom : JobSerializer
                 projectile.Info = gameObject.Info;
                 _projectiles.Add(projectile.Id, projectile);
                 projectile.Room = this;
+                projectile.Update();
                 break;
         }
         // 타인에게 정보 전송

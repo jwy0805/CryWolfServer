@@ -71,8 +71,17 @@ public partial class GameRoom : JobSerializer
     public void HandleSetDest(Player? player, C_SetDest destPacket)
     {
         if (player == null) return;
-        GameObject? go = FindGameObjectById(destPacket.ObjectId);
-        go?.BroadcastDest();
+        GameObjectType type = ObjectManager.GetObjectTypeById(destPacket.ObjectId);
+        if (type == GameObjectType.Projectile)
+        {
+            Projectile? p = FindGameObjectById(destPacket.ObjectId) as Projectile;
+            p?.BroadcastDest();
+        }
+        else
+        {
+            GameObject? go = FindGameObjectById(destPacket.ObjectId);
+            go?.BroadcastDest();
+        }
     }
     
     public void HandleSpawn(Player? player, C_Spawn spawnPacket)
@@ -155,29 +164,36 @@ public partial class GameRoom : JobSerializer
             case AttackMethod.NormalAttack:
                 int damage = attacker.TotalAttack;
                 target.OnDamaged(attacker, damage);
-                SetNextState(attacker);
+                GameObjectType type = attacker.ObjectType;
+                if (type is GameObjectType.Monster or GameObjectType.Tower) SetNextState(attacker);
                 break;
             
             case AttackMethod.EffectAttack:
                 if (!Enum.IsDefined(typeof(EffectId), attackPacket.Effect)) return;
                 Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
+                effect.Room = this;
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
                 effect.Init();
                 Push(EnterGame, effect);
+                SetNextState(attacker);
                 break;
             
             case AttackMethod.ProjectileAttack:
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
                 Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
+                projectile.Room = this;
                 projectile.PosInfo = attacker.PosInfo;
+                // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;
                 projectile.Info.PosInfo = projectile.PosInfo;
                 projectile.Info.Name = attackPacket.Projectile.ToString();
                 projectile.Target = target;
                 projectile.Parent = attacker;
+                projectile.TotalAttack = attacker.TotalAttack;
                 projectile.Init();
                 Push(EnterGame, projectile);
+                SetNextState(attacker);
                 break;
         }
     }
@@ -279,6 +295,7 @@ public partial class GameRoom : JobSerializer
                 if (_monsters.ContainsKey(id)) go = _monsters[id];
                 break;
             case GameObjectType.Projectile:
+                if (_projectiles.ContainsKey(id)) go = _projectiles[id];
                 break;
             default:
                 go = null;

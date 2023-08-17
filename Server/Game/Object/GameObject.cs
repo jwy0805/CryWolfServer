@@ -215,8 +215,12 @@ public class GameObject : IGameObject
         }
     }
 
-    protected IJob Job;
-    public virtual void Update() { }
+    private IJob _job;
+
+    public virtual void Update()
+    {
+        if (Room != null) _job = Room.PushAfter(CallCycle, Update);
+    }
 
     public virtual void Init()
     {
@@ -269,7 +273,7 @@ public class GameObject : IGameObject
     public virtual void BroadcastDest()
     {
         if (Path.Count == 0 || Atan.Count == 0) return;
-        S_SetDest destPacket = new S_SetDest { ObjectId = Id };
+        S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         
         for (int i = 0; i < Path.Count; i++)
         {

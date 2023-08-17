@@ -12,13 +12,14 @@ public sealed class ObjectManager : IFactory
     // [UNUSED(1)][TYPE(7)][ID(24)]
     private int _counter = 0;
 
-    private static readonly Dictionary<TowerId, Type?> _towerDict = new()
+    private readonly Dictionary<TowerId, Type?> _towerDict = new()
     {
         
     };
 
     private readonly Dictionary<MonsterId, Type?> _monsterDict = new()
     {
+        { MonsterId.WolfPup, typeof(WolfPup) },
         { MonsterId.Snakelet, typeof(Snakelet) },
         { MonsterId.Snake, typeof(Snake) },
         { MonsterId.SnakeNaga, typeof(SnakeNaga) }
@@ -31,7 +32,7 @@ public sealed class ObjectManager : IFactory
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()
     {
-
+        
     };
 
     public Tower CreateTower(TowerId towerId)
@@ -59,7 +60,7 @@ public sealed class ObjectManager : IFactory
         if (!dict.TryGetValue(key, out var type))
             throw new ArgumentException($"Invalid {typeof(T).Name}");
 
-        var entity = (GameObject)Activator.CreateInstance(type!)!;
+        GameObject entity = (GameObject)Activator.CreateInstance(type!)!;
         lock (_lock) entity.Id = GenerateId(entity.ObjectType);
         
         return entity;
