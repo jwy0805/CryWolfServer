@@ -158,26 +158,28 @@ public partial class GameRoom : JobSerializer
         GameObject? target = attacker?.Target;
         if (attacker == null || target == null) return;
         if (target.Targetable == false) return;
+        GameObjectType type = attacker.ObjectType;
         
         switch (attackPacket.AttackMethod)
         {
             case AttackMethod.NormalAttack:
                 int damage = attacker.TotalAttack;
                 target.OnDamaged(attacker, damage);
-                GameObjectType type = attacker.ObjectType;
                 if (type is GameObjectType.Monster or GameObjectType.Tower) SetNextState(attacker);
                 break;
             
             case AttackMethod.EffectAttack:
                 if (!Enum.IsDefined(typeof(EffectId), attackPacket.Effect)) return;
+                int skillDamage = attacker.SkillDamage;
                 Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
                 effect.Room = this;
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
                 effect.Init();
+                target.OnDamaged(attacker, skillDamage);
                 Push(EnterGame, effect);
-                SetNextState(attacker);
+                if (type is GameObjectType.Monster or GameObjectType.Tower) SetNextState(attacker);
                 break;
             
             case AttackMethod.ProjectileAttack:
@@ -200,7 +202,24 @@ public partial class GameRoom : JobSerializer
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
     {
-        player?.SkillSubject.SkillUpgraded(upgradePacket.Skill);
+        if (player == null) return;
+        
+        Skill skill = upgradePacket.Skill;
+        bool canUpgrade = CanUpgrade(player);
+        if (canUpgrade == false)
+        {
+            // Client에 메시지 전달 -> "cost가 부족합니다"
+            return;
+        }
+        
+        if (Enum.IsDefined(typeof(Skill), skill.ToString()))
+            player.SkillSubject.SkillUpgraded(upgradePacket.Skill);
+        else ProcessingBaseSkill(player);
+        
+        player.Session.Send(new S_SkillUpgrade
+        {
+            Skill = upgradePacket.Skill
+        });
     }
     
     public GameObject? FindTarget(GameObject gameObject)
@@ -336,5 +355,17 @@ public partial class GameRoom : JobSerializer
     public bool ReachableInFence()
     {
         return _fences.Count < GameData.FenceCnt[_storageLevel];
+    }
+
+    private bool CanUpgrade(Player player)
+    {
+        int resource = player.Resource;
+        
+        return false;
+    }
+    
+    private void ProcessingBaseSkill(Player player)
+    {
+        
     }
 }

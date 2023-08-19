@@ -4,8 +4,8 @@ namespace Server.Game;
 
 public class Wolf : WolfPup
 {
-    private bool _drain = false;
-    private float _drainParam = 0.25f;
+    protected bool _drain = false;
+    protected float _drainParam = 0.25f;
     
     protected override Skill NewSkill
     {
@@ -38,5 +38,11 @@ public class Wolf : WolfPup
                     break;
             }
         }
+    }
+
+    public override void Init()
+    {
+        base.Init();
+        MonsterId = MonsterId.Wolf;
     }
 }

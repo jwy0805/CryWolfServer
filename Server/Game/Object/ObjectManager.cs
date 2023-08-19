@@ -20,6 +20,8 @@ public sealed class ObjectManager : IFactory
     private readonly Dictionary<MonsterId, Type?> _monsterDict = new()
     {
         { MonsterId.WolfPup, typeof(WolfPup) },
+        { MonsterId.Wolf, typeof(Wolf) },
+        { MonsterId.Werewolf, typeof(Werewolf) },
         { MonsterId.Snakelet, typeof(Snakelet) },
         { MonsterId.Snake, typeof(Snake) },
         { MonsterId.SnakeNaga, typeof(SnakeNaga) }
@@ -32,7 +34,7 @@ public sealed class ObjectManager : IFactory
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()
     {
-        
+        { EffectId.LightningStrike, typeof(Effect) },
     };
 
     public Tower CreateTower(TowerId towerId)

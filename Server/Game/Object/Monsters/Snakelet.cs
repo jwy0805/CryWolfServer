@@ -34,6 +34,5 @@ public class Snakelet : Monster
     {
         base.Init();
         MonsterId = MonsterId.Snakelet;
-        TotalMoveSpeed = 10f;
     }
 }

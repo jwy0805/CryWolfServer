@@ -1,4 +1,5 @@
 using System.Numerics;
+using Google.Protobuf.Protocol;
 
 namespace Server.Data;
 
@@ -304,117 +305,209 @@ public class GameData
     //     { Define.UnitId.MosquitoBug, 180 }, { Define.UnitId.MosquitoPester, 450 },
     //     { Define.UnitId.Shell, 250 }, { Define.UnitId.Spike, 650 },
     // };
-    public static readonly Dictionary<string, string[]> SkillTree = new Dictionary<string, string[]>()
-    {
-        { "BloomAttack", new[] { "free" } },
-        { "BloomAttackSpeed", new[] { "free" } },
-        { "BloomRange", new[] { "free" } },
-        { "BloomAttackSpeed2", new[] { "BloomAttackSpeed" } },
-        { "BloomAirAttack", new[] { "BloomRange" } },
-        { "Bloom3Combo", new[] { "BloomAttack", "BloomAttackSpeed2" } },
-
-        { "BlossomPoison", new[] { "free" } },
-        { "BlossomAccuracy", new[] { "free" } },
-        { "BlossomAttack", new[] { "BlossomPoison", "BlossomAccuracy" } },
-        { "BlossomAttackSpeed", new[] { "BlossomPoison", "BlossomAccuracy" } },
-        { "BlossomRange", new[] { "BlossomPoison", "BlossomAccuracy" } },
-        { "BlossomDeath", new[] { "BlossomAttack", "BlossomAttackSpeed", "BlossomRange" } },
-
-        { "BudAttack", new[] { "free" } },
-        { "BudAttackSpeed", new[] { "free" } },
-        { "BudRange", new[] { "free" } },
-        { "BudSeed", new[] { "BudAttack", "BudAttackSpeed" } },
-        { "BudDouble", new[] { "BudSeed", "BudRange" } },
-
-        { "HauntLongAttack", new[] { "free" } },
-        { "HauntAttackSpeed", new[] { "free" } },
-        { "HauntAttack", new[] { "free" } },
-        { "HauntPoisonResist", new[] { "HauntLongAttack", "HauntAttackSpeed", "HauntAttack" } },
-        { "HauntFireResist", new[] { "HauntLongAttack", "HauntAttackSpeed", "HauntAttack" } },
-        { "HauntFire", new[] { "HauntPoisonResist", "HauntFireResist" } },
-
-        { "MothCelestialSheepHealth", new[] { "free" } },
-        { "MothCelestialGroundAttack", new[] { "free" } },
-        { "MothCelestialAccuracy", new[] { "free" } },
-        { "MothCelestialFireResist", new[] { "MothCelestialSheepHealth", "MothCelestialGroundAttack" } },
-        { "MothCelestialPoisonResist", new[] { "MothCelestialSheepHealth", "MothCelestialGroundAttack" } },
-        { "MothCelestialPoison", new[] { "MothCelestialAccuracy" } },
-        { "MothCelestialBreedSheep", new[] { "MothCelestialPoisonResist", "MothCelestialFireResist" } },
-
-        { "MothMoonRemoveDebuffSheep", new[] { "free" } },
-        { "MothMoonHealSheep", new[] { "free" } },
-        { "MothMoonRange", new[] { "free" } },
-        { "MothMoonOutput", new[] { "MothMoonRemoveDebuffSheep", "MothMoonHealSheep" } },
-        { "MothMoonAttackSpeed", new[] { "MothMoonRange" } },
-
-        { "MothLunaAttack", new[] { "free" } },
-        { "MothLunaSpeed", new[] { "free" } },
-        { "MothLunaAccuracy", new[] { "free" } },
-        { "MothLunaFaint", new[] { "MothLunaAttack", "MothLunaSpeed" } },
-
-        { "PracticeDummyHealth", new[] { "free" } },
-        { "PracticeDummyDefence", new[] { "free" } },
-        { "PracticeDummyHealth2", new[] { "PracticeDummyHealth" } },
-        { "PracticeDummyDefence2", new[] { "PracticeDummyDefence" } },
-        { "PracticeDummyAggro", new[] { "PracticeDummyHealth2", "PracticeDummyDefence2" } },
-
-        { "SoulMageAvoid", new[] { "free" } },
-        { "SoulMageDefenceAll", new[] { "free" } },
-        { "SoulMageFireDamage", new[] { "free" } },
-        { "SoulMageShareDamage", new[] { "SoulMageDefenceAll" } },
-        { "SoulMageTornado", new[] { "SoulMageFireDamage" } },
-        { "SoulMageDebuffResist", new[] { "SoulMageAvoid", "SoulMageShareDamage", "SoulMageTornado" } },
-        { "SoulMageNatureAttack", new[] { "SoulMageAvoid", "SoulMageShareDamage", "SoulMageTornado" } },
-        { "SoulMageCritical", new[] { "SoulMageDebuffResist", "SoulMageNatureAttack" } },
-
-        { "SoulAttack", new[] { "free" } },
-        { "SoulDefence", new[] { "free" } },
-        { "SoulHealth", new[] { "free" } },
-        { "SoulDrain", new[] { "SoulAttack", "SoulDefence", "SoulHealth" } },
-
-        { "SunBlossomHealth", new[] { "free" } },
-        { "SunBlossomSlow", new[] { "free" } },
-        { "SunBlossomHeal", new[] { "SunBlossomHealth" } },
-        { "SunBlossomSlowAttack", new[] { "SunBlossomSlow" } },
-
-        { "SunfloraPixieFaint", new[] { "free" } },
-        { "SunfloraPixieHeal", new[] { "free" } },
-        { "SunfloraPixieRange", new[] { "free" } },
-        { "SunfloraPixieCurse", new[] { "SunfloraPixieFaint" } },
-        { "SunfloraPixieAttackSpeed", new[] { "SunfloraPixieHeal" } },
-        { "SunfloraPixieTriple", new[] { "SunfloraPixieRange" } },
-        {
-            "SunfloraPixieDebuffRemove",
-            new[] { "SunfloraPixieCurse", "SunfloraPixieAttackSpeed" }
-        },
-        {
-            "SunfloraPixieAttack",
-            new[] { "SunfloraPixieCurse", "SunfloraPixieAttackSpeed" }
-        },
-        { "SunfloraPixieInvincible", new[] { "SunfloraPixieDebuffRemove", "SunfloraPixieAttack" } },
-
-        { "SunflowerFairyAttack", new[] { "free" } },
-        { "SunflowerFairyDouble", new[] { "free" } },
-        { "SunflowerFairyDefence", new[] { "SunflowerFairyAttack" } },
-        { "SunflowerFairyMpDown", new[] { "SunflowerFairyDouble" } },
-        { "SunflowerFairyFenceHeal", new[] { "SunflowerFairyDefence", "SunflowerFairyMpDown" } },
-
-        { "TargetDummyHealth", new[] { "free" } },
-        { "TargetDummyHeal", new[] { "free" } },
-        { "TargetDummyFireResist", new[] { "TargetDummyHealth", "TargetDummyHeal" } },
-        { "TargetDummyPoisonResist", new[] { "TargetDummyHealth", "TargetDummyHeal" } },
-        { "TargetDummyReflection", new[] { "TargetDummyHealth", "TargetDummyHeal" } },
-
-        { "TrainingDummyAggro", new[] { "free" } },
-        { "TrainingDummyHeal", new[] { "free" } },
-        { "TrainingDummyFaint", new[] { "free" } },
-        { "TrainingDummyHealth", new[] { "TrainingDummyAggro", "TrainingDummyHeal" } },
-        { "TrainingDummyDefence", new[] { "TrainingDummyAggro", "TrainingDummyHeal" } },
-        { "TrainingDummyPoisonResist", new[] { "TrainingDummyAggro", "TrainingDummyHeal" } },
-        { "TrainingDummyFireResist", new[] { "TrainingDummyAggro", "TrainingDummyHeal" } },
-    };
     
-    public static List<string> SkillUpgradedList = new List<string>();
+    public static readonly Dictionary<Skill, Skill[]> SkillTree = new()
+    {
+        { Skill.BloomAttack, new[] { Skill.NoSkill } },
+        { Skill.BloomAttackSpeed, new[] { Skill.NoSkill } },
+        { Skill.BloomRange, new[] { Skill.NoSkill } },
+        { Skill.BloomAttackSpeed2, new[] { Skill.BloomAttackSpeed } },
+        { Skill.BloomAirAttack, new[] { Skill.BloomRange } },
+        { Skill.Bloom3Combo, new[] { Skill.BloomAttack, Skill.BloomAttackSpeed2 } },
+    
+        { Skill.BlossomPoison, new[] { Skill.NoSkill } },
+        { Skill.BlossomAccuracy, new[] { Skill.NoSkill } },
+        { Skill.BlossomAttack, new[] { Skill.BlossomPoison, Skill.BlossomAccuracy } },
+        { Skill.BlossomAttackSpeed, new[] { Skill.BlossomPoison, Skill.BlossomAccuracy } },
+        { Skill.BlossomRange, new[] { Skill.BlossomPoison, Skill.BlossomAccuracy } },
+        { Skill.BlossomDeath, new[] { Skill.BlossomAttack, Skill.BlossomAttackSpeed, Skill.BlossomRange } },
+    
+        { Skill.BudAttack, new[] { Skill.NoSkill } },
+        { Skill.BudAttackSpeed, new[] { Skill.NoSkill } },
+        { Skill.BudRange, new[] { Skill.NoSkill } },
+        { Skill.BudSeed, new[] { Skill.BudAttack, Skill.BudAttackSpeed } },
+        { Skill.BudDouble, new[] { Skill.BudSeed, Skill.BudRange } },
+    
+        { Skill.HauntLongAttack, new[] { Skill.NoSkill } },
+        { Skill.HauntAttackSpeed, new[] { Skill.NoSkill } },
+        { Skill.HauntAttack, new[] { Skill.NoSkill } },
+        { Skill.HauntPoisonResist, new[] { Skill.HauntLongAttack, Skill.HauntAttackSpeed, Skill.HauntAttack } },
+        { Skill.HauntFireResist, new[] { Skill.HauntLongAttack, Skill.HauntAttack, Skill.HauntAttack } },
+        { Skill.HauntFire, new[] { Skill.HauntPoisonResist, Skill.HauntFireResist } },
+    
+        { Skill.MothCelestialSheepHealth, new[] { Skill.NoSkill } },
+        { Skill.MothCelestialGroundAttack, new[] { Skill.NoSkill } },
+        { Skill.MothCelestialAccuracy, new[] { Skill.NoSkill } },
+        { Skill.MothCelestialFireResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialGroundAttack } },
+        { Skill.MothCelestialPoisonResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialGroundAttack } },
+        { Skill.MothCelestialPoison, new[] { Skill.MothCelestialAccuracy } },
+        { Skill.MothCelestialBreedSheep, new[] { Skill.MothCelestialPoisonResist, Skill.MothCelestialFireResist } },
+    
+        { Skill.MothMoonRemoveDebuffSheep, new[] { Skill.NoSkill } },
+        { Skill.MothMoonHealSheep, new[] { Skill.NoSkill } },
+        { Skill.MothMoonRange, new[] { Skill.NoSkill } },
+        { Skill.MothMoonOutput, new[] { Skill.MothMoonRemoveDebuffSheep, Skill.MothMoonHealSheep } },
+        { Skill.MothMoonAttackSpeed, new[] { Skill.MothMoonRange } },
+    
+        { Skill.MothLunaAttack, new[] { Skill.NoSkill } },
+        { Skill.MothLunaSpeed, new[] { Skill.NoSkill } },
+        { Skill.MothLunaAccuracy, new[] { Skill.NoSkill } },
+        { Skill.MothLunaFaint, new[] { Skill.MothLunaAttack, Skill.MothLunaSpeed } },
+    
+        { Skill.PracticeDummyHealth, new[] { Skill.NoSkill } },
+        { Skill.PracticeDummyDefence, new[] { Skill.NoSkill } },
+        { Skill.PracticeDummyHealth2, new[] { Skill.PracticeDummyHealth } },
+        { Skill.PracticeDummyDefence2, new[] { Skill.PracticeDummyDefence } },
+        { Skill.PracticeDummyAggro, new[] { Skill.PracticeDummyHealth2, Skill.PracticeDummyDefence2} },
+    
+        { Skill.SoulMageAvoid, new[] { Skill.NoSkill } },
+        { Skill.SoulMageDefenceAll, new[] { Skill.NoSkill } },
+        { Skill.SoulMageFireDamage, new[] { Skill.NoSkill } },
+        { Skill.SoulMageShareDamage, new[] { Skill.SoulMageDefenceAll } },
+        { Skill.SoulMageTornado, new[] { Skill.SoulMageFireDamage } },
+        { Skill.SoulMageDebuffResist, new[] { Skill.SoulMageAvoid, Skill.SoulMageShareDamage, Skill.SoulMageTornado } },
+        { Skill.SoulMageNatureAttack, new[] { Skill.SoulMageAvoid, Skill.SoulMageShareDamage, Skill.SoulMageTornado } },
+        { Skill.SoulMageCritical, new[] { Skill.SoulMageDebuffResist, Skill.SoulMageNatureAttack } },
+    
+        { Skill.SoulAttack, new[] { Skill.NoSkill } },
+        { Skill.SoulDefence, new[] { Skill.NoSkill } },
+        { Skill.SoulHealth, new[] { Skill.NoSkill } },
+        { Skill.SoulDrain, new[] { Skill.SoulAttack, Skill.SoulDefence, Skill.SoulHealth } },
+    
+        { Skill.SunBlossomHealth, new[] { Skill.NoSkill } },
+        { Skill.SunBlossomSlow, new[] { Skill.NoSkill } },
+        { Skill.SunBlossomHeal, new[] { Skill.SunBlossomHealth } },
+        { Skill.SunBlossomSlowAttack, new[] { Skill.SunBlossomSlow } },
+    
+        { Skill.SunfloraPixieFaint, new[] { Skill.NoSkill } },
+        { Skill.SunfloraPixieHeal, new[] { Skill.NoSkill } },
+        { Skill.SunfloraPixieRange, new[] { Skill.NoSkill } },
+        { Skill.SunfloraPixieCurse, new[] { Skill.SunfloraPixieFaint } },
+        { Skill.SunfloraPixieAttackSpeed, new[] { Skill.SunfloraPixieHeal } },
+        { Skill.SunfloraPixieTriple, new[] { Skill.SunfloraPixieRange } },
+        {
+            Skill.SunfloraPixieDebuffRemove,
+            new[] { Skill.SunfloraPixieCurse, Skill.SunfloraPixieAttackSpeed }
+        },
+        {
+            Skill.SunfloraPixieAttack,
+            new[] { Skill.SunfloraPixieCurse, Skill.SunfloraPixieAttackSpeed }
+        },
+        { Skill.SunfloraPixieInvincible, new[] { Skill.SunfloraPixieDebuffRemove, Skill.SunfloraPixieAttack } },
+    
+        { Skill.SunflowerFairyAttack, new[] { Skill.NoSkill } },
+        { Skill.SunflowerFairyDouble, new[] { Skill.NoSkill } },
+        { Skill.SunflowerFairyDefence, new[] { Skill.SunflowerFairyAttack } },
+        { Skill.SunflowerFairyMpDown, new[] { Skill.SunflowerFairyDouble } },
+        { Skill.SunflowerFairyFenceHeal, new[] { Skill.SunflowerFairyDefence, Skill.SunflowerFairyMpDown } },
+    
+        { Skill.TargetDummyHealth, new[] { Skill.NoSkill } },
+        { Skill.TargetDummyHeal, new[] { Skill.NoSkill } },
+        { Skill.TargetDummyFireResist, new[] { Skill.TargetDummyHeal, Skill.TargetDummyHealth } },
+        { Skill.TargetDummyPoisonResist, new[] { Skill.TargetDummyHeal, Skill.TargetDummyHealth } },
+        { Skill.TargetDummyReflection, new[] { Skill.TargetDummyHeal, Skill.TargetDummyHealth } },
+    
+        { Skill.TrainingDummyAggro, new[] { Skill.NoSkill } },
+        { Skill.TrainingDummyHeal, new[] { Skill.NoSkill } },
+        { Skill.TrainingDummyFaint, new[] { Skill.NoSkill } },
+        { Skill.TrainingDummyHealth, new[] { Skill.TrainingDummyAggro, Skill.TrainingDummyHeal } },
+        { Skill.TrainingDummyDefence, new[] { Skill.TrainingDummyAggro, Skill.TrainingDummyHeal } },
+        { Skill.TrainingDummyPoisonResist, new[] { Skill.TrainingDummyAggro, Skill.TargetDummyHeal } },
+        { Skill.TrainingDummyFireResist, new[] { Skill.TrainingDummyAggro, Skill.TargetDummyHeal } },
+    
+        { Skill.WolfPupSpeed , new [] { Skill.NoSkill }},
+        { Skill.WolfPupHealth , new [] { Skill.NoSkill }},
+        { Skill.WolfPupAttackSpeed , new [] { Skill.WolfPupAttack }},
+        { Skill.WolfPupAttack , new [] { Skill.WolfPupHealth }},
+        
+        { Skill.WolfDefence, new [] { Skill.NoSkill } },
+        { Skill.WolfDrain,  new [] { Skill.NoSkill } },
+        { Skill.WolfAvoid, new [] { Skill.WolfDefence } },
+        { Skill.WolfCritical, new [] { Skill.WolfDrain } },
+        { Skill.WolfFireResist, new [] { Skill.WolfAvoid } },
+        { Skill.WolfPoisonResist, new [] { Skill.WolfAvoid } },
+        { Skill.WolfDna, new [] { Skill.WolfFireResist, Skill.WolfPoisonResist, Skill.WolfCritical} },
+    
+        { Skill.HorrorRollPoison, new [] { Skill.NoSkill } },
+        { Skill.HorrorPoisonStack, new [] { Skill.NoSkill } },
+        { Skill.HorrorHealth, new [] { Skill.HorrorRollPoison, Skill.HorrorPoisonStack } },
+        { Skill.HorrorPoisonResist, new [] { Skill.HorrorRollPoison, Skill.HorrorPoisonStack } },
+        { Skill.HorrorDefence, new [] { Skill.HorrorRollPoison, Skill.HorrorPoisonStack } },
+        { Skill.HorrorPoisonBelt, new [] { Skill.HorrorRollPoison, Skill.HorrorPoisonStack } },
+    
+        { Skill.SnakeletSpeed, new [] { Skill.NoSkill } },
+        { Skill.SnakeletRange, new [] { Skill.NoSkill } },
+        { Skill.SnakeletAttackSpeed, new [] { Skill.SnakeletSpeed } },
+        { Skill.SnakeletAttack, new [] { Skill.SnakeRange } },
+    
+        { Skill.SnakeNagaAttack, new [] { Skill.NoSkill } },
+        { Skill.SnakeNagaRange, new [] { Skill.NoSkill } },
+        { Skill.SnakeNagaFireResist, new [] { Skill.SnakeNagaAttack, Skill.SnakeNagaRange } },
+        { Skill.SnakeNagaCritical, new [] { Skill.SnakeNagaAttack, Skill.SnakeNagaRange } },
+        { Skill.SnakeNagaDrain, new [] { Skill.SnakeNagaAttack, Skill.SnakeNagaRange } },
+        { Skill.SnakeNagaMeteor, new [] { Skill.SnakeNagaFireResist, Skill.SnakeNagaCritical, Skill.SnakeNagaDrain } },
+    
+        { Skill.CreeperSpeed, new [] { Skill.NoSkill } },
+        { Skill.CreeperAttackSpeed, new [] { Skill.NoSkill } },
+        { Skill.CreeperAttack, new [] { Skill.NoSkill } },
+        { Skill.CreeperRoll, new [] { Skill.CreeperSpeed, Skill.CreeperAttackSpeed, Skill.CreeperAttack } },
+        { Skill.CreeperPoison, new [] { Skill.CreeperSpeed, Skill.CreeperAttackSpeed, Skill.CreeperAttack } },
+    
+        { Skill.MosquitoBugSpeed, new [] { Skill.NoSkill } },
+        { Skill.MosquitoBugDefence, new [] { Skill.NoSkill } },
+        { Skill.MosquitoBugAvoid, new [] { Skill.NoSkill } },
+        { Skill.MosquitoBugWoolDown, new [] { Skill.MosquitoBugSpeed, Skill.MosquitoBugDefence, Skill.MosquitoBugAvoid } },
+    
+        { Skill.LurkerSpeed, new [] { Skill.NoSkill } },
+        { Skill.LurkerHealth, new [] { Skill.NoSkill } },
+        { Skill.LurkerDefence, new [] { Skill.NoSkill } },
+        { Skill.LurkerHealth2, new [] { Skill.LurkerSpeed, Skill.LurkerHealth, Skill.LurkerDefence } },
+    
+        { Skill.MosquitoPesterAttack, new [] { Skill.NoSkill } },
+        { Skill.MosquitoPesterHealth, new [] { Skill.NoSkill } },
+        { Skill.MosquitoPesterWoolDown2, new [] { Skill.MosquitoPesterAttack } },
+        { Skill.MosquitoPesterWoolRate, new [] { Skill.MosquitoPesterHealth } },
+        { Skill.MosquitoPesterWoolStop, new [] { Skill.MosquitoPesterWoolDown2, Skill.MosquitoPesterWoolRate } },
+    
+        { Skill.SpikeSelfDefence, new [] { Skill.NoSkill } },
+        { Skill.SpikeLostHeal, new [] { Skill.NoSkill } },
+        { Skill.SpikeDefence, new [] { Skill.SpikeSelfDefence } },
+        { Skill.SpikeAttack, new [] { Skill.SpikeLostHeal } },
+        { Skill.SpikeDoubleBuff, new [] { Skill.SpikeDefence, Skill.SpikeAttack } },
+    
+        { Skill.WerewolfThunder, new [] { Skill.NoSkill } },
+        { Skill.WerewolfDebuffResist, new [] { Skill.NoSkill } },
+        { Skill.WerewolfFaint, new [] { Skill.WerewolfThunder } },
+        { Skill.WerewolfHealth, new [] { Skill.WerewolfDebuffResist } },
+        { Skill.WerewolfEnhance, new [] { Skill.WerewolfFaint, Skill.WerewolfHealth } },
+    
+        { Skill.ShellAttackSpeed, new [] { Skill.NoSkill } },
+        { Skill.ShellSpeed, new [] { Skill.NoSkill } },
+        { Skill.ShellHealth, new [] { Skill.NoSkill } },
+        { Skill.ShellRoll, new [] { Skill.ShellAttackSpeed, Skill.ShellSpeed, Skill.ShellHealth } },
+    
+        { Skill.SnakeAttack, new [] { Skill.NoSkill } },
+        { Skill.SnakeAttackSpeed, new [] { Skill.NoSkill } },
+        { Skill.SnakeRange, new [] { Skill.NoSkill } },
+        { Skill.SnakeAccuracy, new [] { Skill.SnakeAttack, Skill.SnakeAttackSpeed, Skill.SnakeRange } },
+        { Skill.SnakeFire, new [] { Skill.SnakeAccuracy } },
+    
+        { Skill.MosquitoStingerLongAttack, new [] { Skill.NoSkill } },
+        { Skill.MosquitoStingerHealth, new [] { Skill.NoSkill } },
+        { Skill.MosquitoStingerAvoid, new [] { Skill.NoSkill } },
+        { Skill.MosquitoStingerPoison, new [] { Skill.MosquitoStingerLongAttack, Skill.MosquitoStingerHealth } },
+        { Skill.MosquitoStingerPoisonResist, new [] { Skill.MosquitoStingerLongAttack, Skill.MosquitoStingerHealth } },
+        { Skill.MosquitoStingerInfection, new [] { Skill.MosquitoStingerAvoid, Skill.MosquitoStingerPoison, Skill.MosquitoStingerPoisonResist } },
+        { Skill.MosquitoStingerSheepDeath, new [] { Skill.MosquitoStingerInfection } },
+    
+        { Skill.HermitFireResist, new [] { Skill.NoSkill } },
+        { Skill.HermitPoisonResist, new [] { Skill.NoSkill } },
+        { Skill.HermitDebuffRemove, new [] { Skill.NoSkill } },
+        { Skill.HermitRange, new [] { Skill.HermitFireResist, Skill.HermitPoisonResist, Skill.HermitDebuffRemove } },
+        { Skill.HermitAggro, new [] { Skill.HermitFireResist, Skill.HermitPoisonResist, Skill.HermitDebuffRemove } },
+        { Skill.HermitReflection, new [] { Skill.HermitRange, Skill.HermitAggro } },
+        { Skill.HermitFaint, new [] { Skill.HermitRange, Skill.HermitAggro } },
+    };
 }
 
 
