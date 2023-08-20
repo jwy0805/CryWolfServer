@@ -59,7 +59,7 @@ public sealed class ObjectManager : IFactory
 
     private GameObject Create<T>(Dictionary<T, Type?> dict, T key) where T : Enum
     {
-        if (!dict.TryGetValue(key, out var type))
+        if (!dict.TryGetValue(key, out Type? type))
             throw new ArgumentException($"Invalid {typeof(T).Name}");
 
         GameObject entity = (GameObject)Activator.CreateInstance(type!)!;

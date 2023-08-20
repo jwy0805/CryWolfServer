@@ -43,6 +43,7 @@ public partial class GameRoom : JobSerializer
     {
         Stopwatch.Start();
         StorageLevel = 1;
+        BuffManager.Instance.Room = this;
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
@@ -361,7 +362,7 @@ public partial class GameRoom : JobSerializer
     {
         int resource = player.Resource;
         
-        return false;
+        return true;
     }
     
     private void ProcessingBaseSkill(Player player)

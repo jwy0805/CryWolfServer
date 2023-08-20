@@ -7,7 +7,8 @@ public class Creature : GameObject
     protected virtual Skill NewSkill { get; set; }
     protected Skill Skill;
     protected List<Skill> SkillList = new();
-    
+    public List<BuffManager.IBuff> BuffList = new();
+
     public override void Update()
     {
         switch (State)

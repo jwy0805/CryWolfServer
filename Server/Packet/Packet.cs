@@ -198,6 +198,14 @@ namespace Google.Protobuf.Protocol {
             "DVVOS05PV05fVE9XRVIQDypDCgxQcm9qZWN0aWxlSWQSEQoNTk9fUFJPSkVD",
             "VElMRRAAEhAKDEJBU0lDX0FUVEFDSxABEg4KClNNQUxMX0ZJUkUQAiovCghF",
             "ZmZlY3RJZBINCglOT19FRkZFQ1QQABIUChBMSUdIVE5JTkdfU1RSSUtFEAEq",
+            "sQIKBkJ1ZmZJZBILCgdOT19CVUZGEAASEwoPQVRUQUNLX0lOQ1JFQVNFEAES",
+            "GQoVQVRUQUNLX1NQRUVEX0lOQ1JFQVNFEAISEwoPSEVBTFRIX0lOQ1JFQVNF",
+            "EAMSFAoQREVGRU5DRV9JTkNSRUFTRRAEEhcKE01PVkVfU1BFRURfSU5DUkVB",
+            "U0UQBRIOCgpJTlZJTkNJQkxFEAYSEwoPQVRUQUNLX0RFQ1JFQVNFEAcSGQoV",
+            "QVRUQUNLX1NQRUVEX0RFQ1JFQVNFEAgSFAoQREVGRU5DRV9ERUNSRUFTRRAJ",
+            "EhcKE01PVkVfU1BFRURfREVDUkVBU0UQChIJCgVDVVJTRRALEgwKCEFERElD",
+            "VEVEEAwSEwoPREVBRExZX0FERElDVEVEEA0SCQoFQUdHUk8QDioyCghCdWZm",
+            "VHlwZRIQCgxOT19CVUZGX1RZUEUQABIICgRCVUZGEAESCgoGREVCVUZGEAIq",
             "WgoRUGxheWVyU2VydmVyU3RhdGUSFgoSU0VSVkVSX1NUQVRFX0xPR0lOEAAS",
             "FgoSU0VSVkVSX1NUQVRFX0xPQkJZEAESFQoRU0VSVkVSX1NUQVRFX0dBTUUQ",
             "AioyCghTcGF3bldheRIICgRXRVNUEAASCQoFTk9SVEgQARIICgRFQVNUEAIS",
@@ -206,7 +214,7 @@ namespace Google.Protobuf.Protocol {
             "R29vZ2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.BaseSkill), typeof(global::Google.Protobuf.Protocol.MonsterId), typeof(global::Google.Protobuf.Protocol.TowerId), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.AttackMethod), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.BaseSkill), typeof(global::Google.Protobuf.Protocol.MonsterId), typeof(global::Google.Protobuf.Protocol.TowerId), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.BuffId), typeof(global::Google.Protobuf.Protocol.BuffType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.AttackMethod), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_EnterGame), global::Google.Protobuf.Protocol.S_EnterGame.Parser, new[]{ "Player" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_LeaveGame), global::Google.Protobuf.Protocol.S_LeaveGame.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.C_Spawn), global::Google.Protobuf.Protocol.C_Spawn.Parser, new[]{ "Type", "Num", "PosInfo", "Way" }, null, null, null, null),
@@ -526,6 +534,30 @@ namespace Google.Protobuf.Protocol {
   public enum EffectId {
     [pbr::OriginalName("NO_EFFECT")] NoEffect = 0,
     [pbr::OriginalName("LIGHTNING_STRIKE")] LightningStrike = 1,
+  }
+
+  public enum BuffId {
+    [pbr::OriginalName("NO_BUFF")] NoBuff = 0,
+    [pbr::OriginalName("ATTACK_INCREASE")] AttackIncrease = 1,
+    [pbr::OriginalName("ATTACK_SPEED_INCREASE")] AttackSpeedIncrease = 2,
+    [pbr::OriginalName("HEALTH_INCREASE")] HealthIncrease = 3,
+    [pbr::OriginalName("DEFENCE_INCREASE")] DefenceIncrease = 4,
+    [pbr::OriginalName("MOVE_SPEED_INCREASE")] MoveSpeedIncrease = 5,
+    [pbr::OriginalName("INVINCIBLE")] Invincible = 6,
+    [pbr::OriginalName("ATTACK_DECREASE")] AttackDecrease = 7,
+    [pbr::OriginalName("ATTACK_SPEED_DECREASE")] AttackSpeedDecrease = 8,
+    [pbr::OriginalName("DEFENCE_DECREASE")] DefenceDecrease = 9,
+    [pbr::OriginalName("MOVE_SPEED_DECREASE")] MoveSpeedDecrease = 10,
+    [pbr::OriginalName("CURSE")] Curse = 11,
+    [pbr::OriginalName("ADDICTED")] Addicted = 12,
+    [pbr::OriginalName("DEADLY_ADDICTED")] DeadlyAddicted = 13,
+    [pbr::OriginalName("AGGRO")] Aggro = 14,
+  }
+
+  public enum BuffType {
+    [pbr::OriginalName("NO_BUFF_TYPE")] NoBuffType = 0,
+    [pbr::OriginalName("BUFF")] Buff = 1,
+    [pbr::OriginalName("DEBUFF")] Debuff = 2,
   }
 
   public enum PlayerServerState {
