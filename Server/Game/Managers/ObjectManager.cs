@@ -24,7 +24,8 @@ public sealed class ObjectManager : IFactory
         { MonsterId.Werewolf, typeof(Werewolf) },
         { MonsterId.Snakelet, typeof(Snakelet) },
         { MonsterId.Snake, typeof(Snake) },
-        { MonsterId.SnakeNaga, typeof(SnakeNaga) }
+        { MonsterId.SnakeNaga, typeof(SnakeNaga) },
+        { MonsterId.Shell, typeof(Shell) }
     };
     
     private readonly Dictionary<ProjectileId, Type?> _projectileDict = new()

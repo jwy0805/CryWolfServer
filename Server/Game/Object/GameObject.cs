@@ -9,6 +9,7 @@ public class GameObject : IGameObject
     public Player Player;
     
     protected const int CallCycle = 200;
+    protected long Time;
     protected const int SearchTick = 600;
     protected double LastSearch = 0;
 
@@ -55,7 +56,7 @@ public class GameObject : IGameObject
     public int Mp
     {
         get => Stat.Mp;
-        set => Stat.Mp = Math.Clamp(value, 0, Stat.Mp);
+        set => Stat.Mp = Math.Clamp(value, 0, Stat.MaxMp);
     }
 
     public int MaxMp
@@ -225,6 +226,7 @@ public class GameObject : IGameObject
     public virtual void Init()
     {
         StatInit();
+        Time = Room!.Stopwatch.ElapsedMilliseconds;
     }
     
     private void StatInit()

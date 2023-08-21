@@ -9,41 +9,60 @@ public class Creature : GameObject
     protected List<Skill> SkillList = new();
     public List<BuffManager.IBuff> BuffList = new();
 
+    protected long DeltaTime;
+    protected const long MpTime = 1000;
+
     public override void Update()
     {
-        switch (State)
+        base.Update();
+
+        if (Room!.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            case State.Die:
-                UpdateDie();
-                break;
-            case State.Moving:
-                UpdateMoving();
-                break;
-            case State.Idle:
-                UpdateIdle();
-                break;
-            case State.Rush:
-                UpdateRush();
-                break;
-            case State.Attack:
-                UpdateAttack();
-                break;
-            case State.Skill:
-                UpdateSkill();
-                break;
-            case State.Skill2:
-                UpdateSkill2();
-                break;
-            case State.KnockBack:
-                UpdateKnockBack();
-                break;
-            case State.Faint:
-                break;
-            case State.Standby:
-                break;
+            Time = Room!.Stopwatch.ElapsedMilliseconds;
+            Mp += Stat.MpRecovery;
         }
 
-        base.Update();
+        if (MaxMp != 1 && Mp >= MaxMp)
+        {
+            State = State.Skill;
+            BroadcastMove();
+            UpdateSkill();
+            Mp = 0;
+        }
+        else
+        {
+            switch (State)
+            {
+                case State.Die:
+                    UpdateDie();
+                    break;
+                case State.Moving:
+                    UpdateMoving();
+                    break;
+                case State.Idle:
+                    UpdateIdle();
+                    break;
+                case State.Rush:
+                    UpdateRush();
+                    break;
+                case State.Attack:
+                    UpdateAttack();
+                    break;
+                case State.Skill:
+                    UpdateSkill();
+                    break;
+                case State.Skill2:
+                    UpdateSkill2();
+                    break;
+                case State.KnockBack:
+                    UpdateKnockBack();
+                    break;
+                case State.Faint:
+                    break;
+                case State.Standby:
+                    break;
+            }   
+        }
     }
     
     protected virtual void UpdateIdle() { }
@@ -55,4 +74,5 @@ public class Creature : GameObject
     protected virtual void UpdateRush() { }
     protected virtual void UpdateDie() { }
     protected virtual void SkillInit() { }
+    public virtual void RunSkill() { }
 }

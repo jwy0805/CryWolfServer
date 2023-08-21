@@ -111,6 +111,7 @@ public partial class GameRoom : JobSerializer
                 monster.MonsterNum = spawnPacket.Num;
                 monster.Player = player;
                 monster.MonsterId = monsterType;
+                monster.Room = this;
                 monster.Init();
                 Push(EnterGame, monster);
                 break;
@@ -166,7 +167,15 @@ public partial class GameRoom : JobSerializer
             case AttackMethod.NormalAttack:
                 int damage = attacker.TotalAttack;
                 target.OnDamaged(attacker, damage);
-                if (type is GameObjectType.Monster or GameObjectType.Tower) SetNextState(attacker);
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    SetNextState(attacker);
+                    attacker.Mp += attacker.Stat.MpRecovery;
+                }
+                else if (type is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                }
                 break;
             
             case AttackMethod.EffectAttack:
@@ -174,6 +183,7 @@ public partial class GameRoom : JobSerializer
                 int skillDamage = attacker.SkillDamage;
                 Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
                 effect.Room = this;
+                effect.Parent = attacker;
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
@@ -201,6 +211,14 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void HandleSkill(Player? player, C_Skill skillPacket)
+    {
+        if (player == null) return;
+
+        Creature creature = (Creature)FindGameObjectById(skillPacket.ObjectId)!;
+        creature.RunSkill();
+    }
+
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
     {
         if (player == null) return;
@@ -217,13 +235,10 @@ public partial class GameRoom : JobSerializer
             player.SkillSubject.SkillUpgraded(upgradePacket.Skill);
         else ProcessingBaseSkill(player);
         
-        player.Session.Send(new S_SkillUpgrade
-        {
-            Skill = upgradePacket.Skill
-        });
+        player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
     
-    public GameObject? FindTarget(GameObject gameObject)
+    public GameObject? FindNearestTarget(GameObject gameObject)
     {
         // 어그로 끌린 상태면 리턴하는 코드
         //
@@ -297,6 +312,139 @@ public partial class GameRoom : JobSerializer
         }
 
         return target;
+    }
+    
+    public GameObject? FindNearestTarget(GameObject gameObject, List<GameObjectType> typeList)
+    {
+        // 어그로 끌린 상태면 리턴하는 코드
+        //
+
+        Dictionary<int, GameObject> targetDict = new();
+
+        foreach (var t in typeList)
+        {
+            switch (t)
+            {
+                case GameObjectType.Monster:
+                    foreach (var (key, monster) in _monsters) targetDict.Add(key, monster);
+                    break;
+                case GameObjectType.Tower:
+                    foreach (var (key, tower) in _towers) targetDict.Add(key, tower);
+                    break;
+                case GameObjectType.Sheep:
+                    foreach (var (key, sheep) in _sheeps) targetDict.Add(key, sheep);
+                    break;
+                case GameObjectType.Fence:
+                    foreach (var (key, fence) in _fences) targetDict.Add(key, fence);
+                    break;
+            }
+        }
+
+        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence())
+        {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
+            List<int> keysToRemove = new List<int>();
+            if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
+            {
+                keysToRemove.AddRange(from pair in targetDict 
+                    where pair.Value.ObjectType == GameObjectType.Fence select pair.Key);
+                foreach (var key in keysToRemove) targetDict.Remove(key);
+            }
+        }
+        
+        if (targetDict.Count == 0) return null;
+        GameObject? target = null;
+        
+        float closestDist = 5000f;
+        foreach (var (key, obj) in targetDict)
+        {
+            PositionInfo pos = obj.PosInfo;
+            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            bool targetable = obj.Stat.Targetable; 
+            float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+            if (dist < closestDist && targetable)
+            {
+                closestDist = dist;
+                target = obj;
+            }
+        }
+
+        return target;
+    }
+
+    public GameObject? FindBuffTarget(GameObject gameObject, GameObjectType targetType)
+    {
+        Dictionary<int, GameObject> targetDict = new();
+        switch (targetType)
+        {
+            case GameObjectType.Monster:
+                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Tower:
+                foreach (var (key, value) in _towers) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Fence:
+                foreach (var (key, value) in _fences) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Sheep:
+                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
+                break;
+        }
+        
+        if (targetDict.Count == 0) return null;
+        GameObject? target = null;
+        
+        float closestDist = 5000f;
+        
+        foreach (var (key, obj) in targetDict)
+        {
+            PositionInfo pos = obj.PosInfo;
+            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            bool targetable = obj.Stat.Targetable;
+            float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+            if (dist < closestDist && targetable)
+            {
+                closestDist = dist;
+                target = obj;
+            }
+        }
+
+        return target;
+    }
+
+    public List<GameObject> FindBuffTargets(GameObject gameObject, GameObjectType targetType, int num)
+    {
+        Dictionary<int, GameObject> targetDict = new();
+        switch (targetType)
+        {
+            case GameObjectType.Monster:
+                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Tower:
+                foreach (var (key, value) in _towers) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Fence:
+                foreach (var (key, value) in _fences) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Sheep:
+                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
+                break;
+        }
+        
+        if (targetDict.Count == 0) return new List<GameObject>();
+        
+        List<GameObject> closestObjects = targetDict.Values
+            .Where(obj => obj.Stat.Targetable)
+            .Select(obj =>
+            {
+                PositionInfo pos = obj.PosInfo;
+                Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+                float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+                return new { Object = obj, Distance = dist };
+            })
+            .OrderBy(item => item.Distance)
+            .Take(num).Select(item => item.Object).ToList();
+
+        return closestObjects;
     }
 
     public GameObject? FindGameObjectById(int id)

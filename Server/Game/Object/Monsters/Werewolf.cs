@@ -53,7 +53,7 @@ public class Werewolf : Wolf
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindTarget(this);
+            GameObject? target = Room?.FindNearestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;

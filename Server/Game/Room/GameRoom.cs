@@ -94,7 +94,7 @@ public partial class GameRoom : JobSerializer
                 gameObject.PosInfo.State = State.Idle;
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);
-                monster.Room = this;
+                // monster.Room = this;
                 Map.ApplyMap(monster);
                 monster.Update();
                 break;

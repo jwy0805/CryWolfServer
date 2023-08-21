@@ -27,7 +27,7 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindTarget(this);
+        GameObject? target = Room?.FindNearestTarget(this);
         if (target == null || Room == null) return;
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
@@ -45,7 +45,7 @@ public class Monster : Creature, ISkillObserver
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindTarget(this);
+            GameObject? target = Room?.FindNearestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
