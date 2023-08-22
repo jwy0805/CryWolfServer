@@ -217,6 +217,7 @@ public partial class GameRoom : JobSerializer
 
         Creature creature = (Creature)FindGameObjectById(skillPacket.ObjectId)!;
         creature.RunSkill();
+        SetNextState(creature);
     }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
@@ -304,7 +305,7 @@ public partial class GameRoom : JobSerializer
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = obj.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable)
+            if (dist < closestDist && targetable && obj.Id != gameObject.Id)
             {
                 closestDist = dist;
                 target = obj;
@@ -361,7 +362,7 @@ public partial class GameRoom : JobSerializer
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = obj.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable)
+            if (dist < closestDist && targetable && obj.Id != gameObject.Id)
             {
                 closestDist = dist;
                 target = obj;
@@ -401,7 +402,7 @@ public partial class GameRoom : JobSerializer
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = obj.Stat.Targetable;
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable)
+            if (dist < closestDist && targetable && obj.Id != gameObject.Id)
             {
                 closestDist = dist;
                 target = obj;
@@ -476,10 +477,10 @@ public partial class GameRoom : JobSerializer
     private void SetNextState(GameObject attacker)
     {
         GameObject? target = attacker.Target;
-        State state;
+
         if (target == null || target.Stat.Targetable == false)
         {
-            state = State.Idle;
+            attacker.State = State.Idle;
         }
         else
         {
@@ -487,17 +488,17 @@ public partial class GameRoom : JobSerializer
             {
                 Vector3 targetPos = attacker.Room!.Map.GetClosestPoint(attacker.CellPos, target);
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - attacker.CellPos));
-                state = distance <= attacker.Stat.AttackRange ? State.Attack : State.Moving;
+                attacker.State = distance <= attacker.Stat.AttackRange ? State.Attack : State.Moving;
             }
             else
             {
                 attacker.Target = null;
-                state = State.Idle;
+                attacker.State = State.Idle;
             }
         }
 
         if (target == null) return;
-        S_ChangeState statePacket = new S_ChangeState { ObjectId = target.Id, State = state };
+        S_ChangeState statePacket = new S_ChangeState { ObjectId = target.Id, State = attacker.State };
         Broadcast(statePacket);
     }
     
