@@ -44,6 +44,7 @@ public partial class GameRoom : JobSerializer
         Stopwatch.Start();
         StorageLevel = 1;
         BuffManager.Instance.Room = this;
+        BuffManager.Instance.Update();
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)
@@ -225,7 +226,7 @@ public partial class GameRoom : JobSerializer
         if (player == null) return;
         
         Skill skill = upgradePacket.Skill;
-        bool canUpgrade = CanUpgrade(player);
+        bool canUpgrade = CanUpgradeSkill(player, skill);
         if (canUpgrade == false)
         {
             // Client에 메시지 전달 -> "cost가 부족합니다"
@@ -233,12 +234,45 @@ public partial class GameRoom : JobSerializer
         }
         
         if (Enum.IsDefined(typeof(Skill), skill.ToString()))
-            player.SkillSubject.SkillUpgraded(upgradePacket.Skill);
+            player.SkillSubject.SkillUpgraded(skill);
         else ProcessingBaseSkill(player);
         
+        player.SkillUpgradedList.Add(skill);
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
-    
+
+    public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
+    {
+        if (player == null) return;
+
+        bool canUpgrade = false;
+        TowerId towerId = TowerId.UnknownTower;
+        MonsterId monsterId = MonsterId.UnknownMonster;
+        if (upgradePacket.MonsterId == MonsterId.UnknownMonster)
+        {
+            towerId = upgradePacket.TowerId;
+            canUpgrade = CanUpgradeTower(player, towerId);
+        }
+        else
+        {
+            monsterId = upgradePacket.MonsterId;
+            canUpgrade = CanUpgradeMonster(player, monsterId);
+        }
+        
+        if (canUpgrade == false)
+        {
+            // Client에 메시지 전달 -> cost 부족
+        }
+        else
+        {
+            if (monsterId == MonsterId.UnknownMonster) towerId = (TowerId)((int)towerId + 1);
+            else monsterId = (MonsterId)((int)monsterId + 1);
+            player.Session.Send(new S_UnitUpgrade { TowerId = towerId, MonsterId = monsterId });
+        }
+    }
+
+    #region Find
+
     public GameObject? FindNearestTarget(GameObject gameObject)
     {
         // 어그로 끌린 상태면 리턴하는 코드
@@ -473,6 +507,8 @@ public partial class GameRoom : JobSerializer
 
         return go;
     }
+    
+    #endregion
 
     private void SetNextState(GameObject attacker)
     {
@@ -507,10 +543,26 @@ public partial class GameRoom : JobSerializer
         return _fences.Count < GameData.FenceCnt[_storageLevel];
     }
 
-    private bool CanUpgrade(Player player)
+    private bool CanUpgradeSkill(Player player, Skill skill)
     {
+        Skill[] skills = GameData.SkillTree[skill];
         int resource = player.Resource;
+
+        if (skills.All(item => player.SkillUpgradedList.Contains(item)))
+        {
+            return true;
+        }
         
+        return false;
+    }
+
+    private bool CanUpgradeTower(Player player, TowerId towerId)
+    {
+        return true;
+    }
+    
+    private bool CanUpgradeMonster(Player player, MonsterId monsterId)
+    {
         return true;
     }
     

@@ -39,16 +39,36 @@ public sealed class BuffManager
         _stopwatch.Start();
     }
 
-    public void AddBuff(BuffId buffId, Creature master, float param)
+    public void AddBuff(BuffId buffId, Creature master, float param, long duration = 10000)
     {
         if (_buffDict.TryGetValue(buffId, out var type))
         {
-            long time = _stopwatch.ElapsedMilliseconds;
-            object[] constArgs = { master, param, time };
+            long addBuffTime = _stopwatch.ElapsedMilliseconds;
+            object[] constArgs = { master, addBuffTime, duration, param };
             IBuff buff = (IBuff)Activator.CreateInstance(type!, constArgs)!;
-            buff.TriggerBuff();
-            _buffs.Add(buff);
-            // master.BuffList.Add(buff);
+
+            if (_buffs.Count == 0)
+            {
+                _buffs.Add(buff);
+                buff.TriggerBuff();
+            }
+            else
+            {
+                foreach (var b in _buffs)
+                {
+                    ABuff oldBuff = (ABuff)b;
+                    ABuff newBuff = (ABuff)buff;
+                    if (oldBuff.Master == newBuff.Master && oldBuff.Nested == false && oldBuff.Id == newBuff.Id)
+                    {
+                        oldBuff.RenewBuff(addBuffTime);
+                    }
+                    else
+                    {
+                        _buffs.Add(newBuff);
+                        newBuff.TriggerBuff();
+                    }
+                }
+            }
         }
     }
 
@@ -100,18 +120,21 @@ public sealed class BuffManager
 
     private abstract class ABuff : IBuff
     {
+        public BuffId Id;
         protected BuffType Type;
         public Creature Master;
         protected readonly long StartTime;
-        protected float Duration;
-        protected bool Nested;
+        protected long EndTime;
+        protected long Duration;
+        public bool Nested;
 
-        protected ABuff(Creature master, long startTime, float duration, float param)
+        protected ABuff(Creature master, long startTime, long duration, float param)
         {
             Type = BuffType.NoBuffType;
             Master = master;
-            StartTime = startTime;
+            StartTime = startTime; 
             Duration = duration;
+            EndTime = StartTime + Duration;
             Nested = false;
         }
 
@@ -119,9 +142,16 @@ public sealed class BuffManager
         public virtual void TriggerBuff() { }
         public virtual void RemoveBuff() { }
 
+        public virtual void RenewBuff(long newEndTime, long duration = 10000)
+        {
+            Duration = duration;
+            EndTime = newEndTime + Duration;
+        }
+
         public virtual bool UpdateBuff(long deltaTime)
         {
-            return StartTime + Duration <= deltaTime;
+            Console.WriteLine($"{EndTime}, {deltaTime}");
+            return EndTime <= deltaTime;
         }
     }
     
@@ -130,10 +160,12 @@ public sealed class BuffManager
         private readonly float _param;
         private int _factor;
     
-        public AttackBuff(Creature master, long startTime, float duration, float param) 
+        public AttackBuff(Creature master, long startTime, long duration, float param) 
             : base(master, startTime, duration, param)
         {
+            Id = BuffId.AttackIncrease; 
             Type = BuffType.Buff;
+            Nested = false;
             _param = param;
             CalculateFactor();
         }
@@ -159,11 +191,14 @@ public sealed class BuffManager
         private readonly float _param;
         private float _factor;
         
-        public AttackSpeedBuff(Creature master, long startTime, float duration, float param) 
+        public AttackSpeedBuff(Creature master, long startTime, long duration, float param) 
             : base(master, startTime, duration, param)
         {
+            Id = BuffId.AttackSpeedIncrease;
             Type = BuffType.Buff;
+            Nested = false;
             _param = param;
+            CalculateFactor();
         }
 
         public sealed override void CalculateFactor()
@@ -181,17 +216,49 @@ public sealed class BuffManager
             Master.TotalAttackSpeed -= _factor;
         }
     }
+    
+    private class DefenceBuff : ABuff
+    {
+        private readonly int _param;
+        private int _factor;
+        
+        public DefenceBuff(Creature master, long startTime, long duration, int param) 
+            : base(master, startTime, duration, param)
+        {
+            Id = BuffId.DefenceIncrease;
+            Type = BuffType.Buff;
+            Nested = false;
+            _param = param;
+        }
+
+        public sealed override void CalculateFactor()
+        {
+            _factor = Master.Defence + _param;
+        }
+
+        public override void TriggerBuff()
+        {
+            Master.Defence += _factor;
+        }
+
+        public override void RemoveBuff()
+        {
+            Master.Defence -= _factor;
+        }
+    }
 
     private class MoveSpeedBuff : ABuff
     {
         private readonly float _param;
         private float _factor;
 
-        public MoveSpeedBuff(Creature master, long startTime, float duration, float param)
+        public MoveSpeedBuff(Creature master, long startTime, long duration, float param)
             : base(master, startTime, duration, param)
         {
+            Id = BuffId.MoveSpeedIncrease;
             Type = BuffType.Buff;
             _param = param;
+            CalculateFactor();
         }
 
         public sealed override void CalculateFactor()
@@ -214,9 +281,10 @@ public sealed class BuffManager
     {
         public float Param;
     
-        public AttackDebuff(Creature master, long startTime, float duration, float param) 
+        public AttackDebuff(Creature master, long startTime, long duration, float param) 
             : base(master, startTime, duration, param)
         {
+            Id = BuffId.AttackDecrease;
             Type = BuffType.Buff;
             Master = master;
             Param = param;

@@ -20,7 +20,6 @@ public class Creature : GameObject
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
-            Console.WriteLine($"{Id}, {Attack}");
         }
 
         if (MaxMp != 1 && Mp >= MaxMp)

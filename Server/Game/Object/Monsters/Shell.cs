@@ -9,8 +9,12 @@ public class Shell : Monster
     private bool _moveSpeedBuff = false;
     private bool _attackSpeedBuff = false;
     private bool _roll = false;
-    private readonly float _moveSpeedParam = 0.1f;
-    private readonly float _attackSpeedParam = 0.1f;
+    private bool _start = false;
+    private float _crashTime;
+    
+    protected readonly float MoveSpeedParam = 1f;
+    protected readonly float AttackSpeedParam = 0.1f;
+    protected readonly long RollCoolTime = 3000;
     
     protected override Skill NewSkill
     {
@@ -41,8 +45,16 @@ public class Shell : Monster
     {
         base.Init();
         MonsterId = MonsterId.Shell;
+        _crashTime = 0f;
     }
 
+    protected override void UpdateIdle()
+    {
+        if (Room!.Stopwatch.ElapsedMilliseconds < _crashTime + RollCoolTime && _start) return;
+        _start = true;
+        base.UpdateIdle();
+    }
+    
     protected override void UpdateMoving()
     {
         if (_roll)
@@ -73,7 +85,7 @@ public class Shell : Monster
             if (Target == null || Target.Room != Room)
             {
                 State = State.Idle;
-                BroadcastMove();
+                BroadcastMove();           
                 return;
             }
 
@@ -144,19 +156,29 @@ public class Shell : Monster
                 double deltaX = DestPos.X - CellPos.X;
                 double deltaZ = DestPos.Z - CellPos.Z;
                 Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                if (distance <= AttackRange)
+                // Roll 충돌 처리
+                if (distance <= Stat.SizeX + 0.25f)
                 {
                     CellPos = position;
-                    State = State.Idle;
+                    _crashTime = Room.Stopwatch.ElapsedMilliseconds;
+                    Target.OnDamaged(this, SkillDamage);
+                    Mp += MpRecovery;
+                    State = State.KnockBack;
+                    DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
                     BroadcastMove();
                     return;
                 }
             }
         }
-            
+
         BroadcastMove();
     }
 
+    protected override void UpdateKnockBack()
+    {
+        // 넉백중 충돌하면 Idle
+    }
+    
     protected override void UpdateAttack()
     {
         State = State.Idle;
@@ -172,7 +194,7 @@ public class Shell : Monster
     public override void RunSkill()
     {
         if (Room?.FindBuffTarget(this, GameObjectType.Monster) is not Creature creature) return;
-        if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, _attackSpeedParam);
-        if (_moveSpeedBuff) BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, _moveSpeedParam);
+        if (_moveSpeedBuff) BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
+        if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
     }
 }

@@ -111,4 +111,17 @@ public class PacketHandler
         
         room.Push(room.HandleSkillUpgrade, player, upgradePacket);
     }
+
+    public static void C_UnitUpgradeHandler(PacketSession session, IMessage packet)
+    {
+        C_UnitUpgrade upgradePacket = (C_UnitUpgrade)packet;
+        ClientSession clientSession = (ClientSession)session;
+
+        Player? player = clientSession.MyPlayer;
+        if (player == null) return;
+        GameRoom? room = player.Room;
+        if (room == null) return;
+        
+        room.Push(room.HandleUnitUpgrade, player, upgradePacket);
+    }
 }
