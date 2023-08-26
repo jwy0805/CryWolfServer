@@ -163,6 +163,7 @@ public partial class GameRoom : JobSerializer
         if (target.Targetable == false) return;
         GameObjectType type = attacker.ObjectType;
         
+        
         switch (attackPacket.AttackMethod)
         {
             case AttackMethod.NormalAttack:
@@ -170,8 +171,9 @@ public partial class GameRoom : JobSerializer
                 target.OnDamaged(attacker, damage);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    SetNextState(attacker);
-                    attacker.Mp += attacker.Stat.MpRecovery;
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNextState();
+                    cAttacker.Mp += cAttacker.Stat.MpRecovery;
                 }
                 else if (type is GameObjectType.Effect or GameObjectType.Projectile)
                 {
@@ -191,7 +193,11 @@ public partial class GameRoom : JobSerializer
                 effect.Init();
                 target.OnDamaged(attacker, skillDamage);
                 Push(EnterGame, effect);
-                if (type is GameObjectType.Monster or GameObjectType.Tower) SetNextState(attacker);
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNextState();
+                }
                 break;
             
             case AttackMethod.ProjectileAttack:
@@ -207,7 +213,11 @@ public partial class GameRoom : JobSerializer
                 projectile.TotalAttack = attacker.TotalAttack;
                 projectile.Init();
                 Push(EnterGame, projectile);
-                SetNextState(attacker);
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNextState();
+                }
                 break;
         }
     }
@@ -218,7 +228,7 @@ public partial class GameRoom : JobSerializer
 
         Creature creature = (Creature)FindGameObjectById(skillPacket.ObjectId)!;
         creature.RunSkill();
-        SetNextState(creature);
+        creature.SetNextState();
     }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
@@ -238,6 +248,7 @@ public partial class GameRoom : JobSerializer
         else ProcessingBaseSkill(player);
         
         player.SkillUpgradedList.Add(skill);
+        player.SkillSubject.Notify();
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
 
@@ -509,34 +520,6 @@ public partial class GameRoom : JobSerializer
     }
     
     #endregion
-
-    private void SetNextState(GameObject attacker)
-    {
-        GameObject? target = attacker.Target;
-
-        if (target == null || target.Stat.Targetable == false)
-        {
-            attacker.State = State.Idle;
-        }
-        else
-        {
-            if (target.Hp > 0)
-            {
-                Vector3 targetPos = attacker.Room!.Map.GetClosestPoint(attacker.CellPos, target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - attacker.CellPos));
-                attacker.State = distance <= attacker.Stat.AttackRange ? State.Attack : State.Moving;
-            }
-            else
-            {
-                attacker.Target = null;
-                attacker.State = State.Idle;
-            }
-        }
-
-        if (target == null) return;
-        S_ChangeState statePacket = new S_ChangeState { ObjectId = target.Id, State = attacker.State };
-        Broadcast(statePacket);
-    }
     
     public bool ReachableInFence()
     {

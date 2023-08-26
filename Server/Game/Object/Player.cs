@@ -6,7 +6,7 @@ namespace Server.Game;
 public class Player : GameObject
 {
     public int PlayerNo;
-    public List<Skill> SkillUpgradedList = new();
+    public List<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public SkillSubject SkillSubject = new();
 
     public int Resource { get; set; } = 0;

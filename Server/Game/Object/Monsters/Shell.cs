@@ -157,7 +157,7 @@ public class Shell : Monster
                 double deltaZ = DestPos.Z - CellPos.Z;
                 Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
                 // Roll 충돌 처리
-                if (distance <= Stat.SizeX + 0.25f)
+                if (distance <= Stat.SizeX * 0.25 + 0.25f)
                 {
                     CellPos = position;
                     _crashTime = Room.Stopwatch.ElapsedMilliseconds;
@@ -166,6 +166,11 @@ public class Shell : Monster
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
                     BroadcastMove();
+                    Room.Broadcast(new S_SetKnockBack
+                    {
+                        ObjectId = Id, 
+                        Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
+                    });
                     return;
                 }
             }
@@ -177,6 +182,7 @@ public class Shell : Monster
     protected override void UpdateKnockBack()
     {
         // 넉백중 충돌하면 Idle
+        //
     }
     
     protected override void UpdateAttack()
@@ -196,5 +202,31 @@ public class Shell : Monster
         if (Room?.FindBuffTarget(this, GameObjectType.Monster) is not Creature creature) return;
         if (_moveSpeedBuff) BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
         if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
+    }
+    
+    public override void SetNextState()
+    {
+        if (Room == null) return; 
+        
+        if (Target == null || Target.Stat.Targetable == false)
+        {
+            State = State.Idle;
+        }
+        else
+        {
+            if (Target.Hp > 0)
+            {
+                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+                State = _roll ? State.Rush : State.Idle;
+            }
+            else
+            {
+                Target = null;
+                State = State.Idle;
+            }
+        }
+
+        Room.Broadcast(new S_ChangeState { ObjectId = Id, State = State });
     }
 }

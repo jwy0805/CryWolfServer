@@ -1,4 +1,6 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -75,4 +77,31 @@ public class Creature : GameObject
     protected virtual void UpdateDie() { }
     protected virtual void SkillInit() { }
     public virtual void RunSkill() { }
+
+    public virtual void SetNextState()
+    {
+        if (Room == null) return;
+        
+        if (Target == null || Target.Stat.Targetable == false)
+        {
+            State = State.Idle;
+        }
+        else
+        {
+            if (Target.Hp > 0)
+            {
+                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+                State = distance <= AttackRange ? State.Attack : State.Moving;
+            }
+            else
+            {
+                Target = null;
+                State = State.Idle;
+            }
+        }
+
+        // if (Target == null) return;
+        Room.Broadcast(new S_ChangeState { ObjectId = Id, State = State });
+    }
 }
