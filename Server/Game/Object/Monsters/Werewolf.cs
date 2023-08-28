@@ -144,6 +144,6 @@ public class Werewolf : Wolf
         }
 
         // if (Target == null) return;
-        Room.Broadcast(new S_ChangeState { ObjectId = Id, State = State });
+        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

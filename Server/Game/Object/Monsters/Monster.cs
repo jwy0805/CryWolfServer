@@ -20,8 +20,8 @@ public class Monster : Creature, ISkillObserver
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
         base.Init();
-        SkillInit();
-        Hp = monsterData.stat.MaxHp;
+        SkillInit(); 
+        Hp = MaxHp;
 
         State = State.Idle;
     }

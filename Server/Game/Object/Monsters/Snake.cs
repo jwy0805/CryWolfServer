@@ -28,8 +28,11 @@ public class Snake : Snakelet
                     TotalAccuracy += 10;
                     break;
                 case Skill.SnakeFire:
-                    Room?.Broadcast(new S_SkillUpdate
-                        { SkillType = SkillType.SkillProjectile, MonsterId = MonsterId });
+                    Room?.Broadcast(new S_SkillUpdate { 
+                            Id = (int)MonsterId, 
+                            ObjectType = GameObjectType.Monster, 
+                            SkillType = SkillType.SkillProjectile 
+                        });
                     break;
             }
         }

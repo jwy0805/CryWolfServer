@@ -17,7 +17,6 @@ public class Creature : GameObject
     public override void Update()
     {
         base.Update();
-
         if (Room!.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
@@ -81,7 +80,7 @@ public class Creature : GameObject
     public virtual void SetNextState()
     {
         if (Room == null) return;
-        
+
         if (Target == null || Target.Stat.Targetable == false)
         {
             State = State.Idle;
@@ -100,8 +99,7 @@ public class Creature : GameObject
                 State = State.Idle;
             }
         }
-
-        // if (Target == null) return;
-        Room.Broadcast(new S_ChangeState { ObjectId = Id, State = State });
+        
+        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

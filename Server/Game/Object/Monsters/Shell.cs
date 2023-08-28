@@ -147,7 +147,6 @@ public class Shell : Monster
         {
             // 이동
             // target이랑 너무 가까운 경우
-            // Attack
             StatInfo targetStat = Target.Stat;
             Vector3 position = CellPos;
             if (targetStat.Targetable)
@@ -157,7 +156,7 @@ public class Shell : Monster
                 double deltaZ = DestPos.Z - CellPos.Z;
                 Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
                 // Roll 충돌 처리
-                if (distance <= Stat.SizeX * 0.25 + 0.25f)
+                if (distance <= Stat.SizeX * 0.25 + 0.75f)
                 {
                     CellPos = position;
                     _crashTime = Room.Stopwatch.ElapsedMilliseconds;
@@ -183,12 +182,6 @@ public class Shell : Monster
     {
         // 넉백중 충돌하면 Idle
         //
-    }
-    
-    protected override void UpdateAttack()
-    {
-        State = State.Idle;
-        BroadcastMove();
     }
 
     protected override void UpdateSkill()
@@ -218,7 +211,8 @@ public class Shell : Monster
             {
                 Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                State = _roll ? State.Rush : State.Idle;
+                if (_roll) State = State.Rush;
+                else State = distance <= AttackRange ? State.Idle : State.Moving;
             }
             else
             {
@@ -226,7 +220,7 @@ public class Shell : Monster
                 State = State.Idle;
             }
         }
-
-        Room.Broadcast(new S_ChangeState { ObjectId = Id, State = State });
+        
+        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }
