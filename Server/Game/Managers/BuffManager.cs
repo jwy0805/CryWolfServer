@@ -70,6 +70,39 @@ public sealed class BuffManager
                 }
             }
         }
+    }    
+    
+    public void AddBuff(BuffId buffId, GameObject master, float param, long duration = 10000)
+    {
+        if (_buffDict.TryGetValue(buffId, out var type))
+        {
+            long addBuffTime = _stopwatch.ElapsedMilliseconds;
+            object[] constArgs = { master, addBuffTime, duration, param };
+            IBuff buff = (IBuff)Activator.CreateInstance(type!, constArgs)!;
+
+            if (_buffs.Count == 0)
+            {
+                _buffs.Add(buff);
+                buff.TriggerBuff();
+            }
+            else
+            {
+                foreach (var b in _buffs)
+                {
+                    ABuff oldBuff = (ABuff)b;
+                    ABuff newBuff = (ABuff)buff;
+                    if (oldBuff.Master == newBuff.Master && oldBuff.Nested == false && oldBuff.Id == newBuff.Id)
+                    {
+                        oldBuff.RenewBuff(addBuffTime);
+                    }
+                    else
+                    {
+                        _buffs.Add(newBuff);
+                        newBuff.TriggerBuff();
+                    }
+                }
+            }
+        }
     }
 
     public void RemoveBuff(BuffId buffId, Creature master)
@@ -291,6 +324,33 @@ public sealed class BuffManager
         }
     }
     
+    private class Addicted : ABuff
+    {
+        public new GameObject Master;
+        private readonly float _param;
+        
+        public Addicted(Creature master, long startTime, long duration, float param) 
+            : base(master, startTime, duration, param)
+        {
+            Id = BuffId.Addicted;
+            Type = BuffType.Debuff;
+            Master = master;
+            _param = param;
+        }
+
+        public override void TriggerBuff()
+        {
+            
+        }
+
+        public override void RemoveBuff()
+        {
+            
+        }
+    }
+    
+    
+
     #endregion
 }
 

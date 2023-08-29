@@ -20,11 +20,6 @@ public class Projectile : GameObject
         ObjectType = GameObjectType.Projectile;
     }
 
-    public override void Update()
-    {
-        base.Update();
-    }
-
     public override void BroadcastDest()
     {
         S_SetDest destPacket = new S_SetDest { ObjectId = Id, MoveSpeed = MoveSpeed };
@@ -32,4 +27,6 @@ public class Projectile : GameObject
         destPacket.Dest.Add(destVector);
         Room?.Broadcast(destPacket);
     }
+
+    public virtual void SetProjectileEffect(GameObject master) { }
 }

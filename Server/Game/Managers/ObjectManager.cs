@@ -22,6 +22,9 @@ public sealed class ObjectManager : IFactory
         { MonsterId.WolfPup, typeof(WolfPup) },
         { MonsterId.Wolf, typeof(Wolf) },
         { MonsterId.Werewolf, typeof(Werewolf) },
+        { MonsterId.Lurker, typeof(Lurker) },
+        { MonsterId.Creeper, typeof(Creeper) },
+        { MonsterId.Horror, typeof(Horror) },
         { MonsterId.Snakelet, typeof(Snakelet) },
         { MonsterId.Snake, typeof(Snake) },
         { MonsterId.SnakeNaga, typeof(SnakeNaga) },
@@ -30,7 +33,10 @@ public sealed class ObjectManager : IFactory
     
     private readonly Dictionary<ProjectileId, Type?> _projectileDict = new()
     {
-        { ProjectileId.BasicAttack, typeof(BasicAttack) }
+        { ProjectileId.BasicAttack, typeof(BasicAttack) },
+        { ProjectileId.SmallFire, typeof(SmallFire) },
+        { ProjectileId.BigFire, typeof(BigFire) },
+        { ProjectileId.PoisonAttack, typeof(PoisonAttack) }
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()

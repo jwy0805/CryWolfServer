@@ -28,6 +28,8 @@ public class Snake : Snakelet
                     TotalAccuracy += 10;
                     break;
                 case Skill.SnakeFire:
+                    Attack += 10;
+                    TotalAttack += 10;
                     Room?.Broadcast(new S_SkillUpdate { 
                             Id = (int)MonsterId, 
                             ObjectType = GameObjectType.Monster, 

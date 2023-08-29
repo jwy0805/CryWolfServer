@@ -509,12 +509,3 @@ public class GameData
         { Skill.HermitFaint, new [] { Skill.HermitRange, Skill.HermitAggro } },
     };
 }
-
-
-
-
-
-
-
-
-

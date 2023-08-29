@@ -175,9 +175,14 @@ public partial class GameRoom : JobSerializer
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.Stat.MpRecovery;
                 }
-                else if (type is GameObjectType.Effect or GameObjectType.Projectile)
+                else if (type is GameObjectType.Effect)
                 {
                     attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                }
+                else if (type is GameObjectType.Projectile)
+                {
+                    Projectile? p = FindGameObjectById(attackerId) as Projectile;
+                    p?.SetProjectileEffect(target);
                 }
                 break;
             
@@ -226,9 +231,9 @@ public partial class GameRoom : JobSerializer
     {
         if (player == null) return;
 
-        Creature creature = (Creature)FindGameObjectById(skillPacket.ObjectId)!;
-        creature.RunSkill();
-        creature.SetNextState();
+        Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
+        creature?.RunSkill();
+        creature?.SetNextState();
     }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
@@ -500,16 +505,16 @@ public partial class GameRoom : JobSerializer
         switch (type)
         {
             case GameObjectType.Tower:
-                if (_towers.ContainsKey(id)) go = _towers[id];
+                if (_towers.TryGetValue(id, out var tower)) go = tower;
                 break;
             case GameObjectType.Sheep:
-                if (_sheeps.ContainsKey(id)) go = _sheeps[id];
+                if (_sheeps.TryGetValue(id, out var sheep)) go = sheep;
                 break;
             case GameObjectType.Monster:
-                if (_monsters.ContainsKey(id)) go = _monsters[id];
+                if (_monsters.TryGetValue(id, out var monster)) go = monster;
                 break;
             case GameObjectType.Projectile:
-                if (_projectiles.ContainsKey(id)) go = _projectiles[id];
+                if (_projectiles.TryGetValue(id, out var projectile)) go = projectile;
                 break;
             default:
                 go = null;

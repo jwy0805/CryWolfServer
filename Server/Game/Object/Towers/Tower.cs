@@ -20,11 +20,18 @@ public class Tower : Creature, ISkillObserver
         DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
         Stat.MergeFrom(towerData!.stat);
         Stat.Hp = towerData.stat.MaxHp;
-
+        
+        Player.SkillSubject.AddObserver(this);
         State = State.Idle;
     }
+    
+    public override void OnDead(GameObject attacker)
+    {
+        Player.SkillSubject.RemoveObserver(this);
+        base.OnDead(attacker);
+    }
 
-    public void OnSkillUpgrade(Skill skill)
+    public virtual void OnSkillUpgrade(Skill skill)
     {
         string skillName = skill.ToString();
         string towerName = TowerId.ToString();

@@ -207,23 +207,24 @@ namespace Google.Protobuf.Protocol {
             "C1NVTl9CTE9TU09NEAcSEwoPU1VORkxPV0VSX0ZBSVJZEAgSEwoPU1VORkxP",
             "V0VSX1BJWElFEAkSDQoJTU9USF9MVU5BEAoSDQoJTU9USF9NT09OEAsSEgoO",
             "TU9USF9DRUxFU1RJQUwQDBIICgRTT1VMEA0SCQoFSEFVTlQQDhINCglTT1VM",
-            "X01BR0UQDypDCgxQcm9qZWN0aWxlSWQSEQoNTk9fUFJPSkVDVElMRRAAEhAK",
-            "DEJBU0lDX0FUVEFDSxABEg4KClNNQUxMX0ZJUkUQAiovCghFZmZlY3RJZBIN",
-            "CglOT19FRkZFQ1QQABIUChBMSUdIVE5JTkdfU1RSSUtFEAEqsQIKBkJ1ZmZJ",
-            "ZBILCgdOT19CVUZGEAASEwoPQVRUQUNLX0lOQ1JFQVNFEAESGQoVQVRUQUNL",
-            "X1NQRUVEX0lOQ1JFQVNFEAISEwoPSEVBTFRIX0lOQ1JFQVNFEAMSFAoQREVG",
-            "RU5DRV9JTkNSRUFTRRAEEhcKE01PVkVfU1BFRURfSU5DUkVBU0UQBRIOCgpJ",
-            "TlZJTkNJQkxFEAYSEwoPQVRUQUNLX0RFQ1JFQVNFEAcSGQoVQVRUQUNLX1NQ",
-            "RUVEX0RFQ1JFQVNFEAgSFAoQREVGRU5DRV9ERUNSRUFTRRAJEhcKE01PVkVf",
-            "U1BFRURfREVDUkVBU0UQChIJCgVDVVJTRRALEgwKCEFERElDVEVEEAwSEwoP",
-            "REVBRExZX0FERElDVEVEEA0SCQoFQUdHUk8QDioyCghCdWZmVHlwZRIQCgxO",
-            "T19CVUZGX1RZUEUQABIICgRCVUZGEAESCgoGREVCVUZGEAIqWgoRUGxheWVy",
-            "U2VydmVyU3RhdGUSFgoSU0VSVkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVS",
-            "X1NUQVRFX0xPQkJZEAESFQoRU0VSVkVSX1NUQVRFX0dBTUUQAioyCghTcGF3",
-            "bldheRIICgRXRVNUEAASCQoFTk9SVEgQARIICgRFQVNUEAISBwoDQU5ZEAMq",
-            "WgoMQXR0YWNrTWV0aG9kEg0KCU5PX0FUVEFDSxAAEhEKDU5PUk1BTF9BVFRB",
-            "Q0sQARIRCg1FRkZFQ1RfQVRUQUNLEAISFQoRUFJPSkVDVElMRV9BVFRBQ0sQ",
-            "A0IbqgIYR29vZ2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
+            "X01BR0UQDypkCgxQcm9qZWN0aWxlSWQSEQoNTk9fUFJPSkVDVElMRRAAEhAK",
+            "DEJBU0lDX0FUVEFDSxABEg4KClNNQUxMX0ZJUkUQAhIMCghCSUdfRklSRRAD",
+            "EhEKDVBPSVNPTl9BVFRBQ0sQBCovCghFZmZlY3RJZBINCglOT19FRkZFQ1QQ",
+            "ABIUChBMSUdIVE5JTkdfU1RSSUtFEAEquwIKBkJ1ZmZJZBILCgdOT19CVUZG",
+            "EAASEwoPQVRUQUNLX0lOQ1JFQVNFEAESGQoVQVRUQUNLX1NQRUVEX0lOQ1JF",
+            "QVNFEAISEwoPSEVBTFRIX0lOQ1JFQVNFEAMSFAoQREVGRU5DRV9JTkNSRUFT",
+            "RRAEEhcKE01PVkVfU1BFRURfSU5DUkVBU0UQBRIOCgpJTlZJTkNJQkxFEAYS",
+            "EwoPQVRUQUNLX0RFQ1JFQVNFEAcSGQoVQVRUQUNLX1NQRUVEX0RFQ1JFQVNF",
+            "EAgSFAoQREVGRU5DRV9ERUNSRUFTRRAJEhcKE01PVkVfU1BFRURfREVDUkVB",
+            "U0UQChIJCgVDVVJTRRALEgwKCEFERElDVEVEEAwSEwoPREVBRExZX0FERElD",
+            "VEVEEA0SCQoFQUdHUk8QDhIICgRCVVJOEA8qMgoIQnVmZlR5cGUSEAoMTk9f",
+            "QlVGRl9UWVBFEAASCAoEQlVGRhABEgoKBkRFQlVGRhACKloKEVBsYXllclNl",
+            "cnZlclN0YXRlEhYKElNFUlZFUl9TVEFURV9MT0dJThAAEhYKElNFUlZFUl9T",
+            "VEFURV9MT0JCWRABEhUKEVNFUlZFUl9TVEFURV9HQU1FEAIqMgoIU3Bhd25X",
+            "YXkSCAoEV0VTVBAAEgkKBU5PUlRIEAESCAoERUFTVBACEgcKA0FOWRADKloK",
+            "DEF0dGFja01ldGhvZBINCglOT19BVFRBQ0sQABIRCg1OT1JNQUxfQVRUQUNL",
+            "EAESEQoNRUZGRUNUX0FUVEFDSxACEhUKEVBST0pFQ1RJTEVfQVRUQUNLEANC",
+            "G6oCGEdvb2dsZS5Qcm90b2J1Zi5Qcm90b2NvbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.BaseSkill), typeof(global::Google.Protobuf.Protocol.MonsterId), typeof(global::Google.Protobuf.Protocol.TowerId), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.BuffId), typeof(global::Google.Protobuf.Protocol.BuffType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.AttackMethod), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -549,6 +550,8 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("NO_PROJECTILE")] NoProjectile = 0,
     [pbr::OriginalName("BASIC_ATTACK")] BasicAttack = 1,
     [pbr::OriginalName("SMALL_FIRE")] SmallFire = 2,
+    [pbr::OriginalName("BIG_FIRE")] BigFire = 3,
+    [pbr::OriginalName("POISON_ATTACK")] PoisonAttack = 4,
   }
 
   public enum EffectId {
@@ -572,6 +575,7 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("ADDICTED")] Addicted = 12,
     [pbr::OriginalName("DEADLY_ADDICTED")] DeadlyAddicted = 13,
     [pbr::OriginalName("AGGRO")] Aggro = 14,
+    [pbr::OriginalName("BURN")] Burn = 15,
   }
 
   public enum BuffType {

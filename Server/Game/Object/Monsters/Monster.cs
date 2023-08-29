@@ -23,6 +23,7 @@ public class Monster : Creature, ISkillObserver
         SkillInit(); 
         Hp = MaxHp;
 
+        Player.SkillSubject.AddObserver(this);
         State = State.Idle;
     }
 
@@ -111,6 +112,12 @@ public class Monster : Creature, ISkillObserver
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         BroadcastMove();
+    }
+
+    public override void OnDead(GameObject attacker)
+    {
+        Player.SkillSubject.RemoveObserver(this);
+        base.OnDead(attacker);
     }
 
     public virtual void OnSkillUpgrade(Skill skill)

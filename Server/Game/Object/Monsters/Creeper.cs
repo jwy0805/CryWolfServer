@@ -4,17 +4,13 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class Shell : Monster
+public class Creeper : Lurker
 {
-    private bool _moveSpeedBuff = false;
-    private bool _attackSpeedBuff = false;
-    private bool _roll = false;
-    private bool _start = false; 
-    
     protected double CrashTime;
-    protected readonly float MoveSpeedParam = 1f;
-    protected readonly float AttackSpeedParam = 0.1f;
     protected long RollCoolTime;
+    
+    private bool _start = false;
+    private bool _roll = false;
     
     protected override Skill NewSkill
     {
@@ -24,18 +20,27 @@ public class Shell : Monster
             Skill = value;
             switch (Skill)
             {
-                case Skill.ShellHealth:
-                    MaxHp += 35;
-                    Hp += 35;
+                case Skill.CreeperAttack:
+                    Attack += 10;
+                    TotalAttack += 10;
                     break;
-                case Skill.ShellSpeed:
-                    _moveSpeedBuff = true;
+                case Skill.CreeperSpeed:
+                    MoveSpeed += 2.5f;
+                    TotalMoveSpeed += 2.5f;
                     break;
-                case Skill.ShellAttackSpeed:
-                    _attackSpeedBuff = true;
+                case Skill.CreeperAttackSpeed:
+                    AttackSpeed += 0.15f;
+                    TotalAttackSpeed += 0.15f;
                     break;
-                case Skill.ShellRoll:
+                case Skill.CreeperRoll:
                     _roll = true;
+                    break;
+                case Skill.CreeperPoison:
+                    Room?.Broadcast(new S_SkillUpdate { 
+                        Id = (int)MonsterId, 
+                        ObjectType = GameObjectType.Monster, 
+                        SkillType = SkillType.SkillProjectile 
+                    });
                     break;
             }
         }
@@ -44,32 +49,14 @@ public class Shell : Monster
     public override void Init()
     {
         base.Init();
-        MonsterId = MonsterId.Shell;
-        CrashTime = 0;
-        RollCoolTime = 10000;
+        MonsterId = MonsterId.Creeper;
     }
 
-    protected override void UpdateIdle()
-    {
-        Random random = new Random();
-        if (Room!.Stopwatch.ElapsedMilliseconds < CrashTime + random.Next(1500, 3000) && _start) return;
-        
-        GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null || Room == null || Target?.Id == target.Id) return;
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        Target = target;
-        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
-        State = State.Moving;
-    }
-    
     protected override void UpdateMoving()
     {
-        if (_roll && (Room!.Stopwatch.ElapsedMilliseconds <= CrashTime + RollCoolTime || _start == false))
+        if (_roll & _start == false)
         {
             State = State.Rush;
-            _start = true;
             BroadcastMove();
         }
         else
@@ -91,11 +78,11 @@ public class Shell : Monster
                     }
                 }
             }
-        
+
             if (Target == null || Target.Room != Room)
             {
                 State = State.Idle;
-                BroadcastMove();           
+                BroadcastMove();
                 return;
             }
 
@@ -121,7 +108,7 @@ public class Shell : Monster
                     }
                 }
             }
-            
+
             BroadcastMove();
         }
     }
@@ -152,7 +139,7 @@ public class Shell : Monster
             BroadcastMove();
             return;
         }
-
+        
         if (Room != null)
         {
             // 이동
@@ -169,7 +156,6 @@ public class Shell : Monster
                 if (distance <= Stat.SizeX * 0.25 + 0.75f)
                 {
                     CellPos = position;
-                    CrashTime = Room.Stopwatch.ElapsedMilliseconds;
                     Target.OnDamaged(this, SkillDamage);
                     Mp += MpRecovery;
                     State = State.KnockBack;
@@ -192,45 +178,5 @@ public class Shell : Monster
     {
         // 넉백중 충돌하면 Idle
         //
-    }
-
-    protected override void UpdateSkill()
-    {
-        State = State.Skill;
-        BroadcastMove();
-    }
-
-    public override void RunSkill()
-    {
-        if (Room?.FindBuffTarget(this, GameObjectType.Monster) is not Creature creature) return;
-        if (_moveSpeedBuff) BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
-        if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
-    }
-    
-    public override void SetNextState()
-    {
-        if (Room == null) return; 
-        
-        if (Target == null || Target.Stat.Targetable == false)
-        {
-            State = State.Idle;
-        }
-        else
-        {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                if (_roll) State = State.Rush;
-                else State = distance <= AttackRange ? State.Idle : State.Moving;
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
-        }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }
