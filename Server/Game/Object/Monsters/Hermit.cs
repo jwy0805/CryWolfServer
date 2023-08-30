@@ -26,6 +26,7 @@ public class Hermit : Spike
                     _debuffRemove = true;
                     break;
                 case Skill.HermitRange:
+                    //어그로 범위 증가
                     AttackRange += 2.0f;
                     break;
                 case Skill.HermitAggro:
@@ -47,5 +48,19 @@ public class Hermit : Spike
         MonsterId = MonsterId.Hermit;
     }
 
-    
+    public override void RunSkill()
+    {
+        List<GameObject?> gameObjects = new List<GameObject?>();
+        gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, 2)!;
+
+        if (gameObjects.Count == 0) return;
+        foreach (var gameObject in gameObjects)
+        {
+            Creature creature = (Creature)gameObject!;
+            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, creature, AttackBuffParam);
+            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, creature, DefenceBuffParam);
+        }
+    }
 }

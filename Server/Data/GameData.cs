@@ -417,7 +417,7 @@ public class GameData
     
         { Skill.WolfPupSpeed , new [] { Skill.NoSkill }},
         { Skill.WolfPupHealth , new [] { Skill.NoSkill }},
-        { Skill.WolfPupAttackSpeed , new [] { Skill.WolfPupAttack }},
+        { Skill.WolfPupAttackSpeed , new [] { Skill.WolfPupSpeed }},
         { Skill.WolfPupAttack , new [] { Skill.WolfPupHealth }},
         
         { Skill.WolfDefence, new [] { Skill.NoSkill } },

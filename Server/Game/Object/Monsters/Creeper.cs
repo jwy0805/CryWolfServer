@@ -37,7 +37,7 @@ public class Creeper : Lurker
                     break;
                 case Skill.CreeperPoison:
                     Room?.Broadcast(new S_SkillUpdate { 
-                        Id = (int)MonsterId, 
+                        ObjectEnumId = (int)MonsterId, 
                         ObjectType = GameObjectType.Monster, 
                         SkillType = SkillType.SkillProjectile 
                     });

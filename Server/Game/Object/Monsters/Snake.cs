@@ -31,7 +31,7 @@ public class Snake : Snakelet
                     Attack += 10;
                     TotalAttack += 10;
                     Room?.Broadcast(new S_SkillUpdate { 
-                            Id = (int)MonsterId, 
+                            ObjectEnumId = (int)MonsterId, 
                             ObjectType = GameObjectType.Monster, 
                             SkillType = SkillType.SkillProjectile 
                         });

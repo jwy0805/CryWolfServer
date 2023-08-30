@@ -292,7 +292,14 @@ public partial class GameRoom : JobSerializer
     public GameObject? FindNearestTarget(GameObject gameObject)
     {
         // 어그로 끌린 상태면 리턴하는 코드
-        //
+        // foreach (BuffManager.IBuff b in BuffManager.Instance.Buffs)
+        // {
+        //     BuffManager.ABuff? buff = b as BuffManager.ABuff;
+        //     if (buff?.Id == BuffId.Aggro && buff.Master.Id == gameObject.Id) return gameObject.Target;
+        // }    
+        if (BuffManager.Instance.Buffs.Select(b => b as BuffManager.ABuff)
+            .Any(buff => buff?.Id == BuffId.Aggro && buff.Master.Id == gameObject.Id)) 
+            return gameObject.Target;
 
         List<GameObjectType> targetType = new();
         switch (gameObject.ObjectType)
@@ -368,7 +375,9 @@ public partial class GameRoom : JobSerializer
     public GameObject? FindNearestTarget(GameObject gameObject, List<GameObjectType> typeList)
     {
         // 어그로 끌린 상태면 리턴하는 코드
-        //
+        if (BuffManager.Instance.Buffs.Select(b => b as BuffManager.ABuff)
+            .Any(buff => buff?.Id == BuffId.Aggro && buff.Master.Id == gameObject.Id)) 
+            return gameObject.Target;
 
         Dictionary<int, GameObject> targetDict = new();
 
