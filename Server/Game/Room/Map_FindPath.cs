@@ -47,8 +47,7 @@ public partial class Map
     public int SizeX => (int)((MaxX - MinX) * 4 + 1); // grid = 0.25
     public int SizeZ => (int)((MaxZ - MinZ) * 4 + 1);
     
-    private bool[,] _collisionGround;
-    private bool[,] _collisionAir;
+    private bool[,] _collision;
     private GameObject?[,] _objectsGround;
     private GameObject?[,] _objectsAir;
     private ushort[,] _objectPlayer;
@@ -160,7 +159,7 @@ public partial class Map
             {
                 for (int j = startX - size; j <= startX + size; j++)
                 {
-                    if (i >= 0 && i < maxZ && j >= 0 && j < maxX && _collisionGround[i, j] == false)
+                    if (i >= 0 && i < maxZ && j >= 0 && j < maxX && _collision[i, j] == false)
                     {
                         return new Pos { Z = i, X = j };
                     }
@@ -194,14 +193,7 @@ public partial class Map
                     {
                         for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
                         {
-                            if (gameObject.Stat.UnitType == 1) // 1 = air
-                            {
-                                if (_collisionAir[k, l]) cnt++;
-                            }
-                            else
-                            {
-                                if (_collisionGround[k, l]) cnt++;
-                            }
+                            if (_objectsGround[k, l] != null) cnt++;
                         }
                     }
                     if (cnt == 0) return pos;
@@ -460,7 +452,7 @@ public partial class Map
             {
                 int j = (i + 1) % v.Count;
                 if (v[i].X > pos.X == v[j].X > pos.X) continue;
-                double meetZ = (v[j].Z - v[i].Z) * (pos.X - v[i].X) / (v[j].X - v[i].X) + v[i].Z;
+                double meetZ = (v[j].Z - v[i].Z) * (double)(pos.X - v[i].X) / (v[j].X - v[i].X) + v[i].Z;
                 if (pos.Z < meetZ) crosses++;
             }
         
@@ -510,7 +502,7 @@ public partial class Map
                 if (next.Z != dest.Z || next.X != dest.X)
                 {
                     // if (CanGoGround(Pos2Cell(next), checkObjects) == false, gameObject.Stat.SizeX, gameObject.Stat.SizeZ)
-                    if (CanGoGround(Pos2Cell(next), checkObjects) == false)
+                    if (CanGo(Pos2Cell(next), checkObjects) == false)
                         continue;
                 }
 

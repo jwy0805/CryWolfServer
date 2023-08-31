@@ -174,15 +174,19 @@ public partial class GameRoom : JobSerializer
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.Stat.MpRecovery;
+                    cAttacker.SetNormalAttackEffect(target);
                 }
                 else if (type is GameObjectType.Effect)
                 {
                     attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                    Effect? eAttacker = FindGameObjectById(attackerId) as Effect;
+                    eAttacker?.SetEffectEffect(target);
                 }
                 else if (type is GameObjectType.Projectile)
                 {
-                    Projectile? p = FindGameObjectById(attackerId) as Projectile;
-                    p?.SetProjectileEffect(target);
+                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                    Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
+                    pAttacker?.SetProjectileEffect(target);
                 }
                 break;
             
@@ -225,6 +229,14 @@ public partial class GameRoom : JobSerializer
                 }
                 break;
         }
+    }
+
+    public void HandleStatInit(Player? player, C_StatInit initPacket)
+    {
+        if (player == null) return;
+
+        Creature? creature = FindGameObjectById(initPacket.ObjectId) as Creature;
+        creature?.StatInit();
     }
 
     public void HandleSkill(Player? player, C_Skill skillPacket)

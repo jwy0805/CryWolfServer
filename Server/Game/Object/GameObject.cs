@@ -18,6 +18,7 @@ public class GameObject : IGameObject
     public GameObject? Target;
     public GameObject? Parent;
     protected Vector3 DestPos;
+    private float _totalAttackSpeed;
 
     public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     public int Id
@@ -31,7 +32,21 @@ public class GameObject : IGameObject
     public PositionInfo PosInfo { get; set; } = new();
     public StatInfo Stat { get; private set; } = new();
     public int TotalAttack;
-    public float TotalAttackSpeed;
+
+    public float TotalAttackSpeed
+    {
+        get => _totalAttackSpeed;
+        set
+        { 
+            _totalAttackSpeed = value;
+            Room?.Broadcast(new S_SetAnimSpeed()
+            {
+                ObjectId = Id,
+                Param = _totalAttackSpeed
+            });
+        }
+    }
+
     public int TotalDefence;
     public float TotalMoveSpeed;
     public int TotalAccuracy;
@@ -41,7 +56,7 @@ public class GameObject : IGameObject
 
     #region Stat
     
-    public int Hp
+    public virtual int Hp
     {
         get => Stat.Hp;
         set => Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
@@ -74,7 +89,12 @@ public class GameObject : IGameObject
     public int Attack
     {
         get => Stat.Attack;
-        set => Stat.Attack = value;
+        protected set
+        {
+            TotalAttack -= Stat.Attack;
+            Stat.Attack = value;
+            TotalAttack += Stat.Attack;
+        }
     }
 
     public int SkillDamage
@@ -86,31 +106,56 @@ public class GameObject : IGameObject
     public int Defence
     {
         get => Stat.Defence;
-        set => Stat.Defence = value;
+        protected set
+        {
+            TotalDefence -= Stat.Defence;
+            Stat.Defence = value;
+            TotalDefence += Stat.Defence;
+        }    
     }
 
     public int FireResist
     {
         get => Stat.FireResist;
-        set => Stat.FireResist = value;
+        protected set
+        {
+            TotalFireResist -= Stat.FireResist;
+            Stat.FireResist = value;
+            TotalFireResist += Stat.FireResist;
+        }
     }
 
     public int PoisonResist
     {
         get => Stat.PoisonResist;
-        set => Stat.PoisonResist = value;
+        protected set
+        {
+            TotalPoisonResist -= Stat.PoisonResist;
+            Stat.PoisonResist = value;
+            TotalPoisonResist += Stat.PoisonResist;
+        }
     }
 
     public float MoveSpeed
     {
         get => Stat.MoveSpeed;
-        set => Stat.MoveSpeed = value;
+        protected set
+        {
+            TotalMoveSpeed -= Stat.MoveSpeed;
+            Stat.MoveSpeed = value;
+            TotalMoveSpeed += Stat.MoveSpeed;
+        }
     }
 
     public float AttackSpeed
     {
         get => Stat.AttackSpeed;
-        set => Stat.AttackSpeed = value;
+        protected set
+        {
+            TotalAttackSpeed -= Stat.AttackSpeed;
+            Stat.AttackSpeed = value;
+            TotalAttackSpeed += Stat.AttackSpeed;
+        }
     }
 
     public float AttackRange
@@ -134,13 +179,23 @@ public class GameObject : IGameObject
     public int Accuracy
     {
         get => Stat.Accuracy;
-        set => Stat.Accuracy = value;
+        protected set
+        {
+            TotalAccuracy -= Stat.Accuracy;
+            Stat.Accuracy = value;
+            TotalAccuracy += Stat.Accuracy;
+        }
     }
 
     public int Evasion
     {
         get => Stat.Evasion;
-        set => Stat.Evasion = value;
+        protected set
+        {
+            TotalEvasion -= Stat.Evasion;
+            Stat.Evasion = value;
+            TotalEvasion += Stat.Evasion;
+        }
     }
 
     public bool Targetable
@@ -225,11 +280,10 @@ public class GameObject : IGameObject
 
     public virtual void Init()
     {
-        StatInit();
         Time = Room!.Stopwatch.ElapsedMilliseconds;
     }
     
-    private void StatInit()
+    public void StatInit()
     {
         TotalAttack = Attack;
         TotalAttackSpeed = AttackSpeed;

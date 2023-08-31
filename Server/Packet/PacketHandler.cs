@@ -66,7 +66,16 @@ public class PacketHandler
 
         room?.Push(room.HandleAttack, player, attackPacket);
     }
-    
+
+    public static void C_StatInitHandler(PacketSession session, IMessage packet)
+    {
+        C_StatInit initPacket = (C_StatInit)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+        
+        room?.Push(room.HandleStatInit, player, initPacket);
+    }
     public static void C_SkillHandler(PacketSession session, IMessage packet)
     {
         C_Skill skillPacket = (C_Skill)packet;

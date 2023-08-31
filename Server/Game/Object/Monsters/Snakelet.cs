@@ -14,7 +14,6 @@ public class Snakelet : Monster
             {
                 case Skill.SnakeletAttack:
                     Attack += 6;
-                    TotalAttack += 6;
                     break;
                 case Skill.SnakeletRange:
                     AttackRange += 1.5f;
@@ -24,7 +23,6 @@ public class Snakelet : Monster
                     break;
                 case Skill.SnakeletAttackSpeed:
                     MoveSpeed += 2f;
-                    TotalMoveSpeed += 2f;
                     break;
             }
         }

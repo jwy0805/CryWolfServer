@@ -17,22 +17,18 @@ public class Wolf : WolfPup
             {
                 case Skill.WolfDefence:
                     Defence += 4;
-                    TotalDefence += 4;
                     break;
                 case Skill.WolfDrain:
                     _drain = true;
                     break;
                 case Skill.WolfAvoid:
                     Evasion += 10;
-                    TotalEvasion += 10;
                     break;
                 case Skill.WolfFireResist:
                     FireResist += 10;
-                    TotalFireResist += 10;
                     break;
                 case Skill.WolfPoisonResist:
                     PoisonResist += 10;
-                    TotalPoisonResist += 10;
                     break;
                 case Skill.WolfDna:
                     break;
@@ -44,5 +40,10 @@ public class Wolf : WolfPup
     {
         base.Init();
         MonsterId = MonsterId.Wolf;
+    }
+
+    public override void SetNormalAttackEffect(GameObject master)
+    {
+        if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * _drainParam);
     }
 }

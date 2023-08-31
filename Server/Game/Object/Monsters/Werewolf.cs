@@ -40,6 +40,20 @@ public class Werewolf : Wolf
         }
     }
 
+    public override int Hp
+    {
+        get => Stat.Hp;
+        set
+        {
+            Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
+            if (_enhance && Stat.Hp < MaxHp * 0.5)
+            {
+                TotalAttack += Attack * (int)(0.5 - (double)Stat.Hp / MaxHp);
+                TotalAttackSpeed += AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
+            }
+        }
+    }
+    
     public override void Init()
     {
         base.Init();
@@ -119,6 +133,11 @@ public class Werewolf : Wolf
         base.UpdateDie();
     }
 
+    public override void SetNormalAttackEffect(GameObject master)
+    {
+        
+    }
+    
     public override void SetNextState()
     {
         if (Room == null) return;

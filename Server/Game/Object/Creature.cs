@@ -77,6 +77,8 @@ public class Creature : GameObject
     protected virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
+    public virtual void SetNormalAttackEffect(GameObject master) { }
+    
     public virtual void SetNextState()
     {
         if (Room == null) return;

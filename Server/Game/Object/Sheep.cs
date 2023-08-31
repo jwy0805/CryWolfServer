@@ -72,7 +72,7 @@ public class Sheep : Creature, ISkillObserver
             float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
-            bool canGo = map.CanGoGround(dest);
+            bool canGo = map.CanGo(dest);
             if (canGo) return dest;
         } while (true);
     }

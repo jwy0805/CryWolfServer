@@ -18,4 +18,6 @@ public class Effect : GameObject
     {
         
     }
+
+    public virtual void SetEffectEffect(GameObject master) { }
 }

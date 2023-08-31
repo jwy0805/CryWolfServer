@@ -14,7 +14,6 @@ public class WolfPup : Monster
             {
                 case Skill.WolfPupAttack:
                     Attack += 5;
-                    TotalAttack += 5;
                     break;
                 case Skill.WolfPupHealth:
                     Hp += 20;
@@ -22,11 +21,9 @@ public class WolfPup : Monster
                     break;
                 case Skill.WolfPupSpeed:
                     MoveSpeed += 1.0f;
-                    TotalMoveSpeed += 1.0f;
                     break;
                 case Skill.WolfPupAttackSpeed:
                     AttackSpeed += 0.1f;
-                    TotalAttackSpeed += 0.1f;
                     break;
             }
         }

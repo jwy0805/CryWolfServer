@@ -476,11 +476,12 @@ public sealed class BuffManager
         {
             Id = BuffId.Curse;
             Type = BuffType.Debuff;
+            Nested = true;
         }
 
-        public override void TriggerBuff()
+        public override void RemoveBuff()
         {
-            
+            Master.Hp = 1;
         }
     }
     

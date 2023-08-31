@@ -13,7 +13,7 @@ public struct Pos
 
 public partial class Map
 {
-    public bool CanGoGround(Vector3 cellPos, bool checkObjects = true, int size = 1)
+    public bool CanGo(Vector3 cellPos, bool checkObjects = true, int size = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -25,31 +25,31 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (_collisionGround[j, i]) cnt++;
+                if (_collision[j, i]) cnt++;
             }
         }
 
         return cnt == 0 && (!checkObjects || _objectsGround[z, x] == null);
     }
 
-    public bool CanGoAir(Vector3 cellPos, bool checkObjects = true, int size = 1)
-    {
-        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
-
-        int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)((MaxZ - cellPos.Z) * 4);
-        int cnt = 0;
-        for (int i = x - (size - 1); i <= x + (size - 1); i++)
-        {
-            for (int j = z - (size - 1); j <= z - (size - 1); j++)
-            {
-                if (_collisionAir[j, i]) cnt++;
-            }
-        }
-
-        return cnt == 0;
-    }
+    // public bool CanGoAir(Vector3 cellPos, bool checkObjects = true, int size = 1)
+    // {
+    //     if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+    //     if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+    //
+    //     int x = (int)((cellPos.X - MinX) * 4);
+    //     int z = (int)((MaxZ - cellPos.Z) * 4);
+    //     int cnt = 0;
+    //     for (int i = x - (size - 1); i <= x + (size - 1); i++)
+    //     {
+    //         for (int j = z - (size - 1); j <= z - (size - 1); j++)
+    //         {
+    //             if (_collisionAir[j, i]) cnt++;
+    //         }
+    //     }
+    //
+    //     return cnt == 0;
+    // }
 
     public GameObject? Find(Vector3 cellPos)
     {
@@ -126,19 +126,8 @@ public partial class Map
        
         StatInfo stat = gameObject.Stat;
         Vector3 v = new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ);
-        bool canGo;
-        switch (stat.UnitType)
-        {
-            case 0:
-                canGo = CanGoGround(v, true, gameObject.Stat.SizeX);
-                break;
-            case 1:
-                canGo = CanGoAir(v, true, gameObject.Stat.SizeX);
-                break;
-            default:
-                canGo = true;
-                break;
-        }
+        bool canGo = CanGo(v, true, gameObject.Stat.SizeX);
+
 
         if (canGo == false) return false;
         
@@ -149,28 +138,32 @@ public partial class Map
         int zSize = stat.SizeZ;
         List<(int, int)> coordinate = new List<(int, int)>();
         
-        if (xSize != zSize)
-        {
-            if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-            
-            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-            {
-                for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
-                {
-                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
-                }
-            }
-        }
-        else
-        {
-            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-            {
-                for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
-                {
-                    coordinate.Add((j, i));
-                }
-            }
-        }
+        // if (xSize != zSize)
+        // {
+        //     if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
+        //     
+        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        //     {
+        //         for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
+        //         {
+        //             coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
+        //         }
+        //     }
+        // }
+        // else
+        // {
+        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+        //     {
+        //         for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
+        //         {
+        //             coordinate.Add((j, i));
+        //         }
+        //     }
+        // }
+        
+        //
+        coordinate.Add((z, x));
+        //
 
         switch (stat.UnitType)
         {
@@ -253,8 +246,8 @@ public partial class Map
         
         int xCount = (int)((MaxX - MinX) * 4 + 1);
         int zCount = (int)((MaxZ - MinZ) * 4 + 1);
-        _collisionGround = new bool[zCount, xCount];
-        _collisionAir = new bool[zCount, xCount];
+        _collision = new bool[zCount, xCount];
+        // _collisionAir = new bool[zCount, xCount];
         _objectsGround = new GameObject[zCount, xCount];
         _objectsAir = new GameObject[zCount, xCount];
         _objectPlayer = new ushort[zCount, xCount];
@@ -266,8 +259,8 @@ public partial class Map
             {
                 if (line != null)
                 {
-                    _collisionGround[z, x] = line[x] == '2' || line[x] == '4';
-                    _collisionAir[z, x] = line[x] == '4';
+                    _collision[z, x] = line[x] == '2' || line[x] == '4';
+                    // _collisionAir[z, x] = line[x] == '4';
                 }
             }
         }
