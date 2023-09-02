@@ -501,6 +501,7 @@ public partial class Map
                 Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 if (next.Z != dest.Z || next.X != dest.X)
                 {
+                    // if (CanGoGround(Pos2Cell(next), checkObjects) == false, gameObject.Stat.SizeX, gameObject.Stat.SizeZ)
                     if (CanGo(Pos2Cell(next), checkObjects) == false)
                         continue;
                 }

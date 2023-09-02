@@ -77,45 +77,43 @@ public partial class Map
         int zSize = stat.SizeZ;
         List<(int, int)> coordinate = new List<(int, int)>();
 
-        // if (xSize != zSize)
-        // {
-        //     if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-        //     
-        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-        //     {
-        //         for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
-        //         {
-        //             coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
-        //         }
-        //     }
-        // }
-        // else
-        // {
-        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-        //     {
-        //         for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
-        //         {
-        //             coordinate.Add((j, i));
-        //         }
-        //     }
-        // }
-        //
-        _objectsGround[z, x] = null;
-        //
-        // switch (stat.UnitType)
-        // {
-        //     case 0: // 0 -> ground
-        //         foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = null;
-        //         break;
-        //     case 1: // 1 -> air
-        //         foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
-        //         break;
-        //     case 2: // 2 -> player
-        //         foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
-        //         break;
-        //     default:
-        //         break;
-        // }
+        if (xSize != zSize)
+        {
+            if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
+            
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            {
+                for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
+                {
+                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
+                }
+            }
+        }
+        else
+        {
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            {
+                for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
+                {
+                    coordinate.Add((j, i));
+                }
+            }
+        }
+
+        switch (stat.UnitType)
+        {
+            case 0: // 0 -> ground
+                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = null;
+                break;
+            case 1: // 1 -> air
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
+                break;
+            case 2: // 2 -> player
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
+                break;
+            default:
+                break;
+        }
 
         return true;
     }
@@ -164,23 +162,23 @@ public partial class Map
         // }
         
         //
-        _objectsGround[z, x] = gameObject;
+        coordinate.Add((z, x));
         //
 
-        // switch (stat.UnitType)
-        // {
-        //     case 0: // 0 -> ground
-        //         foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = gameObject;
-        //         break;
-        //     case 1: // 1 -> air
-        //         foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
-        //         break;
-        //     case 2: // 2 -> player
-        //         foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
-        //         break;
-        //     default:
-        //         break;
-        // }
+        switch (stat.UnitType)
+        {
+            case 0: // 0 -> ground
+                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 1: // 1 -> air
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 2: // 2 -> player
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
+                break;
+            default:
+                break;
+        }
 
         return true;
     }
