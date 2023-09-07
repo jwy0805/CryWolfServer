@@ -59,7 +59,7 @@ public class Shell : Monster
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        (Path, Atan) = Room.Map.Move(this, CellPos, DestPos);
+        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         State = State.Moving;
     }
@@ -86,7 +86,7 @@ public class Shell : Monster
                     if (Target != null)
                     {
                         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                        (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                        (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                         BroadcastDest();
                     }
                 }
@@ -140,7 +140,7 @@ public class Shell : Monster
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                     BroadcastDest();
                 }
             }

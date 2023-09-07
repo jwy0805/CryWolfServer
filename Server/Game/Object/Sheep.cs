@@ -34,7 +34,7 @@ public class Sheep : Creature, ISkillObserver
         {
             _lastSetDest = _stopwatch.ElapsedMilliseconds;
             DestPos = GetRandomDestInFence();
-            (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
             Console.WriteLine($"{DestPos.X}, {DestPos.Z}");
             State = State.Moving;
@@ -72,7 +72,7 @@ public class Sheep : Creature, ISkillObserver
             float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
-            bool canGo = map.CanGo(dest);
+            bool canGo = map.CanGo(map.Vector3To2(dest));
             if (canGo) return dest;
         } while (true);
     }

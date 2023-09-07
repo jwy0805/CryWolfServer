@@ -5,17 +5,57 @@ using ServerCore;
 
 namespace Server.Game;
 
+public struct Pos
+{
+    public Pos(int z, int x) { Z = z; X = x; }
+    public int Z;
+    public int X;
+    
+    public static bool operator ==(Pos lhs, Pos rhs)
+    {
+        return lhs.Z == rhs.Z && lhs.X == rhs.X;
+    }
+
+    public static bool operator !=(Pos lhs, Pos rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return (Pos)obj == this;
+    }
+
+    public override int GetHashCode()
+    {
+        long value = (Z << 32) | X;
+        return value.GetHashCode();
+    }
+}
+
 public struct PQNode : IComparable<PQNode>
 {
-    public double F;
+    public int F;
     public int G;
     public int Z;
     public int X;
 
     public int CompareTo(PQNode other)
     {
-        if (F < other.F) return -1;
-        return F > other.F ? 1 : 0;
+        if (F == other.F) return 0;
+        return F < other.F ? 1 : -1;
+    }
+}
+
+public struct Vector2Int
+{
+    public int X;
+    public int Z;
+
+    public Vector2Int(int x, int z)
+    {
+        this.X = x;
+        this.Z = z;
     }
 }
 
@@ -37,18 +77,16 @@ public struct Region
 
 public partial class Map
 {
-    public float MinX = -100;
-    public float MaxX = 100;
-    public float MinZ = -100;
-    public float MaxZ = 100;
-    public float GroundY = 6f;
-    public float AirY = 8.5f;
-    
-    public int SizeX => (int)((MaxX - MinX) * 4 + 1); // grid = 0.25
-    public int SizeZ => (int)((MaxZ - MinZ) * 4 + 1);
+    public static int MinX { get; set; }
+    public static int MaxX { get; set; }
+    public static int MinZ { get; set; }
+    public static int MaxZ { get; set; }
+
+    public int SizeX => MaxX - MinX + 1; // grid = 0.25
+    public int SizeZ => MaxZ - MinZ + 1;
     
     private bool[,] _collision;
-    private GameObject?[,] _objectsGround;
+    public GameObject?[,] Objects;
     private GameObject?[,] _objectsAir;
     private ushort[,] _objectPlayer;
 
@@ -61,47 +99,47 @@ public partial class Map
     
     #region RegionDirection
 
-    private static List<Vector3> _west = new()
+    private static readonly List<Vector2Int> West = new()
     {
-        new Vector3(-62, 0, -16),
-        new Vector3(-19, 0, -16),
-        new Vector3(-19, 0, 20),
-        new Vector3(-62, 0, 20)
+        new Vector2Int(-248, -64),
+        new Vector2Int(-76, -64),
+        new Vector2Int(-76, 80),
+        new Vector2Int(-248, 80)
     };
 
-    private static List<Vector3> _south = new()
+    private static readonly List<Vector2Int> South = new()
     {
-        new Vector3(-13, 0, -16),
-        new Vector3(-13, 0, -21),
-        new Vector3(13, 0, -21),
-        new Vector3(13, 0, -16)
+        new Vector2Int(-52, -64),
+        new Vector2Int(-52, -84),
+        new Vector2Int(52, -84),
+        new Vector2Int(52, -64)
     };
 
-    private static List<Vector3> _east = new()
+    private static readonly List<Vector2Int> East = new()
     {
-        new Vector3(15, 0, 10),
-        new Vector3(15, 0, -16),
-        new Vector3(54, 0, -16),
-        new Vector3(54, 0, 10)
+        new Vector2Int(60, 40),
+        new Vector2Int(60, -64),
+        new Vector2Int(216, -64),
+        new Vector2Int(216, 40),
     };
 
-    private static List<Vector3> _north = new()
+    private static readonly List<Vector2Int> North = new()
     {
-        new Vector3(-19, 0, 50),
-        new Vector3(-19, 0, 20),
-        new Vector3(15, 0, 20),
-        new Vector3(15, 0, 50)
+        new Vector2Int(-76, 200),
+        new Vector2Int(-76, 80),
+        new Vector2Int(60, 80),
+        new Vector2Int(60, 200)
     };
 
     #endregion
     
     public void MapSetting()
     {
-        DivideRegionMid(1);
-        DivideRegion(_east, 6f);
-        DivideRegion(_west, 6f);
-        DivideRegion(_south, 6f);
-        DivideRegion(_north, 6f);
+        DivideRegionMid();
+        DivideRegion(East, 6f);
+        DivideRegion(West, 6f);
+        DivideRegion(South, 6f);
+        DivideRegion(North, 6f);
         _connectionMatrix = RegionConnectivity();
 
         int cnt = _regionGraph.Count;
@@ -111,7 +149,7 @@ public partial class Map
         for (int i = 0; i < _regionGraph.Count; i++) Dijkstra(i);
     }
     
-    private void SortPointsCcw(List<Pos> points)
+	private void SortPointsCcw(List<Pos> points)
     {
         float sumX = 0;
         float sumZ = 0;
@@ -121,15 +159,15 @@ public partial class Map
             sumX += points[i].X;
             sumZ += points[i].Z;
         }
-        
+
         float averageX = sumX / points.Count;
         float averageZ = sumZ / points.Count;
-        
+
         points.Sort((lhs, rhs) =>
         {
             double lhsAngle = Math.Atan2(lhs.Z - averageZ, lhs.X - averageX);
             double rhsAngle = Math.Atan2(rhs.Z - averageZ, rhs.X - averageX);
-            
+
             if (lhsAngle < rhsAngle) return -1;
             if (lhsAngle > rhsAngle) return 1;
             double lhsDist = Math.Sqrt(Math.Pow(lhs.Z - averageZ, 2) + Math.Pow(lhs.X - averageX, 2));
@@ -139,7 +177,7 @@ public partial class Map
             return 0;
         });
     }
-    
+
     private Pos FindCenter(List<Pos> vertices)
     {
         int minZ = vertices.Select(v => v.Z).ToList().Min();
@@ -153,6 +191,7 @@ public partial class Map
         int startZ = centerZ;
         int startX = centerX;
 
+        Pos pos = new Pos();
         while (startZ >= minZ && startX >= minX && startZ < maxZ && startX < maxX)
         {
             for (int i = startZ - size; i <= startZ + size; i++)
@@ -161,7 +200,7 @@ public partial class Map
                 {
                     if (i >= 0 && i < maxZ && j >= 0 && j < maxX && _collision[i, j] == false)
                     {
-                        return new Pos { Z = i, X = j };
+                        pos = new Pos { Z = i, X = j };
                     }
                 }
             }
@@ -171,56 +210,27 @@ public partial class Map
             startX = centerX - size;
         }
 
-        return new Pos { Z = -1, X = -1 };
+        return pos;
     }
 
-    public Pos FindNearestEmptySpace(Pos pos, GameObject gameObject, int sizeZ = 1, int sizeX = 1)
+    private void DivideRegion(List<Vector2Int> region, float lenSide)
     {
-        int cnt = 0;
-        int move = 0;
-        sizeZ--;
-        sizeX--;
+        int len = (int)(lenSide * 4);
+	    
+        int minX = region.Min(v => v.X);
+        int maxX = region.Max(v => v.X);
+        int minZ = region.Min(v => v.Z);
+        int maxZ = region.Max(v => v.Z);
 
-        do
+        int sideX = GetSideLen(maxX - minX, len);
+        int sideZ = GetSideLen(maxZ - minZ, len);
+
+        int remainX = (maxX - minX) % sideX;
+        int remainZ = (maxZ - minZ) % sideZ;
+
+        for (int i = minZ; i < maxZ - remainZ; i += sideZ)
         {
-            for (int i = -move; i <= move; i++)
-            {
-                pos.Z += i;
-                for (int j = -move; j <= move; j++)
-                {
-                    pos.X += j;
-                    for (int k = pos.Z - sizeZ; k <= pos.Z + sizeZ; k++)
-                    {
-                        for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
-                        {
-                            if (_objectsGround[k, l] != null) cnt++;
-                        }
-                    }
-                    if (cnt == 0) return pos;
-                    cnt = 0;
-                }
-            }
-            
-            move++;
-        } while (true);
-    }
-
-    public void DivideRegion(List<Vector3> region, float lenSide)
-    {
-        float minX = region.Min(v => v.X);
-        float maxX = region.Max(v => v.X);
-        float minZ = region.Min(v => v.Z);
-        float maxZ = region.Max(v => v.Z);
-
-        int sideX = GetSideLen(maxX - minX, lenSide);
-        int sideZ = GetSideLen(maxZ - minZ, lenSide);
-
-        int remainX = (int)(maxX - minX) % sideX;
-        int remainZ = (int)(maxZ - minZ) % sideZ;
-
-        for (float i = minZ; i < maxZ - remainZ; i += sideZ)
-        {
-            for (float j = minX; j < maxX - remainX; j += sideX)
+            for (int j = minX; j < maxX - remainX; j += sideX)
             {
                 int lenZ = sideZ;
                 int lenX = sideX;
@@ -229,12 +239,12 @@ public partial class Map
 
                 List<Pos> vertices = new List<Pos>
                 {
-                    Cell2Pos(new Vector3(j, 0, i)),
-                    Cell2Pos(new Vector3(j, 0, i + lenZ)),
-                    Cell2Pos(new Vector3(j + lenX, 0, i + lenZ)),
-                    Cell2Pos(new Vector3(j + lenX, 0, i))
+                    Cell2Pos(new Vector2Int(j, i)),
+                    Cell2Pos(new Vector2Int(j, i + lenZ)),
+                    Cell2Pos(new Vector2Int(j + lenX, i + lenZ)),
+                    Cell2Pos(new Vector2Int(j + lenX, i))
                 };
-                
+
                 SortPointsCcw(vertices);
                 
                 Region newRegion = new()
@@ -244,21 +254,21 @@ public partial class Map
                     Neighbor = new List<int>(),
                     Vertices = vertices,
                 };
-                
+
                 _regionGraph.Add(newRegion);
                 _regionIdGenerator++;
             }
         }
     }
 
-    public void DivideRegionMid(int level)
+    private void DivideRegionMid()
     {
         List<Pos> vertices = new List<Pos>
         {
-            Cell2Pos(new Vector3(-19, 0, 20)),
-            Cell2Pos(new Vector3(15, 0, 20)),
-            Cell2Pos(new Vector3(-19, 0, -16)),
-            Cell2Pos(new Vector3(15, 0, -16)),
+            Cell2Pos(new Vector2Int(-76, 80)),
+            Cell2Pos(new Vector2Int(60, 80)),
+            Cell2Pos(new Vector2Int(-76, -64)),
+            Cell2Pos(new Vector2Int(60, -64))
         };
         
         SortPointsCcw(vertices);
@@ -418,29 +428,6 @@ public partial class Map
         return path;
     }
     
-    public Pos Cell2Pos(Vector3 cell)
-    {
-        // CellPos -> ArrayPos
-        return new Pos((int)(MaxZ - cell.Z) * 4, (int)(cell.X - MinX) * 4);
-    }
-
-    public Vector3 Pos2Cell(Pos pos)
-    {
-        // ArrayPos -> CellPos
-        return new Vector3(pos.X * 0.25f + MinX, 6, MaxZ - pos.Z * 0.25f);
-    }
-    
-    public Vector3 Pos2CellAir(Pos pos)
-    {
-        // ArrayPos -> CellPos
-        return new Vector3(pos.X * 0.25f + MinX, 9, MaxZ - pos.Z * 0.25f);
-    }
-
-    private int GetSideLen(float len, float minSide)
-    {
-        return len / 2 < minSide ? (int)len : GetSideLen(len / 2, minSide);
-    }
-    
     private int GetRegionByVector(Pos pos)
     {
         int crosses = 0;
@@ -461,84 +448,142 @@ public partial class Map
 
         return int.MaxValue;
     }
+    
+    private int GetSideLen(float len, float minSide)
+    {
+        return len / 2 < minSide ? (int)len : GetSideLen(len / 2, minSide);
+    }
+    
+    public Pos Cell2Pos(Vector2Int cell)
+    {
+        // CellPos -> ArrayPos
+        return new Pos(MaxZ - cell.Z, cell.X - MinX);
+    }
+
+    public Vector2Int Pos2Cell(Pos pos)
+    {
+        // ArrayPos -> CellPos
+        return new Vector2Int(pos.X + MinX, MaxZ - pos.Z);
+    }
+
+    public Vector2Int Vector3To2(Vector3 v)
+    {
+        return new Vector2Int((int)(v.X * 4), (int)(v.Z * 4));
+    }
+	
+    public Vector3 Vector2To3(Vector2Int v, float h = 6f)
+    {
+        return new Vector3((float)(v.X * 0.25), h, (float)(v.Z * 0.25));
+    }
 
     private static int[] _deltaZ = { 1, 1, 0, -1, -1, -1, 0, 1 };
     private static int[] _deltaX = { 0, -1, -1, -1, 0, 1, 1, 1 };
     private static int[] _cost = { 10, 14, 10, 14, 10, 14, 10, 14 };
 
-    public List<Vector3> FindPath(GameObject gameObject, Vector3 startCellPos, Vector3 destCellPos,
-        bool checkObjects = true)
+	public List<Vector3> FindPath(GameObject gameObject, Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
     {
-        bool[,] closed = new bool[SizeZ, SizeX];
-        double[,] open = new double[SizeZ, SizeX];
+		// 점수 매기기
+		// F = G + H
+		// F = 최종 점수 (작을 수록 좋음, 경로에 따라 달라짐)
+		// G = 시작점에서 해당 좌표까지 이동하는데 드는 비용 (작을 수록 좋음, 경로에 따라 달라짐)
+		// H = 목적지에서 얼마나 가까운지 (작을 수록 좋음, 고정)
+        HashSet<Pos> closeList = new HashSet<Pos>();
 
-        for (int z = 0; z < SizeZ; z++)
-        {
-            for (int x = 0; x < SizeX; x++) open[z, x] = Int32.MaxValue;
-        }
+		// (y, x) 가는 길을 한 번이라도 발견했는지
+		// 발견X => MaxValue
+		// 발견O => F = G + H
+		Dictionary<Pos, int> openList = new Dictionary<Pos, int>();
+		Dictionary<Pos, Pos> parent = new Dictionary<Pos, Pos>();
+		PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();                                                          // 오픈리스트에 있는 정보들 중에서 가장 좋은 후보를 빠르게 뽑아오기 위한 도구
 
-        Pos[,] parent = new Pos[SizeZ, SizeX];
-        PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();
-        Pos pos = Cell2Pos(startCellPos);
-        Pos dest = Cell2Pos(destCellPos);
+		Pos pos = Cell2Pos(startCellPos);
+		Pos dest = Cell2Pos(destCellPos);
+        
+		openList.Add(pos, 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)));                                   // 시작점 발견 (예약 진행)
+		pq.Push(new PQNode { F = 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)), G = 0, Z = pos.Z, X = pos.X });
+		parent.Add(pos, pos);
 
-        double hVal =  Math.Sqrt(Math.Pow(dest.Z - pos.Z, 2) + Math.Pow(dest.X - pos.X, 2));
-        open[pos.Z, pos.X] = hVal;
-        pq.Push(new PQNode { F = -hVal, G = 0, Z = pos.Z, X = pos.X});
-        parent[pos.Z, pos.X] = new Pos(pos.Z, pos.X);
-
-        while (pq.Count > 0)
-        {
-            PQNode node = pq.Pop();
-
-            if (closed[node.Z, node.X]) continue;
-            closed[node.Z, node.X] = true;
+		while (pq.Count > 0)
+		{
+			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
+			Pos node = new Pos(pqNode.Z, pqNode.X);
+			if (closeList.Contains(node)) continue;                                                                      // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
             
-            if (node.Z == dest.Z && node.X == dest.X) break;
-
-            for (int i = 0; i < _deltaZ.Length; i++)
-            {
-                Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
-                if (next.Z != dest.Z || next.X != dest.X)
-                {
-                    // if (CanGoGround(Pos2Cell(next), checkObjects) == false, gameObject.Stat.SizeX, gameObject.Stat.SizeZ)
-                    if (CanGo(Pos2Cell(next), checkObjects) == false)
-                        continue;
-                }
-
-                if (closed[next.Z, next.X]) continue;
-
-                int g = node.G + _cost[i];
-                int h = 10 * ((dest.Z - next.Z) * (dest.Z - next.Z) + (dest.X - next.X) * (dest.X - next.X));
-                if (open[next.Z, next.X] < g + h) continue;
+			closeList.Add(node);                                                                                         // 제일 좋은 후보를 찾는다
+			if (node.Z == dest.Z && node.X == dest.X) break;                                                             // 목적지 도착했으면 바로 종료
+            
+			for (int i = 0; i < _deltaZ.Length; i++)                                                                     // 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
+			{
+				Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 
-                open[dest.Z, dest.X] = g + h;
-                pq.Push(new PQNode { F = -(g + h), G = g, Z = next.Z, X = next.X });
-                parent[next.Z, next.X] = new Pos(node.Z, node.X);
-            }
-        }
+				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
+				{                                                                                                        // 벽으로 막혀서 갈 수 없으면 스킵
+					if (CanGo(Pos2Cell(next), checkObjects) == false) continue;// CellPos
+				}
+                
+				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
-        return CalcCellPathFromParent(parent, dest);
+				int g = pqNode.G + _cost[i];                                                                          // 비용 계산 : node.G + _cost[i];
+                // int g = 0;
+                // int h = 10 * (int)Math.Sqrt((dest.Z - next.Z) * (dest.Z - next.Z) + (dest.X - next.X) * (dest.X - next.X));
+                int h = 10 * (Math.Abs(dest.Z - next.Z) + Math.Abs(dest.X - next.X));
+				if (openList.TryGetValue(next, out int value) == false) value = Int32.MaxValue;                          // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
+				if (value < g + h) continue;
+                
+				if (openList.TryAdd(next, g + h) == false) openList[next] = g + h;                                       // 예약 진행
+				pq.Push(new PQNode { F = (g + h), G = g, Z = next.Z, X = next.X });
+				if (parent.TryAdd(next, node) == false) parent[next] = node;
+			}
+		}
+
+		return CalcCellPathFromParent(parent, dest);
     }
-    
-    private List<Vector3> CalcCellPathFromParent(Pos[,] parent, Pos dest)
+	
+    private List<Vector3> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest)
     {
-        List<Vector3> cells = new List<Vector3>();
-
-        int z = dest.Z;
-        int x = dest.X;
-        while (parent[z, x].Z != z || parent[z, x].X != x)
+        List<Vector3> cells = new();
+        
+        Pos pos = dest;
+        while (parent[pos] != pos)
         {
-            cells.Add(Pos2Cell(new Pos(z, x)));
-            Pos pos = parent[z, x];
-            z = pos.Z;
-            x = pos.X;
+            cells.Add(Vector2To3(Pos2Cell(pos)));
+            pos = parent[pos];
         }
-
-        cells.Add(Pos2Cell(new Pos(z, x)));
+        cells.Add(Vector2To3(Pos2Cell(pos)));
         cells.Reverse();
 
         return cells;
+    }
+    
+    public Pos FindNearestEmptySpace(Pos pos, GameObject gameObject, int sizeZ = 1, int sizeX = 1)
+    {
+        int cnt = 0;
+        int move = 0;
+        sizeZ--;
+        sizeX--;
+
+        do
+        {
+            for (int i = -move; i <= move; i++)
+            {
+                pos.Z += i;
+                for (int j = -move; j <= move; j++)
+                {
+                    pos.X += j;
+                    for (int k = pos.Z - sizeZ; k <= pos.Z + sizeZ; k++)
+                    {
+                        for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
+                        {
+                            if (Objects[k, l] != null) cnt++;
+                        }
+                    }
+                    if (cnt == 0) return pos;
+                    cnt = 0;
+                }
+            }
+            
+            move++;
+        } while (true);
     }
 
     public Vector3 GetClosestPoint(Vector3 cellPos, GameObject target)

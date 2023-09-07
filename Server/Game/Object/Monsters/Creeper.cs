@@ -73,7 +73,7 @@ public class Creeper : Lurker
                     if (Target != null)
                     {
                         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                        (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                        (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                         BroadcastDest();
                     }
                 }
@@ -127,7 +127,7 @@ public class Creeper : Lurker
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                     BroadcastDest();
                 }
             }

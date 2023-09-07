@@ -4,75 +4,85 @@ using Server.Data;
 
 namespace Server.Game;
 
-public struct Pos
-{
-    public Pos(int z, int x) { Z = z; X = x; }
-    public int Z;
-    public int X;
-}
-
 public partial class Map
 {
-    public bool CanGo(Vector3 cellPos, bool checkObjects = true, int size = 1)
+    public bool ApplyMap(GameObject gameObject)
     {
-        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+        ApplyLeave(gameObject);
+        if (gameObject.Room == null) return false;
+        if (gameObject.Room.Map != this) return false;
+       
+        StatInfo stat = gameObject.Stat;
+        Vector2Int v = Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
+        bool canGo = CanGo(v, true, gameObject.Stat.SizeX);
 
-        int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)((MaxZ - cellPos.Z) * 4);
-        int cnt = 0;
-        for (int i = x - (size - 1); i <= x + (size - 1); i++)
+
+        if (canGo == false) return false;
+        
+        PositionInfo posInfo = gameObject.PosInfo;
+        int x = (int)(posInfo.PosX - MinX);
+        int z = (int)(MaxZ - posInfo.PosZ);
+        int xSize = stat.SizeX;
+        int zSize = stat.SizeZ;
+        List<(int, int)> coordinate = new List<(int, int)>();
+        
+        if (xSize != zSize)
         {
-            for (int j = z - (size - 1); j <= z + (size - 1); j++)
+            if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
+            
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
-                if (_collision[j, i]) cnt++;
+                for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+                {
+                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
+                }
             }
         }
+        else
+        {
+            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            {
+                for (int j = z - (xSize - 1); j <= z + (xSize - 1); j++)
+                {
+                    coordinate.Add((j, i));
+                }
+            }
+        }
+        
+        //
+        // coordinate.Add((z, x));
+        //
 
-        return cnt == 0 && (!checkObjects || _objectsGround[z, x] == null);
+        switch (stat.UnitType)
+        {
+            case 0: // 0 -> ground
+                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 1: // 1 -> air
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
+                break;
+            case 2: // 2 -> player
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
-
-    // public bool CanGoAir(Vector3 cellPos, bool checkObjects = true, int size = 1)
-    // {
-    //     if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-    //     if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
-    //
-    //     int x = (int)((cellPos.X - MinX) * 4);
-    //     int z = (int)((MaxZ - cellPos.Z) * 4);
-    //     int cnt = 0;
-    //     for (int i = x - (size - 1); i <= x + (size - 1); i++)
-    //     {
-    //         for (int j = z - (size - 1); j <= z - (size - 1); j++)
-    //         {
-    //             if (_collisionAir[j, i]) cnt++;
-    //         }
-    //     }
-    //
-    //     return cnt == 0;
-    // }
-
-    public GameObject? Find(Vector3 cellPos)
-    {
-        if (cellPos.X < MinX || cellPos.X > MaxX) return null;
-        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return null;
-
-        int x = (int)((cellPos.X - MinX) * 4);
-        int z = (int)((MaxZ - cellPos.Z) * 4);
-        return _objectsGround[z, x];
-    }
-
+        
     public bool ApplyLeave(GameObject gameObject)
     {
         if (gameObject.Room == null) return false;
         if (gameObject.Room.Map != this) return false;
-        
+    
         PositionInfo posInfo = gameObject.PosInfo;
         StatInfo stat = gameObject.Stat;
         if (posInfo.PosX < MinX || posInfo.PosX > MaxX) return false;
         if (posInfo.PosZ < MinZ || posInfo.PosZ > MaxZ) return false;
 
-        int x = (int)((posInfo.PosX - MinX) * 4);
-        int z = (int)((MaxZ - posInfo.PosZ) * 4);
+        int x = (int)(posInfo.PosX - MinX);
+        int z = (int)(MaxZ - posInfo.PosZ);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
         List<(int, int)> coordinate = new List<(int, int)>();
@@ -80,7 +90,7 @@ public partial class Map
         if (xSize != zSize)
         {
             if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-            
+        
             for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
                 for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
@@ -103,7 +113,7 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = null;
+                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = null;
                 break;
             case 1: // 1 -> air
                 foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
@@ -117,81 +127,48 @@ public partial class Map
 
         return true;
     }
-
-    public bool ApplyMap(GameObject gameObject)
+     
+    public GameObject? Find(Vector3 cellPos)
     {
-        ApplyLeave(gameObject);
-        if (gameObject.Room == null) return false;
-        if (gameObject.Room.Map != this) return false;
-       
-        StatInfo stat = gameObject.Stat;
-        Vector3 v = new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ);
-        bool canGo = CanGo(v, true, gameObject.Stat.SizeX);
+        if (cellPos.X < MinX || cellPos.X > MaxX) return null;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return null;
 
-
-        if (canGo == false) return false;
-        
-        PositionInfo posInfo = gameObject.PosInfo;
-        int x = (int)((posInfo.PosX - MinX) * 4);
-        int z = (int)((MaxZ - posInfo.PosZ) * 4);
-        int xSize = stat.SizeX;
-        int zSize = stat.SizeZ;
-        List<(int, int)> coordinate = new List<(int, int)>();
-        
-        // if (xSize != zSize)
-        // {
-        //     if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-        //     
-        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-        //     {
-        //         for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
-        //         {
-        //             coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
-        //         }
-        //     }
-        // }
-        // else
-        // {
-        //     for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
-        //     {
-        //         for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
-        //         {
-        //             coordinate.Add((j, i));
-        //         }
-        //     }
-        // }
-        
-        //
-        coordinate.Add((z, x));
-        //
-
-        switch (stat.UnitType)
-        {
-            case 0: // 0 -> ground
-                foreach (var tuple in coordinate) _objectsGround[tuple.Item1, tuple.Item2] = gameObject;
-                break;
-            case 1: // 1 -> air
-                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
-                break;
-            case 2: // 2 -> player
-                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
-                break;
-            default:
-                break;
-        }
-
-        return true;
+        int x = (int)((cellPos.X - MinX) * 4);
+        int z = (int)((MaxZ - cellPos.Z) * 4);
+        return Objects[z, x];
     }
     
-    public (List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 startCell, Vector3 destCell)
+    public bool CanGo(Vector2Int cellPos, bool checkObjects = true, int size = 1)
     {
+        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+
+        int x = cellPos.X - MinX;
+        int z = MaxZ - cellPos.Z;
+        
+        int cnt = 0;
+        for (int i = x - (size - 1); i <= x + (size - 1); i++)
+        {
+            for (int j = z - (size - 1); j <= z + (size - 1); j++)
+            {
+                if (_collision[j, i]) cnt++;
+            }
+        }
+        
+        return !_collision[z, x] && (!checkObjects || Objects[z, x] == null);
+    }
+    
+    public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d)
+    {
+        Vector2Int startCell = Vector3To2(s);
+        Vector2Int destCell = Vector3To2(d);
         int startRegionId = GetRegionByVector(Cell2Pos(startCell));
         int destRegionId = GetRegionByVector(Cell2Pos(destCell));
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        List<Vector3> center = regionPath.Select(t => Pos2Cell(_regionGraph[t].CenterPos)).ToList();
-        List<Vector3> path = new();
-        List<double> arctan = new();
-        Vector3 start = startCell;
+        List<Vector2Int> center = regionPath.Select(t => Pos2Cell(_regionGraph[t].CenterPos)).ToList();
+        List<Vector3> path = new List<Vector3>();
+        List<double> arctan = new List<double>();
+        Vector2Int start = startCell;
 
         if (regionPath.Count == 0)
         {
@@ -201,9 +178,10 @@ public partial class Map
         {
             for (int i = 0; i < center.Count; i++)
             {
+                // Console.WriteLine($"{center[i].X}, {center[i].Z}");
                 List<Vector3> aStar = FindPath(gameObject, start, center[i]);
                 path.AddRange(aStar);
-                start = path.Last();
+                start = Vector3To2(path.Last());
             }
 
             List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell);
@@ -211,6 +189,7 @@ public partial class Map
         }
 
         List<Vector3> uniquePath = path.Distinct().ToList();
+
         arctan.Add(Math.Round(Math.Atan2(uniquePath[0].X - startCell.X, uniquePath[0].Z - startCell.Z))); // i = 0
         for (int i = 1; i < uniquePath.Count; i++)
         {
@@ -218,40 +197,46 @@ public partial class Map
                 Math.Round(Math.Atan2(uniquePath[i].X - uniquePath[i - 1].X, uniquePath[i].Z - uniquePath[i - 1].Z) * (180 / Math.PI), 2);
             arctan.Add(atan2);
         }
-        
+
         List<Vector3> destList = new List<Vector3>();
         List<double> atanList = new List<double>();
-        for (int i = 1; i < uniquePath.Count - 1; i++)
+        for (int i = 1; i < arctan.Count - 1; i++)
         {
-            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) destList.Add(uniquePath[i]);
+            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) // float 비교 -> arctan[i] != arctan[i + 1], Tolerance = 0.001f
+            {
+                destList.Add(uniquePath[i]);
+            }
         }
-        for (int i = 0; i < arctan.Count - 2; i++)
+        
+        for (int i = 0; i < arctan.Count - 1; i++)
         {
-            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) atanList.Add(arctan[i + 1]);
+            if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) // float 비교 -> arctan[i] != arctan[i + 1], Tolerance = 0.001f
+            {
+                atanList.Add(arctan[i + 1]);
+            }
         }
 
         destList.Add(uniquePath[^1]);
-        atanList.Add(arctan[^1]);
 
-        return (destList, atanList);
+        return (path, destList, atanList);
     }
 
     public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")
     {
-        string mapName = "Map_" + mapId.ToString("000");
+        MinX = -400;
+        MaxX = 400;
+        MinZ = -400;
+        MaxZ = 400;
+
+        int xCount = MaxX - MinX + 1;
+        int zCount = MaxZ - MinZ + 1;
+        _collision = new bool[zCount, xCount];
+        Objects = new GameObject[zCount, xCount];
         
         // Collision 관련 파일
+        string mapName = "Map_" + mapId.ToString("000");
         string txt = File.ReadAllText($"{pathPrefix}/{mapName}.txt");
         StringReader reader = new StringReader(txt);
-        
-        int xCount = (int)((MaxX - MinX) * 4 + 1);
-        int zCount = (int)((MaxZ - MinZ) * 4 + 1);
-        _collision = new bool[zCount, xCount];
-        // _collisionAir = new bool[zCount, xCount];
-        _objectsGround = new GameObject[zCount, xCount];
-        _objectsAir = new GameObject[zCount, xCount];
-        _objectPlayer = new ushort[zCount, xCount];
-
         for (int z = 0; z < zCount; z++)
         {
             string? line = reader.ReadLine();
@@ -293,8 +278,8 @@ public partial class Map
             cell = new Vector3(0, 6, 0);
         }
 
-        Pos pos = FindNearestEmptySpace(Cell2Pos(cell), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
-        Vector3 result = Pos2Cell(pos);
+        Pos pos = FindNearestEmptySpace(Cell2Pos(Vector3To2(cell)), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
+        Vector3 result = Vector2To3(Pos2Cell(pos));
 
         return result;
     }

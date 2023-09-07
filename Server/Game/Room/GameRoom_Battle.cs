@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Util;
@@ -56,7 +57,7 @@ public partial class GameRoom : JobSerializer
             State = pMovePacket.State,
             ObjectId = player.Id,
             DestPos = pMovePacket.DestPos
-        };
+        }; 
         
         Broadcast(playerMovePacket);
     }
@@ -65,9 +66,29 @@ public partial class GameRoom : JobSerializer
     {
         if (player == null) return;
         GameObject? go = FindGameObjectById(movePacket.ObjectId);
+        if (go == null) return;
         Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
         Vector3 cellPos = Util.Util.NearestCell(v);
-        go?.ApplyMap(cellPos);
+        go.ApplyMap(cellPos);
+
+        // List<Vector3> path = go.Path;
+        // int index = path.IndexOf(cellPos);
+        // if (index == -1) return;
+        // int moveSpeed = (int)(go.MoveSpeed);
+        // int checkPath = Math.Clamp(index + moveSpeed, 0, path.Count - 1);
+        //
+        // for (int i = index; i < checkPath; i++)
+        // {
+        //     Vector3 v2 = path[i];
+        //     Pos pos = Map.Cell2Pos(v2);
+        //     if (Map.Objects[pos.X, pos.Z] != null)
+        //     {
+        //         GameObject? obstacle = Map.Objects[pos.X, pos.Z];
+        //         if (obstacle == null) return;
+        //         (go.Path, go.Dest, go.Atan) = Map.Move(go, obstacle, go.CellPos, go.DestPos);
+        //         go.BroadcastDest();
+        //     }
+        // }
     }
 
     public void HandleSetDest(Player? player, C_SetDest destPacket)

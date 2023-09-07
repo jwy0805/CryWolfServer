@@ -13,11 +13,12 @@ public class GameObject : IGameObject
     protected const int SearchTick = 600;
     protected double LastSearch = 0;
 
-    protected List<Vector3> Path = new();
-    protected List<double> Atan = new();
+    public List<Vector3> Path = new();
+    public List<Vector3> Dest = new();
+    public List<double> Atan = new();
     public GameObject? Target;
     public GameObject? Parent;
-    protected Vector3 DestPos;
+    public Vector3 DestPos;
     private float _totalAttackSpeed;
 
     public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
@@ -328,12 +329,12 @@ public class GameObject : IGameObject
 
     public virtual void BroadcastDest()
     {
-        if (Path.Count == 0 || Atan.Count == 0) return;
+        if (Dest.Count == 0 || Atan.Count == 0) return;
         S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         
-        for (int i = 0; i < Path.Count; i++)
+        for (int i = 0; i < Dest.Count; i++)
         {
-            DestVector destVector = new DestVector { X = Path[i].X, Y = Path[i].Y, Z = Path[i].Z };
+            DestVector destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
             destPacket.Dest.Add(destVector);
             destPacket.Dir.Add(Atan[i]);
         }

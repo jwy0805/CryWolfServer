@@ -74,7 +74,7 @@ public class Werewolf : Wolf
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
                     BroadcastDest();
                 }
             }
