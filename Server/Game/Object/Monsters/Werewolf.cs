@@ -11,6 +11,7 @@ public class Werewolf : Wolf
     private bool _debuffResist = false;
     private bool _faint = false;
     private bool _enhance = false;
+    private double _enhanceParam = 0;
     
     protected override Skill NewSkill
     {
@@ -46,9 +47,15 @@ public class Werewolf : Wolf
         set
         {
             Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
-            if (_enhance && Stat.Hp < MaxHp * 0.5)
+            if (_enhance)
             {
-                TotalAttack += Attack * (int)(0.5 - (double)Stat.Hp / MaxHp);
+                TotalAttack -= Attack * (int)_enhanceParam;
+                TotalSkill -= Stat.Skill * (int)_enhanceParam;
+                TotalAttackSpeed -= AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
+
+                _enhanceParam = 0.5 * (MaxHp * 0.5 - Hp);
+                TotalAttack += Attack * (int)_enhanceParam;
+                TotalSkill += Stat.Skill * (int)_enhanceParam;
                 TotalAttackSpeed += AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
             }
         }
@@ -59,7 +66,7 @@ public class Werewolf : Wolf
         base.Init();
         MonsterId = MonsterId.Werewolf;
     }
-
+    
     protected override void UpdateMoving()
     {
         // Targeting
@@ -135,7 +142,9 @@ public class Werewolf : Wolf
 
     public override void SetNormalAttackEffect(GameObject master)
     {
-        
+        base.Init();
+        if (_faint == false) return;
+        if (Target != null) Target.State = State.Faint;
     }
     
     public override void SetNextState()

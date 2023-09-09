@@ -48,6 +48,7 @@ public class GameObject : IGameObject
         }
     }
 
+    public int TotalSkill;
     public int TotalDefence;
     public float TotalMoveSpeed;
     public int TotalAccuracy;

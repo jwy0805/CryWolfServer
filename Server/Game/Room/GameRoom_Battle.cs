@@ -70,25 +70,6 @@ public partial class GameRoom : JobSerializer
         Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
         Vector3 cellPos = Util.Util.NearestCell(v);
         go.ApplyMap(cellPos);
-
-        // List<Vector3> path = go.Path;
-        // int index = path.IndexOf(cellPos);
-        // if (index == -1) return;
-        // int moveSpeed = (int)(go.MoveSpeed);
-        // int checkPath = Math.Clamp(index + moveSpeed, 0, path.Count - 1);
-        //
-        // for (int i = index; i < checkPath; i++)
-        // {
-        //     Vector3 v2 = path[i];
-        //     Pos pos = Map.Cell2Pos(v2);
-        //     if (Map.Objects[pos.X, pos.Z] != null)
-        //     {
-        //         GameObject? obstacle = Map.Objects[pos.X, pos.Z];
-        //         if (obstacle == null) return;
-        //         (go.Path, go.Dest, go.Atan) = Map.Move(go, obstacle, go.CellPos, go.DestPos);
-        //         go.BroadcastDest();
-        //     }
-        // }
     }
 
     public void HandleSetDest(Player? player, C_SetDest destPacket)
@@ -466,23 +447,7 @@ public partial class GameRoom : JobSerializer
 
     public GameObject? FindBuffTarget(GameObject gameObject, GameObjectType targetType)
     {
-        Dictionary<int, GameObject> targetDict = new();
-        switch (targetType)
-        {
-            case GameObjectType.Monster:
-                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Tower:
-                foreach (var (key, value) in _towers) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Fence:
-                foreach (var (key, value) in _fences) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Sheep:
-                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
-                break;
-        }
-        
+        Dictionary<int, GameObject> targetDict = AddTargetType(targetType);
         if (targetDict.Count == 0) return null;
         GameObject? target = null;
         
@@ -506,23 +471,7 @@ public partial class GameRoom : JobSerializer
 
     public List<GameObject> FindBuffTargets(GameObject gameObject, GameObjectType targetType, int num)
     {
-        Dictionary<int, GameObject> targetDict = new();
-        switch (targetType)
-        {
-            case GameObjectType.Monster:
-                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Tower:
-                foreach (var (key, value) in _towers) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Fence:
-                foreach (var (key, value) in _fences) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Sheep:
-                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
-                break;
-        }
-        
+        Dictionary<int, GameObject> targetDict = AddTargetType(targetType);
         if (targetDict.Count == 0) return new List<GameObject>();
         
         List<GameObject> closestObjects = targetDict.Values
@@ -539,7 +488,42 @@ public partial class GameRoom : JobSerializer
 
         return closestObjects;
     }
+    
+    public List<GameObject> FindBuffTargets(GameObject gameObject, GameObjectType targetType, float distance)
+    {
+        Dictionary<int, GameObject> targetDict = AddTargetType(targetType);
+        if (targetDict.Count == 0) return new List<GameObject>();
+        
+        List<GameObject> closestObjects = targetDict.Values
+            .Where(obj => obj.Stat.Targetable)
+            .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < distance * distance)
+            .ToList();
 
+        return closestObjects;
+    }
+
+    private Dictionary<int, GameObject> AddTargetType(GameObjectType type)
+    {
+        Dictionary<int, GameObject> targetDict = new();
+        switch (type)
+        {
+            case GameObjectType.Monster:
+                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Tower:
+                foreach (var (key, value) in _towers) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Fence:
+                foreach (var (key, value) in _fences) targetDict.Add(key, value);
+                break;
+            case GameObjectType.Sheep:
+                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
+                break;
+        }
+
+        return targetDict.Count != 0 ? targetDict : new Dictionary<int, GameObject>();
+    }
+    
     public GameObject? FindGameObjectById(int id)
     {
         GameObject? go = new GameObject();

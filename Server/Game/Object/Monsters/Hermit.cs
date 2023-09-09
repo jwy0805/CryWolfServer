@@ -50,17 +50,28 @@ public class Hermit : Spike
 
     public override void RunSkill()
     {
-        List<GameObject?> gameObjects = new List<GameObject?>();
-        gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, 2)!;
+        List<GameObject>? gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, 2)!;
 
         if (gameObjects.Count == 0) return;
-        foreach (var gameObject in gameObjects)
+        foreach (var creature in gameObjects.Cast<Creature>())
         {
-            Creature creature = (Creature)gameObject!;
             BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
             BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
             BuffManager.Instance.AddBuff(BuffId.AttackIncrease, creature, AttackBuffParam);
             BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, creature, DefenceBuffParam);
+            if (_debuffRemove) BuffManager.Instance.RemoveAllBuff(creature);
+        }
+
+        if (_aggro)
+        {
+            gameObjects = Room?.FindBuffTargets(this, GameObjectType.Tower, AttackRange);
+
+            if (gameObjects == null) return;
+            if (gameObjects.Count == 0) return;
+            foreach (var creature in gameObjects.Cast<Creature>())
+            {
+                BuffManager.Instance.AddBuff(BuffId.Aggro, creature, 0);
+            }
         }
     }
 }
