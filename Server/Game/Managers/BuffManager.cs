@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
@@ -104,6 +105,39 @@ public sealed class BuffManager
             }
         }
     }
+    
+    public void AddBuff(BuffId buffId, Creature master, Creature caster, float param, long duration = 10000)
+    {
+        if (_buffDict.TryGetValue(buffId, out var type))
+        {
+            long addBuffTime = _stopwatch.ElapsedMilliseconds;
+            object[] constArgs = { master, caster, addBuffTime, duration, param };
+            IBuff buff = (IBuff)Activator.CreateInstance(type!, constArgs)!;
+
+            if (Buffs.Count == 0)
+            {
+                Buffs.Add(buff);
+                buff.TriggerBuff();
+            }
+            else
+            {
+                foreach (var b in Buffs)
+                {
+                    ABuff oldBuff = (ABuff)b;
+                    ABuff newBuff = (ABuff)buff;
+                    if (oldBuff.Master == newBuff.Master && oldBuff.Nested == false && oldBuff.Id == newBuff.Id)
+                    {
+                        oldBuff.RenewBuff(addBuffTime);
+                    }
+                    else
+                    {
+                        Buffs.Add(newBuff);
+                        newBuff.TriggerBuff();
+                    }
+                }
+            }
+        }
+    }    
 
     public void RemoveBuff(BuffId buffId, Creature master)
     {
@@ -554,17 +588,20 @@ public sealed class BuffManager
 
     public class Aggro : ABuff
     {
-        public Aggro(Creature master, long startTime, long duration, float param) 
+        private readonly Creature _caster;
+        
+        public Aggro(Creature master, Creature caster, long startTime, long duration, float param) 
             : base(master, startTime, duration, param)
         {
             Id = BuffId.Aggro;
             Type = BuffType.Debuff;
             Master = master;
+            _caster = caster;
         }
 
         public override void TriggerBuff()
         {
-            
+            Master.Target = _caster;
         }
 
         public override void RemoveBuff()

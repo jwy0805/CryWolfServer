@@ -2,19 +2,19 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class PoisonAttack : Projectile
+public class BigPoison : Projectile
 {
     public override void Init()
     {
         base.Init();
-        ProjectileId = ProjectileId.PoisonAttack;
+        ProjectileId = ProjectileId.BigPoison;
     }
     
     public override void SetProjectileEffect(GameObject master)
     {
         if (Target is Creature creature)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, Parent!.Attack);
+            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, creature, Parent!.Attack);
         }
     }
 }

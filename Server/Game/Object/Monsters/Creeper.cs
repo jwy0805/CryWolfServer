@@ -51,12 +51,13 @@ public class Creeper : Lurker
         base.Init();
         MonsterId = MonsterId.Creeper;
     }
-
+    
     protected override void UpdateMoving()
     {
         if (_roll & _start == false)
         {
             State = State.Rush;
+            _start = true;
             BroadcastMove();
         }
         else
@@ -102,7 +103,7 @@ public class Creeper : Lurker
                     if (distance <= AttackRange)
                     {
                         CellPos = position;
-                        State = State.Idle;
+                        State = State.Attack;
                         BroadcastMove();
                         return;
                     }

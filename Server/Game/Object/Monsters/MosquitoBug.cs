@@ -2,11 +2,11 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class BasicAttack : Projectile
+public class MosquitoBug : Monster
 {
     public override void Init()
     {
         base.Init();
-        ProjectileId = ProjectileId.BasicAttack;
+        MonsterId = MonsterId.MosquitoBug;
     }
 }

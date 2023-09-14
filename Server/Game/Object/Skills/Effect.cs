@@ -4,12 +4,14 @@ namespace Server.Game;
 
 public class Effect : GameObject
 {
-    public virtual void Init()
-    {
-        
-    }
+    public EffectId EffectId;
     
-    public Effect()
+    public override void Init()
+    {
+        EffectId = EffectId.NoEffect;
+    }
+
+    protected Effect()
     {
         ObjectType = GameObjectType.Effect;
     }

@@ -57,21 +57,10 @@ public partial class GameRoom : JobSerializer
                 {
                     if (player != p) spawnPacket.Objects.Add(p.Info);
                 }
-
-                foreach (var f in _fences.Values)
-                {
-                    spawnPacket.Objects.Add(f.Info);
-                }
-
-                foreach (var m in _monsters.Values)
-                {
-                    spawnPacket.Objects.Add(m.Info);
-                }
-                
-                foreach (var t in _towers.Values)
-                {
-                    spawnPacket.Objects.Add(t.Info);
-                }
+                foreach (var f in _fences.Values) spawnPacket.Objects.Add(f.Info);
+                foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
+                foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
+                foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
                 
                 player.Session.Send(spawnPacket);
             }
@@ -120,13 +109,16 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Effect:
                 Effect effect = (Effect)gameObject;
+                effect.Info.Name = Enum.Parse(typeof(EffectId), effect.EffectId.ToString()).ToString();
                 effect.Info = gameObject.Info;
                 _effects.Add(gameObject.Id, effect);
                 effect.Room = this;
+                effect.Update();
                 break;
             
             case GameObjectType.Projectile:
                 Projectile projectile = (Projectile)gameObject;
+                projectile.Info.Name = Enum.Parse(typeof(ProjectileId), projectile.ProjectileId.ToString()).ToString();
                 projectile.Info = gameObject.Info;
                 _projectiles.Add(projectile.Id, projectile);
                 projectile.Room = this;

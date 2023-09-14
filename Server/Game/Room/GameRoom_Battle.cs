@@ -128,6 +128,15 @@ public partial class GameRoom : JobSerializer
                 sheep.Init();
                 Push(EnterGame, sheep);
                 break;
+            
+            case GameObjectType.Effect:
+                EffectId effectType = (EffectId)spawnPacket.Num;
+                Effect effect = ObjectManager.Instance.CreateEffect(effectType);
+                effect.PosInfo = spawnPacket.PosInfo;
+                effect.Info.PosInfo = effect.PosInfo;
+                effect.Init();
+                Push(EnterGame, effect);
+                break;
         }
     }
     
@@ -164,7 +173,6 @@ public partial class GameRoom : JobSerializer
         if (attacker == null || target == null) return;
         if (target.Targetable == false) return;
         GameObjectType type = attacker.ObjectType;
-        
         
         switch (attackPacket.AttackMethod)
         {
@@ -301,6 +309,11 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void HandleLeave(Player? player, C_Leave leavePacket)
+    {
+        
+    }
+    
     #region Find
 
     public GameObject? FindNearestTarget(GameObject gameObject)

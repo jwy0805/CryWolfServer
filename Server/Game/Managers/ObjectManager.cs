@@ -28,7 +28,12 @@ public sealed class ObjectManager : IFactory
         { MonsterId.Snakelet, typeof(Snakelet) },
         { MonsterId.Snake, typeof(Snake) },
         { MonsterId.SnakeNaga, typeof(SnakeNaga) },
-        { MonsterId.Shell, typeof(Shell) }
+        { MonsterId.Shell, typeof(Shell) },
+        { MonsterId.Spike, typeof(Spike) },
+        { MonsterId.Hermit , typeof(Hermit) },
+        { MonsterId.MosquitoBug, typeof(MosquitoBug) },
+        { MonsterId.MosquitoPester, typeof(MosquitoPester) },
+        { MonsterId.MosquitoStinger, typeof(MosquitoStinger) }
     };
     
     private readonly Dictionary<ProjectileId, Type?> _projectileDict = new()
@@ -36,12 +41,14 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.BasicAttack, typeof(BasicAttack) },
         { ProjectileId.SmallFire, typeof(SmallFire) },
         { ProjectileId.BigFire, typeof(BigFire) },
-        { ProjectileId.PoisonAttack, typeof(PoisonAttack) }
+        { ProjectileId.PoisonAttack, typeof(PoisonAttack) },
+        { ProjectileId.BigPoison, typeof(BigPoison) }
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()
     {
         { EffectId.LightningStrike, typeof(Effect) },
+        { EffectId.PoisonBelt, typeof(PoisonBelt) }
     };
 
     public Tower CreateTower(TowerId towerId)

@@ -272,17 +272,17 @@ public class GameObject : IGameObject
             PosInfo.PosZ = value.Z;
         }
     }
-
+    
+    public virtual void Init()
+    {
+        if (Room == null) return;
+        Time = Room.Stopwatch.ElapsedMilliseconds;
+    }
+    
     private IJob _job;
-
     public virtual void Update()
     {
         if (Room != null) _job = Room.PushAfter(CallCycle, Update);
-    }
-
-    public virtual void Init()
-    {
-        Time = Room!.Stopwatch.ElapsedMilliseconds;
     }
     
     public void StatInit()

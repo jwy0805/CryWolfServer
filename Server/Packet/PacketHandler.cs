@@ -63,6 +63,7 @@ public class PacketHandler
         ClientSession clientSession = (ClientSession)session;
         Player? player = clientSession.MyPlayer;
         GameRoom? room = player?.Room;
+        if (player?.Session.SessionId != 1) return;
 
         room?.Push(room.HandleAttack, player, attackPacket);
     }
@@ -104,5 +105,15 @@ public class PacketHandler
         GameRoom? room = player?.Room;
 
         room?.Push(room.HandleUnitUpgrade, player, upgradePacket);
+    }
+
+    public static void C_LeaveHandler(PacketSession session, IMessage packet)
+    {
+        C_Leave leavePacket = (C_Leave)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+        
+        room?.Push(room.HandleLeave, player, leavePacket);
     }
 }

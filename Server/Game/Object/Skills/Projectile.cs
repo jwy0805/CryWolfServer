@@ -4,6 +4,8 @@ namespace Server.Game;
 
 public class Projectile : GameObject
 {
+    public ProjectileId ProjectileId;
+    
     public override void Init()
     {
         GameRoom? room = Room;

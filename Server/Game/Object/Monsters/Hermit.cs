@@ -70,7 +70,7 @@ public class Hermit : Spike
             if (gameObjects.Count == 0) return;
             foreach (var creature in gameObjects.Cast<Creature>())
             {
-                BuffManager.Instance.AddBuff(BuffId.Aggro, creature, 0);
+                BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 3000);
             }
         }
     }
