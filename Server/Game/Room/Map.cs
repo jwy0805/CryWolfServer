@@ -156,6 +156,26 @@ public partial class Map
         }
         
         return !_collision[z, x] && (!checkObjects || Objects[z, x] == null);
+    } 
+    
+    public bool CanGoAir(Vector2Int cellPos, bool checkObjects = true, int size = 1)
+    {
+        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+
+        int x = cellPos.X - MinX;
+        int z = MaxZ - cellPos.Z;
+        
+        int cnt = 0;
+        for (int i = x - (size - 1); i <= x + (size - 1); i++)
+        {
+            for (int j = z - (size - 1); j <= z + (size - 1); j++)
+            {
+                if (_collision[j, i]) cnt++;
+            }
+        }
+        
+        return !_collision[z, x] && (!checkObjects || _objectsAir[z, x] == null);
     }
     
     public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d)
@@ -232,6 +252,7 @@ public partial class Map
         int zCount = MaxZ - MinZ + 1;
         _collision = new bool[zCount, xCount];
         Objects = new GameObject[zCount, xCount];
+        _objectsAir = new GameObject[zCount, xCount];
         
         // Collision 관련 파일
         string mapName = "Map_" + mapId.ToString("000");

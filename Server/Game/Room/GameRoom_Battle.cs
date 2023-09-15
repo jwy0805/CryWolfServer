@@ -311,7 +311,8 @@ public partial class GameRoom : JobSerializer
 
     public void HandleLeave(Player? player, C_Leave leavePacket)
     {
-        
+        if (player == null) return;
+        LeaveGame(leavePacket.ObjectId);
     }
     
     #region Find

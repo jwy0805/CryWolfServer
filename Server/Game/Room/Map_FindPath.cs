@@ -518,7 +518,14 @@ public partial class Map
                 
 				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
 				{                                                                                                        // 벽으로 막혀서 갈 수 없으면 스킵
-					if (CanGo(Pos2Cell(next), checkObjects) == false) continue;// CellPos
+                    if (gameObject.UnitType == 0)
+                    {
+                        if (CanGo(Pos2Cell(next), checkObjects) == false) continue;// CellPos
+                    }
+                    else
+                    {
+                        if (CanGoAir(Pos2Cell(next), checkObjects) == false) continue;
+                    }
 				}
                 
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
@@ -536,20 +543,22 @@ public partial class Map
 			}
 		}
 
-		return CalcCellPathFromParent(parent, dest);
+        return gameObject.UnitType == 0 
+            ? CalcCellPathFromParent(parent, dest) 
+            : CalcCellPathFromParent(parent, dest, 8.0f);
     }
 	
-    private List<Vector3> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest)
+    private List<Vector3> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest, float height = 6.0f)
     {
         List<Vector3> cells = new();
         
         Pos pos = dest;
         while (parent[pos] != pos)
         {
-            cells.Add(Vector2To3(Pos2Cell(pos)));
+            cells.Add(Vector2To3(Pos2Cell(pos), height));
             pos = parent[pos];
         }
-        cells.Add(Vector2To3(Pos2Cell(pos)));
+        cells.Add(Vector2To3(Pos2Cell(pos), height));
         cells.Reverse();
 
         return cells;
