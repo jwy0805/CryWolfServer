@@ -279,10 +279,10 @@ public class GameObject : IGameObject
         Time = Room.Stopwatch.ElapsedMilliseconds;
     }
     
-    private IJob _job;
+    protected IJob Job;
     public virtual void Update()
     {
-        if (Room != null) _job = Room.PushAfter(CallCycle, Update);
+        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
     }
     
     public void StatInit()

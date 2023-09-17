@@ -57,7 +57,8 @@ public class Horror : Creeper
     
     public override void Update()
     {
-        base.Update();
+        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+
         if (Room!.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;

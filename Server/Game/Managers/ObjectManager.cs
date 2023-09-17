@@ -14,7 +14,9 @@ public sealed class ObjectManager : IFactory
 
     private readonly Dictionary<TowerId, Type?> _towerDict = new()
     {
-        
+        { TowerId.Bud, typeof(Bud) },
+        { TowerId.Bloom, typeof(Bloom) },
+        { TowerId.Blossom, typeof(Blossom) }
     };
 
     private readonly Dictionary<MonsterId, Type?> _monsterDict = new()

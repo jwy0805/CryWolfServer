@@ -8,7 +8,7 @@ namespace Server.Game;
 
 public class Sheep : Creature, ISkillObserver
 {
-    public int SheepNo = 1;
+    private readonly int _sheepNo = 1;
     private Stopwatch _stopwatch;
     private long _lastSetDest = 0;
 
@@ -17,17 +17,43 @@ public class Sheep : Creature, ISkillObserver
         ObjectType = GameObjectType.Sheep;
     }
 
-    public void Init()
+    public override void Init()
     {
+        base.Init();
         _stopwatch = new Stopwatch();
         _stopwatch.Start();
-        DataManager.ObjectDict.TryGetValue(SheepNo ,out var objectData);
+        DataManager.ObjectDict.TryGetValue(_sheepNo ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Hp = objectData.stat.MaxHp;
 
         State = State.Idle;
     }
 
+    public override void Update()
+    {
+        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
+    }
+    
     protected override void UpdateIdle()
     {
         if (_stopwatch.ElapsedMilliseconds > _lastSetDest + new Random().Next(1000, 2500))
