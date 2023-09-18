@@ -14,14 +14,13 @@ public partial class Map
        
         StatInfo stat = gameObject.Stat;
         Vector2Int v = Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
-        bool canGo = CanGo(v, true, gameObject.Stat.SizeX);
-
-
+        bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
+        
         if (canGo == false) return false;
         
         PositionInfo posInfo = gameObject.PosInfo;
-        int x = (int)(posInfo.PosX - MinX);
-        int z = (int)(MaxZ - posInfo.PosZ);
+        int x = (int)(posInfo.PosX * 4 - MinX);
+        int z = (int)(MaxZ - posInfo.PosZ * 4);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
         List<(int, int)> coordinate = new List<(int, int)>();
@@ -56,13 +55,13 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = gameObject;
+                foreach (var tuple in coordinate) Objects[tuple.Item2, tuple.Item1] = gameObject;
                 break;
             case 1: // 1 -> air
-                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item2, tuple.Item1] = gameObject;
                 break;
             case 2: // 2 -> player
-                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item2, tuple.Item1] = 1;
                 break;
             default:
                 break;
@@ -81,8 +80,8 @@ public partial class Map
         if (posInfo.PosX < MinX || posInfo.PosX > MaxX) return false;
         if (posInfo.PosZ < MinZ || posInfo.PosZ > MaxZ) return false;
 
-        int x = (int)(posInfo.PosX - MinX);
-        int z = (int)(MaxZ - posInfo.PosZ);
+        int x = (int)(posInfo.PosX * 4 - MinX);
+        int z = (int)(MaxZ - posInfo.PosZ * 4);
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
         List<(int, int)> coordinate = new List<(int, int)>();
@@ -113,13 +112,13 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = null;
+                foreach (var tuple in coordinate) Objects[tuple.Item2, tuple.Item1] = null;
                 break;
             case 1: // 1 -> air
-                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item2, tuple.Item1] = null;
                 break;
             case 2: // 2 -> player
-                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item2, tuple.Item1] = 0;
                 break;
             default:
                 break;
@@ -138,7 +137,7 @@ public partial class Map
         return Objects[z, x];
     }
     
-    public bool CanGo(Vector2Int cellPos, bool checkObjects = true, int size = 1)
+    public bool CanGo(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -151,14 +150,15 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (_collision[j, i]) cnt++;
+                if (!_collision[j, i] && Objects[j, i] == null) continue;
+                if (Objects[j, i]?.Id != go.Id) cnt++;
             }
         }
         
-        return !_collision[z, x] && (!checkObjects || Objects[z, x] == null);
+        return cnt == 0 || !checkObjects;
     } 
     
-    public bool CanGoAir(Vector2Int cellPos, bool checkObjects = true, int size = 1)
+    public bool CanGoAir(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -171,11 +171,12 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (_collision[j, i]) cnt++;
+                if (!_collision[j, i] && _objectsAir[j, i] == null) continue;
+                if (_objectsAir[j, i]?.Id != go.Id) cnt++;
             }
         }
         
-        return !_collision[z, x] && (!checkObjects || _objectsAir[z, x] == null);
+        return cnt == 0 || !checkObjects;
     }
     
     public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d)

@@ -9,7 +9,6 @@ namespace Server.Game;
 public class Sheep : Creature, ISkillObserver
 {
     private readonly int _sheepNo = 1;
-    private Stopwatch _stopwatch;
     private long _lastSetDest = 0;
 
     public Sheep()
@@ -20,8 +19,6 @@ public class Sheep : Creature, ISkillObserver
     public override void Init()
     {
         base.Init();
-        _stopwatch = new Stopwatch();
-        _stopwatch.Start();
         DataManager.ObjectDict.TryGetValue(_sheepNo ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Hp = objectData.stat.MaxHp;
@@ -56,9 +53,9 @@ public class Sheep : Creature, ISkillObserver
     
     protected override void UpdateIdle()
     {
-        if (_stopwatch.ElapsedMilliseconds > _lastSetDest + new Random().Next(1000, 2500))
+        if (Room?.Stopwatch.ElapsedMilliseconds > _lastSetDest + new Random().Next(1000, 2500))
         {
-            _lastSetDest = _stopwatch.ElapsedMilliseconds;
+            _lastSetDest = Room.Stopwatch.ElapsedMilliseconds;
             DestPos = GetRandomDestInFence();
             (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
@@ -98,7 +95,7 @@ public class Sheep : Creature, ISkillObserver
             float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
-            bool canGo = map.CanGo(map.Vector3To2(dest));
+            bool canGo = map.CanGo(this, map.Vector3To2(dest));
             if (canGo) return dest;
         } while (true);
     }

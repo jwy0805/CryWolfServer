@@ -520,19 +520,17 @@ public partial class Map
 				{                                                                                                        // 벽으로 막혀서 갈 수 없으면 스킵
                     if (gameObject.UnitType == 0)
                     {
-                        if (CanGo(Pos2Cell(next), checkObjects) == false) continue;// CellPos
+                        if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue;// CellPos
                     }
                     else
                     {
-                        if (CanGoAir(Pos2Cell(next), checkObjects) == false) continue;
+                        if (CanGoAir(gameObject, Pos2Cell(next), checkObjects) == false) continue;
                     }
 				}
                 
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
 				int g = pqNode.G + _cost[i];                                                                          // 비용 계산 : node.G + _cost[i];
-                // int g = 0;
-                // int h = 10 * (int)Math.Sqrt((dest.Z - next.Z) * (dest.Z - next.Z) + (dest.X - next.X) * (dest.X - next.X));
                 int h = 10 * (Math.Abs(dest.Z - next.Z) + Math.Abs(dest.X - next.X));
 				if (openList.TryGetValue(next, out int value) == false) value = Int32.MaxValue;                          // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
 				if (value < g + h) continue;
@@ -545,7 +543,7 @@ public partial class Map
 
         return gameObject.UnitType == 0 
             ? CalcCellPathFromParent(parent, dest) 
-            : CalcCellPathFromParent(parent, dest, 8.0f);
+            : CalcCellPathFromParent(parent, dest, 9.0f);
     }
 	
     private List<Vector3> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest, float height = 6.0f)
