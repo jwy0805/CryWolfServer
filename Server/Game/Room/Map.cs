@@ -14,9 +14,12 @@ public partial class Map
        
         StatInfo stat = gameObject.Stat;
         Vector2Int v = Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
-        bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
         
-        if (canGo == false) return false;
+        if (gameObject.ObjectType != GameObjectType.Fence)
+        {
+            bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
+            if (canGo == false) return false;
+        }
         
         PositionInfo posInfo = gameObject.PosInfo;
         int x = (int)(posInfo.PosX * 4 - MinX);
@@ -47,10 +50,6 @@ public partial class Map
                 }
             }
         }
-        
-        //
-        // coordinate.Add((z, x));
-        //
 
         switch (stat.UnitType)
         {
@@ -89,10 +88,10 @@ public partial class Map
         if (xSize != zSize)
         {
             if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-        
+            
             for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
-                for (int j = z - (zSize - 1); j <= z - (zSize - 1); j++)
+                for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
                 {
                     coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
                 }
@@ -102,7 +101,7 @@ public partial class Map
         {
             for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
             {
-                for (int j = z - (xSize - 1); j <= z - (xSize - 1); j++)
+                for (int j = z - (xSize - 1); j <= z + (xSize - 1); j++)
                 {
                     coordinate.Add((j, i));
                 }
@@ -151,7 +150,7 @@ public partial class Map
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
                 if (!_collision[j, i] && Objects[j, i] == null) continue;
-                if (Objects[j, i]?.Id != go.Id) cnt++;
+                if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
             }
         }
         

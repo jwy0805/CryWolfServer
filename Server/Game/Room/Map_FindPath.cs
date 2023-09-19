@@ -605,6 +605,7 @@ public partial class Map
         double deltaZ = cellPos.Z - targetCellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
         double x;
+        double y = target.Stat.UnitType == 0 ? 6 : 8;
         double z;
 
         if (deltaX != 0)
@@ -617,22 +618,22 @@ public partial class Map
                 case >= 45 and <= 135:          // up
                     z = targetCellPos.Z + sizeZ;
                     x = (z - zIntercept) / slope;
-                    destVector = Util.Util.NearestCell(new Vector3((float)x, 6, (float)z)); // 0.27 이런좌표를 0.25로 변환 
+                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z)); // 0.27 이런좌표를 0.25로 변환 
                     break;
                 case <= -45 and >= -135:        // down
                     z = targetCellPos.Z - sizeZ;
                     x = (z - zIntercept) / slope;
-                    destVector = Util.Util.NearestCell(new Vector3((float)x, 6, (float)z));
+                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
                 case > -45 and < 45:            // right
                     x = targetCellPos.X + sizeX;
                     z = slope * x - zIntercept;
-                    destVector = Util.Util.NearestCell(new Vector3((float)x, 6, (float)z));
+                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
                 default:                        // left
                     x = targetCellPos.X - sizeX;
                     z = slope * x - zIntercept;
-                    destVector = Util.Util.NearestCell(new Vector3((float)x, 6, (float)z));
+                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
             }
         }
@@ -642,11 +643,11 @@ public partial class Map
             {
                 case >= 45 and <= 135:          // up
                     z = targetCellPos.Z + sizeZ;
-                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, 6, (float)z)); 
+                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, (float)y, (float)z)); 
                     break;
                 default:
                     z = targetCellPos.Z - sizeZ;
-                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, 6, (float)z)); 
+                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, (float)y, (float)z)); 
                     break;
             }
         }

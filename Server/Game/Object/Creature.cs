@@ -93,7 +93,18 @@ public class Creature : GameObject
             {
                 Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                State = distance <= AttackRange ? State.Attack : State.Moving;
+                // State = distance <= AttackRange ? State.Attack : State.Moving;
+                if (distance <= AttackRange)
+                {
+                    State = State.Attack;
+                }
+                else
+                {
+                    DestPos = Target.CellPos;
+                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+                    BroadcastDest();
+                    State = State.Moving;
+                }
             }
             else
             {

@@ -18,4 +18,5 @@ public class Fence : GameObject
         Stat.MergeFrom(fenceData!.stat);
         Stat.Hp = fenceData.stat.MaxHp;
     }
+    
 }

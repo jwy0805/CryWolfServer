@@ -312,7 +312,15 @@ public class GameObject : IGameObject
     public virtual void OnDead(GameObject attacker)
     {
         if (Room == null) return;
-        if (attacker.Target != null) attacker.Target.Targetable = false;
+        if (attacker.Target != null)
+        {
+            Targetable = false;
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+            {
+                if (attacker.Parent != null) attacker.Parent.Target = null;
+            }
+            else attacker.Target = null;
+        }
         
         S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
         Room.Broadcast(diePacket);

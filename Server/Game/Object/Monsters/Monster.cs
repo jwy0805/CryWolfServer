@@ -36,8 +36,8 @@ public class Monster : Creature, ISkillObserver
         
         if (Target == null) Target = target;
         else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
-        
-        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+        // Target = target;
+        // DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         
