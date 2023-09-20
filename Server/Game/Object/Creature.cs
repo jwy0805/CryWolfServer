@@ -17,7 +17,8 @@ public class Creature : GameObject
     public override void Update()
     {
         base.Update();
-        if (Room!.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room == null) return;
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
@@ -93,7 +94,6 @@ public class Creature : GameObject
             {
                 Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                // State = distance <= AttackRange ? State.Attack : State.Moving;
                 if (distance <= AttackRange)
                 {
                     State = State.Attack;

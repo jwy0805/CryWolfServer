@@ -96,11 +96,16 @@ public partial class GameRoom : JobSerializer
         switch (type)
         {
             case GameObjectType.Tower:
-                Tower tower = ObjectManager.Instance.Add<Tower>();
+                if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
+                TowerId towerType = (TowerId)spawnPacket.Num;
+                Tower tower = ObjectManager.Instance.CreateTower(towerType);
                 tower.PosInfo = spawnPacket.PosInfo;
+                tower.Info.PosInfo = tower.PosInfo;
                 tower.TowerNum = spawnPacket.Num;
                 tower.Player = player;
-                if (Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) tower.TowerId = (TowerId)spawnPacket.Num;
+                tower.TowerId = towerType;
+                tower.Room = this;
+                tower.Init();
                 Push(EnterGame, tower);
                 break;
 

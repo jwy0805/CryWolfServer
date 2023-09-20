@@ -70,11 +70,11 @@ public partial class GameRoom : JobSerializer
                 Tower tower = (Tower)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNum.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
-                gameObject.Info.PosInfo = gameObject.PosInfo;
+                // gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
                 _towers.Add(gameObject.Id, tower);
-                tower.Room = this;
                 Map.ApplyMap(tower);
+                tower.Update();
                 break;
             
             case GameObjectType.Monster:
@@ -83,7 +83,6 @@ public partial class GameRoom : JobSerializer
                 gameObject.PosInfo.State = State.Idle;
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);
-                // monster.Room = this;
                 Map.ApplyMap(monster);
                 monster.Update();
                 break;

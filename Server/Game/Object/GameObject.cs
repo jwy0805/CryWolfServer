@@ -10,7 +10,7 @@ public class GameObject : IGameObject
     
     protected const int CallCycle = 200;
     protected long Time;
-    protected const int SearchTick = 600;
+    protected int SearchTick = 500;
     protected double LastSearch = 0;
 
     public List<Vector3> Path = new();
@@ -277,6 +277,7 @@ public class GameObject : IGameObject
     {
         if (Room == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;
+        StatInit();
     }
     
     protected IJob Job;
@@ -332,7 +333,6 @@ public class GameObject : IGameObject
     protected virtual void BroadcastMove()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
-        // Console.WriteLine($"{movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}");
         Room?.Broadcast(movePacket);
     }
 

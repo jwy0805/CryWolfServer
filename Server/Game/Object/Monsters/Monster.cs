@@ -30,14 +30,13 @@ public class Monster : Creature, ISkillObserver
     protected override void UpdateIdle()
     {
         GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null || Room == null) return;
+        if (target == null) return;
         DestPos = Room!.Map.GetClosestPoint(CellPos, target);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         
         if (Target == null) Target = target;
         else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
-        // Target = target;
-        // DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+        
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         
@@ -104,11 +103,14 @@ public class Monster : Creature, ISkillObserver
         if (Target == null)
         {
             State = State.Idle;
+            BroadcastMove();
             return;
         }
+        
         if (Target.Stat.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
+            BroadcastMove();
             return;
         }
 

@@ -59,7 +59,6 @@ public class Sheep : Creature, ISkillObserver
             DestPos = GetRandomDestInFence();
             (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
-            Console.WriteLine($"{DestPos.X}, {DestPos.Z}");
             State = State.Moving;
         }
     }
@@ -69,11 +68,9 @@ public class Sheep : Creature, ISkillObserver
         if (Room != null)
         {
             // 이동
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
             double deltaX = DestPos.X - CellPos.X;
             double deltaZ = DestPos.Z - CellPos.Z;
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            // Console.WriteLine($"Dist: {distance} / {CellPos.X}, {CellPos.Z} / {DestPos.X}, {DestPos.Z}");
 
             BroadcastMove();
         }
