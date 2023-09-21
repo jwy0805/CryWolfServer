@@ -44,7 +44,6 @@ public class Shell : Monster
     public override void Init()
     {
         base.Init();
-        MonsterId = MonsterId.Shell;
         CrashTime = 0;
         RollCoolTime = 10000;
     }

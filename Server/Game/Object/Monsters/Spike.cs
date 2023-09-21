@@ -40,12 +40,6 @@ public class Spike : Shell
             }
         }
     }
-    
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Spike;
-    }
 
     protected override void UpdateRush()
     {

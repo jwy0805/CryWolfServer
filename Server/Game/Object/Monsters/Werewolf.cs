@@ -61,12 +61,6 @@ public class Werewolf : Wolf
         }
     }
     
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Werewolf;
-    }
-    
     protected override void UpdateMoving()
     {
         // Targeting

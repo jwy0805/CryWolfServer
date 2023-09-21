@@ -36,12 +36,6 @@ public class Wolf : WolfPup
         }
     }
 
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Wolf;
-    }
-
     public override void SetNormalAttackEffect(GameObject master)
     {
         if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * _drainParam);

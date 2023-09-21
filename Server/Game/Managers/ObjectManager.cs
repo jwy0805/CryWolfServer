@@ -45,7 +45,9 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.BigFire, typeof(BigFire) },
         { ProjectileId.PoisonAttack, typeof(PoisonAttack) },
         { ProjectileId.BigPoison, typeof(BigPoison) },
-        { ProjectileId.Seed, typeof(Seed) }
+        { ProjectileId.Seed, typeof(Seed) },
+        { ProjectileId.BlossomSeed, typeof(BlossomSeed) },
+        { ProjectileId.BlossomArrow, typeof(BlossomArrow) }
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()

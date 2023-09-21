@@ -42,12 +42,6 @@ public class Bud : Tower
         }
     }
     
-    public override void Init()
-    {
-        base.Init();
-        TowerId = TowerId.Bud;
-    }
-
     protected override void UpdateIdle()
     {
         double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
@@ -93,11 +87,11 @@ public class Bud : Tower
         {
             if (Target.Hp > 0)
             {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _seed ? State.Skill : State.Attack;
+                    State = _seed == true ? State.Skill : State.Attack;
+                    SetDirection();
                 }
                 else
                 {

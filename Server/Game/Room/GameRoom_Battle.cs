@@ -214,6 +214,7 @@ public partial class GameRoom : JobSerializer
                 effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
+                effect.EffectId = attackPacket.Effect;
                 effect.Init();
                 target.OnDamaged(attacker, skillDamage);
                 Push(EnterGame, effect);
@@ -232,6 +233,7 @@ public partial class GameRoom : JobSerializer
                 // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;
                 projectile.Info.PosInfo = projectile.PosInfo;
                 projectile.Info.Name = attackPacket.Projectile.ToString();
+                projectile.ProjectileId = attackPacket.Projectile;
                 projectile.Target = target;
                 projectile.Parent = attacker;
                 projectile.TotalAttack = attacker.TotalAttack;

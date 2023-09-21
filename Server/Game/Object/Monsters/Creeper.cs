@@ -45,12 +45,6 @@ public class Creeper : Lurker
             }
         }
     }
-
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Creeper;
-    }
     
     protected override void UpdateMoving()
     {

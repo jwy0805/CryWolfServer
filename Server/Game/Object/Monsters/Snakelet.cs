@@ -27,10 +27,4 @@ public class Snakelet : Monster
             }
         }
     }
-
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Snakelet;
-    }
 }

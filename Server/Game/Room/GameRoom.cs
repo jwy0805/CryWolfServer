@@ -70,7 +70,7 @@ public partial class GameRoom : JobSerializer
                 Tower tower = (Tower)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNum.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
-                // gameObject.Info.PosInfo = gameObject.PosInfo;
+                gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
                 _towers.Add(gameObject.Id, tower);
                 Map.ApplyMap(tower);
@@ -108,8 +108,6 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Effect:
                 Effect effect = (Effect)gameObject;
-                effect.Info.Name = Enum.Parse(typeof(EffectId), effect.EffectId.ToString()).ToString();
-                effect.Info = gameObject.Info;
                 _effects.Add(gameObject.Id, effect);
                 effect.Room = this;
                 effect.Update();
@@ -117,8 +115,6 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Projectile:
                 Projectile projectile = (Projectile)gameObject;
-                projectile.Info.Name = Enum.Parse(typeof(ProjectileId), projectile.ProjectileId.ToString()).ToString();
-                projectile.Info = gameObject.Info;
                 _projectiles.Add(projectile.Id, projectile);
                 projectile.Room = this;
                 projectile.Update();

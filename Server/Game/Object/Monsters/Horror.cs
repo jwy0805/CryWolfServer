@@ -48,12 +48,6 @@ public class Horror : Creeper
             }
         }
     }
-
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Horror;
-    }
     
     public override void Update()
     {

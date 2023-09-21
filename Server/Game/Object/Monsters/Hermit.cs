@@ -41,12 +41,6 @@ public class Hermit : Spike
             }
         }
     }
-        
-    public override void Init()
-    {
-        base.Init();
-        MonsterId = MonsterId.Hermit;
-    }
 
     public override void RunSkill()
     {
