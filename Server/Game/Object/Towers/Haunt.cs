@@ -4,10 +4,9 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class TrainingDummy : TargetDummy
+public class Haunt : Soul
 {
-    private bool _faint = false;
-    private bool _debuffRemove = false;
+    private bool _longAttack = false;
     
     protected override Skill NewSkill
     {
@@ -17,44 +16,32 @@ public class TrainingDummy : TargetDummy
             Skill = value;
             switch (Skill)
             {
-                case Skill.TrainingDummyAggro:
-                    SkillRange += 4.0f;
+                case Skill.HauntLongAttack:
+                    _longAttack = true;
+                    AttackRange += 3.5f;
                     break;
-                case Skill.TrainingDummyDefence:
-                    Defence += 6;
+                case Skill.HauntAttackSpeed:
+                    AttackSpeed += 0.15f;
                     break;
-                case Skill.TrainingDummyHeal:
-                    HealParam += 0.1f;
+                case Skill.HauntAttack:
+                    Attack += 10;
                     break;
-                case Skill.TrainingDummyHealth:
-                    MaxHp += 200;
-                    Hp += 200;
+                case Skill.HauntFireResist:
+                    FireResist += 10;
                     break;
-                case Skill.TrainingDummyFireResist:
-                    FireResist += 15;
+                case Skill.HauntPoisonResist:
+                    PoisonResist += 10;
                     break;
-                case Skill.TrainingDummyPoisonResist:
-                    PoisonResist += 15;
-                    break;
-                case Skill.TrainingDummyFaint:
-                    _faint = true;
-                    break;
-                case Skill.TrainingDummyDebuffRemove:
-                    _debuffRemove = true;
+                case Skill.HauntFire:
+                    Room?.Broadcast(new S_SkillUpdate
+                    {
+                        ObjectEnumId = (int)TowerId,
+                        ObjectType = GameObjectType.Tower,
+                        SkillType = SkillType.SkillProjectile
+                    });
                     break;
             }
         }
-    }
-
-    public override void SetNormalAttackEffect(GameObject master)
-    {
-        if (_faint == true && Target != null) Target.State = State.Faint;
-    }
-    
-    public override void RunSkill()
-    {
-        base.RunSkill();
-        if (_debuffRemove == true) BuffManager.Instance.RemoveAllBuff(this);
     }
 
     public override void SetNextState()
@@ -71,7 +58,7 @@ public class TrainingDummy : TargetDummy
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = State.Attack;
+                    State = _longAttack == true ? State.Skill : State.Attack;
                     SetDirection();
                 }
                 else

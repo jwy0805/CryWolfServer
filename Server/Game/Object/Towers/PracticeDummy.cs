@@ -37,7 +37,7 @@ public class PracticeDummy : Tower
 
     public override void Update()
     {
-        base.Update();
+        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
         if (Room == null) return;
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
@@ -90,11 +90,17 @@ public class PracticeDummy : Tower
     
     public override void RunSkill()
     {
-        
+        List<GameObject> gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, SkillRange)!;
+        if (gameObjects.Count == 0) return;
+        foreach (var creature in gameObjects.Cast<Creature>())
+        {
+            BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 3000);
+        }
     }
 
     public override void SetNextState()
     {
-        
+        State = State.Idle;
+        Room?.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

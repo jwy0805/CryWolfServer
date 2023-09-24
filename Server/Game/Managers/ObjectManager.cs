@@ -16,7 +16,19 @@ public sealed class ObjectManager : IFactory
     {
         { TowerId.Bud, typeof(Bud) },
         { TowerId.Bloom, typeof(Bloom) },
-        { TowerId.Blossom, typeof(Blossom) }
+        { TowerId.Blossom, typeof(Blossom) },
+        { TowerId.PracticeDummy, typeof(PracticeDummy) },
+        { TowerId.TargetDummy, typeof(TargetDummy) },
+        { TowerId.TrainingDummy, typeof(TrainingDummy) },
+        { TowerId.SunBlossom, typeof(SunBlossom) },
+        { TowerId.SunflowerFairy, typeof(SunflowerFairy) },
+        { TowerId.SunfloraPixie, typeof(SunfloraPixie) },
+        { TowerId.MothLuna, typeof(MothLuna) },
+        { TowerId.MothMoon, typeof(MothMoon) },
+        { TowerId.MothCelestial, typeof(MothCelestial) },
+        { TowerId.Soul, typeof(Soul) },
+        { TowerId.Haunt, typeof(Haunt) },
+        { TowerId.SoulMage, typeof(SoulMage) }
     };
 
     private readonly Dictionary<MonsterId, Type?> _monsterDict = new()
@@ -47,7 +59,11 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.BigPoison, typeof(BigPoison) },
         { ProjectileId.Seed, typeof(Seed) },
         { ProjectileId.BlossomSeed, typeof(BlossomSeed) },
-        { ProjectileId.BlossomArrow, typeof(BlossomArrow) }
+        { ProjectileId.BlossomArrow, typeof(BlossomArrow) },
+        { ProjectileId.HauntArrow, typeof(HauntArrow) },
+        { ProjectileId.HauntFireAttack, typeof(HauntFireAttack) },
+        { ProjectileId.SoulMageAttack, typeof(SoulMageAttack) },
+        { ProjectileId.SoulMagePunch, typeof(SoulMagePunch) }
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()
@@ -79,7 +95,7 @@ public sealed class ObjectManager : IFactory
     private GameObject Create<T>(Dictionary<T, Type?> dict, T key) where T : Enum
     {
         if (!dict.TryGetValue(key, out Type? type))
-            throw new ArgumentException($"Invalid {typeof(T).Name}");
+            throw new ArgumentException($"Invalid {nameof(T)}");
 
         GameObject entity = (GameObject)Activator.CreateInstance(type!)!;
         lock (_lock) entity.Id = GenerateId(entity.ObjectType);

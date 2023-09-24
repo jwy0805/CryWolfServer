@@ -166,6 +166,12 @@ public class GameObject : IGameObject
         set => Stat.AttackRange = value;
     }
 
+    public float SkillRange
+    {
+        get => Stat.SkillRange;
+        set => Stat.SkillRange = value;
+    }
+    
     public int CriticalChance
     {
         get => Stat.CriticalChance;
@@ -299,11 +305,19 @@ public class GameObject : IGameObject
     }
 
     
-    public virtual void OnDamaged(GameObject attacker, int damage)
+    public virtual void OnDamaged(GameObject attacker, int damage, bool reflected = false)
     {
         if (Room == null) return;
-        damage = Math.Max(damage - TotalDefence, 0);
+        damage = attacker.CriticalChance > 0 
+            ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
+            : Math.Max(damage - TotalDefence, 0);
         Hp = Math.Max(Stat.Hp - damage, 0);
+        
+        if (Reflection == true && reflected == false)
+        {
+            int refParam = (int)(damage * ReflectionRate);
+            attacker.OnDamaged(this, refParam, true);
+        }
 
         S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
         Room.Broadcast(hpPacket);

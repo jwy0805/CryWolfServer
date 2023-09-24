@@ -76,161 +76,164 @@ namespace Google.Protobuf.Protocol {
             "CQoBeBgBIAEoAhIJCgF5GAIgASgCEgkKAXoYAyABKAIiZQoMUG9zaXRpb25J",
             "bmZvEh4KBXN0YXRlGAEgASgOMg8uUHJvdG9jb2wuU3RhdGUSDAoEcG9zWBgC",
             "IAEoAhIMCgRwb3NZGAMgASgCEgwKBHBvc1oYBCABKAISCwoDZGlyGAUgASgC",
-            "IowECghTdGF0SW5mbxINCgVsZXZlbBgBIAEoBRINCgVzaXplWBgCIAEoBRIN",
+            "IqAECghTdGF0SW5mbxINCgVsZXZlbBgBIAEoBRINCgVzaXplWBgCIAEoBRIN",
             "CgVzaXplWRgDIAEoAhINCgVzaXplWhgEIAEoBRIKCgJocBgFIAEoBRINCgVt",
             "YXhIcBgGIAEoBRIKCgJtcBgHIAEoBRINCgVtYXhNcBgIIAEoBRISCgptcFJl",
             "Y292ZXJ5GAkgASgFEg4KBmF0dGFjaxgKIAEoBRINCgVza2lsbBgLIAEoBRIP",
             "CgdkZWZlbmNlGAwgASgFEhIKCmZpcmVSZXNpc3QYDSABKAUSFAoMcG9pc29u",
             "UmVzaXN0GA4gASgFEhEKCW1vdmVTcGVlZBgPIAEoAhITCgthdHRhY2tTcGVl",
-            "ZBgQIAEoAhITCgthdHRhY2tSYW5nZRgRIAEoAhIWCg5jcml0aWNhbENoYW5j",
-            "ZRgSIAEoBRIaChJjcml0aWNhbE11bHRpcGxpZXIYEyABKAISEAoIYWNjdXJh",
-            "Y3kYFCABKAUSDwoHZXZhc2lvbhgVIAEoBRISCgp0YXJnZXRhYmxlGBYgASgI",
-            "Eg0KBWFnZ3JvGBcgASgIEhIKCnJlZmxlY3Rpb24YGCABKAgSFwoPcmVmbGVj",
-            "dGlvblNraWxsGBkgASgIEhYKDnJlZmxlY3Rpb25SYXRlGBogASgCEhAKCHVu",
-            "aXRUeXBlGBsgASgFEhIKCmF0dGFja1R5cGUYHCABKAUq/AMKCU1lc3NhZ2VJ",
-            "ZBIQCgxTX0VOVEVSX0dBTUUQABIQCgxTX0xFQVZFX0dBTUUQARILCgdDX1NQ",
-            "QVdOEAISCwoHU19TUEFXThADEg0KCVNfREVTUEFXThAEEhEKDUNfUExBWUVS",
-            "X01PVkUQBRIRCg1TX1BMQVlFUl9NT1ZFEAYSCgoGQ19NT1ZFEAcSCgoGU19N",
-            "T1ZFEAgSCwoHQ19TVEFURRAJEgsKB1NfU1RBVEUQChIOCgpDX1NFVF9ERVNU",
-            "EAsSDgoKU19TRVRfREVTVBAMEhQKEFNfU0VUX0tOT0NLX0JBQ0sQDRIUChBT",
-            "X1NFVF9ERVNUX1NLSUxMEA4SFAoQU19TRVRfQU5JTV9TUEVFRBAPEgwKCENf",
-            "QVRUQUNLEBASDwoLQ19TVEFUX0lOSVQQERILCgdDX1NLSUxMEBISCwoHU19T",
-            "S0lMTBATEhMKD0NfU0tJTExfVVBHUkFERRAUEhMKD1NfU0tJTExfVVBHUkFE",
-            "RRAVEhIKDlNfU0tJTExfVVBEQVRFEBYSEgoOQ19VTklUX1VQR1JBREUQFxIS",
-            "Cg5TX1VOSVRfVVBHUkFERRAYEg8KC1NfQ0hBTkdFX0hQEBkSDwoLU19DSEFO",
-            "R0VfTVAQGhILCgdDX0xFQVZFEBsSCQoFU19ESUUQHBIPCgtTX0NPTk5FQ1RF",
-            "RBAdKoUBCgVTdGF0ZRIICgRJRExFEAASCgoGTU9WSU5HEAESCgoGQVRUQUNL",
-            "EAISCQoFU0tJTEwQAxIKCgZTS0lMTDIQBBIICgRSVVNIEAUSCAoESlVNUBAG",
-            "Eg4KCktOT0NLX0JBQ0sQBxIJCgVGQUlOVBAIEgcKA0RJRRAJEgsKB1NUQU5E",
-            "QlkQCipwCg5HYW1lT2JqZWN0VHlwZRIICgROT05FEAASCgoGUExBWUVSEAES",
-            "CQoFVE9XRVIQAhILCgdNT05TVEVSEAMSCQoFU0hFRVAQBBIJCgVGRU5DRRAF",
-            "Eg4KClBST0pFQ1RJTEUQBhIKCgZFRkZFQ1QQBypTCglTa2lsbFR5cGUSDgoK",
-            "U0tJTExfTk9ORRAAEg4KClNLSUxMX0FVVE8QARIUChBTS0lMTF9QUk9KRUNU",
-            "SUxFEAISEAoMU0tJTExfRUZGRUNUEAMq/x8KBVNraWxsEhAKDEJMT09NX0FU",
-            "VEFDSxAAEhYKEkJMT09NX0FUVEFDS19TUEVFRBABEg8KC0JMT09NX1JBTkdF",
-            "EAISFwoTQkxPT01fQVRUQUNLX1NQRUVEMhADEhQKEEJMT09NX0FJUl9BVFRB",
-            "Q0sQBBIQCgxCTE9PTV8zQ09NQk8QBRISCg5CTE9TU09NX1BPSVNPThAGEhQK",
-            "EEJMT1NTT01fQUNDVVJBQ1kQBxISCg5CTE9TU09NX0FUVEFDSxAIEhgKFEJM",
-            "T1NTT01fQVRUQUNLX1NQRUVEEAkSEQoNQkxPU1NPTV9SQU5HRRAKEhEKDUJM",
-            "T1NTT01fREVBVEgQCxIOCgpCVURfQVRUQUNLEAwSFAoQQlVEX0FUVEFDS19T",
-            "UEVFRBANEg0KCUJVRF9SQU5HRRAOEgwKCEJVRF9TRUVEEA8SDgoKQlVEX0RP",
-            "VUJMRRAQEhUKEUhBVU5UX0xPTkdfQVRUQUNLEBESFgoSSEFVTlRfQVRUQUNL",
-            "X1NQRUVEEBISEAoMSEFVTlRfQVRUQUNLEBMSFwoTSEFVTlRfUE9JU09OX1JF",
-            "U0lTVBAUEhUKEUhBVU5UX0ZJUkVfUkVTSVNUEBUSDgoKSEFVTlRfRklSRRAW",
-            "Eh8KG01PVEhfQ0VMRVNUSUFMX1NIRUVQX0hFQUxUSBAXEiAKHE1PVEhfQ0VM",
-            "RVNUSUFMX0dST1VORF9BVFRBQ0sQGBIbChdNT1RIX0NFTEVTVElBTF9BQ0NV",
-            "UkFDWRAZEh4KGk1PVEhfQ0VMRVNUSUFMX0ZJUkVfUkVTSVNUEBoSIAocTU9U",
-            "SF9DRUxFU1RJQUxfUE9JU09OX1JFU0lTVBAbEhkKFU1PVEhfQ0VMRVNUSUFM",
-            "X1BPSVNPThAcEh4KGk1PVEhfQ0VMRVNUSUFMX0JSRUVEX1NIRUVQEB0SIQod",
-            "TU9USF9NT09OX1JFTU9WRV9ERUJVRkZfU0hFRVAQHhIYChRNT1RIX01PT05f",
-            "SEVBTF9TSEVFUBAfEhMKD01PVEhfTU9PTl9SQU5HRRAgEhQKEE1PVEhfTU9P",
-            "Tl9PVVRQVVQQIRIaChZNT1RIX01PT05fQVRUQUNLX1NQRUVEECISFAoQTU9U",
-            "SF9MVU5BX0FUVEFDSxAjEhMKD01PVEhfTFVOQV9TUEVFRBAkEhYKEk1PVEhf",
-            "TFVOQV9BQ0NVUkFDWRAlEhMKD01PVEhfTFVOQV9GQUlOVBAmEhkKFVBSQUNU",
-            "SUNFX0RVTU1ZX0hFQUxUSBAnEhoKFlBSQUNUSUNFX0RVTU1ZX0RFRkVOQ0UQ",
-            "KBIaChZQUkFDVElDRV9EVU1NWV9IRUFMVEgyECkSGwoXUFJBQ1RJQ0VfRFVN",
-            "TVlfREVGRU5DRTIQKhIYChRQUkFDVElDRV9EVU1NWV9BR0dSTxArEhMKD1NP",
-            "VUxfTUFHRV9BVk9JRBAsEhkKFVNPVUxfTUFHRV9ERUZFTkNFX0FMTBAtEhkK",
-            "FVNPVUxfTUFHRV9GSVJFX0RBTUFHRRAuEhoKFlNPVUxfTUFHRV9TSEFSRV9E",
-            "QU1BR0UQLxIVChFTT1VMX01BR0VfVE9STkFETxAwEhsKF1NPVUxfTUFHRV9E",
-            "RUJVRkZfUkVTSVNUEDESGwoXU09VTF9NQUdFX05BVFVSRV9BVFRBQ0sQMhIW",
-            "ChJTT1VMX01BR0VfQ1JJVElDQUwQMxIPCgtTT1VMX0FUVEFDSxA0EhAKDFNP",
-            "VUxfREVGRU5DRRA1Eg8KC1NPVUxfSEVBTFRIEDYSDgoKU09VTF9EUkFJThA3",
-            "EhYKElNVTl9CTE9TU09NX0hFQUxUSBA4EhQKEFNVTl9CTE9TU09NX1NMT1cQ",
-            "ORIUChBTVU5fQkxPU1NPTV9IRUFMEDoSGwoXU1VOX0JMT1NTT01fU0xPV19B",
-            "VFRBQ0sQOxIYChRTVU5GTE9SQV9QSVhJRV9GQUlOVBA8EhcKE1NVTkZMT1JB",
-            "X1BJWElFX0hFQUwQPRIYChRTVU5GTE9SQV9QSVhJRV9SQU5HRRA+EhgKFFNV",
-            "TkZMT1JBX1BJWElFX0NVUlNFED8SHwobU1VORkxPUkFfUElYSUVfQVRUQUNL",
-            "X1NQRUVEEEASGQoVU1VORkxPUkFfUElYSUVfVFJJUExFEEESIAocU1VORkxP",
-            "UkFfUElYSUVfREVCVUZGX1JFTU9WRRBCEhkKFVNVTkZMT1JBX1BJWElFX0FU",
-            "VEFDSxBDEh0KGVNVTkZMT1JBX1BJWElFX0lOVklOQ0lCTEUQRBIaChZTVU5G",
-            "TE9XRVJfRkFJUllfQVRUQUNLEEUSGgoWU1VORkxPV0VSX0ZBSVJZX0RPVUJM",
-            "RRBGEhsKF1NVTkZMT1dFUl9GQUlSWV9ERUZFTkNFEEcSGwoXU1VORkxPV0VS",
-            "X0ZBSVJZX01QX0RPV04QSBIeChpTVU5GTE9XRVJfRkFJUllfRkVOQ0VfSEVB",
-            "TBBJEhcKE1RBUkdFVF9EVU1NWV9IRUFMVEgQShIVChFUQVJHRVRfRFVNTVlf",
-            "SEVBTBBLEhwKGFRBUkdFVF9EVU1NWV9GSVJFX1JFU0lTVBBMEh4KGlRBUkdF",
-            "VF9EVU1NWV9QT0lTT05fUkVTSVNUEE0SGwoXVEFSR0VUX0RVTU1ZX1JFRkxF",
-            "Q1RJT04QThIYChRUUkFJTklOR19EVU1NWV9BR0dSTxBPEhcKE1RSQUlOSU5H",
-            "X0RVTU1ZX0hFQUwQUBIYChRUUkFJTklOR19EVU1NWV9GQUlOVBBREhkKFVRS",
-            "QUlOSU5HX0RVTU1ZX0hFQUxUSBBSEhoKFlRSQUlOSU5HX0RVTU1ZX0RFRkVO",
-            "Q0UQUxIgChxUUkFJTklOR19EVU1NWV9QT0lTT05fUkVTSVNUEFQSHgoaVFJB",
-            "SU5JTkdfRFVNTVlfRklSRV9SRVNJU1QQVRISCg5XT0xGX1BVUF9TUEVFRBBW",
-            "EhMKD1dPTEZfUFVQX0hFQUxUSBBXEhMKD1dPTEZfUFVQX0FUVEFDSxBYEhkK",
-            "FVdPTEZfUFVQX0FUVEFDS19TUEVFRBBZEg4KCldPTEZfRFJBSU4QWhIQCgxX",
-            "T0xGX0RFRkVOQ0UQWxIOCgpXT0xGX0FWT0lEEFwSEQoNV09MRl9DUklUSUNB",
-            "TBBdEhQKEFdPTEZfRklSRV9SRVNJU1QQXhIWChJXT0xGX1BPSVNPTl9SRVNJ",
-            "U1QQXxIMCghXT0xGX0ROQRBgEhQKEFdFUkVXT0xGX1RIVU5ERVIQYRIaChZX",
-            "RVJFV09MRl9ERUJVRkZfUkVTSVNUEGISEgoOV0VSRVdPTEZfRkFJTlQQYxIT",
-            "Cg9XRVJFV09MRl9IRUFMVEgQZBIUChBXRVJFV09MRl9FTkhBTkNFEGUSEAoM",
-            "TFVSS0VSX1NQRUVEEGYSEQoNTFVSS0VSX0hFQUxUSBBnEhIKDkxVUktFUl9E",
-            "RUZFTkNFEGgSEgoOTFVSS0VSX0hFQUxUSDIQaRIRCg1DUkVFUEVSX1NQRUVE",
-            "EGoSGAoUQ1JFRVBFUl9BVFRBQ0tfU1BFRUQQaxISCg5DUkVFUEVSX0FUVEFD",
-            "SxBsEhAKDENSRUVQRVJfUk9MTBBtEhIKDkNSRUVQRVJfUE9JU09OEG4SFgoS",
-            "SE9SUk9SX1JPTExfUE9JU09OEG8SFwoTSE9SUk9SX1BPSVNPTl9TVEFDSxBw",
-            "EhEKDUhPUlJPUl9IRUFMVEgQcRIYChRIT1JST1JfUE9JU09OX1JFU0lTVBBy",
-            "EhIKDkhPUlJPUl9ERUZFTkNFEHMSFgoSSE9SUk9SX1BPSVNPTl9CRUxUEHQS",
-            "EgoOU05BS0VMRVRfU1BFRUQQdRISCg5TTkFLRUxFVF9SQU5HRRB2EhkKFVNO",
-            "QUtFTEVUX0FUVEFDS19TUEVFRBB3EhMKD1NOQUtFTEVUX0FUVEFDSxB4EhAK",
-            "DFNOQUtFX0FUVEFDSxB5EhYKElNOQUtFX0FUVEFDS19TUEVFRBB6Eg8KC1NO",
-            "QUtFX1JBTkdFEHsSEgoOU05BS0VfQUNDVVJBQ1kQfBIOCgpTTkFLRV9GSVJF",
-            "EH0SFQoRU05BS0VfTkFHQV9BVFRBQ0sQfhIUChBTTkFLRV9OQUdBX1JBTkdF",
-            "EH8SGwoWU05BS0VfTkFHQV9GSVJFX1JFU0lTVBCAARIYChNTTkFLRV9OQUdB",
-            "X0NSSVRJQ0FMEIEBEhUKEFNOQUtFX05BR0FfRFJBSU4QggESFgoRU05BS0Vf",
-            "TkFHQV9NRVRFT1IQgwESFwoSTU9TUVVJVE9fQlVHX1NQRUVEEIQBEhkKFE1P",
-            "U1FVSVRPX0JVR19ERUZFTkNFEIUBEhcKEk1PU1FVSVRPX0JVR19BVk9JRBCG",
-            "ARIbChZNT1NRVUlUT19CVUdfV09PTF9ET1dOEIcBEhsKFk1PU1FVSVRPX1BF",
-            "U1RFUl9BVFRBQ0sQiAESGwoWTU9TUVVJVE9fUEVTVEVSX0hFQUxUSBCJARIf",
-            "ChpNT1NRVUlUT19QRVNURVJfV09PTF9ET1dOMhCKARIeChlNT1NRVUlUT19Q",
-            "RVNURVJfV09PTF9SQVRFEIsBEh4KGU1PU1FVSVRPX1BFU1RFUl9XT09MX1NU",
-            "T1AQjAESIQocTU9TUVVJVE9fU1RJTkdFUl9MT05HX0FUVEFDSxCNARIcChdN",
-            "T1NRVUlUT19TVElOR0VSX0hFQUxUSBCOARIbChZNT1NRVUlUT19TVElOR0VS",
-            "X0FWT0lEEI8BEhwKF01PU1FVSVRPX1NUSU5HRVJfUE9JU09OEJABEiMKHk1P",
-            "U1FVSVRPX1NUSU5HRVJfUE9JU09OX1JFU0lTVBCRARIfChpNT1NRVUlUT19T",
-            "VElOR0VSX0lORkVDVElPThCSARIhChxNT1NRVUlUT19TVElOR0VSX1NIRUVQ",
-            "X0RFQVRIEJMBEhcKElNIRUxMX0FUVEFDS19TUEVFRBCUARIQCgtTSEVMTF9T",
-            "UEVFRBCVARIRCgxTSEVMTF9IRUFMVEgQlgESDwoKU0hFTExfUk9MTBCXARIX",
-            "ChJTUElLRV9TRUxGX0RFRkVOQ0UQmAESFAoPU1BJS0VfTE9TVF9IRUFMEJkB",
-            "EhIKDVNQSUtFX0RFRkVOQ0UQmgESEQoMU1BJS0VfQVRUQUNLEJsBEhYKEVNQ",
-            "SUtFX0RPVUJMRV9CVUZGEJwBEhcKEkhFUk1JVF9GSVJFX1JFU0lTVBCdARIZ",
-            "ChRIRVJNSVRfUE9JU09OX1JFU0lTVBCeARIZChRIRVJNSVRfREVCVUZGX1JF",
-            "TU9WRRCfARIRCgxIRVJNSVRfUkFOR0UQoAESEQoMSEVSTUlUX0FHR1JPEKEB",
-            "EhYKEUhFUk1JVF9SRUZMRUNUSU9OEKIBEhEKDEhFUk1JVF9GQUlOVBCjARIV",
-            "ChBNT05TVEVSX0NBUEFDSVRZEKQBEhEKDEROQV9JTkNSRUFTRRClARIRCgxS",
-            "RVNUT1JFX0NBVkUQpgESEQoMQ0FSRF9VUEdSQURFEKcBEhUKEEJMQUNLX01B",
-            "R0lDX0NBUkQQqAESDQoITk9fU0tJTEwQrAIqaQoJQmFzZVNraWxsEhAKDEZF",
-            "TkNFX1JFUEFJUhAAEhEKDVNUT1JBR0VfTFZfVVAQARIRCg1HT0xEX0lOQ1JF",
-            "QVNFEAISEAoMU0hFRVBfSEVBTFRIEAMSEgoOU0hFRVBfSU5DUkVBU0UQBCrz",
-            "AQoJTW9uc3RlcklkEhMKD1VOS05PV05fTU9OU1RFUhAAEgwKCFdPTEZfUFVQ",
-            "EAESCAoEV09MRhACEgwKCFdFUkVXT0xGEAMSCgoGTFVSS0VSEAQSCwoHQ1JF",
-            "RVBFUhAFEgoKBkhPUlJPUhAGEgwKCFNOQUtFTEVUEAcSCQoFU05BS0UQCBIO",
-            "CgpTTkFLRV9OQUdBEAkSEAoMTU9TUVVJVE9fQlVHEAoSEwoPTU9TUVVJVE9f",
-            "UEVTVEVSEAsSFAoQTU9TUVVJVE9fU1RJTkdFUhAMEgkKBVNIRUxMEA0SCQoF",
-            "U1BJS0UQDhIKCgZIRVJNSVQQDyqHAgoHVG93ZXJJZBIRCg1VTktOT1dOX1RP",
-            "V0VSEAASBwoDQlVEEAESCQoFQkxPT00QAhILCgdCTE9TU09NEAMSEgoOUFJB",
-            "Q1RJQ0VfRFVNTVkQBBIQCgxUQVJHRVRfRFVNTVkQBRISCg5UUkFJTklOR19E",
-            "VU1NWRAGEg8KC1NVTl9CTE9TU09NEAcSEwoPU1VORkxPV0VSX0ZBSVJZEAgS",
-            "EgoOU1VORkxPUkFfUElYSUUQCRINCglNT1RIX0xVTkEQChINCglNT1RIX01P",
-            "T04QCxISCg5NT1RIX0NFTEVTVElBTBAMEggKBFNPVUwQDRIJCgVIQVVOVBAO",
-            "Eg0KCVNPVUxfTUFHRRAPKqMBCgxQcm9qZWN0aWxlSWQSEQoNTk9fUFJPSkVD",
-            "VElMRRAAEhAKDEJBU0lDX0FUVEFDSxABEg4KClNNQUxMX0ZJUkUQAhIMCghC",
-            "SUdfRklSRRADEhEKDVBPSVNPTl9BVFRBQ0sQBBIOCgpCSUdfUE9JU09OEAUS",
-            "CAoEU0VFRBAGEhAKDEJMT1NTT01fU0VFRBAHEhEKDUJMT1NTT01fQVJST1cQ",
-            "CCpACghFZmZlY3RJZBINCglOT19FRkZFQ1QQABIUChBMSUdIVE5JTkdfU1RS",
-            "SUtFEAESDwoLUE9JU09OX0JFTFQQAiq7AgoGQnVmZklkEgsKB05PX0JVRkYQ",
-            "ABITCg9BVFRBQ0tfSU5DUkVBU0UQARIZChVBVFRBQ0tfU1BFRURfSU5DUkVB",
-            "U0UQAhITCg9IRUFMVEhfSU5DUkVBU0UQAxIUChBERUZFTkNFX0lOQ1JFQVNF",
-            "EAQSFwoTTU9WRV9TUEVFRF9JTkNSRUFTRRAFEg4KCklOVklOQ0lCTEUQBhIT",
-            "Cg9BVFRBQ0tfREVDUkVBU0UQBxIZChVBVFRBQ0tfU1BFRURfREVDUkVBU0UQ",
-            "CBIUChBERUZFTkNFX0RFQ1JFQVNFEAkSFwoTTU9WRV9TUEVFRF9ERUNSRUFT",
-            "RRAKEgkKBUNVUlNFEAsSDAoIQURESUNURUQQDBITCg9ERUFETFlfQURESUNU",
-            "RUQQDRIJCgVBR0dSTxAOEggKBEJVUk4QDyoyCghCdWZmVHlwZRIQCgxOT19C",
-            "VUZGX1RZUEUQABIICgRCVUZGEAESCgoGREVCVUZGEAIqWgoRUGxheWVyU2Vy",
-            "dmVyU3RhdGUSFgoSU0VSVkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVSX1NU",
-            "QVRFX0xPQkJZEAESFQoRU0VSVkVSX1NUQVRFX0dBTUUQAioyCghTcGF3bldh",
-            "eRIICgRXRVNUEAASCQoFTk9SVEgQARIICgRFQVNUEAISBwoDQU5ZEAMqWgoM",
-            "QXR0YWNrTWV0aG9kEg0KCU5PX0FUVEFDSxAAEhEKDU5PUk1BTF9BVFRBQ0sQ",
-            "ARIRCg1FRkZFQ1RfQVRUQUNLEAISFQoRUFJPSkVDVElMRV9BVFRBQ0sQA0Ib",
-            "qgIYR29vZ2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
+            "ZBgQIAEoAhITCgthdHRhY2tSYW5nZRgRIAEoAhISCgpza2lsbFJhbmdlGBIg",
+            "ASgCEhYKDmNyaXRpY2FsQ2hhbmNlGBMgASgFEhoKEmNyaXRpY2FsTXVsdGlw",
+            "bGllchgUIAEoAhIQCghhY2N1cmFjeRgVIAEoBRIPCgdldmFzaW9uGBYgASgF",
+            "EhIKCnRhcmdldGFibGUYFyABKAgSDQoFYWdncm8YGCABKAgSEgoKcmVmbGVj",
+            "dGlvbhgZIAEoCBIXCg9yZWZsZWN0aW9uU2tpbGwYGiABKAgSFgoOcmVmbGVj",
+            "dGlvblJhdGUYGyABKAISEAoIdW5pdFR5cGUYHCABKAUSEgoKYXR0YWNrVHlw",
+            "ZRgdIAEoBSr8AwoJTWVzc2FnZUlkEhAKDFNfRU5URVJfR0FNRRAAEhAKDFNf",
+            "TEVBVkVfR0FNRRABEgsKB0NfU1BBV04QAhILCgdTX1NQQVdOEAMSDQoJU19E",
+            "RVNQQVdOEAQSEQoNQ19QTEFZRVJfTU9WRRAFEhEKDVNfUExBWUVSX01PVkUQ",
+            "BhIKCgZDX01PVkUQBxIKCgZTX01PVkUQCBILCgdDX1NUQVRFEAkSCwoHU19T",
+            "VEFURRAKEg4KCkNfU0VUX0RFU1QQCxIOCgpTX1NFVF9ERVNUEAwSFAoQU19T",
+            "RVRfS05PQ0tfQkFDSxANEhQKEFNfU0VUX0RFU1RfU0tJTEwQDhIUChBTX1NF",
+            "VF9BTklNX1NQRUVEEA8SDAoIQ19BVFRBQ0sQEBIPCgtDX1NUQVRfSU5JVBAR",
+            "EgsKB0NfU0tJTEwQEhILCgdTX1NLSUxMEBMSEwoPQ19TS0lMTF9VUEdSQURF",
+            "EBQSEwoPU19TS0lMTF9VUEdSQURFEBUSEgoOU19TS0lMTF9VUERBVEUQFhIS",
+            "Cg5DX1VOSVRfVVBHUkFERRAXEhIKDlNfVU5JVF9VUEdSQURFEBgSDwoLU19D",
+            "SEFOR0VfSFAQGRIPCgtTX0NIQU5HRV9NUBAaEgsKB0NfTEVBVkUQGxIJCgVT",
+            "X0RJRRAcEg8KC1NfQ09OTkVDVEVEEB0qhQEKBVN0YXRlEggKBElETEUQABIK",
+            "CgZNT1ZJTkcQARIKCgZBVFRBQ0sQAhIJCgVTS0lMTBADEgoKBlNLSUxMMhAE",
+            "EggKBFJVU0gQBRIICgRKVU1QEAYSDgoKS05PQ0tfQkFDSxAHEgkKBUZBSU5U",
+            "EAgSBwoDRElFEAkSCwoHU1RBTkRCWRAKKnAKDkdhbWVPYmplY3RUeXBlEggK",
+            "BE5PTkUQABIKCgZQTEFZRVIQARIJCgVUT1dFUhACEgsKB01PTlNURVIQAxIJ",
+            "CgVTSEVFUBAEEgkKBUZFTkNFEAUSDgoKUFJPSkVDVElMRRAGEgoKBkVGRkVD",
+            "VBAHKlMKCVNraWxsVHlwZRIOCgpTS0lMTF9OT05FEAASDgoKU0tJTExfQVVU",
+            "TxABEhQKEFNLSUxMX1BST0pFQ1RJTEUQAhIQCgxTS0lMTF9FRkZFQ1QQAyqi",
+            "IAoFU2tpbGwSEAoMQkxPT01fQVRUQUNLEAASFgoSQkxPT01fQVRUQUNLX1NQ",
+            "RUVEEAESDwoLQkxPT01fUkFOR0UQAhIXChNCTE9PTV9BVFRBQ0tfU1BFRUQy",
+            "EAMSFAoQQkxPT01fQUlSX0FUVEFDSxAEEhAKDEJMT09NXzNDT01CTxAFEhIK",
+            "DkJMT1NTT01fUE9JU09OEAYSFAoQQkxPU1NPTV9BQ0NVUkFDWRAHEhIKDkJM",
+            "T1NTT01fQVRUQUNLEAgSGAoUQkxPU1NPTV9BVFRBQ0tfU1BFRUQQCRIRCg1C",
+            "TE9TU09NX1JBTkdFEAoSEQoNQkxPU1NPTV9ERUFUSBALEg4KCkJVRF9BVFRB",
+            "Q0sQDBIUChBCVURfQVRUQUNLX1NQRUVEEA0SDQoJQlVEX1JBTkdFEA4SDAoI",
+            "QlVEX1NFRUQQDxIOCgpCVURfRE9VQkxFEBASFQoRSEFVTlRfTE9OR19BVFRB",
+            "Q0sQERIWChJIQVVOVF9BVFRBQ0tfU1BFRUQQEhIQCgxIQVVOVF9BVFRBQ0sQ",
+            "ExIXChNIQVVOVF9QT0lTT05fUkVTSVNUEBQSFQoRSEFVTlRfRklSRV9SRVNJ",
+            "U1QQFRIOCgpIQVVOVF9GSVJFEBYSHwobTU9USF9DRUxFU1RJQUxfU0hFRVBf",
+            "SEVBTFRIEBcSIAocTU9USF9DRUxFU1RJQUxfR1JPVU5EX0FUVEFDSxAYEhsK",
+            "F01PVEhfQ0VMRVNUSUFMX0FDQ1VSQUNZEBkSHgoaTU9USF9DRUxFU1RJQUxf",
+            "RklSRV9SRVNJU1QQGhIgChxNT1RIX0NFTEVTVElBTF9QT0lTT05fUkVTSVNU",
+            "EBsSGQoVTU9USF9DRUxFU1RJQUxfUE9JU09OEBwSHgoaTU9USF9DRUxFU1RJ",
+            "QUxfQlJFRURfU0hFRVAQHRIhCh1NT1RIX01PT05fUkVNT1ZFX0RFQlVGRl9T",
+            "SEVFUBAeEhgKFE1PVEhfTU9PTl9IRUFMX1NIRUVQEB8SEwoPTU9USF9NT09O",
+            "X1JBTkdFECASFAoQTU9USF9NT09OX09VVFBVVBAhEhoKFk1PVEhfTU9PTl9B",
+            "VFRBQ0tfU1BFRUQQIhIUChBNT1RIX0xVTkFfQVRUQUNLECMSEwoPTU9USF9M",
+            "VU5BX1NQRUVEECQSFgoSTU9USF9MVU5BX0FDQ1VSQUNZECUSEwoPTU9USF9M",
+            "VU5BX0ZBSU5UECYSGQoVUFJBQ1RJQ0VfRFVNTVlfSEVBTFRIECcSGgoWUFJB",
+            "Q1RJQ0VfRFVNTVlfREVGRU5DRRAoEhoKFlBSQUNUSUNFX0RVTU1ZX0hFQUxU",
+            "SDIQKRIbChdQUkFDVElDRV9EVU1NWV9ERUZFTkNFMhAqEhgKFFBSQUNUSUNF",
+            "X0RVTU1ZX0FHR1JPECsSEwoPU09VTF9NQUdFX0FWT0lEECwSGQoVU09VTF9N",
+            "QUdFX0RFRkVOQ0VfQUxMEC0SGQoVU09VTF9NQUdFX0ZJUkVfREFNQUdFEC4S",
+            "GgoWU09VTF9NQUdFX1NIQVJFX0RBTUFHRRAvEhUKEVNPVUxfTUFHRV9UT1JO",
+            "QURPEDASGwoXU09VTF9NQUdFX0RFQlVGRl9SRVNJU1QQMRIbChdTT1VMX01B",
+            "R0VfTkFUVVJFX0FUVEFDSxAyEhYKElNPVUxfTUFHRV9DUklUSUNBTBAzEg8K",
+            "C1NPVUxfQVRUQUNLEDQSEAoMU09VTF9ERUZFTkNFEDUSDwoLU09VTF9IRUFM",
+            "VEgQNhIOCgpTT1VMX0RSQUlOEDcSFgoSU1VOX0JMT1NTT01fSEVBTFRIEDgS",
+            "FAoQU1VOX0JMT1NTT01fU0xPVxA5EhQKEFNVTl9CTE9TU09NX0hFQUwQOhIb",
+            "ChdTVU5fQkxPU1NPTV9TTE9XX0FUVEFDSxA7EhgKFFNVTkZMT1JBX1BJWElF",
+            "X0ZBSU5UEDwSFwoTU1VORkxPUkFfUElYSUVfSEVBTBA9EhgKFFNVTkZMT1JB",
+            "X1BJWElFX1JBTkdFED4SGAoUU1VORkxPUkFfUElYSUVfQ1VSU0UQPxIfChtT",
+            "VU5GTE9SQV9QSVhJRV9BVFRBQ0tfU1BFRUQQQBIZChVTVU5GTE9SQV9QSVhJ",
+            "RV9UUklQTEUQQRIgChxTVU5GTE9SQV9QSVhJRV9ERUJVRkZfUkVNT1ZFEEIS",
+            "GQoVU1VORkxPUkFfUElYSUVfQVRUQUNLEEMSHQoZU1VORkxPUkFfUElYSUVf",
+            "SU5WSU5DSUJMRRBEEhoKFlNVTkZMT1dFUl9GQUlSWV9BVFRBQ0sQRRIaChZT",
+            "VU5GTE9XRVJfRkFJUllfRE9VQkxFEEYSGwoXU1VORkxPV0VSX0ZBSVJZX0RF",
+            "RkVOQ0UQRxIbChdTVU5GTE9XRVJfRkFJUllfTVBfRE9XThBIEh4KGlNVTkZM",
+            "T1dFUl9GQUlSWV9GRU5DRV9IRUFMEEkSFwoTVEFSR0VUX0RVTU1ZX0hFQUxU",
+            "SBBKEhUKEVRBUkdFVF9EVU1NWV9IRUFMEEsSHAoYVEFSR0VUX0RVTU1ZX0ZJ",
+            "UkVfUkVTSVNUEEwSHgoaVEFSR0VUX0RVTU1ZX1BPSVNPTl9SRVNJU1QQTRIb",
+            "ChdUQVJHRVRfRFVNTVlfUkVGTEVDVElPThBOEhgKFFRSQUlOSU5HX0RVTU1Z",
+            "X0FHR1JPEE8SFwoTVFJBSU5JTkdfRFVNTVlfSEVBTBBQEhgKFFRSQUlOSU5H",
+            "X0RVTU1ZX0ZBSU5UEFESGQoVVFJBSU5JTkdfRFVNTVlfSEVBTFRIEFISGgoW",
+            "VFJBSU5JTkdfRFVNTVlfREVGRU5DRRBTEiAKHFRSQUlOSU5HX0RVTU1ZX1BP",
+            "SVNPTl9SRVNJU1QQVBIeChpUUkFJTklOR19EVU1NWV9GSVJFX1JFU0lTVBBV",
+            "EiAKHFRSQUlOSU5HX0RVTU1ZX0RFQlVGRl9SRU1PVkUQVhISCg5XT0xGX1BV",
+            "UF9TUEVFRBBXEhMKD1dPTEZfUFVQX0hFQUxUSBBYEhMKD1dPTEZfUFVQX0FU",
+            "VEFDSxBZEhkKFVdPTEZfUFVQX0FUVEFDS19TUEVFRBBaEg4KCldPTEZfRFJB",
+            "SU4QWxIQCgxXT0xGX0RFRkVOQ0UQXBIOCgpXT0xGX0FWT0lEEF0SEQoNV09M",
+            "Rl9DUklUSUNBTBBeEhQKEFdPTEZfRklSRV9SRVNJU1QQXxIWChJXT0xGX1BP",
+            "SVNPTl9SRVNJU1QQYBIMCghXT0xGX0ROQRBhEhQKEFdFUkVXT0xGX1RIVU5E",
+            "RVIQYhIaChZXRVJFV09MRl9ERUJVRkZfUkVTSVNUEGMSEgoOV0VSRVdPTEZf",
+            "RkFJTlQQZBITCg9XRVJFV09MRl9IRUFMVEgQZRIUChBXRVJFV09MRl9FTkhB",
+            "TkNFEGYSEAoMTFVSS0VSX1NQRUVEEGcSEQoNTFVSS0VSX0hFQUxUSBBoEhIK",
+            "DkxVUktFUl9ERUZFTkNFEGkSEgoOTFVSS0VSX0hFQUxUSDIQahIRCg1DUkVF",
+            "UEVSX1NQRUVEEGsSGAoUQ1JFRVBFUl9BVFRBQ0tfU1BFRUQQbBISCg5DUkVF",
+            "UEVSX0FUVEFDSxBtEhAKDENSRUVQRVJfUk9MTBBuEhIKDkNSRUVQRVJfUE9J",
+            "U09OEG8SFgoSSE9SUk9SX1JPTExfUE9JU09OEHASFwoTSE9SUk9SX1BPSVNP",
+            "Tl9TVEFDSxBxEhEKDUhPUlJPUl9IRUFMVEgQchIYChRIT1JST1JfUE9JU09O",
+            "X1JFU0lTVBBzEhIKDkhPUlJPUl9ERUZFTkNFEHQSFgoSSE9SUk9SX1BPSVNP",
+            "Tl9CRUxUEHUSEgoOU05BS0VMRVRfU1BFRUQQdhISCg5TTkFLRUxFVF9SQU5H",
+            "RRB3EhkKFVNOQUtFTEVUX0FUVEFDS19TUEVFRBB4EhMKD1NOQUtFTEVUX0FU",
+            "VEFDSxB5EhAKDFNOQUtFX0FUVEFDSxB6EhYKElNOQUtFX0FUVEFDS19TUEVF",
+            "RBB7Eg8KC1NOQUtFX1JBTkdFEHwSEgoOU05BS0VfQUNDVVJBQ1kQfRIOCgpT",
+            "TkFLRV9GSVJFEH4SFQoRU05BS0VfTkFHQV9BVFRBQ0sQfxIVChBTTkFLRV9O",
+            "QUdBX1JBTkdFEIABEhsKFlNOQUtFX05BR0FfRklSRV9SRVNJU1QQgQESGAoT",
+            "U05BS0VfTkFHQV9DUklUSUNBTBCCARIVChBTTkFLRV9OQUdBX0RSQUlOEIMB",
+            "EhYKEVNOQUtFX05BR0FfTUVURU9SEIQBEhcKEk1PU1FVSVRPX0JVR19TUEVF",
+            "RBCFARIZChRNT1NRVUlUT19CVUdfREVGRU5DRRCGARIXChJNT1NRVUlUT19C",
+            "VUdfQVZPSUQQhwESGwoWTU9TUVVJVE9fQlVHX1dPT0xfRE9XThCIARIbChZN",
+            "T1NRVUlUT19QRVNURVJfQVRUQUNLEIkBEhsKFk1PU1FVSVRPX1BFU1RFUl9I",
+            "RUFMVEgQigESHwoaTU9TUVVJVE9fUEVTVEVSX1dPT0xfRE9XTjIQiwESHgoZ",
+            "TU9TUVVJVE9fUEVTVEVSX1dPT0xfUkFURRCMARIeChlNT1NRVUlUT19QRVNU",
+            "RVJfV09PTF9TVE9QEI0BEiEKHE1PU1FVSVRPX1NUSU5HRVJfTE9OR19BVFRB",
+            "Q0sQjgESHAoXTU9TUVVJVE9fU1RJTkdFUl9IRUFMVEgQjwESGwoWTU9TUVVJ",
+            "VE9fU1RJTkdFUl9BVk9JRBCQARIcChdNT1NRVUlUT19TVElOR0VSX1BPSVNP",
+            "ThCRARIjCh5NT1NRVUlUT19TVElOR0VSX1BPSVNPTl9SRVNJU1QQkgESHwoa",
+            "TU9TUVVJVE9fU1RJTkdFUl9JTkZFQ1RJT04QkwESIQocTU9TUVVJVE9fU1RJ",
+            "TkdFUl9TSEVFUF9ERUFUSBCUARIXChJTSEVMTF9BVFRBQ0tfU1BFRUQQlQES",
+            "EAoLU0hFTExfU1BFRUQQlgESEQoMU0hFTExfSEVBTFRIEJcBEg8KClNIRUxM",
+            "X1JPTEwQmAESFwoSU1BJS0VfU0VMRl9ERUZFTkNFEJkBEhQKD1NQSUtFX0xP",
+            "U1RfSEVBTBCaARISCg1TUElLRV9ERUZFTkNFEJsBEhEKDFNQSUtFX0FUVEFD",
+            "SxCcARIWChFTUElLRV9ET1VCTEVfQlVGRhCdARIXChJIRVJNSVRfRklSRV9S",
+            "RVNJU1QQngESGQoUSEVSTUlUX1BPSVNPTl9SRVNJU1QQnwESGQoUSEVSTUlU",
+            "X0RFQlVGRl9SRU1PVkUQoAESEQoMSEVSTUlUX1JBTkdFEKEBEhEKDEhFUk1J",
+            "VF9BR0dSTxCiARIWChFIRVJNSVRfUkVGTEVDVElPThCjARIRCgxIRVJNSVRf",
+            "RkFJTlQQpAESFQoQTU9OU1RFUl9DQVBBQ0lUWRClARIRCgxETkFfSU5DUkVB",
+            "U0UQpgESEQoMUkVTVE9SRV9DQVZFEKcBEhEKDENBUkRfVVBHUkFERRCoARIV",
+            "ChBCTEFDS19NQUdJQ19DQVJEEKkBEg0KCE5PX1NLSUxMEKwCKmkKCUJhc2VT",
+            "a2lsbBIQCgxGRU5DRV9SRVBBSVIQABIRCg1TVE9SQUdFX0xWX1VQEAESEQoN",
+            "R09MRF9JTkNSRUFTRRACEhAKDFNIRUVQX0hFQUxUSBADEhIKDlNIRUVQX0lO",
+            "Q1JFQVNFEAQq8wEKCU1vbnN0ZXJJZBITCg9VTktOT1dOX01PTlNURVIQABIM",
+            "CghXT0xGX1BVUBABEggKBFdPTEYQAhIMCghXRVJFV09MRhADEgoKBkxVUktF",
+            "UhAEEgsKB0NSRUVQRVIQBRIKCgZIT1JST1IQBhIMCghTTkFLRUxFVBAHEgkK",
+            "BVNOQUtFEAgSDgoKU05BS0VfTkFHQRAJEhAKDE1PU1FVSVRPX0JVRxAKEhMK",
+            "D01PU1FVSVRPX1BFU1RFUhALEhQKEE1PU1FVSVRPX1NUSU5HRVIQDBIJCgVT",
+            "SEVMTBANEgkKBVNQSUtFEA4SCgoGSEVSTUlUEA8qhwIKB1Rvd2VySWQSEQoN",
+            "VU5LTk9XTl9UT1dFUhAAEgcKA0JVRBABEgkKBUJMT09NEAISCwoHQkxPU1NP",
+            "TRADEhIKDlBSQUNUSUNFX0RVTU1ZEAQSEAoMVEFSR0VUX0RVTU1ZEAUSEgoO",
+            "VFJBSU5JTkdfRFVNTVkQBhIPCgtTVU5fQkxPU1NPTRAHEhMKD1NVTkZMT1dF",
+            "Ul9GQUlSWRAIEhIKDlNVTkZMT1JBX1BJWElFEAkSDQoJTU9USF9MVU5BEAoS",
+            "DQoJTU9USF9NT09OEAsSEgoOTU9USF9DRUxFU1RJQUwQDBIICgRTT1VMEA0S",
+            "CQoFSEFVTlQQDhINCglTT1VMX01BR0UQDyr2AQoMUHJvamVjdGlsZUlkEhEK",
+            "DU5PX1BST0pFQ1RJTEUQABIQCgxCQVNJQ19BVFRBQ0sQARIOCgpTTUFMTF9G",
+            "SVJFEAISDAoIQklHX0ZJUkUQAxIRCg1QT0lTT05fQVRUQUNLEAQSDgoKQklH",
+            "X1BPSVNPThAFEggKBFNFRUQQBhIQCgxCTE9TU09NX1NFRUQQBxIRCg1CTE9T",
+            "U09NX0FSUk9XEAgSDwoLSEFVTlRfQVJST1cQCRIVChFIQVVOVF9GSVJFX0FU",
+            "VEFDSxAKEhQKEFNPVUxfTUFHRV9BVFRBQ0sQCxITCg9TT1VMX01BR0VfUFVO",
+            "Q0gQDCpACghFZmZlY3RJZBINCglOT19FRkZFQ1QQABIUChBMSUdIVE5JTkdf",
+            "U1RSSUtFEAESDwoLUE9JU09OX0JFTFQQAiq7AgoGQnVmZklkEgsKB05PX0JV",
+            "RkYQABITCg9BVFRBQ0tfSU5DUkVBU0UQARIZChVBVFRBQ0tfU1BFRURfSU5D",
+            "UkVBU0UQAhITCg9IRUFMVEhfSU5DUkVBU0UQAxIUChBERUZFTkNFX0lOQ1JF",
+            "QVNFEAQSFwoTTU9WRV9TUEVFRF9JTkNSRUFTRRAFEg4KCklOVklOQ0lCTEUQ",
+            "BhITCg9BVFRBQ0tfREVDUkVBU0UQBxIZChVBVFRBQ0tfU1BFRURfREVDUkVB",
+            "U0UQCBIUChBERUZFTkNFX0RFQ1JFQVNFEAkSFwoTTU9WRV9TUEVFRF9ERUNS",
+            "RUFTRRAKEgkKBUNVUlNFEAsSDAoIQURESUNURUQQDBITCg9ERUFETFlfQURE",
+            "SUNURUQQDRIJCgVBR0dSTxAOEggKBEJVUk4QDyoyCghCdWZmVHlwZRIQCgxO",
+            "T19CVUZGX1RZUEUQABIICgRCVUZGEAESCgoGREVCVUZGEAIqWgoRUGxheWVy",
+            "U2VydmVyU3RhdGUSFgoSU0VSVkVSX1NUQVRFX0xPR0lOEAASFgoSU0VSVkVS",
+            "X1NUQVRFX0xPQkJZEAESFQoRU0VSVkVSX1NUQVRFX0dBTUUQAioyCghTcGF3",
+            "bldheRIICgRXRVNUEAASCQoFTk9SVEgQARIICgRFQVNUEAISBwoDQU5ZEAMq",
+            "WgoMQXR0YWNrTWV0aG9kEg0KCU5PX0FUVEFDSxAAEhEKDU5PUk1BTF9BVFRB",
+            "Q0sQARIRCg1FRkZFQ1RfQVRUQUNLEAISFQoRUFJPSkVDVElMRV9BVFRBQ0sQ",
+            "A0IbqgIYR29vZ2xlLlByb3RvYnVmLlByb3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.BaseSkill), typeof(global::Google.Protobuf.Protocol.MonsterId), typeof(global::Google.Protobuf.Protocol.TowerId), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.BuffId), typeof(global::Google.Protobuf.Protocol.BuffType), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.AttackMethod), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -267,7 +270,7 @@ namespace Google.Protobuf.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.ObjectInfo), global::Google.Protobuf.Protocol.ObjectInfo.Parser, new[]{ "ObjectId", "Name", "PosInfo", "StatInfo" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.DestVector), global::Google.Protobuf.Protocol.DestVector.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.PositionInfo), global::Google.Protobuf.Protocol.PositionInfo.Parser, new[]{ "State", "PosX", "PosY", "PosZ", "Dir" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.StatInfo), global::Google.Protobuf.Protocol.StatInfo.Parser, new[]{ "Level", "SizeX", "SizeY", "SizeZ", "Hp", "MaxHp", "Mp", "MaxMp", "MpRecovery", "Attack", "Skill", "Defence", "FireResist", "PoisonResist", "MoveSpeed", "AttackSpeed", "AttackRange", "CriticalChance", "CriticalMultiplier", "Accuracy", "Evasion", "Targetable", "Aggro", "Reflection", "ReflectionSkill", "ReflectionRate", "UnitType", "AttackType" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.StatInfo), global::Google.Protobuf.Protocol.StatInfo.Parser, new[]{ "Level", "SizeX", "SizeY", "SizeZ", "Hp", "MaxHp", "Mp", "MaxMp", "MpRecovery", "Attack", "Skill", "Defence", "FireResist", "PoisonResist", "MoveSpeed", "AttackSpeed", "AttackRange", "SkillRange", "CriticalChance", "CriticalMultiplier", "Accuracy", "Evasion", "Targetable", "Aggro", "Reflection", "ReflectionSkill", "ReflectionRate", "UnitType", "AttackType" }, null, null, null, null)
           }));
     }
     #endregion
@@ -426,89 +429,90 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("TRAINING_DUMMY_DEFENCE")] TrainingDummyDefence = 83,
     [pbr::OriginalName("TRAINING_DUMMY_POISON_RESIST")] TrainingDummyPoisonResist = 84,
     [pbr::OriginalName("TRAINING_DUMMY_FIRE_RESIST")] TrainingDummyFireResist = 85,
-    [pbr::OriginalName("WOLF_PUP_SPEED")] WolfPupSpeed = 86,
-    [pbr::OriginalName("WOLF_PUP_HEALTH")] WolfPupHealth = 87,
-    [pbr::OriginalName("WOLF_PUP_ATTACK")] WolfPupAttack = 88,
-    [pbr::OriginalName("WOLF_PUP_ATTACK_SPEED")] WolfPupAttackSpeed = 89,
-    [pbr::OriginalName("WOLF_DRAIN")] WolfDrain = 90,
-    [pbr::OriginalName("WOLF_DEFENCE")] WolfDefence = 91,
-    [pbr::OriginalName("WOLF_AVOID")] WolfAvoid = 92,
-    [pbr::OriginalName("WOLF_CRITICAL")] WolfCritical = 93,
-    [pbr::OriginalName("WOLF_FIRE_RESIST")] WolfFireResist = 94,
-    [pbr::OriginalName("WOLF_POISON_RESIST")] WolfPoisonResist = 95,
-    [pbr::OriginalName("WOLF_DNA")] WolfDna = 96,
-    [pbr::OriginalName("WEREWOLF_THUNDER")] WerewolfThunder = 97,
-    [pbr::OriginalName("WEREWOLF_DEBUFF_RESIST")] WerewolfDebuffResist = 98,
-    [pbr::OriginalName("WEREWOLF_FAINT")] WerewolfFaint = 99,
-    [pbr::OriginalName("WEREWOLF_HEALTH")] WerewolfHealth = 100,
-    [pbr::OriginalName("WEREWOLF_ENHANCE")] WerewolfEnhance = 101,
-    [pbr::OriginalName("LURKER_SPEED")] LurkerSpeed = 102,
-    [pbr::OriginalName("LURKER_HEALTH")] LurkerHealth = 103,
-    [pbr::OriginalName("LURKER_DEFENCE")] LurkerDefence = 104,
-    [pbr::OriginalName("LURKER_HEALTH2")] LurkerHealth2 = 105,
-    [pbr::OriginalName("CREEPER_SPEED")] CreeperSpeed = 106,
-    [pbr::OriginalName("CREEPER_ATTACK_SPEED")] CreeperAttackSpeed = 107,
-    [pbr::OriginalName("CREEPER_ATTACK")] CreeperAttack = 108,
-    [pbr::OriginalName("CREEPER_ROLL")] CreeperRoll = 109,
-    [pbr::OriginalName("CREEPER_POISON")] CreeperPoison = 110,
-    [pbr::OriginalName("HORROR_ROLL_POISON")] HorrorRollPoison = 111,
-    [pbr::OriginalName("HORROR_POISON_STACK")] HorrorPoisonStack = 112,
-    [pbr::OriginalName("HORROR_HEALTH")] HorrorHealth = 113,
-    [pbr::OriginalName("HORROR_POISON_RESIST")] HorrorPoisonResist = 114,
-    [pbr::OriginalName("HORROR_DEFENCE")] HorrorDefence = 115,
-    [pbr::OriginalName("HORROR_POISON_BELT")] HorrorPoisonBelt = 116,
-    [pbr::OriginalName("SNAKELET_SPEED")] SnakeletSpeed = 117,
-    [pbr::OriginalName("SNAKELET_RANGE")] SnakeletRange = 118,
-    [pbr::OriginalName("SNAKELET_ATTACK_SPEED")] SnakeletAttackSpeed = 119,
-    [pbr::OriginalName("SNAKELET_ATTACK")] SnakeletAttack = 120,
-    [pbr::OriginalName("SNAKE_ATTACK")] SnakeAttack = 121,
-    [pbr::OriginalName("SNAKE_ATTACK_SPEED")] SnakeAttackSpeed = 122,
-    [pbr::OriginalName("SNAKE_RANGE")] SnakeRange = 123,
-    [pbr::OriginalName("SNAKE_ACCURACY")] SnakeAccuracy = 124,
-    [pbr::OriginalName("SNAKE_FIRE")] SnakeFire = 125,
-    [pbr::OriginalName("SNAKE_NAGA_ATTACK")] SnakeNagaAttack = 126,
-    [pbr::OriginalName("SNAKE_NAGA_RANGE")] SnakeNagaRange = 127,
-    [pbr::OriginalName("SNAKE_NAGA_FIRE_RESIST")] SnakeNagaFireResist = 128,
-    [pbr::OriginalName("SNAKE_NAGA_CRITICAL")] SnakeNagaCritical = 129,
-    [pbr::OriginalName("SNAKE_NAGA_DRAIN")] SnakeNagaDrain = 130,
-    [pbr::OriginalName("SNAKE_NAGA_METEOR")] SnakeNagaMeteor = 131,
-    [pbr::OriginalName("MOSQUITO_BUG_SPEED")] MosquitoBugSpeed = 132,
-    [pbr::OriginalName("MOSQUITO_BUG_DEFENCE")] MosquitoBugDefence = 133,
-    [pbr::OriginalName("MOSQUITO_BUG_AVOID")] MosquitoBugAvoid = 134,
-    [pbr::OriginalName("MOSQUITO_BUG_WOOL_DOWN")] MosquitoBugWoolDown = 135,
-    [pbr::OriginalName("MOSQUITO_PESTER_ATTACK")] MosquitoPesterAttack = 136,
-    [pbr::OriginalName("MOSQUITO_PESTER_HEALTH")] MosquitoPesterHealth = 137,
-    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_DOWN2")] MosquitoPesterWoolDown2 = 138,
-    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_RATE")] MosquitoPesterWoolRate = 139,
-    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_STOP")] MosquitoPesterWoolStop = 140,
-    [pbr::OriginalName("MOSQUITO_STINGER_LONG_ATTACK")] MosquitoStingerLongAttack = 141,
-    [pbr::OriginalName("MOSQUITO_STINGER_HEALTH")] MosquitoStingerHealth = 142,
-    [pbr::OriginalName("MOSQUITO_STINGER_AVOID")] MosquitoStingerAvoid = 143,
-    [pbr::OriginalName("MOSQUITO_STINGER_POISON")] MosquitoStingerPoison = 144,
-    [pbr::OriginalName("MOSQUITO_STINGER_POISON_RESIST")] MosquitoStingerPoisonResist = 145,
-    [pbr::OriginalName("MOSQUITO_STINGER_INFECTION")] MosquitoStingerInfection = 146,
-    [pbr::OriginalName("MOSQUITO_STINGER_SHEEP_DEATH")] MosquitoStingerSheepDeath = 147,
-    [pbr::OriginalName("SHELL_ATTACK_SPEED")] ShellAttackSpeed = 148,
-    [pbr::OriginalName("SHELL_SPEED")] ShellSpeed = 149,
-    [pbr::OriginalName("SHELL_HEALTH")] ShellHealth = 150,
-    [pbr::OriginalName("SHELL_ROLL")] ShellRoll = 151,
-    [pbr::OriginalName("SPIKE_SELF_DEFENCE")] SpikeSelfDefence = 152,
-    [pbr::OriginalName("SPIKE_LOST_HEAL")] SpikeLostHeal = 153,
-    [pbr::OriginalName("SPIKE_DEFENCE")] SpikeDefence = 154,
-    [pbr::OriginalName("SPIKE_ATTACK")] SpikeAttack = 155,
-    [pbr::OriginalName("SPIKE_DOUBLE_BUFF")] SpikeDoubleBuff = 156,
-    [pbr::OriginalName("HERMIT_FIRE_RESIST")] HermitFireResist = 157,
-    [pbr::OriginalName("HERMIT_POISON_RESIST")] HermitPoisonResist = 158,
-    [pbr::OriginalName("HERMIT_DEBUFF_REMOVE")] HermitDebuffRemove = 159,
-    [pbr::OriginalName("HERMIT_RANGE")] HermitRange = 160,
-    [pbr::OriginalName("HERMIT_AGGRO")] HermitAggro = 161,
-    [pbr::OriginalName("HERMIT_REFLECTION")] HermitReflection = 162,
-    [pbr::OriginalName("HERMIT_FAINT")] HermitFaint = 163,
-    [pbr::OriginalName("MONSTER_CAPACITY")] MonsterCapacity = 164,
-    [pbr::OriginalName("DNA_INCREASE")] DnaIncrease = 165,
-    [pbr::OriginalName("RESTORE_CAVE")] RestoreCave = 166,
-    [pbr::OriginalName("CARD_UPGRADE")] CardUpgrade = 167,
-    [pbr::OriginalName("BLACK_MAGIC_CARD")] BlackMagicCard = 168,
+    [pbr::OriginalName("TRAINING_DUMMY_DEBUFF_REMOVE")] TrainingDummyDebuffRemove = 86,
+    [pbr::OriginalName("WOLF_PUP_SPEED")] WolfPupSpeed = 87,
+    [pbr::OriginalName("WOLF_PUP_HEALTH")] WolfPupHealth = 88,
+    [pbr::OriginalName("WOLF_PUP_ATTACK")] WolfPupAttack = 89,
+    [pbr::OriginalName("WOLF_PUP_ATTACK_SPEED")] WolfPupAttackSpeed = 90,
+    [pbr::OriginalName("WOLF_DRAIN")] WolfDrain = 91,
+    [pbr::OriginalName("WOLF_DEFENCE")] WolfDefence = 92,
+    [pbr::OriginalName("WOLF_AVOID")] WolfAvoid = 93,
+    [pbr::OriginalName("WOLF_CRITICAL")] WolfCritical = 94,
+    [pbr::OriginalName("WOLF_FIRE_RESIST")] WolfFireResist = 95,
+    [pbr::OriginalName("WOLF_POISON_RESIST")] WolfPoisonResist = 96,
+    [pbr::OriginalName("WOLF_DNA")] WolfDna = 97,
+    [pbr::OriginalName("WEREWOLF_THUNDER")] WerewolfThunder = 98,
+    [pbr::OriginalName("WEREWOLF_DEBUFF_RESIST")] WerewolfDebuffResist = 99,
+    [pbr::OriginalName("WEREWOLF_FAINT")] WerewolfFaint = 100,
+    [pbr::OriginalName("WEREWOLF_HEALTH")] WerewolfHealth = 101,
+    [pbr::OriginalName("WEREWOLF_ENHANCE")] WerewolfEnhance = 102,
+    [pbr::OriginalName("LURKER_SPEED")] LurkerSpeed = 103,
+    [pbr::OriginalName("LURKER_HEALTH")] LurkerHealth = 104,
+    [pbr::OriginalName("LURKER_DEFENCE")] LurkerDefence = 105,
+    [pbr::OriginalName("LURKER_HEALTH2")] LurkerHealth2 = 106,
+    [pbr::OriginalName("CREEPER_SPEED")] CreeperSpeed = 107,
+    [pbr::OriginalName("CREEPER_ATTACK_SPEED")] CreeperAttackSpeed = 108,
+    [pbr::OriginalName("CREEPER_ATTACK")] CreeperAttack = 109,
+    [pbr::OriginalName("CREEPER_ROLL")] CreeperRoll = 110,
+    [pbr::OriginalName("CREEPER_POISON")] CreeperPoison = 111,
+    [pbr::OriginalName("HORROR_ROLL_POISON")] HorrorRollPoison = 112,
+    [pbr::OriginalName("HORROR_POISON_STACK")] HorrorPoisonStack = 113,
+    [pbr::OriginalName("HORROR_HEALTH")] HorrorHealth = 114,
+    [pbr::OriginalName("HORROR_POISON_RESIST")] HorrorPoisonResist = 115,
+    [pbr::OriginalName("HORROR_DEFENCE")] HorrorDefence = 116,
+    [pbr::OriginalName("HORROR_POISON_BELT")] HorrorPoisonBelt = 117,
+    [pbr::OriginalName("SNAKELET_SPEED")] SnakeletSpeed = 118,
+    [pbr::OriginalName("SNAKELET_RANGE")] SnakeletRange = 119,
+    [pbr::OriginalName("SNAKELET_ATTACK_SPEED")] SnakeletAttackSpeed = 120,
+    [pbr::OriginalName("SNAKELET_ATTACK")] SnakeletAttack = 121,
+    [pbr::OriginalName("SNAKE_ATTACK")] SnakeAttack = 122,
+    [pbr::OriginalName("SNAKE_ATTACK_SPEED")] SnakeAttackSpeed = 123,
+    [pbr::OriginalName("SNAKE_RANGE")] SnakeRange = 124,
+    [pbr::OriginalName("SNAKE_ACCURACY")] SnakeAccuracy = 125,
+    [pbr::OriginalName("SNAKE_FIRE")] SnakeFire = 126,
+    [pbr::OriginalName("SNAKE_NAGA_ATTACK")] SnakeNagaAttack = 127,
+    [pbr::OriginalName("SNAKE_NAGA_RANGE")] SnakeNagaRange = 128,
+    [pbr::OriginalName("SNAKE_NAGA_FIRE_RESIST")] SnakeNagaFireResist = 129,
+    [pbr::OriginalName("SNAKE_NAGA_CRITICAL")] SnakeNagaCritical = 130,
+    [pbr::OriginalName("SNAKE_NAGA_DRAIN")] SnakeNagaDrain = 131,
+    [pbr::OriginalName("SNAKE_NAGA_METEOR")] SnakeNagaMeteor = 132,
+    [pbr::OriginalName("MOSQUITO_BUG_SPEED")] MosquitoBugSpeed = 133,
+    [pbr::OriginalName("MOSQUITO_BUG_DEFENCE")] MosquitoBugDefence = 134,
+    [pbr::OriginalName("MOSQUITO_BUG_AVOID")] MosquitoBugAvoid = 135,
+    [pbr::OriginalName("MOSQUITO_BUG_WOOL_DOWN")] MosquitoBugWoolDown = 136,
+    [pbr::OriginalName("MOSQUITO_PESTER_ATTACK")] MosquitoPesterAttack = 137,
+    [pbr::OriginalName("MOSQUITO_PESTER_HEALTH")] MosquitoPesterHealth = 138,
+    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_DOWN2")] MosquitoPesterWoolDown2 = 139,
+    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_RATE")] MosquitoPesterWoolRate = 140,
+    [pbr::OriginalName("MOSQUITO_PESTER_WOOL_STOP")] MosquitoPesterWoolStop = 141,
+    [pbr::OriginalName("MOSQUITO_STINGER_LONG_ATTACK")] MosquitoStingerLongAttack = 142,
+    [pbr::OriginalName("MOSQUITO_STINGER_HEALTH")] MosquitoStingerHealth = 143,
+    [pbr::OriginalName("MOSQUITO_STINGER_AVOID")] MosquitoStingerAvoid = 144,
+    [pbr::OriginalName("MOSQUITO_STINGER_POISON")] MosquitoStingerPoison = 145,
+    [pbr::OriginalName("MOSQUITO_STINGER_POISON_RESIST")] MosquitoStingerPoisonResist = 146,
+    [pbr::OriginalName("MOSQUITO_STINGER_INFECTION")] MosquitoStingerInfection = 147,
+    [pbr::OriginalName("MOSQUITO_STINGER_SHEEP_DEATH")] MosquitoStingerSheepDeath = 148,
+    [pbr::OriginalName("SHELL_ATTACK_SPEED")] ShellAttackSpeed = 149,
+    [pbr::OriginalName("SHELL_SPEED")] ShellSpeed = 150,
+    [pbr::OriginalName("SHELL_HEALTH")] ShellHealth = 151,
+    [pbr::OriginalName("SHELL_ROLL")] ShellRoll = 152,
+    [pbr::OriginalName("SPIKE_SELF_DEFENCE")] SpikeSelfDefence = 153,
+    [pbr::OriginalName("SPIKE_LOST_HEAL")] SpikeLostHeal = 154,
+    [pbr::OriginalName("SPIKE_DEFENCE")] SpikeDefence = 155,
+    [pbr::OriginalName("SPIKE_ATTACK")] SpikeAttack = 156,
+    [pbr::OriginalName("SPIKE_DOUBLE_BUFF")] SpikeDoubleBuff = 157,
+    [pbr::OriginalName("HERMIT_FIRE_RESIST")] HermitFireResist = 158,
+    [pbr::OriginalName("HERMIT_POISON_RESIST")] HermitPoisonResist = 159,
+    [pbr::OriginalName("HERMIT_DEBUFF_REMOVE")] HermitDebuffRemove = 160,
+    [pbr::OriginalName("HERMIT_RANGE")] HermitRange = 161,
+    [pbr::OriginalName("HERMIT_AGGRO")] HermitAggro = 162,
+    [pbr::OriginalName("HERMIT_REFLECTION")] HermitReflection = 163,
+    [pbr::OriginalName("HERMIT_FAINT")] HermitFaint = 164,
+    [pbr::OriginalName("MONSTER_CAPACITY")] MonsterCapacity = 165,
+    [pbr::OriginalName("DNA_INCREASE")] DnaIncrease = 166,
+    [pbr::OriginalName("RESTORE_CAVE")] RestoreCave = 167,
+    [pbr::OriginalName("CARD_UPGRADE")] CardUpgrade = 168,
+    [pbr::OriginalName("BLACK_MAGIC_CARD")] BlackMagicCard = 169,
     [pbr::OriginalName("NO_SKILL")] NoSkill = 300,
   }
 
@@ -568,6 +572,10 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("SEED")] Seed = 6,
     [pbr::OriginalName("BLOSSOM_SEED")] BlossomSeed = 7,
     [pbr::OriginalName("BLOSSOM_ARROW")] BlossomArrow = 8,
+    [pbr::OriginalName("HAUNT_ARROW")] HauntArrow = 9,
+    [pbr::OriginalName("HAUNT_FIRE_ATTACK")] HauntFireAttack = 10,
+    [pbr::OriginalName("SOUL_MAGE_ATTACK")] SoulMageAttack = 11,
+    [pbr::OriginalName("SOUL_MAGE_PUNCH")] SoulMagePunch = 12,
   }
 
   public enum EffectId {
@@ -8396,6 +8404,7 @@ namespace Google.Protobuf.Protocol {
       moveSpeed_ = other.moveSpeed_;
       attackSpeed_ = other.attackSpeed_;
       attackRange_ = other.attackRange_;
+      skillRange_ = other.skillRange_;
       criticalChance_ = other.criticalChance_;
       criticalMultiplier_ = other.criticalMultiplier_;
       accuracy_ = other.accuracy_;
@@ -8620,8 +8629,20 @@ namespace Google.Protobuf.Protocol {
       }
     }
 
+    /// <summary>Field number for the "skillRange" field.</summary>
+    public const int SkillRangeFieldNumber = 18;
+    private float skillRange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float SkillRange {
+      get { return skillRange_; }
+      set {
+        skillRange_ = value;
+      }
+    }
+
     /// <summary>Field number for the "criticalChance" field.</summary>
-    public const int CriticalChanceFieldNumber = 18;
+    public const int CriticalChanceFieldNumber = 19;
     private int criticalChance_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8633,7 +8654,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "criticalMultiplier" field.</summary>
-    public const int CriticalMultiplierFieldNumber = 19;
+    public const int CriticalMultiplierFieldNumber = 20;
     private float criticalMultiplier_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8645,7 +8666,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "accuracy" field.</summary>
-    public const int AccuracyFieldNumber = 20;
+    public const int AccuracyFieldNumber = 21;
     private int accuracy_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8657,7 +8678,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "evasion" field.</summary>
-    public const int EvasionFieldNumber = 21;
+    public const int EvasionFieldNumber = 22;
     private int evasion_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8669,7 +8690,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "targetable" field.</summary>
-    public const int TargetableFieldNumber = 22;
+    public const int TargetableFieldNumber = 23;
     private bool targetable_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8681,7 +8702,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "aggro" field.</summary>
-    public const int AggroFieldNumber = 23;
+    public const int AggroFieldNumber = 24;
     private bool aggro_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8693,7 +8714,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflection" field.</summary>
-    public const int ReflectionFieldNumber = 24;
+    public const int ReflectionFieldNumber = 25;
     private bool reflection_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8705,7 +8726,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflectionSkill" field.</summary>
-    public const int ReflectionSkillFieldNumber = 25;
+    public const int ReflectionSkillFieldNumber = 26;
     private bool reflectionSkill_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8717,7 +8738,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "reflectionRate" field.</summary>
-    public const int ReflectionRateFieldNumber = 26;
+    public const int ReflectionRateFieldNumber = 27;
     private float reflectionRate_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8729,7 +8750,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "unitType" field.</summary>
-    public const int UnitTypeFieldNumber = 27;
+    public const int UnitTypeFieldNumber = 28;
     private int unitType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8741,7 +8762,7 @@ namespace Google.Protobuf.Protocol {
     }
 
     /// <summary>Field number for the "attackType" field.</summary>
-    public const int AttackTypeFieldNumber = 28;
+    public const int AttackTypeFieldNumber = 29;
     private int attackType_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -8784,6 +8805,7 @@ namespace Google.Protobuf.Protocol {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MoveSpeed, other.MoveSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AttackSpeed, other.AttackSpeed)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(AttackRange, other.AttackRange)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(SkillRange, other.SkillRange)) return false;
       if (CriticalChance != other.CriticalChance) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CriticalMultiplier, other.CriticalMultiplier)) return false;
       if (Accuracy != other.Accuracy) return false;
@@ -8819,6 +8841,7 @@ namespace Google.Protobuf.Protocol {
       if (MoveSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MoveSpeed);
       if (AttackSpeed != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AttackSpeed);
       if (AttackRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(AttackRange);
+      if (SkillRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(SkillRange);
       if (CriticalChance != 0) hash ^= CriticalChance.GetHashCode();
       if (CriticalMultiplier != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CriticalMultiplier);
       if (Accuracy != 0) hash ^= Accuracy.GetHashCode();
@@ -8916,48 +8939,52 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(141, 1);
         output.WriteFloat(AttackRange);
       }
+      if (SkillRange != 0F) {
+        output.WriteRawTag(149, 1);
+        output.WriteFloat(SkillRange);
+      }
       if (CriticalChance != 0) {
-        output.WriteRawTag(144, 1);
+        output.WriteRawTag(152, 1);
         output.WriteInt32(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(165, 1);
         output.WriteFloat(CriticalMultiplier);
       }
       if (Accuracy != 0) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(168, 1);
         output.WriteInt32(Accuracy);
       }
       if (Evasion != 0) {
-        output.WriteRawTag(168, 1);
+        output.WriteRawTag(176, 1);
         output.WriteInt32(Evasion);
       }
       if (Targetable != false) {
-        output.WriteRawTag(176, 1);
+        output.WriteRawTag(184, 1);
         output.WriteBool(Targetable);
       }
       if (Aggro != false) {
-        output.WriteRawTag(184, 1);
+        output.WriteRawTag(192, 1);
         output.WriteBool(Aggro);
       }
       if (Reflection != false) {
-        output.WriteRawTag(192, 1);
+        output.WriteRawTag(200, 1);
         output.WriteBool(Reflection);
       }
       if (ReflectionSkill != false) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(208, 1);
         output.WriteBool(ReflectionSkill);
       }
       if (ReflectionRate != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(221, 1);
         output.WriteFloat(ReflectionRate);
       }
       if (UnitType != 0) {
-        output.WriteRawTag(216, 1);
+        output.WriteRawTag(224, 1);
         output.WriteInt32(UnitType);
       }
       if (AttackType != 0) {
-        output.WriteRawTag(224, 1);
+        output.WriteRawTag(232, 1);
         output.WriteInt32(AttackType);
       }
       if (_unknownFields != null) {
@@ -9038,48 +9065,52 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(141, 1);
         output.WriteFloat(AttackRange);
       }
+      if (SkillRange != 0F) {
+        output.WriteRawTag(149, 1);
+        output.WriteFloat(SkillRange);
+      }
       if (CriticalChance != 0) {
-        output.WriteRawTag(144, 1);
+        output.WriteRawTag(152, 1);
         output.WriteInt32(CriticalChance);
       }
       if (CriticalMultiplier != 0F) {
-        output.WriteRawTag(157, 1);
+        output.WriteRawTag(165, 1);
         output.WriteFloat(CriticalMultiplier);
       }
       if (Accuracy != 0) {
-        output.WriteRawTag(160, 1);
+        output.WriteRawTag(168, 1);
         output.WriteInt32(Accuracy);
       }
       if (Evasion != 0) {
-        output.WriteRawTag(168, 1);
+        output.WriteRawTag(176, 1);
         output.WriteInt32(Evasion);
       }
       if (Targetable != false) {
-        output.WriteRawTag(176, 1);
+        output.WriteRawTag(184, 1);
         output.WriteBool(Targetable);
       }
       if (Aggro != false) {
-        output.WriteRawTag(184, 1);
+        output.WriteRawTag(192, 1);
         output.WriteBool(Aggro);
       }
       if (Reflection != false) {
-        output.WriteRawTag(192, 1);
+        output.WriteRawTag(200, 1);
         output.WriteBool(Reflection);
       }
       if (ReflectionSkill != false) {
-        output.WriteRawTag(200, 1);
+        output.WriteRawTag(208, 1);
         output.WriteBool(ReflectionSkill);
       }
       if (ReflectionRate != 0F) {
-        output.WriteRawTag(213, 1);
+        output.WriteRawTag(221, 1);
         output.WriteFloat(ReflectionRate);
       }
       if (UnitType != 0) {
-        output.WriteRawTag(216, 1);
+        output.WriteRawTag(224, 1);
         output.WriteInt32(UnitType);
       }
       if (AttackType != 0) {
-        output.WriteRawTag(224, 1);
+        output.WriteRawTag(232, 1);
         output.WriteInt32(AttackType);
       }
       if (_unknownFields != null) {
@@ -9141,6 +9172,9 @@ namespace Google.Protobuf.Protocol {
         size += 2 + 4;
       }
       if (AttackRange != 0F) {
+        size += 2 + 4;
+      }
+      if (SkillRange != 0F) {
         size += 2 + 4;
       }
       if (CriticalChance != 0) {
@@ -9238,6 +9272,9 @@ namespace Google.Protobuf.Protocol {
       }
       if (other.AttackRange != 0F) {
         AttackRange = other.AttackRange;
+      }
+      if (other.SkillRange != 0F) {
+        SkillRange = other.SkillRange;
       }
       if (other.CriticalChance != 0) {
         CriticalChance = other.CriticalChance;
@@ -9355,47 +9392,51 @@ namespace Google.Protobuf.Protocol {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 144: {
+          case 149: {
+            SkillRange = input.ReadFloat();
+            break;
+          }
+          case 152: {
             CriticalChance = input.ReadInt32();
             break;
           }
-          case 157: {
+          case 165: {
             CriticalMultiplier = input.ReadFloat();
             break;
           }
-          case 160: {
+          case 168: {
             Accuracy = input.ReadInt32();
             break;
           }
-          case 168: {
+          case 176: {
             Evasion = input.ReadInt32();
             break;
           }
-          case 176: {
+          case 184: {
             Targetable = input.ReadBool();
             break;
           }
-          case 184: {
+          case 192: {
             Aggro = input.ReadBool();
             break;
           }
-          case 192: {
+          case 200: {
             Reflection = input.ReadBool();
             break;
           }
-          case 200: {
+          case 208: {
             ReflectionSkill = input.ReadBool();
             break;
           }
-          case 213: {
+          case 221: {
             ReflectionRate = input.ReadFloat();
             break;
           }
-          case 216: {
+          case 224: {
             UnitType = input.ReadInt32();
             break;
           }
-          case 224: {
+          case 232: {
             AttackType = input.ReadInt32();
             break;
           }
@@ -9482,47 +9523,51 @@ namespace Google.Protobuf.Protocol {
             AttackRange = input.ReadFloat();
             break;
           }
-          case 144: {
+          case 149: {
+            SkillRange = input.ReadFloat();
+            break;
+          }
+          case 152: {
             CriticalChance = input.ReadInt32();
             break;
           }
-          case 157: {
+          case 165: {
             CriticalMultiplier = input.ReadFloat();
             break;
           }
-          case 160: {
+          case 168: {
             Accuracy = input.ReadInt32();
             break;
           }
-          case 168: {
+          case 176: {
             Evasion = input.ReadInt32();
             break;
           }
-          case 176: {
+          case 184: {
             Targetable = input.ReadBool();
             break;
           }
-          case 184: {
+          case 192: {
             Aggro = input.ReadBool();
             break;
           }
-          case 192: {
+          case 200: {
             Reflection = input.ReadBool();
             break;
           }
-          case 200: {
+          case 208: {
             ReflectionSkill = input.ReadBool();
             break;
           }
-          case 213: {
+          case 221: {
             ReflectionRate = input.ReadFloat();
             break;
           }
-          case 216: {
+          case 224: {
             UnitType = input.ReadInt32();
             break;
           }
-          case 224: {
+          case 232: {
             AttackType = input.ReadInt32();
             break;
           }

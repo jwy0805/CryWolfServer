@@ -4,8 +4,8 @@ namespace Server.Game;
 
 public class Wolf : WolfPup
 {
-    protected bool _drain = false;
-    protected float _drainParam = 0.25f;
+    private bool _drain = false;
+    protected readonly float DrainParam = 0.25f;
     
     protected override Skill NewSkill
     {
@@ -38,6 +38,6 @@ public class Wolf : WolfPup
 
     public override void SetNormalAttackEffect(GameObject master)
     {
-        if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * _drainParam);
+        if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * DrainParam);
     }
 }

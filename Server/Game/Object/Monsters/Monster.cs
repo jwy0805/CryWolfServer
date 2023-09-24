@@ -96,30 +96,7 @@ public class Monster : Creature, ISkillObserver
             BroadcastMove();
         }
     }
-
-    protected override void UpdateAttack()
-    {
-        if (Room == null) return;
-        if (Target == null)
-        {
-            State = State.Idle;
-            BroadcastMove();
-            return;
-        }
-        
-        if (Target.Stat.Targetable == false || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastMove();
-            return;
-        }
-
-        double deltaX = Target.CellPos.X - CellPos.X;
-        double deltaZ = Target.CellPos.Z - CellPos.Z;
-        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        BroadcastMove();
-    }
-
+    
     public override void OnDead(GameObject attacker)
     {
         Player.SkillSubject.RemoveObserver(this);

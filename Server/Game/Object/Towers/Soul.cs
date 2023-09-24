@@ -4,14 +4,10 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class Werewolf : Wolf
+public class Soul : Tower
 {
-    private int _attackCount = 0;
-    private bool _thunder = false;
-    private bool _debuffResist = false;
-    private bool _faint = false;
-    private bool _enhance = false;
-    private double _enhanceParam = 0;
+    private bool _drain = false;
+    protected readonly float DrainParam = 0.2f;
     
     protected override Skill NewSkill
     {
@@ -21,46 +17,39 @@ public class Werewolf : Wolf
             Skill = value;
             switch (Skill)
             {
-                case Skill.WerewolfThunder:
-                    _thunder = true;
+                case Skill.SoulAttack:
+                    Attack += 8;
                     break;
-                case Skill.WerewolfDebuffResist:
-                    _debuffResist = true;
+                case Skill.SoulDefence:
+                    Defence += 5;
                     break;
-                case Skill.WerewolfFaint:
-                    _faint = true;
+                case Skill.SoulHealth:
+                    MaxHp += 25;
+                    Hp += 25;
                     break;
-                case Skill.WerewolfHealth:
-                    MaxHp += 250;
-                    Hp += 250;
-                    break;
-                case Skill.WerewolfEnhance:
-                    _enhance = true;
+                case Skill.SoulDrain:
+                    _drain = true;
                     break;
             }
         }
     }
 
-    public override int Hp
+    protected override void UpdateIdle()
     {
-        get => Stat.Hp;
-        set
-        {
-            Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
-            if (_enhance)
-            {
-                TotalAttack -= Attack * (int)_enhanceParam;
-                TotalSkill -= Stat.Skill * (int)_enhanceParam;
-                TotalAttackSpeed -= AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
-
-                _enhanceParam = 0.5 * (MaxHp * 0.5 - Hp);
-                TotalAttack += Attack * (int)_enhanceParam;
-                TotalSkill += Stat.Skill * (int)_enhanceParam;
-                TotalAttackSpeed += AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
-            }
-        }
+        GameObject? target = Room?.FindNearestTarget(this);
+        if (target == null) return;
+        DestPos = Room!.Map.GetClosestPoint(CellPos, target);
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
+        
+        if (Target == null) Target = target;
+        else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
+        
+        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+        BroadcastDest();
+        
+        State = State.Moving;
     }
-    
+
     protected override void UpdateMoving()
     {
         // Targeting
@@ -91,6 +80,8 @@ public class Werewolf : Wolf
         if (Room != null)
         {
             // 이동
+            // target이랑 너무 가까운 경우
+            // Attack
             StatInfo targetStat = Target.Stat;
             Vector3 position = CellPos;
             if (targetStat.Targetable)
@@ -99,16 +90,10 @@ public class Werewolf : Wolf
                 double deltaX = DestPos.X - CellPos.X;
                 double deltaZ = DestPos.Z - CellPos.Z;
                 Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                // target이랑 너무 가까운 경우 Attack
                 if (distance <= AttackRange)
                 {
                     CellPos = position;
-                    if (_thunder)
-                    {
-                        State = _attackCount % 2 == 0 ? State.Skill : State.Skill2;
-                        _attackCount++;
-                    }
-                    else State = State.Attack;
+                    State = State.Attack;
                     BroadcastMove();
                     return;
                 }
@@ -118,32 +103,10 @@ public class Werewolf : Wolf
         }
     }
 
-    protected override void UpdateSkill()
-    {
-        UpdateAttack();
-    }
-
-    protected override void UpdateSkill2()
-    {
-        UpdateAttack();
-    }
-    
-    protected override void UpdateDie()
-    {
-        _attackCount = 0;
-        base.UpdateDie();
-    }
-
-    public override void SetNormalAttackEffect(GameObject master)
-    {
-        Hp += (int)((TotalAttack - master.TotalDefence) * DrainParam);
-        if (_faint == true && Target != null) Target.State = State.Faint;
-    }
-    
     public override void SetNextState()
     {
         if (Room == null) return;
-        
+
         if (Target == null || Target.Stat.Targetable == false)
         {
             State = State.Idle;
@@ -156,10 +119,16 @@ public class Werewolf : Wolf
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _thunder ? State.Skill : State.Attack;
+                    State = State.Attack;
                     SetDirection();
                 }
-                else State = State.Moving;
+                else
+                {
+                    DestPos = Target.CellPos;
+                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+                    BroadcastDest();
+                    State = State.Moving;
+                }
             }
             else
             {
@@ -167,7 +136,12 @@ public class Werewolf : Wolf
                 State = State.Idle;
             }
         }
-
+        
         Room.Broadcast(new S_State { ObjectId = Id, State = State });
+    }
+
+    public override void SetNormalAttackEffect(GameObject master)
+    {
+        if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * DrainParam);
     }
 }
