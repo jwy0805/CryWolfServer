@@ -6,8 +6,8 @@ public class SunBlossom : Tower
 {
     protected int HealParam = 40;
     protected int HealthParam = 50;
-    protected float SlowParam = 0.2f;
-    protected float SlowAttackParam = 0.2f;
+    protected readonly float SlowParam = 0.2f;
+    protected readonly float SlowAttackParam = 0.2f;
     
     private bool _heal = false;
     private bool _health = false;

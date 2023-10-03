@@ -4,8 +4,9 @@ namespace Server.Game;
 
 public class SunflowerFairy : SunBlossom
 {
-    protected float AttackParam = 0.1f;
-    protected float DefenceParam = 5;
+    protected readonly float AttackParam = 0.1f;
+    protected readonly float DefenceParam = 5;
+    protected float FenceHealParam = 90;
     
     private bool _attackBuff = false;
     private bool _defenceBuff = false;
@@ -75,6 +76,18 @@ public class SunflowerFairy : SunBlossom
             {
                 BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
                 BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+            }
+        }
+
+        if (_fenceHeal)
+        {
+            List<GameObject> fences = Room.FindBuffTargets(this, GameObjectType.Fence, SkillRange);
+            if (fences.Count != 0)
+            {
+                foreach (var fence in fences)
+                {
+                    fence.Hp += HealParam;
+                }
             }
         }
     }

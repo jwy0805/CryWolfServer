@@ -76,27 +76,6 @@ public class Sheep : Creature, ISkillObserver
         }
     }
 
-    private Vector3 GetRandomDestInFence()
-    {
-        int level = Room!.StorageLevel;
-        List<Vector3> sheepBound = GameData.SheepBounds[level];
-        float minX = sheepBound.Select(v => v.X).ToList().Min();
-        float maxX = sheepBound.Select(v => v.X).ToList().Max();
-        float minZ = sheepBound.Select(v => v.Z).ToList().Min();
-        float maxZ = sheepBound.Select(v => v.Z).ToList().Max();
-
-        do
-        {
-            Random random = new();
-            Map map = Room!.Map;
-            float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
-            float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
-            Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
-            bool canGo = map.CanGo(this, map.Vector3To2(dest));
-            if (canGo) return dest;
-        } while (true);
-    }
-
     public void OnSkillUpgrade(Skill skill)
     {
         string skillName = skill.ToString();

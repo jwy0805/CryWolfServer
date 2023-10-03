@@ -324,7 +324,7 @@ public partial class GameRoom : JobSerializer
     
     #region Find
 
-    public GameObject? FindNearestTarget(GameObject gameObject)
+    public GameObject? FindNearestTarget(GameObject gameObject, int attackType = 0)
     {
         // 어그로 끌린 상태면 리턴하는 코드
         // foreach (BuffManager.IBuff b in BuffManager.Instance.Buffs)
@@ -397,7 +397,7 @@ public partial class GameRoom : JobSerializer
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = obj.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && obj.Id != gameObject.Id)
+            if (dist < closestDist && targetable && obj.Id != gameObject.Id && (obj.UnitType == attackType || attackType == 2))
             {
                 closestDist = dist;
                 target = obj;
@@ -407,7 +407,7 @@ public partial class GameRoom : JobSerializer
         return target;
     }
     
-    public GameObject? FindNearestTarget(GameObject gameObject, List<GameObjectType> typeList)
+    public GameObject? FindNearestTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
     {
         // 어그로 끌린 상태면 리턴하는 코드
         if (BuffManager.Instance.Buffs.Select(b => b as BuffManager.ABuff)
@@ -456,7 +456,7 @@ public partial class GameRoom : JobSerializer
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = obj.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && obj.Id != gameObject.Id)
+            if (dist < closestDist && targetable && obj.Id != gameObject.Id && (obj.UnitType == attackType || attackType == 2))
             {
                 closestDist = dist;
                 target = obj;
@@ -523,6 +523,22 @@ public partial class GameRoom : JobSerializer
         return closestObjects;
     }
 
+    public GameObject? FindMosquitoInFence()
+    {
+        foreach (var monster in _monsters.Values)
+        {
+            if (monster.MonsterId is not 
+                (MonsterId.MosquitoBug or MonsterId.MosquitoPester or MonsterId.MosquitoStinger)) continue;
+            
+            if (InsideFence(monster))
+            {
+                return monster;
+            }
+        }
+
+        return null;
+    }
+
     private Dictionary<int, GameObject> AddTargetType(GameObjectType type)
     {
         Dictionary<int, GameObject> targetDict = new();
@@ -572,6 +588,26 @@ public partial class GameRoom : JobSerializer
     }
     
     #endregion
+
+    public bool InsideFence(GameObject gameObject)
+    {
+        int lv = StorageLevel;
+        Vector3 cell = gameObject.CellPos;
+        Vector3 center = GameData.FenceCenter[lv];
+        Vector3 size = GameData.FenceCenter[lv];
+
+        float halfWidth = size.X / 2;
+        float minX = center.X - halfWidth;
+        float maxX = center.X + halfWidth;
+        float halfHeight = size.Z / 2;
+        float minZ = center.Z - halfHeight;
+        float maxZ = center.Z + halfHeight;
+
+        bool insideX = minX <= cell.X && maxX >= cell.X;
+        bool insideZ = minZ <= cell.X && maxZ >= cell.Z;
+        
+        return insideX && insideZ;
+    }
     
     public bool ReachableInFence()
     {
