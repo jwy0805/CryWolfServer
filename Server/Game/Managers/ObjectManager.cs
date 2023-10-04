@@ -63,7 +63,9 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.HauntArrow, typeof(HauntArrow) },
         { ProjectileId.HauntFireAttack, typeof(HauntFireAttack) },
         { ProjectileId.SoulMageAttack, typeof(SoulMageAttack) },
-        { ProjectileId.SoulMagePunch, typeof(SoulMagePunch) }
+        { ProjectileId.SoulMagePunch, typeof(SoulMagePunch) },
+        { ProjectileId.MothMoonAttack, typeof(MothMoonAttack)},
+        { ProjectileId.MothCelestialPoisonAttack, typeof(MothCelestialPoisonAttack) }
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()
