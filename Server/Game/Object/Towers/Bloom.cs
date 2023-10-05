@@ -66,7 +66,7 @@ public class Bloom : Bud
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
             if (distance <= AttackRange)
             {
-                State = _combo == true ? State.Skill : State.Attack;
+                State = _combo ? State.Skill : State.Attack;
                 BroadcastMove();
                 Room?.Broadcast(new S_State { ObjectId = Id, State = State });
             }
@@ -87,7 +87,7 @@ public class Bloom : Bud
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _combo == true ? State.Skill : State.Attack;
+                    State = _combo ? State.Skill : State.Attack;
                     SetDirection();
                 }
                 else

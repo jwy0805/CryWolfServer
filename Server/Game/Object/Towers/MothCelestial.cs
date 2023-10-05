@@ -7,8 +7,8 @@ public class MothCelestial : MothMoon
     private bool _sheepHealth = false;
     private bool _breedSheep = false;
     private readonly int _healthParam = 100;
-    private int _debuffRemoveProb = 75;
-    private int _breedProb = 3;
+    private readonly int _debuffRemoveProb = 75;
+    private readonly int _breedProb = 3;
 
     protected override Skill NewSkill
     {
@@ -49,7 +49,35 @@ public class MothCelestial : MothMoon
 
     public override void RunSkill()
     {
-        if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, this, _healthParam);
+        if (Room == null) return;
+        List<GameObject> sheeps = Room.FindBuffTargets(this, GameObjectType.Sheep, 20);
+        Random random = new Random();
         
+        if (sheeps.Count != 0)
+        {
+            foreach (var sheep in sheeps)
+            {
+                sheep.Hp += HealParam;
+                int r = random.Next(99);
+                if (r < _debuffRemoveProb) BuffManager.Instance.RemoveAllBuff(this);
+                sheep.Resource *= OutputParam / 100; // test 필요한 코드
+                if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, _healthParam);
+            }
+        }
+
+        if (_breedSheep)
+        {
+            int r = random.Next(99);
+            if (r < _breedProb)
+            {
+                Map map = Room.Map;
+                Sheep sheep = ObjectManager.Instance.Add<Sheep>();
+                sheep.CellPos = map.FindSpawnPos(sheep, SpawnWay.Any);
+                sheep.Info.PosInfo = sheep.PosInfo;
+                sheep.Player = Player;
+                sheep.Init();
+                Room.Push(Room.EnterGame, sheep);
+            }
+        }
     }
 }

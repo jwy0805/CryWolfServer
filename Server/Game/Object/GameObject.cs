@@ -248,6 +248,12 @@ public class GameObject : IGameObject
         set => Stat.AttackType = value;
     }
     
+    public int Resource
+    {
+        get => Stat.Resource;
+        set => Stat.Resource = value;
+    }
+    
     #endregion
     
     public State State

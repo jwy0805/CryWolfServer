@@ -15,7 +15,7 @@ public class Sheep : Creature, ISkillObserver
     {
         ObjectType = GameObjectType.Sheep;
     }
-
+    
     public override void Init()
     {
         base.Init();
