@@ -44,7 +44,9 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CUnitUpgrade, MakePacket<C_UnitUpgrade>);
 		_handler.Add((ushort)MessageId.CUnitUpgrade, PacketHandler.C_UnitUpgradeHandler);		
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
-		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);
+		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);		
+		_onRecv.Add((ushort)MessageId.CTowerSpawnPos, MakePacket<C_TowerSpawnPos>);
+		_handler.Add((ushort)MessageId.CTowerSpawnPos, PacketHandler.C_TowerSpawnPosHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

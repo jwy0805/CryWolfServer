@@ -1,3 +1,4 @@
+using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server;
@@ -115,5 +116,24 @@ public class PacketHandler
         GameRoom? room = player?.Room;
         
         room?.Push(room.HandleLeave, player, leavePacket);
+    }
+
+    public static void C_TowerSpawnPosHandler(PacketSession session, IMessage packet)
+    {
+        C_TowerSpawnPos spawnPacket = (C_TowerSpawnPos)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+        if (room == null) return;
+        
+        DestVector dest = spawnPacket.DestVector;
+        Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
+        Vector2Int cellPos = room.Map.Vector3To2(vector);
+
+        GameObject tower = ObjectManager.Instance.CreateTower((TowerId)spawnPacket.TowerId);
+        bool canSpawn = room.Map.CanGo(tower, cellPos, true, tower.Stat.SizeX);
+        
+        S_TowerSpawnPos towerSpawnPacket = new S_TowerSpawnPos { CanSpawn = canSpawn };
+        room.Broadcast(towerSpawnPacket);
     }
 }

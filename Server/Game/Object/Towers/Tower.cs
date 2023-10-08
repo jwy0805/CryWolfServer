@@ -60,7 +60,7 @@ public class Tower : Creature, ISkillObserver
         }
         else
         {
-            if (Target.Hp > 0)
+            if (Target.Hp > 0 && Target != null)
             {
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
@@ -75,7 +75,6 @@ public class Tower : Creature, ISkillObserver
             }
             else
             {
-                Target = null;
                 State = State.Idle;
             }
         }

@@ -178,7 +178,7 @@ public partial class Map
         return cnt == 0 || !checkObjects;
     }
     
-    public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d)
+    public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d, bool checkObjects = true)
     {
         Vector2Int startCell = Vector3To2(s);
         Vector2Int destCell = Vector3To2(d);
@@ -192,19 +192,19 @@ public partial class Map
 
         if (regionPath.Count == 0)
         {
-            path = FindPath(gameObject, startCell, destCell);
+            path = FindPath(gameObject, startCell, destCell, checkObjects);
         }
         else
         {
             for (int i = 0; i < center.Count; i++)
             {
                 // Console.WriteLine($"{center[i].X}, {center[i].Z}");
-                List<Vector3> aStar = FindPath(gameObject, start, center[i]);
+                List<Vector3> aStar = FindPath(gameObject, start, center[i], checkObjects);
                 path.AddRange(aStar);
                 start = Vector3To2(path.Last());
             }
 
-            List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell);
+            List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell, checkObjects);
             path.AddRange(lastPath);
         }
 

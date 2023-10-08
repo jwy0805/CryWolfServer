@@ -44,7 +44,7 @@ public class Soul : Tower
         if (Target == null) Target = target;
         else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
         
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
         BroadcastDest();
         
         State = State.Moving;
@@ -64,7 +64,7 @@ public class Soul : Tower
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
                     BroadcastDest();
                 }
             }
@@ -125,7 +125,7 @@ public class Soul : Tower
                 else
                 {
                     DestPos = Target.CellPos;
-                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
                     BroadcastDest();
                     State = State.Moving;
                 }

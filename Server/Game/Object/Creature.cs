@@ -19,6 +19,7 @@ public class Creature : GameObject
     {
         base.Update();
         if (Room == null) return;
+        // if (ObjectType == GameObjectType.Tower) Console.WriteLine(State.ToString());
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;

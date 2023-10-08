@@ -175,9 +175,17 @@ public partial class GameRoom : JobSerializer
         int attackerId = attackPacket.ObjectId;
         GameObject? attacker = FindGameObjectById(attackerId);
         GameObject? target = attacker?.Target;
-        if (attacker == null || target == null) return;
-        if (target.Targetable == false) return;
+        if (attacker == null) return;
+        
         GameObjectType type = attacker.ObjectType;
+        if (target == null)
+        {
+            if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
+            Creature cAttacker = (Creature)attacker;
+            cAttacker.SetNextState();
+            return;
+        }
+        if (target.Targetable == false) return;
         
         switch (attackPacket.AttackMethod)
         {

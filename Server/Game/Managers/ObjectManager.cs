@@ -64,6 +64,8 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.HauntFireAttack, typeof(HauntFireAttack) },
         { ProjectileId.SoulMageAttack, typeof(SoulMageAttack) },
         { ProjectileId.SoulMagePunch, typeof(SoulMagePunch) },
+        { ProjectileId.SunfloraPixieArrow, typeof(SunfloraPixieArrow) },
+        { ProjectileId.SunfloraPixieFire, typeof(SunfloraPixieFire) },
         { ProjectileId.MothMoonAttack, typeof(MothMoonAttack)},
         { ProjectileId.MothCelestialPoisonAttack, typeof(MothCelestialPoisonAttack) }
     };
