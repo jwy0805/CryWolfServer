@@ -54,13 +54,13 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item2, tuple.Item1] = gameObject;
+                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = gameObject;
                 break;
             case 1: // 1 -> air
-                foreach (var tuple in coordinate) _objectsAir[tuple.Item2, tuple.Item1] = gameObject;
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
                 break;
             case 2: // 2 -> player
-                foreach (var tuple in coordinate) _objectPlayer[tuple.Item2, tuple.Item1] = 1;
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
                 break;
             default:
                 break;
@@ -88,12 +88,24 @@ public partial class Map
         if (xSize != zSize)
         {
             if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-            
-            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            if (gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315))
             {
-                for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+                for (int i = z - (xSize - 1); i <= z + (xSize - 1); i++)
                 {
-                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
+                    for (int j = x - (zSize - 1); j <= x + (zSize - 1); j++)
+                    {
+                        coordinate.Add((j, i));
+                    }
+                }
+            }
+            else
+            {
+                for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+                {
+                    for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+                    {
+                        coordinate.Add((j, i));
+                    }
                 }
             }
         }
@@ -111,13 +123,13 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item2, tuple.Item1] = null;
+                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = null;
                 break;
             case 1: // 1 -> air
-                foreach (var tuple in coordinate) _objectsAir[tuple.Item2, tuple.Item1] = null;
+                foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
                 break;
             case 2: // 2 -> player
-                foreach (var tuple in coordinate) _objectPlayer[tuple.Item2, tuple.Item1] = 0;
+                foreach (var tuple in coordinate) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
                 break;
             default:
                 break;
@@ -141,8 +153,9 @@ public partial class Map
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
-        int x = cellPos.X - MinX;
-        int z = MaxZ - cellPos.Z;
+        Pos pos = Cell2Pos(cellPos);
+        int x = pos.X;
+        int z = pos.Z;
         
         int cnt = 0;
         for (int i = x - (size - 1); i <= x + (size - 1); i++)
@@ -150,7 +163,8 @@ public partial class Map
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
                 if (!_collision[j, i] && Objects[j, i] == null) continue;
-                if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
+                // if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
+                if (Objects[j, i]?.Id != go.Id || Objects[j, i]?.Id != go.Target?.Id) cnt++;
             }
         }
         

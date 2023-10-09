@@ -18,7 +18,7 @@ public class Tower : Creature, ISkillObserver
     public override void Init()
     {
         DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
-        Stat.MergeFrom(towerData!.stat);
+        Stat.MergeFrom(towerData?.stat);
         base.Init();
         SkillInit();
         Hp = MaxHp;

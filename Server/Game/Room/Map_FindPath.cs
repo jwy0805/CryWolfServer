@@ -551,6 +551,7 @@ public partial class Map
         List<Vector3> cells = new();
         
         Pos pos = dest;
+        if (!parent.TryGetValue(pos, out var p)) return cells;
         while (parent[pos] != pos)
         {
             cells.Add(Vector2To3(Pos2Cell(pos), height));

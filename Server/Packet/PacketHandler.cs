@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server;
+using Server.Data;
 using Server.Game;
 using ServerCore;
 
@@ -131,6 +132,8 @@ public class PacketHandler
         Vector2Int cellPos = room.Map.Vector3To2(vector);
 
         GameObject tower = ObjectManager.Instance.CreateTower((TowerId)spawnPacket.TowerId);
+        DataManager.TowerDict.TryGetValue(spawnPacket.TowerId, out var towerData);
+        tower.Stat.MergeFrom(towerData?.stat);
         bool canSpawn = room.Map.CanGo(tower, cellPos, true, tower.Stat.SizeX);
         
         S_TowerSpawnPos towerSpawnPacket = new S_TowerSpawnPos { CanSpawn = canSpawn };

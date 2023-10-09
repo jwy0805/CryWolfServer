@@ -18,9 +18,6 @@ public class GameData
         new Vector3(0.0f, 6.0f, 40.0f),  // North
         new Vector3(40.0f, 6.0f, 0.0f)  // East
     };
-    
-    public static float RoundTime = 30.0f;
-
     #region MapData
 
     public static List<Vector3> WestMap = new()
@@ -246,6 +243,8 @@ public class GameData
     // 게임 진행 정보
     #region GameInfo
 
+    public static float RoundTime = 30.0f;
+
     public static int StartSheepResource = 5000;
     public static int SheepYield = 20;
     public static int StartWolfResource = 5000;
@@ -257,7 +256,6 @@ public class GameData
     public static int SheepCapacity = 3;
     public static int[] SheepMaxCapacity = {0, 6, 12, 20};
     
-
     public static int[] MonsterCapacity = new int[3];
     public static int MonsterMaxCapacity = 0;
     

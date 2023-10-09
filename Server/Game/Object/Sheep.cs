@@ -10,6 +10,15 @@ public class Sheep : Creature, ISkillObserver
 {
     private readonly int _sheepNo = 1;
     private long _lastSetDest = 0;
+    
+    private long _lastYieldTime = 0;
+    private int _yieldDecrease = 0;
+    private int _yieldInterrupt = 0;
+    private float _decreaseParam = 0;
+    private int _interruptParam = 0;
+    private bool _decreased = false;
+    private bool _interrupted = false;
+    private bool _infection = false;
 
     public Sheep()
     {
@@ -73,6 +82,12 @@ public class Sheep : Creature, ISkillObserver
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
 
             BroadcastMove();
+
+            if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
+            {
+                _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
+                YieldCoin(GameData.SheepYield);
+            }
         }
     }
 
@@ -85,6 +100,11 @@ public class Sheep : Creature, ISkillObserver
             NewSkill = skill;
             SkillList.Add(NewSkill);
         }
+    }
+
+    private void YieldCoin(int yield)
+    {
+            
     }
     
     protected override void SkillInit()
