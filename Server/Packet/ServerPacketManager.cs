@@ -43,6 +43,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CSkillUpgrade, PacketHandler.C_SkillUpgradeHandler);		
 		_onRecv.Add((ushort)MessageId.CUnitUpgrade, MakePacket<C_UnitUpgrade>);
 		_handler.Add((ushort)MessageId.CUnitUpgrade, PacketHandler.C_UnitUpgradeHandler);		
+		_onRecv.Add((ushort)MessageId.CChangeResource, MakePacket<C_ChangeResource>);
+		_handler.Add((ushort)MessageId.CChangeResource, PacketHandler.C_ChangeResourceHandler);		
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
 		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);		
 		_onRecv.Add((ushort)MessageId.CTowerSpawnPos, MakePacket<C_TowerSpawnPos>);

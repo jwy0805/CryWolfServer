@@ -31,12 +31,24 @@ public partial class Map
         if (xSize != zSize)
         {
             if (gameObject.PosInfo.Dir < 0) gameObject.PosInfo.Dir = 360 + gameObject.PosInfo.Dir;
-            
-            for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+            if (gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315))
             {
-                for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+                for (int i = z - (xSize - 1); i <= z + (xSize - 1); i++)
                 {
-                    coordinate.Add(gameObject.PosInfo.Dir is (> 45 and < 135) or (> 225 and < 315) ? (i, j) : (j, i));
+                    for (int j = x - (zSize - 1); j <= x + (zSize - 1); j++)
+                    {
+                        coordinate.Add((i, j));
+                    }
+                }
+            }
+            else
+            {
+                for (int i = x - (xSize - 1); i <= x + (xSize - 1); i++)
+                {
+                    for (int j = z - (zSize - 1); j <= z + (zSize - 1); j++)
+                    {
+                        coordinate.Add((j, i));
+                    }
                 }
             }
         }
@@ -94,7 +106,7 @@ public partial class Map
                 {
                     for (int j = x - (zSize - 1); j <= x + (zSize - 1); j++)
                     {
-                        coordinate.Add((j, i));
+                        coordinate.Add((i, j));
                     }
                 }
             }
@@ -147,6 +159,27 @@ public partial class Map
         int z = (int)((MaxZ - cellPos.Z) * 4);
         return Objects[z, x];
     }
+
+    public bool CanSpawn(Vector2Int cellPos, int size)
+    {
+        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+
+        Pos pos = Cell2Pos(cellPos);
+        int x = pos.X;
+        int z = pos.Z;
+        
+        int cnt = 0;
+        for (int i = x - (size - 1); i <= x + (size - 1); i++)
+        {
+            for (int j = z - (size - 1); j <= z + (size - 1); j++)
+            {
+                if (Objects[j, i] != null || _collision[j, i]) cnt++;
+            }
+        }
+
+        return cnt == 0;
+    }
     
     public bool CanGo(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
     {
@@ -163,8 +196,7 @@ public partial class Map
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
                 if (!_collision[j, i] && Objects[j, i] == null) continue;
-                // if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
-                if (Objects[j, i]?.Id != go.Id || Objects[j, i]?.Id != go.Target?.Id) cnt++;
+                if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
             }
         }
         

@@ -109,6 +109,11 @@ public class PacketHandler
         room?.Push(room.HandleUnitUpgrade, player, upgradePacket);
     }
 
+    public static void C_ChangeResourceHandler(PacketSession session, IMessage packet)
+    {
+        
+    }
+    
     public static void C_LeaveHandler(PacketSession session, IMessage packet)
     {
         C_Leave leavePacket = (C_Leave)packet;
@@ -134,7 +139,7 @@ public class PacketHandler
         GameObject tower = ObjectManager.Instance.CreateTower((TowerId)spawnPacket.TowerId);
         DataManager.TowerDict.TryGetValue(spawnPacket.TowerId, out var towerData);
         tower.Stat.MergeFrom(towerData?.stat);
-        bool canSpawn = room.Map.CanGo(tower, cellPos, true, tower.Stat.SizeX);
+        bool canSpawn = room.Map.CanSpawn(cellPos, tower.Stat.SizeX);
         
         S_TowerSpawnPos towerSpawnPacket = new S_TowerSpawnPos { CanSpawn = canSpawn };
         room.Broadcast(towerSpawnPacket);

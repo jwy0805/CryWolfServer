@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Game.Resources;
 using Server.Util;
 
 namespace Server.Game;
@@ -118,6 +119,15 @@ public partial class GameRoom : JobSerializer
                 _projectiles.Add(projectile.Id, projectile);
                 projectile.Room = this;
                 projectile.Update();
+                break;
+            
+            case GameObjectType.Resource:
+                Resource resource = (Resource)gameObject;
+                gameObject.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
+                resource.Room = this;
+                resource.Player = gameObject.Player;
+                resource.Info = gameObject.Info;
+                resource.Update();
                 break;
         }
         // 타인에게 정보 전송

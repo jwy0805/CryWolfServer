@@ -68,7 +68,7 @@ public class Bloom : Bud
             {
                 State = _combo ? State.Skill : State.Attack;
                 BroadcastMove();
-                Room?.Broadcast(new S_State { ObjectId = Id, State = State });
+                // Room?.Broadcast(new S_State { ObjectId = Id, State = State });
             }
         }
     }

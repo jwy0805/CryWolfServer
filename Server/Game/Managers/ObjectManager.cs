@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Game.Resources;
 
 namespace Server.Game;
 
@@ -76,6 +77,15 @@ public sealed class ObjectManager : IFactory
         { EffectId.PoisonBelt, typeof(PoisonBelt) }
     };
 
+    private readonly Dictionary<ResourceId, Type?> _resourceDict = new()
+    {
+        { ResourceId.CoinStarSilver, typeof(CoinStarSilver) },
+        { ResourceId.CoinStarGolden, typeof(CoinStarGolden) },
+        { ResourceId.PouchGreen, typeof(PouchGreen) },
+        { ResourceId.PouchRed, typeof(PouchRed) },
+        { ResourceId.ChestGold, typeof(ChestGold) }
+    };
+    
     public Tower CreateTower(TowerId towerId)
     {
         return Create(_towerDict, towerId) as Tower ?? throw new InvalidOperationException();
@@ -96,6 +106,11 @@ public sealed class ObjectManager : IFactory
         return Create(_effectDict, effectId) as Effect ?? throw new InvalidOperationException();
     }
 
+    public Resource CreateResource(ResourceId resourceId)
+    {
+        return Create(_resourceDict, resourceId) as Resource ?? throw new InvalidOperationException();
+    }
+    
     private GameObject Create<T>(Dictionary<T, Type?> dict, T key) where T : Enum
     {
         if (!dict.TryGetValue(key, out Type? type))

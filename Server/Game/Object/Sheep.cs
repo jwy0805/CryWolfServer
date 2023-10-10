@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Game.Resources;
 using Server.Util;
 
 namespace Server.Game;
@@ -74,20 +76,17 @@ public class Sheep : Creature, ISkillObserver
 
     protected override void UpdateMoving()
     {
-        if (Room != null)
+        if (Room == null) return;
+        // 이동
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        BroadcastMove();
+
+        if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
         {
-            // 이동
-            double deltaX = DestPos.X - CellPos.X;
-            double deltaZ = DestPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-
-            BroadcastMove();
-
-            if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
-            {
-                _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
-                YieldCoin(GameData.SheepYield);
-            }
+            _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
+            YieldCoin(GameData.SheepYield);
         }
     }
 
@@ -104,7 +103,37 @@ public class Sheep : Creature, ISkillObserver
 
     private void YieldCoin(int yield)
     {
-            
+        if (Room == null) return;
+        
+        Random r = new Random();
+        int num = r.Next(1, 100);
+        if (num <= _yieldInterrupt) return;
+        yield -= _yieldDecrease;
+
+        GameObject resource;
+        switch (yield)
+        {
+            case < 30:
+                resource = new CoinStarSilver();
+                break;
+            case < 100:
+                resource = new CoinStarGolden();
+                break;
+            case < 200:
+                resource = new PouchGreen();
+                break;
+            case < 300:
+                resource = new PouchRed();
+                break;
+            default:
+                resource = new ChestGold();
+                break;
+        }
+
+        resource.CellPos = CellPos + new Vector3(0, 0.5f, 0);
+        resource.Player = Player;
+        resource.Init();
+        Room.Push(Room.EnterGame, resource);
     }
     
     protected override void SkillInit()
