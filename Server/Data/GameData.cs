@@ -243,7 +243,7 @@ public class GameData
     // 게임 진행 정보
     #region GameInfo
 
-    public static float RoundTime = 30.0f;
+    public static readonly float RoundTime = 13000f;
 
     public static int StartSheepResource = 5000;
     public static int SheepYield = 20;

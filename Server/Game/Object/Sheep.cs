@@ -40,7 +40,11 @@ public class Sheep : Creature, ISkillObserver
     public override void Update()
     {
         if (Room != null) Job = Room.PushAfter(CallCycle, Update);
-        
+        if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
+        {
+            _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
+            YieldCoin(GameData.SheepYield);
+        }
         switch (State)
         {
             case State.Die:
@@ -82,12 +86,6 @@ public class Sheep : Creature, ISkillObserver
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         BroadcastMove();
-
-        if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
-        {
-            _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
-            YieldCoin(GameData.SheepYield);
-        }
     }
 
     public void OnSkillUpgrade(Skill skill)
@@ -110,30 +108,32 @@ public class Sheep : Creature, ISkillObserver
         if (num <= _yieldInterrupt) return;
         yield -= _yieldDecrease;
 
-        GameObject resource;
+        Resource resource;
         switch (yield)
         {
             case < 30:
-                resource = new CoinStarSilver();
+                resource = ObjectManager.Instance.CreateResource(ResourceId.CoinStarSilver);
                 break;
             case < 100:
-                resource = new CoinStarGolden();
+                resource = ObjectManager.Instance.CreateResource(ResourceId.CoinStarGolden);
                 break;
             case < 200:
-                resource = new PouchGreen();
+                resource = ObjectManager.Instance.CreateResource(ResourceId.PouchGreen);
                 break;
             case < 300:
-                resource = new PouchRed();
+                resource = ObjectManager.Instance.CreateResource(ResourceId.PouchRed);
                 break;
             default:
-                resource = new ChestGold();
+                resource = ObjectManager.Instance.CreateResource(ResourceId.ChestGold);
                 break;
         }
 
+        resource.Yield = yield;
         resource.CellPos = CellPos + new Vector3(0, 0.5f, 0);
         resource.Player = Player;
         resource.Init();
-        Room.Push(Room.EnterGame, resource);
+        GameObject go = resource;
+        Room.Push(Room.EnterGame, go);
     }
     
     protected override void SkillInit()

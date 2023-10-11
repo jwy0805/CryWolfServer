@@ -123,10 +123,11 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Resource:
                 Resource resource = (Resource)gameObject;
-                gameObject.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
+                resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
                 resource.Room = this;
                 resource.Player = gameObject.Player;
                 resource.Info = gameObject.Info;
+                resource.Init();
                 resource.Update();
                 break;
         }

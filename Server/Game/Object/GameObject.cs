@@ -295,7 +295,8 @@ public class GameObject : IGameObject
     protected IJob Job;
     public virtual void Update()
     {
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
     }
     
     public void StatInit()
