@@ -67,9 +67,11 @@ public partial class GameRoom : JobSerializer
         if (player == null) return;
         GameObject? go = FindGameObjectById(movePacket.ObjectId);
         if (go == null) return;
+        
         Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
         Vector3 cellPos = Util.Util.NearestCell(v);
-        go.ApplyMap(cellPos);
+        if (go.ObjectType == GameObjectType.Player) go.CellPos = cellPos;
+        else go.ApplyMap(cellPos);
     }
 
     public void HandleSetDest(Player? player, C_SetDest destPacket)
@@ -106,6 +108,10 @@ public partial class GameRoom : JobSerializer
                 tower.TowerId = towerType;
                 tower.Room = this;
                 tower.Init();
+                if (towerType is TowerId.MothLuna or TowerId.MothMoon or TowerId.MothCelestial)
+                {
+                    tower.CellPos = Map.FindSpawnPos(tower, SpawnWay.Any);
+                }
                 Push(EnterGame, tower);
                 break;
 
@@ -114,23 +120,23 @@ public partial class GameRoom : JobSerializer
                 MonsterId monsterType = (MonsterId)spawnPacket.Num;
                 Monster monster = ObjectManager.Instance.CreateMonster(monsterType);
                 monster.PosInfo = spawnPacket.PosInfo;
-                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 monster.Info.PosInfo = monster.PosInfo;
                 monster.MonsterNum = spawnPacket.Num;
                 monster.Player = player;
                 monster.MonsterId = monsterType;
                 monster.Room = this;
                 monster.Init();
+                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 Push(EnterGame, monster);
                 break;
             
             case GameObjectType.Sheep:
                 Sheep sheep = ObjectManager.Instance.Add<Sheep>();
                 sheep.PosInfo = spawnPacket.PosInfo;
-                sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
                 sheep.Info.PosInfo = sheep.PosInfo;
                 sheep.Player = player;
                 sheep.Init();
+                sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
                 Push(EnterGame, sheep);
                 break;
             
@@ -324,6 +330,23 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)
+    {
+        if (player == null) return;
+
+        S_Despawn despawnPacket = new S_Despawn();
+        int objId = resourcePacket.ObjectId;
+        despawnPacket.ObjectIds.Add(objId);
+        foreach (var p in _players.Values)
+        {
+            if (p.Id != objId) p.Session.Send(despawnPacket);
+        }
+        
+        player.Resource += resourcePacket.Resource;
+        player.Session.Send(new S_ChangeResource 
+            { PlayerId = player.Id, Resource = resourcePacket.Resource });
+    }
+    
     public void HandleLeave(Player? player, C_Leave leavePacket)
     {
         if (player == null) return;
@@ -537,7 +560,8 @@ public partial class GameRoom : JobSerializer
         {
             if (monster.MonsterId is not 
                 (MonsterId.MosquitoBug or MonsterId.MosquitoPester or MonsterId.MosquitoStinger)) continue;
-            
+
+            Console.WriteLine($"{monster.CellPos.X}, {monster.CellPos.Y}, {monster.CellPos.Z}");
             if (InsideFence(monster))
             {
                 return monster;
@@ -575,6 +599,9 @@ public partial class GameRoom : JobSerializer
         GameObjectType type = ObjectManager.GetObjectTypeById(id);
         switch (type)
         {
+            case GameObjectType.Player:
+                if (_players.TryGetValue(id, out var player)) go = player;
+                break;
             case GameObjectType.Tower:
                 if (_towers.TryGetValue(id, out var tower)) go = tower;
                 break;
@@ -597,7 +624,7 @@ public partial class GameRoom : JobSerializer
     
     #endregion
 
-    public bool InsideFence(GameObject gameObject)
+    private bool InsideFence(GameObject gameObject)
     {
         int lv = StorageLevel;
         Vector3 cell = gameObject.CellPos;
@@ -616,8 +643,8 @@ public partial class GameRoom : JobSerializer
         
         return insideX && insideZ;
     }
-    
-    public bool ReachableInFence()
+
+    private bool ReachableInFence()
     {
         return _fences.Count < GameData.FenceCnt[_storageLevel];
     }

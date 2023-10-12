@@ -74,7 +74,7 @@ public class Creeper : Lurker
                 }
             }
 
-            if (Target == null || Target.Room != Room)
+            if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
                 State = State.Idle;
                 BroadcastMove();

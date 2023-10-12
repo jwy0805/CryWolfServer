@@ -43,48 +43,69 @@ public class MothLuna : Tower
     
     protected override void UpdateIdle()
     {
-        if (Room?.Stopwatch.ElapsedMilliseconds > LastSetDest + new Random().Next(500, 1500))
+        GameObject? target = Room.FindMosquitoInFence();
+        if (target == null) return;
+        Target ??= target;
+        if (Target is { Targetable: true })
         {
-            LastSetDest = Room.Stopwatch.ElapsedMilliseconds;
-            DestPos = GetRandomDestInFence();
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
+            DestPos = Target.CellPos;
+            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
             State = State.Moving;
         }
     }
     
     protected override void UpdateMoving()
     {
-        if (Room == null) return;
-        
-        if (Target == null)
+        if (Target is { Targetable: true })
         {
-            GameObject? target = Room.FindMosquitoInFence();
-            if (target == null) return;
-            Target = target;
+            // Attack
+            StatInfo targetStat = Target.Stat;
+            Vector3 position = CellPos;
+            if (targetStat.Targetable)
+            {
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                double deltaX = DestPos.X - CellPos.X;
+                double deltaZ = DestPos.Z - CellPos.Z;
+                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+                if (distance <= AttackRange)
+                {
+                    CellPos = position;
+                    State = State.Attack;
+                    BroadcastMove();
+                    return;
+                }
+            }
         }
-        
-        DestPos = Target.CellPos;
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        
-        StatInfo targetStat = Target.Stat;
-        Vector3 position = CellPos;
-        if (targetStat.Targetable)
+        else
         {
+            // Targeting
+            double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
+            if (timeNow > LastSearch + SearchTick)
+            {
+                LastSearch = timeNow;
+                GameObject? target = Room?.FindNearestTarget(this);
+                Target ??= target;
+                if (Target != null)
+                {
+                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                    BroadcastDest();
+                    return;
+                }
+            }
+
+            DestPos = StartCell;
+            BroadcastDest();
             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
             double deltaX = DestPos.X - CellPos.X;
             double deltaZ = DestPos.Z - CellPos.Z;
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
+            if (distance <= 0.5f)
             {
-                CellPos = position;
-                State = State.Attack;
+                State = State.Idle;
                 BroadcastMove();
-                return;
             }
         }
-        
-        BroadcastMove();
     }
     
     public override void SetNextState()

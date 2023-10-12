@@ -378,5 +378,6 @@ public class GameObject : IGameObject
         PosInfo.PosZ = posInfo.Z;
         bool canGo = Room!.Map.ApplyMap(this);
         if (!canGo) State = State.Idle;
+        BroadcastMove();
     }
 }

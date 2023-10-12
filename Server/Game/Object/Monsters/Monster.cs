@@ -29,28 +29,29 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this);
+        GameObject? target = Room.FindNearestTarget(this);
         if (target == null) return;
-        DestPos = Room!.Map.GetClosestPoint(CellPos, target);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
+        DestPos = Room.Map.GetClosestPoint(CellPos, target);
+        LastSearch = Room.Stopwatch.Elapsed.Milliseconds;
         
         if (Target == null) Target = target;
-        else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
+        else DestPos = Room.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
         
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         
         State = State.Moving;
+        BroadcastMove();
     }
 
     protected override void UpdateMoving()
     {
         // Targeting
-        double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
+        double timeNow = Room.Stopwatch.Elapsed.TotalMilliseconds;
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room.FindNearestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -63,7 +64,7 @@ public class Monster : Creature, ISkillObserver
             }
         }
         
-        if (Target == null || Target.Room != Room)
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
             BroadcastMove();
@@ -92,7 +93,6 @@ public class Monster : Creature, ISkillObserver
                 }
             }
             
-            // Console.WriteLine($"CP: {CellPos.X}, {CellPos.Z} / DP: {DestPos.X}, {DestPos.Z} / Dir: {Dir} / Target: {Target.CellPos.X}, {Target.CellPos.Z}");
             BroadcastMove();
         }
     }

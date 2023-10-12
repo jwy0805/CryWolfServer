@@ -48,7 +48,7 @@ public class Blossom : Bloom
     {
         GameObject? target = Room?.FindNearestTarget(this);
         if (target == null) return;
-        LastSearch = Room!.Stopwatch.ElapsedMilliseconds;
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target ??= target;
 
         StatInfo targetStat = Target.Stat;

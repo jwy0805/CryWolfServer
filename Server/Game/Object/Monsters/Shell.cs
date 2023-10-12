@@ -91,7 +91,7 @@ public class Shell : Monster
                 }
             }
         
-            if (Target == null || Target.Room != Room)
+            if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
                 State = State.Idle;
                 BroadcastMove();           

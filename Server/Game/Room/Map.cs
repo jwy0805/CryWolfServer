@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 using Google.Protobuf.Protocol;
 using Server.Data;
 
@@ -336,7 +337,7 @@ public partial class Map
                     cell = GameData.SpawnerPos[2];
                     break;
                 default:
-                    cell = GameData.SpawnerPos[1];
+                    cell = GameData.SpawnerPos[0];
                     break;
             }
         }
@@ -344,9 +345,21 @@ public partial class Map
         {
             cell = new Vector3(0, 6, 0);
         }
+        else if (type == GameObjectType.Tower)
+        {
+            cell = new Vector3(0, 9, -2);
+        }
 
         Pos pos = FindNearestEmptySpace(Cell2Pos(Vector3To2(cell)), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
-        Vector3 result = Vector2To3(Pos2Cell(pos));
+        Vector3 result;
+        if (gameObject.UnitType == 0)
+        {
+            result = Vector2To3(Pos2Cell(pos));
+        }
+        else
+        {
+            result = Vector2To3(Pos2Cell(pos), 9f);
+        }
 
         return result;
     }

@@ -32,7 +32,6 @@ public class PacketHandler
     {
         C_Move movePacket = (C_Move)packet;
         ClientSession clientSession = (ClientSession)session;
-        // Console.Write($"C_Move ({movePacket.PosInfo.PosX}, {movePacket.PosInfo.PosZ}) -> ");
         Player? player = clientSession.MyPlayer;
         GameRoom? room = player?.Room;
 
@@ -111,7 +110,12 @@ public class PacketHandler
 
     public static void C_ChangeResourceHandler(PacketSession session, IMessage packet)
     {
-        
+        C_ChangeResource resourcePacket = (C_ChangeResource)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+
+        room?.Push(room.HandleChangeResource, player, resourcePacket);
     }
     
     public static void C_LeaveHandler(PacketSession session, IMessage packet)
