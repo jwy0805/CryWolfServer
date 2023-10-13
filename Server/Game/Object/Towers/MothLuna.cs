@@ -51,6 +51,7 @@ public class MothLuna : Tower
             DestPos = Target.CellPos;
             (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
             State = State.Moving;
+            BroadcastMove();
         }
     }
     
@@ -96,7 +97,8 @@ public class MothLuna : Tower
 
             DestPos = StartCell;
             BroadcastDest();
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
+                DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
             double deltaX = DestPos.X - CellPos.X;
             double deltaZ = DestPos.Z - CellPos.Z;
             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);

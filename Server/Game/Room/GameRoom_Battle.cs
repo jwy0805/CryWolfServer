@@ -344,7 +344,7 @@ public partial class GameRoom : JobSerializer
         
         player.Resource += resourcePacket.Resource;
         player.Session.Send(new S_ChangeResource 
-            { PlayerId = player.Id, Resource = resourcePacket.Resource });
+            { PlayerId = player.Id, Resource = player.Resource });
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
@@ -561,7 +561,6 @@ public partial class GameRoom : JobSerializer
             if (monster.MonsterId is not 
                 (MonsterId.MosquitoBug or MonsterId.MosquitoPester or MonsterId.MosquitoStinger)) continue;
 
-            Console.WriteLine($"{monster.CellPos.X}, {monster.CellPos.Y}, {monster.CellPos.Z}");
             if (InsideFence(monster))
             {
                 return monster;
@@ -629,7 +628,7 @@ public partial class GameRoom : JobSerializer
         int lv = StorageLevel;
         Vector3 cell = gameObject.CellPos;
         Vector3 center = GameData.FenceCenter[lv];
-        Vector3 size = GameData.FenceCenter[lv];
+        Vector3 size = GameData.FenceSize[lv];
 
         float halfWidth = size.X / 2;
         float minX = center.X - halfWidth;
@@ -639,7 +638,7 @@ public partial class GameRoom : JobSerializer
         float maxZ = center.Z + halfHeight;
 
         bool insideX = minX <= cell.X && maxX >= cell.X;
-        bool insideZ = minZ <= cell.X && maxZ >= cell.Z;
+        bool insideZ = minZ <= cell.Z && maxZ >= cell.Z;
         
         return insideX && insideZ;
     }

@@ -12,6 +12,8 @@ public class Sheep : Creature, ISkillObserver
 {
     private readonly int _sheepNo = 1;
     private long _lastSetDest = 0;
+    private bool _idle = false;
+    private long _idleTime;
     
     private long _lastYieldTime = 0;
     private int _yieldDecrease = 0;
@@ -68,24 +70,32 @@ public class Sheep : Creature, ISkillObserver
     
     protected override void UpdateIdle()
     {
-        if (Room?.Stopwatch.ElapsedMilliseconds > _lastSetDest + new Random().Next(1000, 2500))
+        if (_idle == false)
         {
-            _lastSetDest = Room.Stopwatch.ElapsedMilliseconds;
+            _idleTime = Room.Stopwatch.ElapsedMilliseconds;
+            _idle = true;
+        }
+        
+        if (Room?.Stopwatch.ElapsedMilliseconds > _idleTime + new Random().Next(1000, 2500))
+        {
             DestPos = GetRandomDestInFence();
             (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
             State = State.Moving;
+            BroadcastMove();
+            _idle = false;
         }
     }
 
     protected override void UpdateMoving()
     {
-        if (Room == null) return;
-        // 이동
-        double deltaX = DestPos.X - CellPos.X;
-        double deltaZ = DestPos.Z - CellPos.Z;
-        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        BroadcastMove();
+        // if (Room == null) return;
+        // // 이동
+        // double deltaX = DestPos.X - CellPos.X;
+        // double deltaZ = DestPos.Z - CellPos.Z;
+        // Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
+        // BroadcastMove();
     }
 
     public void OnSkillUpgrade(Skill skill)

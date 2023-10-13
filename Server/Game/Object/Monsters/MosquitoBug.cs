@@ -6,6 +6,7 @@ namespace Server.Game;
 
 public class MosquitoBug : Monster
 {
+    protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
     private bool _woolDown = false;
     
     protected override Skill NewSkill
@@ -34,11 +35,10 @@ public class MosquitoBug : Monster
 
     protected override void UpdateIdle()
     {
-        List<GameObjectType> typeList = new List<GameObjectType> { GameObjectType.Sheep };
         GameObject? target;
         if (Target == null || Target.Targetable == false)
         {
-            target = Room.FindNearestTarget(this, typeList, 2) 
+            target = Room.FindNearestTarget(this, _typeList, 2) 
                      ?? Room.FindNearestTarget(this, 2);
             LastSearch = Room.Stopwatch.Elapsed.Milliseconds;
             if (target == null) return;
@@ -61,7 +61,8 @@ public class MosquitoBug : Monster
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room.FindNearestTarget(this);
+            GameObject? target = Room.FindNearestTarget(this, _typeList, 2) 
+                                 ?? Room.FindNearestTarget(this, 2);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -90,7 +91,8 @@ public class MosquitoBug : Monster
             Vector3 position = CellPos;
             if (targetStat.Targetable)
             {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
+                    DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
                 double deltaX = DestPos.X - CellPos.X;
                 double deltaZ = DestPos.Z - CellPos.Z;
                 Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
