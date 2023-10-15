@@ -218,7 +218,7 @@ public partial class Map
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
                 if (!_collision[j, i] && _objectsAir[j, i] == null) continue;
-                if (_objectsAir[j, i]?.Id != go.Id) cnt++;
+                if (_objectsAir[j, i]?.Id != go.Id && _objectsAir[j, i]?.Id != go.Target?.Id) cnt++;
             }
         }
         
@@ -257,11 +257,13 @@ public partial class Map
 
         List<Vector3> uniquePath = path.Distinct().ToList();
 
-        arctan.Add(Math.Round(Math.Atan2(uniquePath[0].X - startCell.X, uniquePath[0].Z - startCell.Z))); // i = 0
+        // arctan.Add(Math.Round(Math.Atan2(uniquePath[0].X - startCell.X, uniquePath[0].Z - startCell.Z))); // i = 0
+        arctan.Add(Math.Round((Math.Atan2(0, 0))));
         for (int i = 1; i < uniquePath.Count; i++)
         {
-            double atan2 = 
-                Math.Round(Math.Atan2(uniquePath[i].X - uniquePath[i - 1].X, uniquePath[i].Z - uniquePath[i - 1].Z) * (180 / Math.PI), 2);
+            double xDiff = uniquePath[i].X - uniquePath[i - 1].X;
+            double zDiff = uniquePath[i].Z - uniquePath[i - 1].Z;
+            double atan2 = Math.Round(Math.Atan2(xDiff, zDiff) * (180 / Math.PI), 2);
             arctan.Add(atan2);
         }
 
@@ -283,6 +285,8 @@ public partial class Map
             }
         }
 
+        if (atanList.Count == 0) atanList.Add(arctan[^1]);
+        
         destList.Add(uniquePath[^1]);
 
         return (path, destList, atanList);

@@ -360,13 +360,14 @@ public class GameObject : IGameObject
     public virtual void BroadcastDest()
     {
         if (Dest.Count == 0 || Atan.Count == 0) return;
+        // if (Dest.Count == 0) return;
         S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         
         for (int i = 0; i < Dest.Count; i++)
         {
             DestVector destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
             destPacket.Dest.Add(destVector);
-            destPacket.Dir.Add(Atan[i]);
+            if (Atan.Count != 0) destPacket.Dir.Add(Atan[i]);
         }
         Room?.Broadcast(destPacket);
     }

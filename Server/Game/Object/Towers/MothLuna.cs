@@ -50,6 +50,7 @@ public class MothLuna : Tower
         {
             DestPos = Target.CellPos;
             (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+            BroadcastDest();
             State = State.Moving;
             BroadcastMove();
         }
