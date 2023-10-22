@@ -28,6 +28,8 @@ public class GameObject : IGameObject
         set => Info.ObjectId = value;
     }
 
+    public int Tmp = 0;
+    
     public GameRoom? Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
     public PositionInfo PosInfo { get; set; } = new();
@@ -341,7 +343,11 @@ public class GameObject : IGameObject
             {
                 if (attacker.Parent != null) attacker.Parent.Target = null;
             }
-            else attacker.Target = null;
+            else
+            {
+                attacker.Target = null;
+                attacker.Tmp++;
+            }
         }
         
         S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };

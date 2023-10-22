@@ -18,7 +18,8 @@ public partial class Map
         
         if (gameObject.ObjectType != GameObjectType.Fence)
         {
-            bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
+            bool canGo = gameObject.UnitType == 0 ? CanGo(gameObject, v, true, gameObject.Stat.SizeX) 
+                : CanGoAir(gameObject, v, true, gameObject.Stat.SizeX);
             if (canGo == false) return false;
         }
         
@@ -217,13 +218,33 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (!_collision[j, i] && _objectsAir[j, i] == null) continue;
-                if (_objectsAir[j, i]?.Id != go.Id && _objectsAir[j, i]?.Id != go.Target?.Id) cnt++;
+                if (_collision[j, i]) cnt++;
             }
         }
         
         return cnt == 0 || !checkObjects;
     }
+    
+    // public bool CanGoAir(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
+    // {
+    //     if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+    //     if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+    //
+    //     int x = cellPos.X - MinX;
+    //     int z = MaxZ - cellPos.Z;
+    //     
+    //     int cnt = 0;
+    //     for (int i = x - (size - 1); i <= x + (size - 1); i++)
+    //     {
+    //         for (int j = z - (size - 1); j <= z + (size - 1); j++)
+    //         {
+    //             if (!_collision[j, i] && _objectsAir[j, i] == null) continue;
+    //             if (_objectsAir[j, i]?.Id != go.Id && _objectsAir[j, i]?.Id != go.Target?.Id) cnt++;
+    //         }
+    //     }
+    //     
+    //     return cnt == 0 || !checkObjects;
+    // }
     
     public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d, bool checkObjects = true)
     {
@@ -285,10 +306,9 @@ public partial class Map
             }
         }
 
+        // 예외처리
         if (atanList.Count == 0) atanList.Add(arctan[^1]);
-        
-        destList.Add(uniquePath[^1]);
-
+        destList.Add(uniquePath.Count != 0 ? uniquePath[^1] : gameObject.CellPos);
         return (path, destList, atanList);
     }
 

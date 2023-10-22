@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Threading.Channels;
 using Google.Protobuf.Protocol;
 using Server.Util;
 
@@ -6,7 +7,7 @@ namespace Server.Game;
 
 public class MothLuna : Tower
 {
-    protected Vector3 StartCell;
+    private Vector3 _startCell;
     protected long LastSetDest = 0;
 
     private bool _faint = false;
@@ -38,7 +39,7 @@ public class MothLuna : Tower
     public override void Init()
     {
         base.Init();
-        StartCell = CellPos;
+        _startCell = CellPos;
     }
     
     protected override void UpdateIdle()
@@ -49,7 +50,7 @@ public class MothLuna : Tower
         if (Target is { Targetable: true })
         {
             DestPos = Target.CellPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
             BroadcastDest();
             State = State.Moving;
             BroadcastMove();
@@ -96,7 +97,7 @@ public class MothLuna : Tower
                 }
             }
 
-            DestPos = StartCell;
+            DestPos = _startCell;
             BroadcastDest();
             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
                 DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
@@ -111,13 +112,77 @@ public class MothLuna : Tower
         }
     }
     
+    // protected override void UpdateMoving()
+    // {
+    //     if (Target is { Targetable: true })
+    //     {
+    //         // Attack
+    //         StatInfo targetStat = Target.Stat;
+    //         Vector3 position = CellPos;
+    //         if (targetStat.Targetable)
+    //         {
+    //             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+    //             double deltaX = DestPos.X - CellPos.X;
+    //             double deltaZ = DestPos.Z - CellPos.Z;
+    //             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+    //             if (distance <= AttackRange)
+    //             {
+    //                 CellPos = position;
+    //                 State = State.Attack;
+    //                 BroadcastMove();
+    //                 return;
+    //             }
+    //         }
+    //     }
+    //     else
+    //     {
+    //         // Targeting
+    //         double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
+    //         if (timeNow > LastSearch + SearchTick)
+    //         {
+    //             LastSearch = timeNow;
+    //             GameObject? target = Room?.FindNearestTarget(this);
+    //             Target ??= target;
+    //             if (Target != null)
+    //             {
+    //                 DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+    //                 (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+    //                 BroadcastDest();
+    //                 return;
+    //             }
+    //         }
+    //
+    //         DestPos = StartCell;
+    //         BroadcastDest();
+    //         float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
+    //             DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
+    //         double deltaX = DestPos.X - CellPos.X;
+    //         double deltaZ = DestPos.Z - CellPos.Z;
+    //         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+    //         if (distance <= 0.5f)
+    //         {
+    //             State = State.Idle;
+    //             BroadcastMove();
+    //         }
+    //     }
+    // }
+
+    protected override void UpdateAttack()
+    {
+        if (Target == null || Target.Stat.Targetable == false)
+        {
+            State = State.Moving;
+            BroadcastMove();
+        }
+    }
+    
     public override void SetNextState()
     {
         if (Room == null) return;
 
         if (Target == null || Target.Stat.Targetable == false)
         {
-            State = State.Idle;
+            State = State.Moving;
         }
         else
         {
@@ -141,7 +206,7 @@ public class MothLuna : Tower
             else
             {
                 Target = null;
-                State = State.Idle;
+                State = State.Moving;
             }
         }
         

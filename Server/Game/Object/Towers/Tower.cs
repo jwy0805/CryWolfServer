@@ -51,6 +51,15 @@ public class Tower : Creature, ISkillObserver
         }
     }
 
+    protected override void UpdateAttack()
+    {
+        if (Target == null || Target.Stat.Targetable == false)
+        {
+            State = State.Idle;
+            BroadcastMove();
+        }
+    }
+
     public override void SetNextState()
     {
         if (Room == null) return;

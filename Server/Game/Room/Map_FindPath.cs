@@ -520,7 +520,7 @@ public partial class Map
 				{                                                                                                        // 벽으로 막혀서 갈 수 없으면 스킵
                     if (gameObject.UnitType == 0)
                     {
-                        if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue;// CellPos
+                        if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue; // CellPos
                     }
                     else
                     {
