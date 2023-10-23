@@ -134,9 +134,9 @@ public class Werewolf : Wolf
         base.UpdateDie();
     }
 
-    public override void SetNormalAttackEffect(GameObject master)
+    public override void SetNormalAttackEffect(GameObject target)
     {
-        Hp += (int)((TotalAttack - master.TotalDefence) * DrainParam);
+        Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
         if (_faint == true && Target != null) Target.State = State.Faint;
     }
     

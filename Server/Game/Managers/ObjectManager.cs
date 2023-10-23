@@ -68,7 +68,8 @@ public sealed class ObjectManager : IFactory
         { ProjectileId.SunfloraPixieArrow, typeof(SunfloraPixieArrow) },
         { ProjectileId.SunfloraPixieFire, typeof(SunfloraPixieFire) },
         { ProjectileId.MothMoonAttack, typeof(MothMoonAttack)},
-        { ProjectileId.MothCelestialPoisonAttack, typeof(MothCelestialPoisonAttack) }
+        { ProjectileId.MothCelestialPoisonAttack, typeof(MothCelestialPoisonAttack) },
+        { ProjectileId.MosquitoStingerAttack, typeof(MosquitoStingerAttack) },
     };
 
     private readonly Dictionary<EffectId, Type?> _effectDict = new()

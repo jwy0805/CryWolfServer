@@ -6,7 +6,7 @@ public class MosquitoStinger : MosquitoPester
 {
     private bool _longAttack = false;
     private bool _poison = false;
-    private bool sheepDeath = false;
+    private bool _sheepDeath = false;
     private bool _infection = false;
     private float _deathRate = 0;
     
@@ -35,13 +35,23 @@ public class MosquitoStinger : MosquitoPester
                 case Skill.MosquitoStingerPoisonResist:
                     PoisonResist += 20;
                     break;
-                case Skill.MosquitoStingerSheepDeath:
-                    sheepDeath = true;
-                    break;
                 case Skill.MosquitoStingerInfection:
                     _infection = true;
                     break;
+                case Skill.MosquitoStingerSheepDeath:
+                    _sheepDeath = true;
+                    break;
             }
         }
+    }
+
+    public override void SetNormalAttackEffect(GameObject target)
+    {
+        
+    }
+
+    public override void RunSkill()
+    {
+        
     }
 }

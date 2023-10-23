@@ -140,8 +140,8 @@ public class Soul : Tower
         Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 
-    public override void SetNormalAttackEffect(GameObject master)
+    public override void SetNormalAttackEffect(GameObject target)
     {
-        if (_drain) Hp += (int)((TotalAttack - master.TotalDefence) * DrainParam);
+        if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
     }
 }

@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class MothCelestialPoisonAttack
+public class MothCelestialPoisonAttack : Projectile
 {
     
 }

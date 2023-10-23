@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class MothMoonAttack
+public class MothMoonAttack : Projectile
 {
     
 }

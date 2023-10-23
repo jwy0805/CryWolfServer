@@ -7,10 +7,10 @@ namespace Server.Game;
 
 public class MothLuna : Tower
 {
-    private Vector3 _startCell;
     protected long LastSetDest = 0;
 
     private bool _faint = false;
+    protected readonly int FaintProb = 30;
     
     protected override Skill NewSkill
     {
@@ -34,12 +34,6 @@ public class MothLuna : Tower
                     break;
             }
         }
-    }
-
-    public override void Init()
-    {
-        base.Init();
-        _startCell = CellPos;
     }
     
     protected override void UpdateIdle()
@@ -97,7 +91,8 @@ public class MothLuna : Tower
                 }
             }
 
-            DestPos = _startCell;
+            DestPos = StartCell;
+            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
                 DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
@@ -173,6 +168,19 @@ public class MothLuna : Tower
         {
             State = State.Moving;
             BroadcastMove();
+        }
+    }
+    
+    public override void SetNormalAttackEffect(GameObject target)
+    {
+        if (_faint)
+        {
+            Random r = new Random();
+            if (r.Next(99) < FaintProb)
+            {
+                target.State = State.Faint;
+                BroadcastMove();
+            }
         }
     }
     

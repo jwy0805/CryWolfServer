@@ -9,6 +9,7 @@ public class Tower : Creature, ISkillObserver
 {
     public int TowerNum;
     public TowerId TowerId;
+    public Vector3 StartCell;
 
     protected Tower()
     {

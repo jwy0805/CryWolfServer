@@ -46,7 +46,7 @@ public class TrainingDummy : TargetDummy
         }
     }
 
-    public override void SetNormalAttackEffect(GameObject master)
+    public override void SetNormalAttackEffect(GameObject target)
     {
         if (_faint == true && Target != null) Target.State = State.Faint;
     }

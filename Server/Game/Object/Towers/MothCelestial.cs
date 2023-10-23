@@ -8,7 +8,7 @@ public class MothCelestial : MothMoon
     private bool _breedSheep = false;
     private readonly int _healthParam = 100;
     private readonly int _debuffRemoveProb = 75;
-    private readonly int _breedProb = 3;
+    private readonly int _breedProb = 100;
 
     protected override Skill NewSkill
     {
@@ -46,7 +46,7 @@ public class MothCelestial : MothMoon
             }
         }
     }
-
+    
     public override void RunSkill()
     {
         if (Room == null) return;
@@ -58,8 +58,10 @@ public class MothCelestial : MothMoon
             foreach (var sheep in sheeps)
             {
                 sheep.Hp += HealParam;
+                
                 int r = random.Next(99);
                 if (r < _debuffRemoveProb) BuffManager.Instance.RemoveAllBuff(this);
+                
                 sheep.Resource *= OutputParam / 100; // test 필요한 코드
                 if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, _healthParam);
             }

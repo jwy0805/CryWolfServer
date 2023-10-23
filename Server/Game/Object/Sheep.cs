@@ -10,6 +10,10 @@ namespace Server.Game;
 
 public class Sheep : Creature, ISkillObserver
 {
+    public int YieldIncrement = 0;
+    public int YieldDecrement = 0;
+    public bool YieldStop = false;
+    
     private readonly int _sheepNo = 1;
     private long _lastSetDest = 0;
     private bool _idle = false;
@@ -35,7 +39,7 @@ public class Sheep : Creature, ISkillObserver
         DataManager.ObjectDict.TryGetValue(_sheepNo ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Hp = objectData.stat.MaxHp;
-
+        
         State = State.Idle;
     }
 
@@ -44,8 +48,16 @@ public class Sheep : Creature, ISkillObserver
         if (Room != null) Job = Room.PushAfter(CallCycle, Update);
         if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
         {
-            _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
-            YieldCoin(GameData.SheepYield);
+            if (YieldStop == false)
+            {
+                Resource = GameData.SheepYield;
+                _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
+                YieldCoin(Resource + YieldIncrement - YieldDecrement);
+                YieldIncrement = 0;
+                YieldDecrement = 0;
+            }
+
+            YieldStop = false;
         }
         switch (State)
         {

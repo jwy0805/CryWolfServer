@@ -373,8 +373,13 @@ public class GameObject : IGameObject
         {
             DestVector destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
             destPacket.Dest.Add(destVector);
+        }
+
+        for (int i = 0; i < Atan.Count; i++)
+        {
             if (Atan.Count != 0) destPacket.Dir.Add(Atan[i]);
         }
+        
         Room?.Broadcast(destPacket);
     }
 

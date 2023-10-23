@@ -8,6 +8,7 @@ public class MosquitoBug : Monster
 {
     protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
     private bool _woolDown = false;
+    protected int WoolDownRate = 10;
     
     protected override Skill NewSkill
     {
@@ -159,4 +160,12 @@ public class MosquitoBug : Monster
     //         BroadcastMove();
     //     }
     // }
+
+    public override void SetNormalAttackEffect(GameObject target)
+    {
+        if (_woolDown && target is Sheep sheep)
+        {
+            sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+        }
+    }
 }

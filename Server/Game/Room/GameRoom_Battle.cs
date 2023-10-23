@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Util;
@@ -111,6 +110,7 @@ public partial class GameRoom : JobSerializer
                 if (towerType is TowerId.MothLuna or TowerId.MothMoon or TowerId.MothCelestial)
                 {
                     tower.CellPos = Map.FindSpawnPos(tower, SpawnWay.Any);
+                    tower.StartCell = tower.CellPos;
                 }
                 Push(EnterGame, tower);
                 break;
