@@ -1,32 +1,22 @@
-using System.Diagnostics;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Game.Resources;
-using Server.Util;
 
 namespace Server.Game;
 
 public class Sheep : Creature, ISkillObserver
 {
-    public int YieldIncrement = 0;
-    public int YieldDecrement = 0;
-    public bool YieldStop = false;
-    
     private readonly int _sheepNo = 1;
     private long _lastSetDest = 0;
     private bool _idle = false;
     private long _idleTime;
-    
     private long _lastYieldTime = 0;
-    private int _yieldDecrease = 0;
-    private int _yieldInterrupt = 0;
-    private float _decreaseParam = 0;
-    private int _interruptParam = 0;
-    private bool _decreased = false;
-    private bool _interrupted = false;
-    private bool _infection = false;
+
+    public int YieldIncrement { get; set; }
+    public int YieldDecrement { get; set; }
+    public bool YieldStop { get; set; }
+    public bool Infection { get; set; }
 
     public Sheep()
     {
@@ -124,13 +114,8 @@ public class Sheep : Creature, ISkillObserver
     private void YieldCoin(int yield)
     {
         if (Room == null) return;
-        
-        Random r = new Random();
-        int num = r.Next(1, 100);
-        if (num <= _yieldInterrupt) return;
-        yield -= _yieldDecrease;
-
         Resource resource;
+        
         switch (yield)
         {
             case < 30:

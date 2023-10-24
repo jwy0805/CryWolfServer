@@ -7,8 +7,7 @@ public class MothCelestial : MothMoon
     private bool _sheepHealth = false;
     private bool _breedSheep = false;
     private readonly int _healthParam = 100;
-    private readonly int _debuffRemoveProb = 75;
-    private readonly int _breedProb = 100;
+    private readonly int _breedProb = 3;
 
     protected override Skill NewSkill
     {
@@ -55,14 +54,13 @@ public class MothCelestial : MothMoon
         
         if (sheeps.Count != 0)
         {
-            foreach (var sheep in sheeps)
+            foreach (var gameObject in sheeps)
             {
+                if (gameObject is not Sheep sheep) continue;
                 sheep.Hp += HealParam;
-                
-                int r = random.Next(99);
-                if (r < _debuffRemoveProb) BuffManager.Instance.RemoveAllBuff(this);
-                
-                sheep.Resource *= OutputParam / 100; // test 필요한 코드
+                Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+                BuffManager.Instance.RemoveAllBuff(this);
+                sheep.YieldIncrement = sheep.Resource * OutputParam / 100; 
                 if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, _healthParam);
             }
         }

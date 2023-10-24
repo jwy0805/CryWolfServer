@@ -74,6 +74,7 @@ public class Bud : Tower
     public override void SetNextState()
     {
         if (Room == null) return;
+        
         if (Target == null || Target.Stat.Targetable == false)
         {
             State = State.Idle;
@@ -85,7 +86,7 @@ public class Bud : Tower
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _seed == true ? State.Skill : State.Attack;
+                    State = _seed ? State.Skill : State.Attack;
                     SetDirection();
                 }
                 else

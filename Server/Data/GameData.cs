@@ -493,8 +493,8 @@ public class GameData
         { Skill.MosquitoStingerLongAttack, new [] { Skill.NoSkill } },
         { Skill.MosquitoStingerHealth, new [] { Skill.NoSkill } },
         { Skill.MosquitoStingerAvoid, new [] { Skill.NoSkill } },
-        { Skill.MosquitoStingerPoison, new [] { Skill.MosquitoStingerLongAttack, Skill.MosquitoStingerHealth } },
-        { Skill.MosquitoStingerPoisonResist, new [] { Skill.MosquitoStingerLongAttack, Skill.MosquitoStingerHealth } },
+        { Skill.MosquitoStingerPoison, new [] { Skill.MosquitoStingerLongAttack } },
+        { Skill.MosquitoStingerPoisonResist, new [] { Skill.MosquitoStingerHealth } },
         { Skill.MosquitoStingerInfection, new [] { Skill.MosquitoStingerAvoid, Skill.MosquitoStingerPoison, Skill.MosquitoStingerPoisonResist } },
         { Skill.MosquitoStingerSheepDeath, new [] { Skill.MosquitoStingerInfection } },
     

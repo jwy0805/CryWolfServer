@@ -531,6 +531,7 @@ public sealed class BuffManager
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             _param = param;
+            _dotTime = startTime;
         }
 
         public override bool UpdateBuff(long deltaTime)
