@@ -33,6 +33,7 @@ public class Werewolf : Wolf
                 case Skill.WerewolfHealth:
                     MaxHp += 250;
                     Hp += 250;
+                    BroadcastHealth();
                     break;
                 case Skill.WerewolfEnhance:
                     _enhance = true;

@@ -18,6 +18,7 @@ public class WolfPup : Monster
                 case Skill.WolfPupHealth:
                     Hp += 20;
                     MaxHp += 20;
+                    BroadcastHealth();
                     break;
                 case Skill.WolfPupSpeed:
                     MoveSpeed += 1.0f;

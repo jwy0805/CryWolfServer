@@ -6,7 +6,7 @@ public class SunflowerFairy : SunBlossom
 {
     protected readonly float AttackParam = 0.1f;
     protected readonly float DefenceParam = 5;
-    protected float FenceHealParam = 90;
+    protected int FenceHealParam = 90;
     
     private bool _attackBuff = false;
     private bool _defenceBuff = false;
@@ -44,49 +44,41 @@ public class SunflowerFairy : SunBlossom
     {
         if (Room == null) return;
         
-        List<GameObject> towers = new List<GameObject>();
-        List<GameObject> monsters = new List<GameObject>();
-        if (_double)
-        {
-            towers = Room.FindBuffTargets(this, GameObjectType.Tower, 2);
-            monsters = Room.FindBuffTargets(this, GameObjectType.Monster, 2);
-        }
-        else
-        {
-            GameObject? tower = Room.FindBuffTarget(this, GameObjectType.Tower);
-            GameObject? monster = Room.FindBuffTarget(this, GameObjectType.Monster);
-            if (tower != null) towers.Add(tower);
-            if (monster != null) monsters.Add(monster);
-        }
-
+        List<Creature> towers = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
         if (towers.Count != 0)
         {
             foreach (var tower in towers)
             {
                 tower.Hp += HealParam;
+                Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
                 BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
                 if (_attackBuff) BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, AttackParam);
                 if (_defenceBuff) BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, DefenceParam);
             }
         }
 
-        if (monsters.Count != 0)
+        int num = _double ? 2 : 1;
+        List<Creature> monsters = Room.FindBuffTargets(this,
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+        if (monsters.Any())
         {
-            foreach (var monster in monsters)
-            {
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
                 BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
                 BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
-            }
         }
-
+        
         if (_fenceHeal)
         {
-            List<GameObject> fences = Room.FindBuffTargets(this, GameObjectType.Fence, SkillRange);
-            if (fences.Count != 0)
+            List<GameObject> fences = Room.FindBuffTargets(this, 
+                new List<GameObjectType> { GameObjectType.Fence }, SkillRange);
+            if (fences.Any())
             {
                 foreach (var fence in fences)
                 {
-                    fence.Hp += HealParam;
+                    fence.Hp += FenceHealParam;
+                    Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
                 }
             }
         }

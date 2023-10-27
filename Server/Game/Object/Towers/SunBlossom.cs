@@ -40,12 +40,40 @@ public class SunBlossom : Tower
 
     public override void RunSkill()
     {
-        if (Room?.FindBuffTarget(this, GameObjectType.Tower) is not Creature tower) return;
-        if (Room.FindBuffTarget(this, GameObjectType.Monster) is not Creature monster) return;
-        if (_heal) tower.Hp += HealParam;
-        if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
-        if (_slow) BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
-        if (_slowAttack) BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+        if (Room == null) return;
+        
+        List<Creature> towers = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
+        if (towers.Any())
+        {
+            foreach (var tower in towers)
+            {
+                if (_heal)
+                {
+                    tower.Hp += HealParam;
+                    Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+                }
+                if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
+            }
+        }
+
+        List<Creature> monsters = Room.FindBuffTargets(this,
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+        if (monsters.Any())
+        {
+            if (_slow)
+            {
+                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                    BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
+            }
+            
+            if (_slowAttack)
+            {
+                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+            }
+            
+        }
     }
     
     public override void SetNextState()

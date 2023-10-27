@@ -76,10 +76,11 @@ public class MothMoon : MothLuna
     public override void RunSkill()
     {
         if (Room == null) return;
-        List<GameObject> sheeps = Room.FindBuffTargets(this, GameObjectType.Sheep, 20);
+        List<GameObject> sheeps = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Sheep }, AttackRange);
         Random random = new Random();
         
-        if (sheeps.Count != 0)
+        if (sheeps.Any())
         {
             foreach (var s in sheeps)
             {
@@ -92,7 +93,7 @@ public class MothMoon : MothLuna
                 if (_debuffRemoveSheep)
                 {
                     int r = random.Next(99);
-                    if (r < _debuffRemoveParam) BuffManager.Instance.RemoveAllBuff(this);
+                    if (r < _debuffRemoveParam) BuffManager.Instance.RemoveAllDebuff(this);
                 }
 
                 if (_output)

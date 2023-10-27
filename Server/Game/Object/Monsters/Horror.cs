@@ -21,6 +21,7 @@ public class Horror : Creeper
                 case Skill.HorrorHealth:
                     MaxHp += 200;
                     Hp += 200;
+                    BroadcastHealth();
                     break;
                 case Skill.HorrorDefence:
                     Defence += 5;

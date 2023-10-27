@@ -27,6 +27,7 @@ public class Shell : Monster
                 case Skill.ShellHealth:
                     MaxHp += 35;
                     Hp += 35;
+                    BroadcastHealth();
                     break;
                 case Skill.ShellSpeed:
                     _moveSpeedBuff = true;
@@ -201,9 +202,24 @@ public class Shell : Monster
 
     public override void RunSkill()
     {
-        if (Room?.FindBuffTarget(this, GameObjectType.Monster) is not Creature creature) return;
-        if (_moveSpeedBuff) BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
-        if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
+        if (Room == null) return;
+        
+        List<Creature> monsters = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange)
+            .Cast<Creature>().ToList();
+        if (!monsters.Any()) return;
+        
+        if (_moveSpeedBuff)
+        {
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, MoveSpeedParam);
+        }
+
+        if (_attackSpeedBuff)
+        {
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, AttackSpeedParam);
+        }
     }
     
     public override void SetNextState()

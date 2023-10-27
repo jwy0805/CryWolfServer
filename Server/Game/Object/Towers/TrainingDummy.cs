@@ -29,6 +29,7 @@ public class TrainingDummy : TargetDummy
                 case Skill.TrainingDummyHealth:
                     MaxHp += 200;
                     Hp += 200;
+                    BroadcastHealth();
                     break;
                 case Skill.TrainingDummyFireResist:
                     FireResist += 15;
@@ -54,7 +55,7 @@ public class TrainingDummy : TargetDummy
     public override void RunSkill()
     {
         base.RunSkill();
-        if (_debuffRemove == true) BuffManager.Instance.RemoveAllBuff(this);
+        if (_debuffRemove == true) BuffManager.Instance.RemoveAllDebuff(this);
     }
 
     public override void SetNextState()

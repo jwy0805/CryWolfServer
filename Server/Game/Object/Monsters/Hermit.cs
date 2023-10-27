@@ -44,28 +44,30 @@ public class Hermit : Spike
 
     public override void RunSkill()
     {
-        List<GameObject>? gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, 2)!;
+        if (Room == null) return;
+        
+        List<Creature> monsters = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+        
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
+            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, MoveSpeedParam);
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
+            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, AttackSpeedParam);
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
+            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, AttackBuffParam);
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
+            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, DefenceBuffParam);
 
-        if (gameObjects.Count == 0) return;
-        foreach (var creature in gameObjects.Cast<Creature>())
+        if (_debuffRemove)
         {
-            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
-            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
-            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, creature, AttackBuffParam);
-            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, creature, DefenceBuffParam);
-            if (_debuffRemove) BuffManager.Instance.RemoveAllBuff(creature);
+            foreach (var monster in monsters)
+                BuffManager.Instance.RemoveAllDebuff(monster);
         }
-
+        
         if (_aggro)
         {
-            gameObjects = Room?.FindBuffTargets(this, GameObjectType.Tower, AttackRange);
-
-            if (gameObjects == null) return;
-            if (gameObjects.Count == 0) return;
-            foreach (var creature in gameObjects.Cast<Creature>())
-            {
-                BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 3000);
-            }
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
+                BuffManager.Instance.AddBuff(BuffId.Aggro, monster, this, 0, 3000);
         }
     }
 }

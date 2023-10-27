@@ -14,21 +14,23 @@ public class GameObject : IGameObject
     protected double LastSearch = 0;
 
     public List<Vector3> Path = new();
-    public List<Vector3> Dest = new();
-    public List<double> Atan = new();
+    protected List<Vector3> Dest = new();
+    protected List<double> Atan = new();
+    public readonly List<BuffId> Buffs = new();
     public GameObject? Target;
     public GameObject? Parent;
-    public Vector3 DestPos;
+    protected Vector3 DestPos;
     private float _totalAttackSpeed;
 
+    public bool Burn { get; set; }
+    public bool Invincible { get; set; }
+    
     public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     public int Id
     {
         get => Info.ObjectId;
         set => Info.ObjectId = value;
     }
-
-    public int Tmp = 0;
     
     public GameRoom? Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
@@ -322,7 +324,7 @@ public class GameObject : IGameObject
             : Math.Max(damage - TotalDefence, 0);
         Hp = Math.Max(Stat.Hp - damage, 0);
         
-        if (Reflection == true && reflected == false)
+        if (Reflection && reflected == false)
         {
             int refParam = (int)(damage * ReflectionRate);
             attacker.OnDamaged(this, refParam, true);
@@ -346,7 +348,6 @@ public class GameObject : IGameObject
             else
             {
                 attacker.Target = null;
-                attacker.Tmp++;
             }
         }
         
@@ -357,7 +358,7 @@ public class GameObject : IGameObject
         room.LeaveGame(Id);
     }
     
-    protected virtual void BroadcastMove()
+    public virtual void BroadcastMove()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
         Room?.Broadcast(movePacket);
@@ -383,12 +384,21 @@ public class GameObject : IGameObject
         Room?.Broadcast(destPacket);
     }
 
+    public virtual void BroadcastHealth()
+    {
+        S_ChangeMaxHp maxHpPacket = new S_ChangeMaxHp { ObjectId = Id, MaxHp = MaxHp };
+        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
+        Room?.Broadcast(maxHpPacket);
+        Room?.Broadcast(hpPacket);
+    }
+
     public virtual void ApplyMap(Vector3 posInfo)
     {
+        if (Room == null) return;
         PosInfo.PosX = posInfo.X;
         PosInfo.PosY = posInfo.Y;
         PosInfo.PosZ = posInfo.Z;
-        bool canGo = Room!.Map.ApplyMap(this);
+        bool canGo = Room.Map.ApplyMap(this);
         if (!canGo) State = State.Idle;
         BroadcastMove();
     }

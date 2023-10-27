@@ -12,6 +12,7 @@ public class Sheep : Creature, ISkillObserver
     private bool _idle = false;
     private long _idleTime;
     private long _lastYieldTime = 0;
+    private readonly float _infectionDist = 3f;
 
     public int YieldIncrement { get; set; }
     public int YieldDecrement { get; set; }
@@ -35,7 +36,8 @@ public class Sheep : Creature, ISkillObserver
 
     public override void Update()
     {
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
         if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
         {
             if (YieldStop == false)
@@ -91,13 +93,14 @@ public class Sheep : Creature, ISkillObserver
 
     protected override void UpdateMoving()
     {
-        // if (Room == null) return;
-        // // 이동
-        // double deltaX = DestPos.X - CellPos.X;
-        // double deltaZ = DestPos.Z - CellPos.Z;
-        // Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (!Infection) return;
         
-        // BroadcastMove();
+        List<GameObject> sheeps = Room.FindBuffTargets(this,
+            new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
+        foreach (var sheep in sheeps.Select(s => s as Creature))
+        {
+            if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, 0.05f);
+        }
     }
 
     public void OnSkillUpgrade(Skill skill)

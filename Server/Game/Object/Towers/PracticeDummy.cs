@@ -23,10 +23,12 @@ public class PracticeDummy : Tower
                 case Skill.PracticeDummyHealth:
                     MaxHp += 40;
                     Hp += 40;
+                    BroadcastHealth();
                     break;
                 case Skill.PracticeDummyHealth2:
                     MaxHp += 60;
                     Hp += 60;
+                    BroadcastHealth();
                     break;
                 case Skill.PracticeDummyAggro:
                     _aggro = true;
@@ -45,7 +47,7 @@ public class PracticeDummy : Tower
             Mp += Stat.MpRecovery;
         }
 
-        if (_aggro == true && Mp >= MaxMp)
+        if (_aggro && Mp >= MaxMp)
         {
             State = State.Skill;
             BroadcastMove();
@@ -90,8 +92,11 @@ public class PracticeDummy : Tower
     
     public override void RunSkill()
     {
-        List<GameObject> gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, SkillRange)!;
-        if (gameObjects.Count == 0) return;
+        if (Room == null) return;
+        
+        List<GameObject> gameObjects = Room.FindBuffTargets(this,
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange);
+        if (!gameObjects.Any()) return;
         foreach (var creature in gameObjects.Cast<Creature>())
         {
             BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 3000);

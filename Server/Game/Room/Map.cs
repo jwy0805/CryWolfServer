@@ -343,7 +343,7 @@ public partial class Map
         }
     }
 
-    public Vector3 FindSpawnPos(GameObject gameObject, SpawnWay? way = null)
+    public Vector3 FindSpawnPos(GameObject gameObject, SpawnWay? way = SpawnWay.Any)
     {
         GameObjectType type = gameObject.ObjectType;
         Vector3 cell = new Vector3();
@@ -367,7 +367,24 @@ public partial class Map
         }
         else if (type == GameObjectType.Sheep)
         {
-            cell = new Vector3(0, 6, 0);
+            bool canSpawn = false;
+            while (canSpawn == false)
+            {
+                int level = GameData.StorageLevel;
+                Random random = new();
+                List<Vector3> xList = new List<Vector3>(GameData.SheepBounds[level]);
+                int minX = (int)(xList.Min(v => v.X) * 4);
+                int maxX = (int)(xList.Max(v => v.X) * 4);
+                int minZ = (int)(xList.Min(v => v.Z) * 4);
+                int maxZ = (int)(xList.Max(v => v.Z) * 4);
+                
+                float x = (float)(random.Next(minX, maxX) * 0.25);
+                float z = (float)(random.Next(minZ, maxZ) * 0.25);
+                cell = new Vector3(x, 6, z);
+                
+                if (CanGo(gameObject, Vector3To2(cell), true, gameObject.Stat.SizeX))
+                    canSpawn = true;
+            }
         }
         else if (type == GameObjectType.Tower)
         {

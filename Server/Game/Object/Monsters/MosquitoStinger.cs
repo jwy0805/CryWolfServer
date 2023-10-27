@@ -10,13 +10,12 @@ public class MosquitoStinger : MosquitoPester
     private bool _poison = false;
     private bool _sheepDeath = false;
     private bool _infection = false;
-    private readonly float _deathRate = 25;
 
     public bool Poison => _poison;
     public bool Infection => _infection;
     public bool SheepDeath => _sheepDeath;
-    public float DeathRate => _deathRate;
-    
+    public float DeathRate => 25;
+
     protected override Skill NewSkill
     {
         get => Skill;
@@ -31,6 +30,7 @@ public class MosquitoStinger : MosquitoPester
                 case Skill.MosquitoStingerHealth:
                     MaxHp += 60;
                     Hp += 60;
+                    BroadcastHealth();
                     break;
                 case Skill.MosquitoStingerLongAttack:
                     _longAttack = true;

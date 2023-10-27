@@ -106,19 +106,28 @@ public class Spike : Shell
     
     public override void RunSkill()
     {
-        List<GameObject?> gameObjects = new List<GameObject?>();
-        if (_doubleBuff)
-            gameObjects = Room?.FindBuffTargets(this, GameObjectType.Monster, 2)!;
-        else gameObjects.Add(Room?.FindBuffTarget(this, GameObjectType.Monster));
+        if (Room == null) return;
+        int num = _doubleBuff ? 2 : 1;
+        
+        List<Creature> monsters = Room.FindBuffTargets(this, 
+            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+        
+        if (!monsters.Any()) return;
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, MoveSpeedParam);
+        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, AttackSpeedParam);
 
-        if (gameObjects.Count == 0) return;
-        foreach (var gameObject in gameObjects)
+        if (_attackBuff)
         {
-            Creature creature = (Creature)gameObject!;
-            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, creature, MoveSpeedParam);
-            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, creature, AttackSpeedParam);
-            if (_attackBuff) BuffManager.Instance.AddBuff(BuffId.AttackIncrease, creature, AttackBuffParam);
-            if (_defenceBuff) BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, creature, DefenceBuffParam);   
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, AttackBuffParam);
+        }
+
+        if (_defenceBuff)
+        {
+            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, DefenceBuffParam);
         }
     }
 }

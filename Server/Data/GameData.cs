@@ -69,19 +69,19 @@ public class GameData
     public static int CurrentFenceCnt = 0;
     public static int[] FenceRow = { 0, 4, 5, 6 };
 
-    public static Vector3[] FenceStartPos =
+    public static readonly Vector3[] FenceStartPos =
     {
         new Vector3(0, 0, 0), new Vector3(-3, 6, -7),
         new Vector3(-4, 6, -7), new Vector3(-5, 6, -8)
     };
 
-    public static Vector3[] FenceCenter =
+    public static readonly Vector3[] FenceCenter =
     {
         new Vector3(0, 0, 0), new Vector3(0, 6, -2),
         new Vector3(0, 6, -1), new Vector3(0, 6, 0)
     };
 
-    public static Vector3[] FenceSize =
+    public static readonly Vector3[] FenceSize =
     {
         new Vector3(0, 0, 0), new Vector3(8, 6, 10),
         new Vector3(10, 6, 12), new Vector3(12, 6, 16)
@@ -167,19 +167,15 @@ public class GameData
         },
     };
     
-    // public static Bounds NorthBounds;
-    // public static Bounds WestBounds;
-    // public static Bounds EastBounds;
-    //
-    public static List<Vector3>[] SheepBounds =
+    public static readonly List<Vector3>[] SheepBounds =
     {
         new List<Vector3>(),
         new List<Vector3>()
         {
-            new Vector3(Center.X - 1.5f, Center.Y, Center.Z + 1),
-            new Vector3(Center.X - 1.5f, Center.Y, Center.Z - 1),
-            new Vector3(Center.X + 1.5f, Center.Y, Center.Z - 1),
-            new Vector3(Center.X + 1.5f, Center.Y, Center.Z + 1),
+            new Vector3(Center.X - 2.5f, Center.Y, Center.Z + 2f),
+            new Vector3(Center.X - 2.5f, Center.Y, Center.Z - 2f),
+            new Vector3(Center.X + 2.5f, Center.Y, Center.Z - 2f),
+            new Vector3(Center.X + 2.5f, Center.Y, Center.Z + 2f),
         },
         new List<Vector3>()
         {
@@ -261,7 +257,7 @@ public class GameData
     
     #endregion
     
-    public static readonly Dictionary<string, string> Tower = new Dictionary<string, string>()
+    public static readonly Dictionary<string, string> Tower = new()
     {
         { "00", "Bud" }, { "01", "Bloom" }, { "02", "Blossom" },
         { "10", "PracticeDummy" }, { "11", "TargetDummy" }, { "12", "TrainingDummy" },
@@ -270,7 +266,7 @@ public class GameData
         { "40", "Soul" }, { "41", "Haunt" }, { "42", "SoulMage" },
     };
     
-    public static readonly Dictionary<string, string> Monster = new Dictionary<string, string>()
+    public static readonly Dictionary<string, string> Monster = new()
     {
         { "50", "WolfPup" }, { "51", "Wolf" }, { "52", "Werewolf" },
         { "60", "Lurker" }, { "61", "Creeper" }, { "62", "Horror" },
@@ -279,12 +275,6 @@ public class GameData
         { "90", "Shell" }, { "91", "Spike" }, { "92", "Hermit" },
     };
     
-    public static readonly List<string> TowerList = new List<string>(Tower.Values);
-
-    public static readonly List<string> MonsterList = new List<string>(Monster.Values);
-
-    public static readonly List<string> UnitList = TowerList.Concat(MonsterList).ToList();
-
     // public static readonly Dictionary<Define.Skill, int> SkillCost = new Dictionary<Define.Skill, int>()
     // {
     //     { Define.Skill.Bloom3Combo, 120 }

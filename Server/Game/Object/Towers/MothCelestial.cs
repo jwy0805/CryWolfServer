@@ -45,26 +45,26 @@ public class MothCelestial : MothMoon
             }
         }
     }
-    
+
     public override void RunSkill()
     {
         if (Room == null) return;
-        List<GameObject> sheeps = Room.FindBuffTargets(this, GameObjectType.Sheep, 20);
-        Random random = new Random();
-        
-        if (sheeps.Count != 0)
+        List<GameObject> sheeps = Room.FindBuffTargets(this,
+            new List<GameObjectType> { GameObjectType.Sheep }, AttackRange);
+        if (sheeps.Any())
         {
             foreach (var gameObject in sheeps)
             {
                 if (gameObject is not Sheep sheep) continue;
                 sheep.Hp += HealParam;
                 Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                BuffManager.Instance.RemoveAllBuff(this);
+                BuffManager.Instance.RemoveAllDebuff(sheep);
                 sheep.YieldIncrement = sheep.Resource * OutputParam / 100; 
                 if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, _healthParam);
             }
         }
 
+        Random random = new Random();
         if (_breedSheep)
         {
             int r = random.Next(99);

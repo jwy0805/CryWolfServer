@@ -21,6 +21,7 @@ public class MosquitoPester : MosquitoBug
                 case Skill.MosquitoPesterHealth:
                     MaxHp += 25;
                     Hp += 25;
+                    BroadcastHealth();
                     break;
                 case Skill.MosquitoPesterWoolDown2:
                     WoolDownRate = 30;
