@@ -135,10 +135,32 @@ public partial class GameRoom : JobSerializer
         {
             S_Spawn spawnPacket = new S_Spawn();
             spawnPacket.Objects.Add(gameObject.Info);
-            foreach (Player p in _players.Values)
+            foreach (var player in _players.Values)
             {
-                if (p.Id != gameObject.Id) p.Session.Send(spawnPacket);
+                if (player.Id != gameObject.Id) player.Session.Send(spawnPacket);
             }
+        }
+    }
+
+    public void EnterGame_Parent(GameObject gameObject, GameObject parent)
+    {
+        GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
+
+        switch (type)
+        {
+            case GameObjectType.Effect:
+                Effect effect = (Effect)gameObject;
+                _effects.Add(gameObject.Id, effect);
+                effect.Parent = parent;
+                effect.Room = this;
+                effect.Update();
+                break;
+        }
+
+        S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
+        foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
+        {
+            player.Session.Send(spawnPacket);
         }
     }
 

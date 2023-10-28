@@ -346,6 +346,14 @@ public sealed class BuffManager
         public override void TriggerBuff()
         {
             Master.Invincible = true;
+            Effect holyAura = ObjectManager.Instance.CreateEffect(EffectId.HolyAura);
+            holyAura.Room = Instance.Room;
+            holyAura.Parent = Master;
+            holyAura.PosInfo = Master.PosInfo;
+            holyAura.Info.PosInfo = Master.Info.PosInfo;
+            holyAura.Info.Name = nameof(EffectId.HolyAura);
+            holyAura.Init();
+            Instance.Room?.EnterGame(holyAura);
         }
 
         public override void RemoveBuff()

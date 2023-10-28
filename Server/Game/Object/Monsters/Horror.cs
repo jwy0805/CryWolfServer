@@ -52,11 +52,12 @@ public class Horror : Creeper
     
     public override void Update()
     {
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
 
-        if (Room!.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            Time = Room!.Stopwatch.ElapsedMilliseconds;
+            Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
         }
 
@@ -69,7 +70,7 @@ public class Horror : Creeper
             poisonBelt.Info.PosInfo = Info.PosInfo;
             poisonBelt.Info.Name = nameof(EffectId.PoisonBelt);
             poisonBelt.Init();
-            Room?.EnterGame(poisonBelt);
+            Room.EnterGame_Parent(poisonBelt, this);
             Mp = 0;
         }
         else

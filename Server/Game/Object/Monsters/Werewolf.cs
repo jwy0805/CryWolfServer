@@ -138,7 +138,7 @@ public class Werewolf : Wolf
     public override void SetNormalAttackEffect(GameObject target)
     {
         Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
-        if (_faint == true && Target != null) Target.State = State.Faint;
+        if (_faint && Target != null) BuffManager.Instance.AddBuff(BuffId.Fainted, Target, 0, 1000);
     }
     
     public override void SetNextState()
