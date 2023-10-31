@@ -10,7 +10,7 @@ public class MosquitoStingerAttack : Projectile
         {
             if (Parent is not MosquitoStinger mosquito) return;
             if (mosquito.Poison) 
-                BuffManager.Instance.AddBuff(BuffId.Addicted, creature, mosquito.Attack);
+                BuffManager.Instance.AddBuff(BuffId.Addicted, creature, mosquito, mosquito.Attack);
             if (creature is not Sheep sheep) return;
 
             sheep.YieldStop = true;

@@ -73,10 +73,10 @@ public class SunfloraPixie : SunflowerFairy
             {
                 tower.Hp += HealParam;
                 Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
-                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, AttackParam);
-                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, DefenceParam);
-                if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, tower, _attackSpeedParam);
+                BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
+                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, this, AttackParam);
+                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, this, DefenceParam);
+                if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, tower, this, _attackSpeedParam);
                 if (_debuffRemove) BuffManager.Instance.RemoveAllDebuff(tower);
             }
         }
@@ -85,7 +85,7 @@ public class SunfloraPixie : SunflowerFairy
         if (_invincible)
         {
             foreach (var tower in towers)
-                BuffManager.Instance.AddBuff(BuffId.Invincible, tower, 0, 3000);
+                BuffManager.Instance.AddBuff(BuffId.Invincible, tower, this, 0, 3000);
         }
         
         List<Creature> monsters = Room.FindBuffTargets(this,
@@ -93,20 +93,20 @@ public class SunfloraPixie : SunflowerFairy
         if (monsters.Any())
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
-                BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
+                BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+                BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
 
             if (_faint)
             {
                 foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.Fainted, monster, 0, 2000);
+                    BuffManager.Instance.AddBuff(BuffId.Fainted, monster, this, 0, 2000);
             }
             
             if (_curse)
             {
                 foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.Curse, monster, 0, 5000);
+                    BuffManager.Instance.AddBuff(BuffId.Curse, monster, this, 0, 5000);
             }
         }
 

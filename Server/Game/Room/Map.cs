@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public partial class Map
 {
-    public bool ApplyMap(GameObject gameObject)
+    public bool ApplyMap(GameObject gameObject, Vector3 pos = new Vector3())
     {
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
@@ -21,6 +21,13 @@ public partial class Map
             bool canGo = gameObject.UnitType == 0 ? CanGo(gameObject, v, true, gameObject.Stat.SizeX) 
                 : CanGoAir(gameObject, v, true, gameObject.Stat.SizeX);
             if (canGo == false) return false;
+        }
+        
+        if (pos != Vector3.Zero)
+        {
+            gameObject.PosInfo.PosX = pos.X;
+            gameObject.PosInfo.PosY = pos.Y;
+            gameObject.PosInfo.PosZ = pos.Z;
         }
         
         PositionInfo posInfo = gameObject.PosInfo;
@@ -65,10 +72,14 @@ public partial class Map
             }
         }
 
+        Console.WriteLine("apply");
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = gameObject;
+                foreach (var tuple in coordinate)
+                {
+                    Objects[tuple.Item1, tuple.Item2] = gameObject;
+                }
                 break;
             case 1: // 1 -> air
                 foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = gameObject;
@@ -134,10 +145,14 @@ public partial class Map
             }
         }
 
+        Console.WriteLine("leave");
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                foreach (var tuple in coordinate) Objects[tuple.Item1, tuple.Item2] = null;
+                foreach (var tuple in coordinate)
+                {
+                    Objects[tuple.Item1, tuple.Item2] = null;
+                }
                 break;
             case 1: // 1 -> air
                 foreach (var tuple in coordinate) _objectsAir[tuple.Item1, tuple.Item2] = null;
@@ -148,7 +163,7 @@ public partial class Map
             default:
                 break;
         }
-
+        
         return true;
     }
      

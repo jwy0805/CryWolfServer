@@ -99,7 +99,7 @@ public class Sheep : Creature, ISkillObserver
             new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
         foreach (var sheep in sheeps.Select(s => s as Creature))
         {
-            if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, 0.05f);
+            if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, this, 0.05f);
         }
     }
 

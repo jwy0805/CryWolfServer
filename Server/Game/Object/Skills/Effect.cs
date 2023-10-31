@@ -11,7 +11,7 @@ public class Effect : GameObject
         EffectId = EffectId.NoEffect;
     }
 
-    protected Effect()
+    public Effect()
     {
         ObjectType = GameObjectType.Effect;
     }

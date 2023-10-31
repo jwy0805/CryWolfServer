@@ -8,9 +8,9 @@ public class SoulMageAttack : Projectile
     {
         if (Parent is not SoulMage soulMage) return;
         
-        if (Target is Creature creature && soulMage.Fire == true)
+        if (Target is Creature creature && soulMage.Fire)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, Parent!.Attack);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, soulMage, soulMage.Attack);
         }
     }
 }

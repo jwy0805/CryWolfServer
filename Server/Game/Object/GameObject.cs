@@ -395,10 +395,7 @@ public class GameObject : IGameObject
     public virtual void ApplyMap(Vector3 posInfo)
     {
         if (Room == null) return;
-        PosInfo.PosX = posInfo.X;
-        PosInfo.PosY = posInfo.Y;
-        PosInfo.PosZ = posInfo.Z;
-        bool canGo = Room.Map.ApplyMap(this);
+        bool canGo = Room.Map.ApplyMap(this, posInfo);
         if (!canGo) State = State.Idle;
         BroadcastMove();
     }

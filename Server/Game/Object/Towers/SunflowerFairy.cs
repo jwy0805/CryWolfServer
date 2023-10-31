@@ -5,7 +5,7 @@ namespace Server.Game;
 public class SunflowerFairy : SunBlossom
 {
     protected readonly float AttackParam = 0.1f;
-    protected readonly float DefenceParam = 5;
+    protected readonly int DefenceParam = 5;
     protected int FenceHealParam = 90;
     
     private bool _attackBuff = false;
@@ -52,9 +52,9 @@ public class SunflowerFairy : SunBlossom
             {
                 tower.Hp += HealParam;
                 Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
-                if (_attackBuff) BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, AttackParam);
-                if (_defenceBuff) BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, DefenceParam);
+                BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
+                if (_attackBuff) BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, this, AttackParam);
+                if (_defenceBuff) BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, this, DefenceParam);
             }
         }
 
@@ -64,9 +64,9 @@ public class SunflowerFairy : SunBlossom
         if (monsters.Any())
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
-                BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
+                BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+                BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
         }
         
         if (_fenceHeal)

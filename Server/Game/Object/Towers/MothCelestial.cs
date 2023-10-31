@@ -60,7 +60,7 @@ public class MothCelestial : MothMoon
                 Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
                 BuffManager.Instance.RemoveAllDebuff(sheep);
                 sheep.YieldIncrement = sheep.Resource * OutputParam / 100; 
-                if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, _healthParam);
+                if (_sheepHealth) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, sheep, this, _healthParam);
             }
         }
 

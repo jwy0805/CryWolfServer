@@ -156,7 +156,7 @@ public class Horror : Creeper
                     if (_rollPoison)
                     {
                         BuffManager.Instance.AddBuff(_poisonStack ? BuffId.DeadlyAddicted : BuffId.Addicted,
-                            Target, Attack);
+                            Target, this, Attack);
                     }
                     Mp += MpRecovery;
                     State = State.KnockBack;

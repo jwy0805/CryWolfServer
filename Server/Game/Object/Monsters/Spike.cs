@@ -114,20 +114,20 @@ public class Spike : Shell
         
         if (!monsters.Any()) return;
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, MoveSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, AttackSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
 
         if (_attackBuff)
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, AttackBuffParam);
+                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, this, AttackBuffParam);
         }
 
         if (_defenceBuff)
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, DefenceBuffParam);
+                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, this, DefenceBuffParam);
         }
     }
 }

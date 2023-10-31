@@ -6,6 +6,6 @@ public class SmallFire : Projectile
 {
     public override void SetProjectileEffect(GameObject master)
     {
-        BuffManager.Instance.AddBuff(BuffId.Burn, (Creature)master, Parent!.Attack);
+        BuffManager.Instance.AddBuff(BuffId.Burn, master, (Parent as Creature)!, Parent!.Attack);
     }
 }

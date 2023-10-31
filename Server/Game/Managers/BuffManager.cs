@@ -1,76 +1,50 @@
-using System.Collections;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public sealed class BuffManager
+public sealed partial class BuffManager
 {
     public static BuffManager Instance { get; } = new();
 
     private const int CallCycle = 200;
     private IJob _job;
-    private readonly object _lock = new();
     private readonly Stopwatch _stopwatch;
-    private readonly Dictionary<BuffId, Type?> _buffDict;
+    private readonly Dictionary<BuffId, IBuffFactory> _buffDict = new() 
+    {
+        { BuffId.AttackIncrease, new AttackBuffFactory() },
+        { BuffId.AttackSpeedIncrease, new AttackSpeedBuffFactory() },
+        { BuffId.HealthIncrease, new HealthBuffFactory() },
+        { BuffId.DefenceIncrease, new DefenceBuffFactory() },
+        { BuffId.MoveSpeedIncrease, new MoveSpeedBuffFactory() },
+        { BuffId.Invincible, new InvincibleFactory() },
+        { BuffId.AttackDecrease, new AttackDebuffFactory() },
+        { BuffId.AttackSpeedDecrease, new AttackSpeedDebuffFactory() },
+        { BuffId.DefenceDecrease, new DefenceDebuffFactory() },
+        { BuffId.MoveSpeedDecrease, new MoveSpeedDebuffFactory() },
+        { BuffId.Curse, new CurseFactory() },
+        { BuffId.Addicted, new AddictedFactory() },
+        { BuffId.DeadlyAddicted, new DeadlyAddictedFactory() },
+        { BuffId.Aggro, new AggroFactory() },
+        { BuffId.Burn, new BurnFactory() },
+        { BuffId.Fainted, new FaintedFactory() }
+    };
     public List<ABuff> Buffs = new();
     public GameRoom? Room;
     
     private BuffManager()
     {
-        _buffDict = new Dictionary<BuffId, Type?>
-        {
-            { BuffId.AttackIncrease, typeof(AttackBuff) },
-            { BuffId.AttackSpeedIncrease, typeof(AttackSpeedBuff) },
-            { BuffId.HealthIncrease, typeof(HealthBuff) },
-            { BuffId.DefenceIncrease, typeof(DefenceBuff) },
-            { BuffId.MoveSpeedIncrease, typeof(MoveSpeedBuff) },
-            { BuffId.Invincible, typeof(Invincible) },
-            { BuffId.AttackDecrease, typeof(AttackDebuff) },
-            { BuffId.AttackSpeedDecrease, typeof(AttackSpeedDebuff) },
-            { BuffId.DefenceDecrease, typeof(DefenceDebuff) },
-            { BuffId.MoveSpeedDecrease, typeof(MoveSpeedDebuff) },
-            { BuffId.Curse, typeof(Curse) },
-            { BuffId.Addicted, typeof(Addicted) },
-            { BuffId.DeadlyAddicted, typeof(DeadlyAddicted) },
-            { BuffId.Aggro, typeof(Aggro) },
-            { BuffId.Burn, typeof(Burn) },
-            { BuffId.Fainted, typeof(Fainted) }
-        };
         _stopwatch = new Stopwatch();
         _stopwatch.Start();
     }
-
-    public void AddBuff(BuffId buffId, Creature master, float param, long duration = 10000)
-    {
-        if (!_buffDict.TryGetValue(buffId, out var type)) return;
-        
-        long addBuffTime = _stopwatch.ElapsedMilliseconds;
-        object[] constArgs = { master, addBuffTime, duration, param };
-        ABuff buff = (ABuff)Activator.CreateInstance(type!, constArgs)!;
-
-        if (master.Invincible && buff.Type == BuffType.Debuff) return;
-        if (buff.Nested == false && master.Buffs.Contains(buff.Id))
-        {
-            ABuff? b = Buffs.FirstOrDefault(b => b.Master == master && b.Id == buffId);
-            b?.RenewBuff(addBuffTime);
-        }
-        else
-        {
-            master.Buffs.Add(buff.Id);
-            Buffs.Add(buff);
-            buff.TriggerBuff();
-        }
-    }    
     
-    public void AddBuff(BuffId buffId, GameObject master, float param, long duration = 10000)
+    public void AddBuff(BuffId buffId, GameObject master, Creature caster, float param, long duration = 10000)
     {
-        if (!_buffDict.TryGetValue(buffId, out var type)) return;
+        if (!_buffDict.TryGetValue(buffId, out var factory)) return;
         
         long addBuffTime = _stopwatch.ElapsedMilliseconds;
-        object[] constArgs = { master, addBuffTime, duration, param };
-        ABuff buff = (ABuff)Activator.CreateInstance(type!, constArgs)!;
+        ABuff buff = factory.CreateBuff();
+        buff.Init(master, caster, addBuffTime, duration, param);
 
         if (master.Invincible && buff.Type == BuffType.Debuff) return;
         if (buff.Nested == false && master.Buffs.Contains(buff.Id))
@@ -85,28 +59,6 @@ public sealed class BuffManager
             buff.TriggerBuff();
         }
     }
-    
-    public void AddBuff(BuffId buffId, Creature master, Creature caster, float param, long duration = 10000)
-    {
-        if (!_buffDict.TryGetValue(buffId, out var type)) return;
-        
-        long addBuffTime = _stopwatch.ElapsedMilliseconds;
-        object[] constArgs = { master, addBuffTime, duration, param };
-        ABuff buff = (ABuff)Activator.CreateInstance(type!, constArgs)!;
-
-        if (master.Invincible && buff.Type == BuffType.Debuff) return;
-        if (buff.Nested == false && master.Buffs.Contains(buff.Id))
-        {
-            ABuff? b = Buffs.FirstOrDefault(b => b.Master == master && b.Id == buffId);
-            b?.RenewBuff(addBuffTime);
-        }
-        else
-        {
-            master.Buffs.Add(buff.Id);
-            Buffs.Add(buff);
-            buff.TriggerBuff();
-        }
-    }    
 
     public void RemoveBuff(BuffId buffId, Creature master)
     {
@@ -175,23 +127,30 @@ public sealed class BuffManager
     {
         public BuffId Id;
         public BuffType Type;
-        public Creature Master;
+        public GameObject Master;
+        public Creature Caster;
         protected long EndTime;
         private long _duration;
         public bool Nested;
 
-        protected ABuff(Creature master, long startTime, long duration, float param)
+        public virtual void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
             Type = BuffType.NoBuffType;
             Master = master;
+            Caster = caster;
             _duration = duration;
             EndTime = startTime + _duration;
             Nested = false;
         }
-
         public virtual void CalculateFactor() { }
         public virtual void TriggerBuff() { }
-        public virtual void RemoveBuff() { }
+        
+        public virtual void RemoveBuff()
+        {
+            Master.Buffs.Remove(Id);
+            ABuff? buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
+            if (buff != null) Instance.Buffs.Remove(buff);
+        }
 
         public virtual void RenewBuff(long newStartTime, long duration = 10000)
         {
@@ -208,14 +167,14 @@ public sealed class BuffManager
         }
     }
     
-    private class AttackBuff : ABuff
+    public class AttackBuff : ABuff
     {
-        private readonly float _param;
         private int _factor;
-    
-        public AttackBuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        private float _param;
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.AttackIncrease; 
             Type = BuffType.Buff;
             _param = param;
@@ -235,22 +194,23 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalAttack -= _factor;
         }
     }
 
     private class AttackSpeedBuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private float _factor;
-        
-        public AttackSpeedBuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.AttackSpeedIncrease;
             Type = BuffType.Buff;
             _param = param;
-            CalculateFactor();
+            CalculateFactor();        
         }
 
         public sealed override void CalculateFactor()
@@ -266,21 +226,22 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalAttackSpeed -= _factor;
         }
     }
 
     private class HealthBuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private int _factor;
-        
-        public HealthBuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.HealthIncrease;
             Type = BuffType.Buff;
-            _param = param;
+            _param = param;        
         }
 
         public sealed override void CalculateFactor()
@@ -298,6 +259,7 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.MaxHp -= _factor;
             Master.BroadcastHealth();
             if (Master.Hp > Master.MaxHp) Master.Hp = Master.MaxHp;
@@ -306,15 +268,15 @@ public sealed class BuffManager
     
     private class DefenceBuff : ABuff
     {
-        private readonly int _param;
+        private int _param;
         private int _factor;
-        
-        public DefenceBuff(Creature master, long startTime, long duration, int param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.DefenceIncrease;
             Type = BuffType.Buff;
-            _param = param;
+            _param = (int)param;        
         }
 
         public sealed override void CalculateFactor()
@@ -330,17 +292,18 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalDefence -= _factor;
         }
     }
 
     private class Invincible : ABuff
     {
-        public Invincible(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Invincible;
-            Type = BuffType.Buff;
+            Type = BuffType.Buff;        
         }
 
         public override void TriggerBuff()
@@ -353,27 +316,28 @@ public sealed class BuffManager
             holyAura.Info.PosInfo = Master.Info.PosInfo;
             holyAura.Info.Name = nameof(EffectId.HolyAura);
             holyAura.Init();
-            Instance.Room?.EnterGame(holyAura);
+            Instance.Room?.EnterGame_Parent(holyAura, Master);
         }
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.Invincible = false;
         }
     }
 
     private class MoveSpeedBuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private float _factor;
 
-        public MoveSpeedBuff(Creature master, long startTime, long duration, float param)
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.MoveSpeedIncrease;
             Type = BuffType.Buff;
             _param = param;
-            CalculateFactor();
+            CalculateFactor();        
         }
 
         public sealed override void CalculateFactor()
@@ -389,18 +353,19 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalMoveSpeed -= _factor;
         }
     }
 
     private class AttackDebuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private int _factor;
-    
-        public AttackDebuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.AttackDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -419,18 +384,19 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalAttack += _factor;
         }
     }
 
     private class AttackSpeedDebuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private float _factor;
 
-        public AttackSpeedDebuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.AttackSpeedDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -449,18 +415,19 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalAttackSpeed += _factor;
         }
     }
 
     private class DefenceDebuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private int _factor;
 
-        public DefenceDebuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.DefenceDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -479,18 +446,19 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalDefence += _factor;
         }
     }
 
     private class MoveSpeedDebuff : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private float _factor;
-        
-        public MoveSpeedDebuff(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.MoveSpeedDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -508,15 +476,16 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.TotalMoveSpeed += _factor;
         }
     }
 
     private class Curse : ABuff
     {
-        public Curse(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Curse;
             Type = BuffType.Debuff;
             Nested = true;
@@ -524,6 +493,7 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             if (Master.Invincible) return; 
             Master.Hp = 1;
             Instance.Room?.Broadcast(new S_ChangeHp
@@ -536,13 +506,13 @@ public sealed class BuffManager
     
     private class Addicted : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
-        
-        public Addicted(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             _param = 0.05f;
@@ -571,13 +541,13 @@ public sealed class BuffManager
 
     private class DeadlyAddicted : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
-        
-        public DeadlyAddicted(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             Nested = true;
@@ -606,11 +576,11 @@ public sealed class BuffManager
 
     public class Aggro : ABuff
     {
-        private readonly Creature _caster;
-        
-        public Aggro(Creature master, Creature caster, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        private Creature _caster;
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Aggro;
             Type = BuffType.Debuff;
             Master = master;
@@ -622,22 +592,17 @@ public sealed class BuffManager
             if (Master.Invincible) return; 
             Master.Target = _caster;
         }
-
-        public override void RemoveBuff()
-        {
-            
-        }
     }
     
     private class Burn : ABuff
     {
-        private readonly float _param;
+        private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
-        
-        public Burn(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             Master = master;
@@ -651,6 +616,7 @@ public sealed class BuffManager
 
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.Burn = false;
         }
 
@@ -675,14 +641,14 @@ public sealed class BuffManager
     
     private class Fainted : ABuff
     {
-        public Fainted(Creature master, long startTime, long duration, float param) 
-            : base(master, startTime, duration, param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
+            base.Init(master, caster, startTime, duration, param);
             Id = BuffId.Fainted;
             Type = BuffType.Debuff;
             Nested = false;
         }
-
+        
         public override void TriggerBuff()
         {
             Master.State = State.Faint;
@@ -691,6 +657,7 @@ public sealed class BuffManager
         
         public override void RemoveBuff()
         {
+            base.RemoveBuff();
             Master.State = State.Idle;
             Master.BroadcastMove();
         }

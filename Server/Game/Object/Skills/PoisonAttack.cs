@@ -8,7 +8,7 @@ public class PoisonAttack : Projectile
     {
         if (Target is Creature creature)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, Parent!.Attack);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, (Parent as Creature)!, Parent!.Attack);
         }
     }
 }

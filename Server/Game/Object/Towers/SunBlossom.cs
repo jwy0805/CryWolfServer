@@ -53,7 +53,7 @@ public class SunBlossom : Tower
                     tower.Hp += HealParam;
                     Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
                 }
-                if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, HealthParam);
+                if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
             }
         }
 
@@ -64,13 +64,13 @@ public class SunBlossom : Tower
             if (_slow)
             {
                 foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, SlowParam);
+                    BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
             }
             
             if (_slowAttack)
             {
                 foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, SlowAttackParam);
+                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
             }
             
         }

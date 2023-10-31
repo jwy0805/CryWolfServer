@@ -158,11 +158,6 @@ public partial class GameRoom
         
         return objectsInDist;
     }
-
-    public void ApplyBuff(GameObject gameObject, BuffId buffId, int param = 0, int duration = 0)
-    {
-        BuffManager.Instance.AddBuff(buffId, gameObject, param, duration);
-    }
     
     public GameObject? FindMosquitoInFence()
     {

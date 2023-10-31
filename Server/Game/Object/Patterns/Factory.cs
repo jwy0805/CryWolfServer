@@ -11,3 +11,4 @@ public interface IGameObject
 {
     public void Init();
 }
+

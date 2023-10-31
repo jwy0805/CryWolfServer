@@ -212,13 +212,13 @@ public class Shell : Monster
         if (_moveSpeedBuff)
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, MoveSpeedParam);
+                BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
         }
 
         if (_attackSpeedBuff)
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, AttackSpeedParam);
+                BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
         }
     }
     
