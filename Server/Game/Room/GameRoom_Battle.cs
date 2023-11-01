@@ -273,10 +273,52 @@ public partial class GameRoom
     public void HandleSkill(Player? player, C_Skill skillPacket)
     {
         if (player == null) return;
+        AttackMethod method = skillPacket.AttackMethod;
+        
+        if (method == AttackMethod.NoAttack)
+        {
+            Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
+            creature?.RunSkill();
+            creature?.SetNextState();
+        }
+        else
+        {
+            int attackerId = skillPacket.ObjectId;
+            GameObject? attacker = FindGameObjectById(attackerId);
+            GameObject? target = attacker?.Target;
+            if (attacker == null) return;
+        
+            GameObjectType type = attacker.ObjectType;
+            if (target == null)
+            {
+                if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
+                Creature cAttacker = (Creature)attacker;
+                cAttacker.SetNextState();
+                return;
+            }
+            if (target.Targetable == false) return;
 
-        Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
-        creature?.RunSkill();
-        creature?.SetNextState();
+            switch (method)
+            {
+                case AttackMethod.EffectAttack:
+                    if (!Enum.IsDefined(typeof(EffectId), skillPacket.Effect)) return;
+                    Effect effect = ObjectManager.Instance.CreateEffect(skillPacket.Effect);
+                    effect.Room = this;
+                    effect.Parent = attacker;
+                    effect.PosInfo = target.PosInfo;
+                    effect.Info.PosInfo = target.Info.PosInfo;
+                    effect.Info.Name = skillPacket.Effect.ToString();
+                    effect.EffectId = skillPacket.Effect;
+                    effect.Init();
+                    Push(EnterGame_Parent, effect, attacker);
+                    if (type is GameObjectType.Monster or GameObjectType.Tower)
+                    {
+                        Creature cAttacker = (Creature)attacker;
+                        cAttacker.SetNextState();
+                    }
+                    break;
+            }
+        }
     }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)

@@ -67,16 +67,16 @@ public partial class GameRoom
         GameObject? target = null;
         
         float closestDist = 5000f;
-        foreach (var (key, obj) in targetDict)
+        foreach (var go in targetDict.Values)
         {
-            PositionInfo pos = obj.PosInfo;
+            PositionInfo pos = go.PosInfo;
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            bool targetable = obj.Stat.Targetable; 
+            bool targetable = go.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && obj.Id != gameObject.Id && (obj.UnitType == attackType || attackType == 2))
+            if (dist < closestDist && targetable && go.Id != gameObject.Id && (go.UnitType == attackType || attackType == 2))
             {
                 closestDist = dist;
-                target = obj;
+                target = go;
             }
         }
 
@@ -126,16 +126,47 @@ public partial class GameRoom
         GameObject? target = null;
         
         float closestDist = 5000f;
-        foreach (var (key, obj) in targetDict)
+        foreach (var go in targetDict.Values)
         {
-            PositionInfo pos = obj.PosInfo;
+            PositionInfo pos = go.PosInfo;
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            bool targetable = obj.Stat.Targetable; 
+            bool targetable = go.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && obj.Id != gameObject.Id && (obj.UnitType == attackType || attackType == 2))
+            if (dist < closestDist && targetable && go.Id != gameObject.Id && (go.UnitType == attackType || attackType == 2))
             {
                 closestDist = dist;
-                target = obj;
+                target = go;
+            }
+        }
+
+        return target;
+    }
+
+    public GameObject? FindNearestTower(List<TowerId> towerIdList)
+    {
+        Dictionary<int, GameObject> targetDict = new();
+        foreach (var towerId in towerIdList)
+        {
+            foreach (var (key, tower) in _towers)
+            {
+                if (tower.TowerId == towerId) targetDict.Add(key, tower);
+            }
+        }
+
+        if (targetDict.Count == 0) return null;
+        GameObject? target = null;
+        
+        float closestDist = 5000f;
+        foreach (var go in targetDict.Values)
+        {
+            PositionInfo pos = go.PosInfo;
+            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            bool targetable = go.Stat.Targetable; 
+            float dist = new Vector3().SqrMagnitude(targetPos - go.CellPos);
+            if (dist < closestDist && targetable)
+            {
+                closestDist = dist;
+                target = go;
             }
         }
 

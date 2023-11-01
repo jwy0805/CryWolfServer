@@ -48,26 +48,18 @@ public class Soul : Tower
         BroadcastDest();
         
         State = State.Moving;
+        BroadcastMove();
     }
 
     protected override void UpdateMoving()
     {
         // Targeting
-        double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-        if (timeNow > LastSearch + SearchTick)
+        Target = Room?.FindNearestTarget(this);
+        if (Target != null)
         {
-            LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
-            if (Target?.Id != target?.Id)
-            {
-                Target = target;
-                if (Target != null)
-                {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
-                    BroadcastDest();
-                }
-            }
+            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
+            BroadcastDest();
         }
         
         if (Target == null || Target.Room != Room)
@@ -142,6 +134,8 @@ public class Soul : Tower
 
     public override void SetNormalAttackEffect(GameObject target)
     {
-        if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
+        if (!_drain) return;
+        Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
+        Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
     }
 }

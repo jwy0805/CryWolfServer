@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class SoulMagePunch : Projectile
+public class SoulMagePunch : Effect
 {
     
 }

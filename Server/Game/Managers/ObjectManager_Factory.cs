@@ -56,7 +56,6 @@ public sealed partial class ObjectManager
         { ProjectileId.HauntArrow, new HauntArrowFactory() },
         { ProjectileId.HauntFireAttack, new HauntFireAttackFactory() },
         { ProjectileId.SoulMageAttack, new SoulMageAttackFactory() },
-        { ProjectileId.SoulMagePunch, new SoulMagePunchFactory() },
         { ProjectileId.SunfloraPixieArrow, new SunfloraPixieArrowFactory() },
         { ProjectileId.SunfloraPixieFire, new SunfloraPixieFireFactory() },
         { ProjectileId.MothMoonAttack, new MothMoonAttackFactory()},
@@ -68,7 +67,8 @@ public sealed partial class ObjectManager
     {
         { EffectId.LightningStrike, new LightningStrikeFactory() },
         { EffectId.PoisonBelt, new PoisonBeltFactory() },
-        { EffectId.HolyAura, new HolyAuraFactory() }
+        { EffectId.HolyAura, new HolyAuraFactory() },
+        { EffectId.SoulMagePunch, new SoulMagePunchFactory() },
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -310,11 +310,6 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new SoulMageAttack();
     }
     
-    public class SoulMagePunchFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SoulMagePunch();
-    }
-    
     public class SunfloraPixieArrowFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new SunfloraPixieArrow();
@@ -353,6 +348,11 @@ public sealed partial class ObjectManager
     public class HolyAuraFactory : IEffectFactory
     {
         public Effect CreateEffect() => new HolyAura();
+    }
+    
+    public class SoulMagePunchFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new SoulMagePunch();
     }
     
     public class CoinStarSilverFactory : IResourceFactory

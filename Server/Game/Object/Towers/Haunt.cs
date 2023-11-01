@@ -43,7 +43,51 @@ public class Haunt : Soul
             }
         }
     }
+    
+    protected override void UpdateMoving()
+    {
+        // Targeting
+        Target = Room?.FindNearestTarget(this);
+        if (Target != null)
+        {
+            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
+            BroadcastDest();
+        }
+        
+        if (Target == null || Target.Room != Room)
+        {
+            State = State.Idle;
+            BroadcastMove();
+            return;
+        }
 
+        if (Room != null)
+        {
+            // 이동
+            // target이랑 너무 가까운 경우
+            // Attack
+            StatInfo targetStat = Target.Stat;
+            Vector3 position = CellPos;
+            if (targetStat.Targetable)
+            {
+                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                double deltaX = DestPos.X - CellPos.X;
+                double deltaZ = DestPos.Z - CellPos.Z;
+                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+                if (distance <= AttackRange)
+                {
+                    CellPos = position;
+                    State = _longAttack ? State.Skill : State.Attack;
+                    BroadcastMove();
+                    return;
+                }
+            }
+            
+            BroadcastMove();
+        }
+    }
+    
     public override void SetNextState()
     {
         if (Room == null) return;
@@ -58,7 +102,7 @@ public class Haunt : Soul
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _longAttack == true ? State.Skill : State.Attack;
+                    State = _longAttack ? State.Skill : State.Attack;
                     SetDirection();
                 }
                 else

@@ -20,7 +20,11 @@ public partial class Map
         {
             bool canGo = gameObject.UnitType == 0 ? CanGo(gameObject, v, true, gameObject.Stat.SizeX) 
                 : CanGoAir(gameObject, v, true, gameObject.Stat.SizeX);
-            if (canGo == false) return false;
+            if (canGo == false)
+            {
+                gameObject.BroadcastMove();
+                return false;
+            }
         }
         
         if (pos != Vector3.Zero)
@@ -72,7 +76,6 @@ public partial class Map
             }
         }
 
-        Console.WriteLine("apply");
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
@@ -145,7 +148,6 @@ public partial class Map
             }
         }
 
-        Console.WriteLine("leave");
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground

@@ -47,21 +47,12 @@ public class Monster : Creature, ISkillObserver
     protected override void UpdateMoving()
     {
         // Targeting
-        double timeNow = Room.Stopwatch.Elapsed.TotalMilliseconds;
-        if (timeNow > LastSearch + SearchTick)
+        Target = Room?.FindNearestTarget(this);
+        if (Target != null)
         {
-            LastSearch = timeNow;
-            GameObject? target = Room.FindNearestTarget(this);
-            if (Target?.Id != target?.Id)
-            {
-                Target = target;
-                if (Target != null)
-                {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
-                }
-            }
+            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
+            BroadcastDest();
         }
         
         if (Target == null || Target.Targetable == false || Target.Room != Room)

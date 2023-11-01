@@ -319,6 +319,8 @@ public class GameObject : IGameObject
     public virtual void OnDamaged(GameObject attacker, int damage, bool reflected = false)
     {
         if (Room == null) return;
+        if (Invincible) return;
+        
         damage = attacker.CriticalChance > 0 
             ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
             : Math.Max(damage - TotalDefence, 0);
