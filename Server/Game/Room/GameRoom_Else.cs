@@ -7,6 +7,25 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
+    private void BaseInit()
+    {
+        StorageLevel = 1;
+
+        // Spawn Rock Pile
+        Vector3[] rockPilePos = GameData.SpawnerPos;
+        List<SpawnWay> way = new() { SpawnWay.West, SpawnWay.North, SpawnWay.East };
+
+        for (int i = 0; i < rockPilePos.Length; i++)
+        {
+            RockPile rockPile = ObjectManager.Instance.Add<RockPile>();
+            rockPile.Init();
+            rockPile.Way = way[i];
+            rockPile.Info.Name = "RockPile";
+            rockPile.CellPos = rockPilePos[i];
+            Push(EnterGame, rockPile);
+        }
+    }
+    
     public GameObject? FindNearestTarget(GameObject gameObject, int attackType = 0)
     {
         // 어그로 끌린 상태면 리턴하는 코드
@@ -142,6 +161,15 @@ public partial class GameRoom
         return target;
     }
 
+    public List<GameObject> FindTargetsInRange(List<GameObjectType> typeList, int width, int length = 0) // Cell 기준 -> width 가 2면 grid = 8
+    {
+        if (length == 0) length = width;
+        
+        
+        
+        return new List<GameObject>();
+    }
+    
     public GameObject? FindNearestTower(List<TowerId> towerIdList)
     {
         Dictionary<int, GameObject> targetDict = new();
@@ -256,7 +284,6 @@ public partial class GameRoom
 
         return go;
     }
-    
 
     private bool InsideFence(GameObject gameObject)
     {

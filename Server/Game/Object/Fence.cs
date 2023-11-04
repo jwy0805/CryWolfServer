@@ -12,11 +12,11 @@ public class Fence : GameObject
         ObjectType = GameObjectType.Fence;
     }
 
-    public void Init()
+    public override void Init()
     {
         DataManager.FenceDict.TryGetValue(FenceNum, out var fenceData);
-        Stat.MergeFrom(fenceData!.stat);
+        if (fenceData == null) throw new InvalidDataException();
+        Stat.MergeFrom(fenceData.stat);
         Stat.Hp = fenceData.stat.MaxHp;
     }
-    
 }

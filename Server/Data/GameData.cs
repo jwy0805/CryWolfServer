@@ -18,6 +18,7 @@ public class GameData
         new Vector3(0.0f, 6.0f, 40.0f),  // North
         new Vector3(40.0f, 6.0f, 0.0f)  // East
     };
+    
     #region MapData
 
     public static List<Vector3> WestMap = new()
@@ -67,6 +68,7 @@ public class GameData
     public static string[] FenceName = { "", "FenceLv1", "FenceLv2", "FenceLv3" };
     public static int[] FenceCnt = { 0, 18, 22, 28 };
     public static int CurrentFenceCnt = 0;
+    public static int CurrentRockPileCnt = 0;
     public static int[] FenceRow = { 0, 4, 5, 6 };
 
     public static readonly Vector3[] FenceStartPos =

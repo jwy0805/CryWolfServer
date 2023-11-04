@@ -21,7 +21,7 @@ public class DataManager
 
     private static TLoader? LoadJson<TLoader, TKey, TValue>(string path) where TLoader : ILoader<TKey, TValue>
     {
-        string text = File.ReadAllText($"{ConfigManager.Config.dataPath}/{path}.json");
+        string text = File.ReadAllText($"{ConfigManager.Config?.dataPath}/{path}.json");
         return Newtonsoft.Json.JsonConvert.DeserializeObject<TLoader>(text);
     }
 }

@@ -24,6 +24,9 @@ public class SoulMage : Haunt
                     Evasion += 20;
                     break;
                 case Skill.SoulMageDefenceAll:
+                    Defence += 20;
+                    FireResist += 35;
+                    PoisonResist += 35;
                     break;
                 case Skill.SoulMageFireDamage:
                     Fire = true;
@@ -32,6 +35,7 @@ public class SoulMage : Haunt
                     _tornado = true;
                     break;
                 case Skill.SoulMageShareDamage:
+                    _shareDamage = true;
                     break;
                 case Skill.SoulMageNatureAttack:
                     _natureAttack = true;
@@ -183,6 +187,14 @@ public class SoulMage : Haunt
         S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
         Room.Broadcast(hpPacket);
         if (Hp <= 0) OnDead(attacker);
+    }
+
+    public override void SetNormalAttackEffect(GameObject target)
+    {
+        if (_debuffResist == false || !Buffs.Any()) return;
+        BuffId buffId = Buffs.OrderBy(_ => Guid.NewGuid()).ToList().First();
+        
+        Buffs.Remove(buffId);
     }
     
     public override void SetNextState()

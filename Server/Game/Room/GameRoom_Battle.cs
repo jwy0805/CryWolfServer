@@ -42,7 +42,7 @@ public partial class GameRoom
     private void GameInit()
     {
         Stopwatch.Start();
-        StorageLevel = 1;
+        BaseInit();
         BuffManager.Instance.Room = this;
         BuffManager.Instance.Update();
     }
@@ -73,6 +73,26 @@ public partial class GameRoom
         else go.ApplyMap(cellPos);
     }
 
+    public void HandleDir(Player? player, C_Dir dirPacket)
+    {
+        if (player == null) return;
+        GameObject? go = FindGameObjectById(dirPacket.ObjectId);
+        if (go == null) return;
+
+        GameObjectType type = go.ObjectType;
+        switch (type)
+        {
+            case GameObjectType.Effect:
+                Effect effect = (Effect)go;
+                effect.Dir = dirPacket.Dir;
+                effect.PacketReceived = true;
+                break;
+            default:
+                go.Dir = dirPacket.Dir;
+                break;
+        }
+    }
+    
     public void HandleSetDest(Player? player, C_SetDest destPacket)
     {
         if (player == null) return;
@@ -151,7 +171,7 @@ public partial class GameRoom
         }
     }
     
-    private void SpawnFence(int storageLv = 1)
+    private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
         Vector3[] fencePos = GameData.GetPos(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv], GameData.FenceStartPos[storageLv]);
         float[] fenceRotation = GameData.GetRotation(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv]);
@@ -163,6 +183,7 @@ public partial class GameRoom
             fence.Info.Name = GameData.FenceName[storageLv];
             fence.CellPos = fencePos[i];
             fence.Dir = fenceRotation[i];
+            fence.FenceNum = fenceLv;
             Push(EnterGame, fence);
         }
     }
@@ -195,6 +216,13 @@ public partial class GameRoom
         
         switch (attackPacket.AttackMethod)
         {
+            case AttackMethod.NoAttack:
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNormalAttackEffect(target);
+                }
+                break;
             case AttackMethod.NormalAttack:
                 int damage = attacker.TotalAttack;
                 target.OnDamaged(attacker, damage);
@@ -221,17 +249,15 @@ public partial class GameRoom
             
             case AttackMethod.EffectAttack:
                 if (!Enum.IsDefined(typeof(EffectId), attackPacket.Effect)) return;
-                int skillDamage = attacker.SkillDamage;
                 Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
                 effect.Room = this;
                 effect.Parent = attacker;
-                effect.PosInfo = target.PosInfo;
                 effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
                 effect.EffectId = attackPacket.Effect;
+                effect.PosInfo = effect.SetEffectPos(attacker);
                 effect.Init();
-                target.OnDamaged(attacker, skillDamage);
-                Push(EnterGame, effect);
+                Push(EnterGame_Parent, effect, effect.Parent);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
                     Creature cAttacker = (Creature)attacker;
@@ -273,52 +299,10 @@ public partial class GameRoom
     public void HandleSkill(Player? player, C_Skill skillPacket)
     {
         if (player == null) return;
-        AttackMethod method = skillPacket.AttackMethod;
-        
-        if (method == AttackMethod.NoAttack)
-        {
-            Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
-            creature?.RunSkill();
-            creature?.SetNextState();
-        }
-        else
-        {
-            int attackerId = skillPacket.ObjectId;
-            GameObject? attacker = FindGameObjectById(attackerId);
-            GameObject? target = attacker?.Target;
-            if (attacker == null) return;
-        
-            GameObjectType type = attacker.ObjectType;
-            if (target == null)
-            {
-                if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
-                Creature cAttacker = (Creature)attacker;
-                cAttacker.SetNextState();
-                return;
-            }
-            if (target.Targetable == false) return;
 
-            switch (method)
-            {
-                case AttackMethod.EffectAttack:
-                    if (!Enum.IsDefined(typeof(EffectId), skillPacket.Effect)) return;
-                    Effect effect = ObjectManager.Instance.CreateEffect(skillPacket.Effect);
-                    effect.Room = this;
-                    effect.Parent = attacker;
-                    effect.PosInfo = target.PosInfo;
-                    effect.Info.PosInfo = target.Info.PosInfo;
-                    effect.Info.Name = skillPacket.Effect.ToString();
-                    effect.EffectId = skillPacket.Effect;
-                    effect.Init();
-                    Push(EnterGame_Parent, effect, attacker);
-                    if (type is GameObjectType.Monster or GameObjectType.Tower)
-                    {
-                        Creature cAttacker = (Creature)attacker;
-                        cAttacker.SetNextState();
-                    }
-                    break;
-            }
-        }
+        Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
+        creature?.RunSkill();
+        creature?.SetNextState();
     }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)

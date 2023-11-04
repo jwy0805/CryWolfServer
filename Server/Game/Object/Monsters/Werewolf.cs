@@ -6,7 +6,7 @@ namespace Server.Game;
 
 public class Werewolf : Wolf
 {
-    private int _attackCount = 0;
+    private Random _rnd = new();
     private bool _thunder = false;
     private bool _debuffResist = false;
     private bool _faint = false;
@@ -104,12 +104,7 @@ public class Werewolf : Wolf
                 if (distance <= AttackRange)
                 {
                     CellPos = position;
-                    if (_thunder)
-                    {
-                        State = _attackCount % 2 == 0 ? State.Skill : State.Skill2;
-                        _attackCount++;
-                    }
-                    else State = State.Attack;
+                    State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
                     BroadcastMove();
                     return;
                 }
@@ -131,7 +126,6 @@ public class Werewolf : Wolf
     
     protected override void UpdateDie()
     {
-        _attackCount = 0;
         base.UpdateDie();
     }
 
@@ -157,7 +151,7 @@ public class Werewolf : Wolf
                 float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
                 if (distance <= AttackRange)
                 {
-                    State = _thunder ? State.Skill : State.Attack;
+                    State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
                     SetDirection();
                 }
                 else State = State.Moving;

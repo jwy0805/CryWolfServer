@@ -337,7 +337,7 @@ public sealed partial class ObjectManager
     
     public class LightningStrikeFactory : IEffectFactory
     {
-        public Effect CreateEffect() => new();
+        public Effect CreateEffect() => new LightningStrike();
     }
     
     public class PoisonBeltFactory : IEffectFactory

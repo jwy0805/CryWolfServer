@@ -38,6 +38,16 @@ public class PacketHandler
         room?.Push(room.HandleMove, player, movePacket);
     }
 
+    public static void C_DirHandler(PacketSession session, IMessage packet)
+    {
+        C_Dir dirPacket = (C_Dir)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+        
+        room?.Push(room.HandleDir, player, dirPacket);
+    }
+    
     public static void C_StateHandler(PacketSession session, IMessage packet)
     {
         C_State statePacket = (C_State)packet;

@@ -19,6 +19,7 @@ public partial class GameRoom : JobSerializer
     private Dictionary<int, Fence> _fences = new();
     private Dictionary<int, Effect> _effects = new();
     private Dictionary<int, Projectile> _projectiles = new();
+    private Dictionary<int, RockPile> _rockPiles = new();
 
     public Map Map { get; private set; } = new();
 
@@ -62,6 +63,7 @@ public partial class GameRoom : JobSerializer
                 foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
                 foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                 foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
+                foreach (var r in _rockPiles.Values) spawnPacket.Objects.Add(r.Info);
                 
                 player.Session.Send(spawnPacket);
             }
@@ -129,6 +131,14 @@ public partial class GameRoom : JobSerializer
                 resource.Info = gameObject.Info;
                 resource.Init();
                 resource.Update();
+                break;
+            
+            case GameObjectType.RockPile:
+                RockPile rockPile = (RockPile)gameObject;
+                _rockPiles.Add(gameObject.Id, rockPile);
+                rockPile.Room = this;
+                Map.ApplyMap(rockPile);
+                GameData.CurrentRockPileCnt++;
                 break;
         }
         // 타인에게 정보 전송
@@ -207,6 +217,12 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Projectile:
                 if (_projectiles.Remove(objectId, out var projectile) == false) return;
                 projectile.Room = null;
+                break;
+            
+            case GameObjectType.RockPile:
+                if (_rockPiles.Remove(objectId, out var rockPile) == false) return;
+                rockPile.Room = null;
+                GameData.CurrentRockPileCnt--;
                 break;
         }
 

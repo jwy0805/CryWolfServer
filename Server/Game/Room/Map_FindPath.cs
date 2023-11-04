@@ -54,8 +54,17 @@ public struct Vector2Int
 
     public Vector2Int(int x, int z)
     {
-        this.X = x;
-        this.Z = z;
+        X = x;
+        Z = z;
+    }
+    
+    public Vector2 Rotate(Vector2Int datumPoint, double angle)
+    {
+        double cos = Math.Cos(angle);
+        double sin = Math.Sin(angle);
+        double x = (X - datumPoint.X) * cos - (Z - datumPoint.Z) * sin + datumPoint.X;
+        double z = (X - datumPoint.X) * sin + (Z - datumPoint.Z) * cos + datumPoint.Z;
+        return new Vector2((float)x, (float)z);
     }
 }
 
