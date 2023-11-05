@@ -109,7 +109,7 @@ public class Spike : Shell
         if (Room == null) return;
         int num = _doubleBuff ? 2 : 1;
         
-        List<Creature> monsters = Room.FindBuffTargets(this, 
+        List<Creature> monsters = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
         
         if (!monsters.Any()) return;

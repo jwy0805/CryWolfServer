@@ -94,7 +94,7 @@ public class PracticeDummy : Tower
     {
         if (Room == null) return;
         
-        List<GameObject> gameObjects = Room.FindBuffTargets(this,
+        List<GameObject> gameObjects = Room.FindTargets(this,
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange);
         if (!gameObjects.Any()) return;
         foreach (var creature in gameObjects.Cast<Creature>())

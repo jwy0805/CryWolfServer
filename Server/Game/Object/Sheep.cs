@@ -95,7 +95,7 @@ public class Sheep : Creature, ISkillObserver
     {
         if (!Infection) return;
         
-        List<GameObject> sheeps = Room.FindBuffTargets(this,
+        List<GameObject> sheeps = Room.FindTargets(this,
             new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
         foreach (var sheep in sheeps.Select(s => s as Creature))
         {

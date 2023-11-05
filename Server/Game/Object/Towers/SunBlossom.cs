@@ -42,7 +42,7 @@ public class SunBlossom : Tower
     {
         if (Room == null) return;
         
-        List<Creature> towers = Room.FindBuffTargets(this, 
+        List<Creature> towers = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
         if (towers.Any())
         {
@@ -57,7 +57,7 @@ public class SunBlossom : Tower
             }
         }
 
-        List<Creature> monsters = Room.FindBuffTargets(this,
+        List<Creature> monsters = Room.FindTargets(this,
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
         if (monsters.Any())
         {

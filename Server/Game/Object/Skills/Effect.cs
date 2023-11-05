@@ -12,11 +12,6 @@ public class Effect : GameObject
         ObjectType = GameObjectType.Effect;
     }
 
-    public override void Update()
-    {
-        
-    }
-
     public virtual void SetEffectEffect(GameObject master) { }
 
     public virtual PositionInfo SetEffectPos(GameObject parent)

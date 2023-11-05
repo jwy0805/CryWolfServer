@@ -46,7 +46,7 @@ public class Hermit : Spike
     {
         if (Room == null) return;
         
-        List<Creature> monsters = Room.FindBuffTargets(this, 
+        List<Creature> monsters = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
         
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())

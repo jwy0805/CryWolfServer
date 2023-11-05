@@ -236,8 +236,8 @@ public partial class GameRoom
                 else if (type is GameObjectType.Effect)
                 {
                     attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
-                    Effect? eAttacker = FindGameObjectById(attackerId) as Effect;
-                    eAttacker?.SetEffectEffect(target);
+                    if (FindGameObjectById(attackerId) is not Effect eAttacker) return;
+                    eAttacker.Update();
                 }
                 else if (type is GameObjectType.Projectile)
                 {
@@ -299,7 +299,7 @@ public partial class GameRoom
     public void HandleSkill(Player? player, C_Skill skillPacket)
     {
         if (player == null) return;
-
+        
         Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
         creature?.RunSkill();
         creature?.SetNextState();

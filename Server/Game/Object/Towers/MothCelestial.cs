@@ -49,7 +49,7 @@ public class MothCelestial : MothMoon
     public override void RunSkill()
     {
         if (Room == null) return;
-        List<GameObject> sheeps = Room.FindBuffTargets(this,
+        List<GameObject> sheeps = Room.FindTargets(this,
             new List<GameObjectType> { GameObjectType.Sheep }, AttackRange);
         if (sheeps.Any())
         {

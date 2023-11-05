@@ -44,7 +44,7 @@ public class SunflowerFairy : SunBlossom
     {
         if (Room == null) return;
         
-        List<Creature> towers = Room.FindBuffTargets(this, 
+        List<Creature> towers = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
         if (towers.Count != 0)
         {
@@ -59,7 +59,7 @@ public class SunflowerFairy : SunBlossom
         }
 
         int num = _double ? 2 : 1;
-        List<Creature> monsters = Room.FindBuffTargets(this,
+        List<Creature> monsters = Room.FindTargets(this,
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
         if (monsters.Any())
         {
@@ -71,7 +71,7 @@ public class SunflowerFairy : SunBlossom
         
         if (_fenceHeal)
         {
-            List<GameObject> fences = Room.FindBuffTargets(this, 
+            List<GameObject> fences = Room.FindTargets(this, 
                 new List<GameObjectType> { GameObjectType.Fence }, SkillRange);
             if (fences.Any())
             {

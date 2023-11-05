@@ -160,14 +160,34 @@ public partial class GameRoom
 
         return target;
     }
-
-    public List<GameObject> FindTargetsInRange(List<GameObjectType> typeList, int width, int length = 0) // Cell 기준 -> width 가 2면 grid = 8
+    
+    public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height)
     {
-        if (length == 0) length = width;
+        Map map = Map;
+        Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
         
+        double halfWidth = width / 2.0f;
+        double angle = gameObject.Dir * Math.PI / 180;
         
+        Vector2[] corners = new Vector2[4];
+        corners[0] = new Vector2(pos.X - (float)halfWidth, pos.Z + (float)height);
+        corners[1] = new Vector2(pos.X - (float)halfWidth, pos.Z);
+        corners[2] = new Vector2(pos.X + (float)halfWidth, pos.Z);
+        corners[3] = new Vector2(pos.X + (float)halfWidth, pos.Z + (float)height);
         
-        return new List<GameObject>();
+        Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
+        float minX = cornersRotated.Min(v => v.X);
+        float maxX = cornersRotated.Max(v => v.X);
+        float minZ = cornersRotated.Min(v => v.Y);
+        float maxZ = cornersRotated.Max(v => v.Y);
+
+        List<GameObject> gameObjects = FindTargets(gameObject, typeList, (float)(height > width ? height : width));
+        List<GameObject> objectsInRect = gameObjects.Where(obj => obj.Stat.Targetable)
+            .Where(obj => obj.CellPos.X >= minX && obj.CellPos.X <= maxX)
+            .Where(obj => obj.CellPos.Z >= minZ && obj.CellPos.Z <= maxZ)
+            .ToList();
+
+        return objectsInRect;
     }
     
     public GameObject? FindNearestTower(List<TowerId> towerIdList)
@@ -201,7 +221,7 @@ public partial class GameRoom
         return target;
     }
 
-    public List<GameObject> FindBuffTargets(GameObject gameObject, List<GameObjectType> typeList, float dist)
+    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist)
     {
         Dictionary<int, GameObject> targetDict = new();
         targetDict = typeList.Select(AddTargetType)
@@ -284,7 +304,23 @@ public partial class GameRoom
 
         return go;
     }
+    
+    private Vector2[] RotateRectangle(Vector2[] corners, Vector2 datumPoint, double angle)
+    {
+        for (int i = 0; i < corners.Length; i++)
+        {
+            Vector2 offset = corners[i] - datumPoint;
+            float x = offset.X;
+            float z = offset.Y;
+            corners[i] = new Vector2(
+                datumPoint.X + x * (float)Math.Cos(angle) - z * (float)Math.Sin(angle),
+                datumPoint.Y + x * (float)Math.Sin(angle) + z * (float)Math.Cos(angle)
+            );
+        }
 
+        return corners;
+    }
+    
     private bool InsideFence(GameObject gameObject)
     {
         int lv = StorageLevel;

@@ -204,7 +204,7 @@ public class Shell : Monster
     {
         if (Room == null) return;
         
-        List<Creature> monsters = Room.FindBuffTargets(this, 
+        List<Creature> monsters = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange)
             .Cast<Creature>().ToList();
         if (!monsters.Any()) return;
