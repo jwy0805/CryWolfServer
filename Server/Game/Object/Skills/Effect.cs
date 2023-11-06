@@ -12,7 +12,10 @@ public class Effect : GameObject
         ObjectType = GameObjectType.Effect;
     }
 
-    public virtual void SetEffectEffect(GameObject master) { }
+    public virtual void SetEffectEffect()
+    {
+        Room?.LeaveGame(Id);
+    }
 
     public virtual PositionInfo SetEffectPos(GameObject parent)
     {

@@ -207,9 +207,21 @@ public partial class GameRoom
         GameObjectType type = attacker.ObjectType;
         if (target == null)
         {
-            if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
-            Creature cAttacker = (Creature)attacker;
-            cAttacker.SetNextState();
+            switch (type)
+            {
+                case GameObjectType.Monster:
+                case GameObjectType.Tower:
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNextState();
+                    break;
+                
+                case GameObjectType.Effect:
+                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                    if (FindGameObjectById(attackerId) is not Effect eAttacker) return;
+                    eAttacker.SetEffectEffect();
+                    break;
+            }
+
             return;
         }
         if (target.Targetable == false) return;
@@ -232,12 +244,6 @@ public partial class GameRoom
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.Stat.MpRecovery;
                     cAttacker.SetNormalAttackEffect(target);
-                }
-                else if (type is GameObjectType.Effect)
-                {
-                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
-                    if (FindGameObjectById(attackerId) is not Effect eAttacker) return;
-                    eAttacker.Update();
                 }
                 else if (type is GameObjectType.Projectile)
                 {

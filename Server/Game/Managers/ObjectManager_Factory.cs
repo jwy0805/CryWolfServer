@@ -69,6 +69,7 @@ public sealed partial class ObjectManager
         { EffectId.PoisonBelt, new PoisonBeltFactory() },
         { EffectId.HolyAura, new HolyAuraFactory() },
         { EffectId.SoulMagePunch, new SoulMagePunchFactory() },
+        { EffectId.Meteor, new MeteorFactory() }
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -353,6 +354,11 @@ public sealed partial class ObjectManager
     public class SoulMagePunchFactory : IEffectFactory
     {
         public Effect CreateEffect() => new SoulMagePunch();
+    }
+
+    public class MeteorFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new Meteor();
     }
     
     public class CoinStarSilverFactory : IResourceFactory

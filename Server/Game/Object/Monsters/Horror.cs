@@ -61,7 +61,7 @@ public class Horror : Creeper
             Mp += Stat.MpRecovery;
         }
 
-        if (MaxMp != 1 && Mp >= MaxMp && _poisonBelt)
+        if (Mp >= MaxMp && _poisonBelt)
         {
             Effect poisonBelt = ObjectManager.Instance.CreateEffect(EffectId.PoisonBelt);
             poisonBelt.Room = Room;

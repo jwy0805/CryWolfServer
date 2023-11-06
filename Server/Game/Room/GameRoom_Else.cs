@@ -161,33 +161,37 @@ public partial class GameRoom
         return target;
     }
     
-    public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height)
+    public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height, int targetType)
     {
         Map map = Map;
         Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
         
         double halfWidth = width / 2.0f;
         double angle = gameObject.Dir * Math.PI / 180;
-        
+
+        double x1 = pos.X - halfWidth;
+        double x2 = pos.X + halfWidth;
+        double z1 = pos.Z - height;
+        double z2 = pos.Z;
         Vector2[] corners = new Vector2[4];
-        corners[0] = new Vector2(pos.X - (float)halfWidth, pos.Z + (float)height);
-        corners[1] = new Vector2(pos.X - (float)halfWidth, pos.Z);
-        corners[2] = new Vector2(pos.X + (float)halfWidth, pos.Z);
-        corners[3] = new Vector2(pos.X + (float)halfWidth, pos.Z + (float)height);
+        corners[0] = new Vector2((float)x1, (float)z1);
+        corners[1] = new Vector2((float)x1, (float)z2);
+        corners[2] = new Vector2((float)x2, (float)z2);
+        corners[3] = new Vector2((float)x2, (float)z1);
         
-        Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
-        float minX = cornersRotated.Min(v => v.X);
-        float maxX = cornersRotated.Max(v => v.X);
-        float minZ = cornersRotated.Min(v => v.Y);
-        float maxZ = cornersRotated.Max(v => v.Y);
-
         List<GameObject> gameObjects = FindTargets(gameObject, typeList, (float)(height > width ? height : width));
-        List<GameObject> objectsInRect = gameObjects.Where(obj => obj.Stat.Targetable)
-            .Where(obj => obj.CellPos.X >= minX && obj.CellPos.X <= maxX)
-            .Where(obj => obj.CellPos.Z >= minZ && obj.CellPos.Z <= maxZ)
-            .ToList();
+        Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
 
-        return objectsInRect;
+        return (from obj in gameObjects 
+            where obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType
+            let objPos = map.Cell2Pos(map.Vector3To2(obj.CellPos)) 
+            let point = new Vector2(objPos.X, objPos.Z) 
+            where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
+    }
+
+    public GameObject? FindTargetWithManyFriends(List<GameObjectType> typeList, GameObject gameObject)
+    {
+        return null;
     }
     
     public GameObject? FindNearestTower(List<TowerId> towerIdList)
@@ -221,7 +225,7 @@ public partial class GameRoom
         return target;
     }
 
-    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist)
+    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist, int targetType = 0)
     {
         Dictionary<int, GameObject> targetDict = new();
         targetDict = typeList.Select(AddTargetType)
@@ -231,7 +235,7 @@ public partial class GameRoom
         if (targetDict.Count == 0) return new List<GameObject>();
 
         List<GameObject> objectsInDist = targetDict.Values
-            .Where(obj => obj.Stat.Targetable)
+            .Where(obj => obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType)
             .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
             .ToList();
         
@@ -297,12 +301,39 @@ public partial class GameRoom
             case GameObjectType.Projectile:
                 if (_projectiles.TryGetValue(id, out var projectile)) go = projectile;
                 break;
+            case GameObjectType.Effect:
+                if (_effects.TryGetValue(id, out var effect)) go = effect;
+                break;
+            case GameObjectType.Fence:
+                if (_fences.TryGetValue(id, out var fence)) go = fence;
+                break;
             default:
                 go = null;
                 break;
         }
 
         return go;
+    }
+    
+    private double GetAreaOfTriangle(Vector2 a, Vector2 b, Vector2 c)
+    {
+        return Math.Abs((a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y)) / 2);
+    }
+
+    private bool CheckPointInRectangle(Vector2[] corners, Vector2 point, double area)
+    {
+        Vector2 a = corners[0];
+        Vector2 b = corners[1];
+        Vector2 c = corners[2];
+        Vector2 d = corners[3];
+        
+        double area1 = GetAreaOfTriangle(a, b, point);
+        double area2 = GetAreaOfTriangle(b, c, point);
+        double area3 = GetAreaOfTriangle(c, d, point);
+        double area4 = GetAreaOfTriangle(d, a, point);
+        double sum = area1 + area2 + area3 + area4;
+
+        return Math.Abs(sum - area) < 0.01f;
     }
     
     private Vector2[] RotateRectangle(Vector2[] corners, Vector2 datumPoint, double angle)
