@@ -20,7 +20,6 @@ public class Monster : Creature, ISkillObserver
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData!.stat);
         base.Init();
-        SkillInit(); 
         Hp = MaxHp;
 
         Player.SkillSubject.AddObserver(this);
@@ -105,7 +104,7 @@ public class Monster : Creature, ISkillObserver
         }
     }
 
-    protected override void SkillInit()
+    public override void SkillInit()
     {
         List<Skill> skillUpgradedList = Player.SkillUpgradedList;
         string monsterName = MonsterId.ToString();

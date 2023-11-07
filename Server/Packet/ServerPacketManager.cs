@@ -39,6 +39,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CAttack, PacketHandler.C_AttackHandler);		
 		_onRecv.Add((ushort)MessageId.CStatInit, MakePacket<C_StatInit>);
 		_handler.Add((ushort)MessageId.CStatInit, PacketHandler.C_StatInitHandler);		
+		_onRecv.Add((ushort)MessageId.CSkillInit, MakePacket<C_SkillInit>);
+		_handler.Add((ushort)MessageId.CSkillInit, PacketHandler.C_SkillInitHandler);		
 		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);
 		_handler.Add((ushort)MessageId.CSkill, PacketHandler.C_SkillHandler);		
 		_onRecv.Add((ushort)MessageId.CSkillUpgrade, MakePacket<C_SkillUpgrade>);

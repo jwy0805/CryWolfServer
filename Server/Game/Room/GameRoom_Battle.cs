@@ -29,10 +29,10 @@ public partial class GameRoom
             Vector3 size = GameData.FenceSize[_storageLevel];
             GameData.FenceBounds = new List<Vector3>
             {
-                new Vector3(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
-                new Vector3(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
-                new Vector3(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
-                new Vector3(center.X + size.X / 2 , 6, center.Z + size.Z / 2)
+                new(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
+                new(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
+                new(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
+                new(center.X + size.X / 2 , 6, center.Z + size.Z / 2)
             };
             
             SpawnFence(_storageLevel);
@@ -126,6 +126,7 @@ public partial class GameRoom
                 tower.Player = player;
                 tower.TowerId = towerType;
                 tower.Room = this;
+                tower.Way = spawnPacket.Way;
                 tower.Init();
                 if (towerType is TowerId.MothLuna or TowerId.MothMoon or TowerId.MothCelestial)
                 {
@@ -145,6 +146,7 @@ public partial class GameRoom
                 monster.Player = player;
                 monster.MonsterId = monsterType;
                 monster.Room = this;
+                monster.Way = spawnPacket.Way;
                 monster.Init();
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 Push(EnterGame, monster);
@@ -258,10 +260,10 @@ public partial class GameRoom
                 Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
                 effect.Room = this;
                 effect.Parent = attacker;
-                effect.Info.PosInfo = target.Info.PosInfo;
                 effect.Info.Name = attackPacket.Effect.ToString();
                 effect.EffectId = attackPacket.Effect;
                 effect.PosInfo = effect.SetEffectPos(attacker);
+                effect.Info.PosInfo = effect.PosInfo;
                 effect.Init();
                 Push(EnterGame_Parent, effect, effect.Parent);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
@@ -302,6 +304,14 @@ public partial class GameRoom
         creature?.StatInit();
     }
 
+    public void HandleSkillInit(Player? player, C_SkillInit initPacket)
+    {
+        if (player == null) return;
+        
+        Creature? creature = FindGameObjectById(initPacket.ObjectId) as Creature;
+        creature?.SkillInit();
+    }
+    
     public void HandleSkill(Player? player, C_Skill skillPacket)
     {
         if (player == null) return;

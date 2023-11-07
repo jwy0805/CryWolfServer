@@ -189,9 +189,36 @@ public partial class GameRoom
             where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
     }
 
-    public GameObject? FindTargetWithManyFriends(List<GameObjectType> typeList, GameObject gameObject)
+    public GameObject? FindTargetWithManyFriends(List<GameObjectType> type, List<GameObjectType> typeList, 
+        GameObject gameObject, float skillRange = 5, int targetType = 2)
     {
-        return null;
+        List<GameObject> targets = FindTargets(gameObject, type, 100, 2)
+            .Where(t => t.Way == gameObject.Way || t.Way == SpawnWay.Any).ToList();
+        List<GameObject> allTargets = FindTargets(gameObject, typeList, 100, 2)
+            .Where(t => t.Way == gameObject.Way || t.Way == SpawnWay.Any).ToList();
+        if (targets.Count == 0) return null;
+
+        GameObject target = new GameObject();
+        int postFriendsCnt = 0;
+        for (int i = 0; i < targets.Count; i++)
+        {
+            int friendsCnt = 0;
+            for (int j = 0; j < allTargets.Count; i++)
+            {
+                Vector3 friendPos = allTargets[j].CellPos;
+                bool targetable = allTargets[j].Stat.Targetable;
+                float dist = new Vector3().SqrMagnitude(friendPos - gameObject.CellPos);
+                if (dist < skillRange * skillRange && targetable) friendsCnt++;
+            }
+            
+            if (friendsCnt > postFriendsCnt)
+            {
+                postFriendsCnt = friendsCnt;
+                target = targets[i];
+            }
+        }
+
+        return target;
     }
     
     public GameObject? FindNearestTower(List<TowerId> towerIdList)
@@ -211,8 +238,7 @@ public partial class GameRoom
         float closestDist = 5000f;
         foreach (var go in targetDict.Values)
         {
-            PositionInfo pos = go.PosInfo;
-            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            Vector3 targetPos = go.CellPos;
             bool targetable = go.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - go.CellPos);
             if (dist < closestDist && targetable)
@@ -225,7 +251,7 @@ public partial class GameRoom
         return target;
     }
 
-    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist, int targetType = 0)
+    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist = 100, int targetType = 0)
     {
         Dictionary<int, GameObject> targetDict = new();
         targetDict = typeList.Select(AddTargetType)

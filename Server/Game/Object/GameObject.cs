@@ -20,6 +20,7 @@ public class GameObject : IGameObject
     public GameObject? Target;
     public GameObject? Parent;
     protected Vector3 DestPos;
+    public SpawnWay Way;
     private float _totalAttackSpeed;
 
     public bool Burn { get; set; }
@@ -314,7 +315,6 @@ public class GameObject : IGameObject
         TotalFireResist = FireResist;
         TotalPoisonResist = PoisonResist;
     }
-
     
     public virtual void OnDamaged(GameObject attacker, int damage, bool reflected = false)
     {

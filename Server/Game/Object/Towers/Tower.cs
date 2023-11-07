@@ -21,7 +21,6 @@ public class Tower : Creature, ISkillObserver
         DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
         Stat.MergeFrom(towerData?.stat);
         base.Init();
-        SkillInit();
         Hp = MaxHp;
         
         Player.SkillSubject.AddObserver(this);
@@ -109,7 +108,7 @@ public class Tower : Creature, ISkillObserver
         }
     }
     
-    protected override void SkillInit()
+    public override void SkillInit()
     {
         List<Skill> skillUpgradedList = Player.SkillUpgradedList;
         string towerName = TowerId.ToString();

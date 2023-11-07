@@ -18,6 +18,18 @@ public class Horror : Creeper
             Skill = value;
             switch (Skill)
             {
+                case Skill.HorrorRollPoison:
+                    _rollPoison = true;
+                    break;
+                case Skill.HorrorPoisonStack:
+                    _poisonStack = true;
+                    Room?.Broadcast(new S_SkillUpdate
+                    {
+                        ObjectEnumId = (int)MonsterId,
+                        ObjectType = GameObjectType.Monster,
+                        SkillType = SkillType.SkillProjectile
+                    });
+                    break;
                 case Skill.HorrorHealth:
                     MaxHp += 200;
                     Hp += 200;
@@ -30,18 +42,6 @@ public class Horror : Creeper
                 case Skill.HorrorPoisonResist:
                     PoisonResist += 15;
                     TotalPoisonResist += 15;
-                    break;
-                case Skill.HorrorPoisonStack:
-                    _poisonStack = true;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)MonsterId,
-                        ObjectType = GameObjectType.Monster,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-                case Skill.HorrorRollPoison:
-                    _rollPoison = true;
                     break;
                 case Skill.HorrorPoisonBelt:
                     _poisonBelt = true;
@@ -73,40 +73,38 @@ public class Horror : Creeper
             Room.EnterGame_Parent(poisonBelt, this);
             Mp = 0;
         }
-        else
+        
+        switch (State)
         {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
-        }
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.Skill2:
+                UpdateSkill2();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
     }
 
     protected override void UpdateRush()

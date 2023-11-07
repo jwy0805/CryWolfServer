@@ -146,7 +146,7 @@ public class Sheep : Creature, ISkillObserver
         Room.Push(Room.EnterGame, go);
     }
     
-    protected override void SkillInit()
+    public override void SkillInit()
     {
         List<Skill> skillUpgradedList = Player.SkillUpgradedList;
         string sheepName = "Sheep";

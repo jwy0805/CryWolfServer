@@ -9,9 +9,7 @@ public class Creature : GameObject
 {
     protected virtual Skill NewSkill { get; set; }
     protected Skill Skill;
-    protected List<Skill> SkillList = new();
-    public List<BuffManager.IBuff> BuffList = new();
-
+    protected readonly List<Skill> SkillList = new();
     protected long DeltaTime;
     protected const long MpTime = 1000;
 
@@ -77,7 +75,7 @@ public class Creature : GameObject
     protected virtual void UpdateKnockBack() { }
     protected virtual void UpdateRush() { }
     protected virtual void UpdateDie() { }
-    protected virtual void SkillInit() { }
+    public virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
     public virtual void SetNormalAttackEffect(GameObject master) { }
