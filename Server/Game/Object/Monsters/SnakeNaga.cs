@@ -1,11 +1,13 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Util;
 
 namespace Server.Game;
 
 public class SnakeNaga : Snake
 {
     private bool _drain = false;
-    private bool _meteor = false;
+    private bool _meteor = true;
     private readonly float _drainParam = 0.2f;
     
     protected override Skill NewSkill
@@ -40,22 +42,19 @@ public class SnakeNaga : Snake
     
     public override void Update()
     {
-        base.Update();
         if (Room == null) return;
-        // if (ObjectType == GameObjectType.Tower) Console.WriteLine(State.ToString());
-        Console.WriteLine(Room.Stopwatch.ElapsedMilliseconds > Time + MpTime);
+        Job = Room.PushAfter(CallCycle, Update);
+
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
-            Console.WriteLine(Mp);
         }
 
         if (MaxMp != 1 && Mp >= MaxMp && _meteor)
         {
             State = State.Skill;
             BroadcastMove();
-            UpdateSkill();
             Mp = 0;
         }
         else
@@ -90,7 +89,7 @@ public class SnakeNaga : Snake
                     break;
                 case State.Standby:
                     break;
-            }   
+            }
         }
     }
     

@@ -4,7 +4,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class GameObject : IGameObject
+public class GameObject : IGameObject, IDisposable
 {
     public Player Player;
     
@@ -400,5 +400,10 @@ public class GameObject : IGameObject
         bool canGo = Room.Map.ApplyMap(this, posInfo);
         if (!canGo) State = State.Idle;
         BroadcastMove();
+    }
+
+    public void Dispose()
+    {
+        
     }
 }

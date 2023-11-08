@@ -112,7 +112,7 @@ public sealed partial class BuffManager
             }
         }
     }
-
+    
     #region BuffClasses
 
     public interface IBuff
@@ -144,14 +144,10 @@ public sealed partial class BuffManager
         }
         public virtual void CalculateFactor() { }
         public virtual void TriggerBuff() { }
-        
-        public virtual void RemoveBuff()
+        public virtual bool UpdateBuff(long deltaTime)
         {
-            Master.Buffs.Remove(Id);
-            ABuff? buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
-            if (buff != null) Instance.Buffs.Remove(buff);
+            return EndTime <= deltaTime;
         }
-
         public virtual void RenewBuff(long newStartTime, long duration = 10000)
         {
             _duration = duration;
@@ -160,10 +156,21 @@ public sealed partial class BuffManager
             CalculateFactor();
             TriggerBuff();
         }
-
-        public virtual bool UpdateBuff(long deltaTime)
+        public virtual void RemoveBuff()
         {
-            return EndTime <= deltaTime;
+            Master.Buffs.Remove(Id);
+            ABuff? buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
+            if (buff != null) Instance.Buffs.Remove(buff);
+        }
+        protected virtual void EffectSetting(Effect effect, GameObject master)
+        {
+            effect.Room = Instance.Room;
+            effect.Parent = master;
+            effect.PosInfo = master.PosInfo;
+            effect.Info.PosInfo = master.Info.PosInfo;
+            effect.Info.Name = nameof(EffectId.HolyAura);
+            effect.Init();
+            Instance.Room?.EnterGame_Parent(effect, master);
         }
     }
     
@@ -299,6 +306,8 @@ public sealed partial class BuffManager
 
     private class Invincible : ABuff
     {
+        private readonly Effect _holyAura = ObjectManager.Instance.CreateEffect(EffectId.HolyAura);
+        
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
             base.Init(master, caster, startTime, duration, param);
@@ -309,20 +318,14 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.Invincible = true;
-            Effect holyAura = ObjectManager.Instance.CreateEffect(EffectId.HolyAura);
-            holyAura.Room = Instance.Room;
-            holyAura.Parent = Master;
-            holyAura.PosInfo = Master.PosInfo;
-            holyAura.Info.PosInfo = Master.Info.PosInfo;
-            holyAura.Info.Name = nameof(EffectId.HolyAura);
-            holyAura.Init();
-            Instance.Room?.EnterGame_Parent(holyAura, Master);
+            EffectSetting(_holyAura, Master);
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.Invincible = false;
+            _holyAura.PacketReceived = true;
         }
     }
 
@@ -455,6 +458,7 @@ public sealed partial class BuffManager
     {
         private float _param;
         private float _factor;
+        private readonly Effect _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -472,12 +476,15 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.TotalMoveSpeed -= _factor;
+            EffectSetting(_stateSlow, Master);
+
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.TotalMoveSpeed += _factor;
+            _stateSlow.PacketReceived = true;
         }
     }
 
@@ -509,6 +516,7 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
+        private readonly Effect _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -519,6 +527,11 @@ public sealed partial class BuffManager
             _dotTime = startTime;
         }
 
+        public override void TriggerBuff()
+        {
+            EffectSetting(_statePoison, Master);
+        }
+        
         public override bool UpdateBuff(long deltaTime)
         {
             if (EndTime <= deltaTime) return true;
@@ -537,6 +550,12 @@ public sealed partial class BuffManager
 
             return false;
         }
+        
+        public override void RemoveBuff()
+        {
+            base.RemoveBuff();
+            _statePoison.PacketReceived = true;
+        }
     }
 
     private class DeadlyAddicted : ABuff
@@ -544,6 +563,7 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
+        private readonly Effect _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -554,6 +574,11 @@ public sealed partial class BuffManager
             _param = param;
         }
 
+        public override void TriggerBuff()
+        {
+            EffectSetting(_statePoison, Master);
+        }
+        
         public override bool UpdateBuff(long deltaTime)
         {
             if (EndTime <= deltaTime) return true;
@@ -571,6 +596,12 @@ public sealed partial class BuffManager
             }
 
             return false;
+        }
+        
+        public override void RemoveBuff()
+        {
+            base.RemoveBuff();
+            _statePoison.PacketReceived = true;
         }
     }
 
@@ -641,6 +672,8 @@ public sealed partial class BuffManager
     
     private class Fainted : ABuff
     {
+        private readonly Effect _stateFaint = ObjectManager.Instance.CreateEffect(EffectId.StateFaint);
+        
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
             base.Init(master, caster, startTime, duration, param);
@@ -653,6 +686,7 @@ public sealed partial class BuffManager
         {
             Master.State = State.Faint;
             Master.BroadcastMove();
+            EffectSetting(_stateFaint, Master);
         }
         
         public override void RemoveBuff()
@@ -660,6 +694,7 @@ public sealed partial class BuffManager
             base.RemoveBuff();
             Master.State = State.Idle;
             Master.BroadcastMove();
+            _stateFaint.PacketReceived = true;
         }
     }
     

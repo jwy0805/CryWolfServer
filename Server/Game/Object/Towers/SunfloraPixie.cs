@@ -14,7 +14,7 @@ public class SunfloraPixie : SunflowerFairy
     private bool _attackSpeedBuff = false;
     private bool _triple = false;
     private bool _debuffRemove = false;
-    private bool _invincible = false;
+    private bool _invincible = true;
     
     protected override Skill NewSkill
     {

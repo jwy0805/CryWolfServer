@@ -37,16 +37,6 @@ public class PacketHandler
 
         room?.Push(room.HandleMove, player, movePacket);
     }
-
-    public static void C_DirHandler(PacketSession session, IMessage packet)
-    {
-        C_Dir dirPacket = (C_Dir)packet;
-        ClientSession clientSession = (ClientSession)session;
-        Player? player = clientSession.MyPlayer;
-        GameRoom? room = player?.Room;
-        
-        room?.Push(room.HandleDir, player, dirPacket);
-    }
     
     public static void C_StateHandler(PacketSession session, IMessage packet)
     {
@@ -75,10 +65,19 @@ public class PacketHandler
         Player? player = clientSession.MyPlayer;
         GameRoom? room = player?.Room;
         if (player?.Session.SessionId != 1) return;
-
         room?.Push(room.HandleAttack, player, attackPacket);
     }
 
+    public static void C_EffectAttackHandler(PacketSession session, IMessage packet)
+    {
+        C_EffectAttack dirPacket = (C_EffectAttack)packet;
+        ClientSession clientSession = (ClientSession)session;
+        Player? player = clientSession.MyPlayer;
+        GameRoom? room = player?.Room;
+        
+        room?.Push(room.HandleEffectAttack, player, dirPacket);
+    }
+    
     public static void C_StatInitHandler(PacketSession session, IMessage packet)
     {
         C_StatInit initPacket = (C_StatInit)packet;

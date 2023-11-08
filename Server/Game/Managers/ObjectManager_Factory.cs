@@ -69,7 +69,10 @@ public sealed partial class ObjectManager
         { EffectId.PoisonBelt, new PoisonBeltFactory() },
         { EffectId.HolyAura, new HolyAuraFactory() },
         { EffectId.SoulMagePunch, new SoulMagePunchFactory() },
-        { EffectId.Meteor, new MeteorFactory() }
+        { EffectId.Meteor, new MeteorFactory() },
+        { EffectId.StateSlow, new StateSlowFactory() },
+        { EffectId.StatePoison, new StatePoisonFactory() },
+        { EffectId.StateFaint, new StateFaintFactory() }
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -359,6 +362,21 @@ public sealed partial class ObjectManager
     public class MeteorFactory : IEffectFactory
     {
         public Effect CreateEffect() => new Meteor();
+    }
+
+    public class StateSlowFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateSlow();
+    }
+
+    public class StatePoisonFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StatePoison();
+    }
+    
+    public class StateFaintFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateFaint();
     }
     
     public class CoinStarSilverFactory : IResourceFactory

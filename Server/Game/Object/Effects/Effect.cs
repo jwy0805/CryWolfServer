@@ -6,14 +6,22 @@ public class Effect : GameObject
 {
     public EffectId EffectId;
     public bool PacketReceived { get; set; } = false;
+    protected bool IsHit = false;
 
     protected Effect()
     {
         ObjectType = GameObjectType.Effect;
     }
 
-    public virtual void SetEffectEffect()
+    public override void Update()
     {
+        base.Update();
+        if (IsHit == false && PacketReceived) SetEffectEffect();
+    }
+
+    protected virtual void SetEffectEffect()
+    {
+        IsHit = true;
         Room?.LeaveGame(Id);
     }
 

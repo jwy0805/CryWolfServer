@@ -6,16 +6,13 @@ namespace Server.Game;
 
 public class Meteor : Effect
 {
-    public override void Update()
-    {
-        base.Update();
-    }
+    private readonly float _meteorRad = 2.5f;
 
-    public override void SetEffectEffect()
+    protected override void SetEffectEffect()
     {
-        if (Room == null || Parent == null) return;
+        if (Room == null || Parent == null || IsHit) return;
         List<GameObjectType> typeList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
-        List<GameObject> targets = Room.FindTargets(this, typeList, 6.0f);
+        List<GameObject> targets = Room.FindTargets(this, typeList, _meteorRad);
         foreach (var t in targets) t.OnDamaged(Parent, Parent.Attack); 
         
         base.SetEffectEffect();
@@ -26,7 +23,7 @@ public class Meteor : Effect
         if (Room == null) return parent.PosInfo;
         List<GameObjectType> typeList = new() { GameObjectType.Tower };
         List<GameObjectType> targetList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
-        GameObject? target = Room.FindTargetWithManyFriends(typeList, targetList, this, 6f);
+        GameObject? target = Room.FindTargetWithManyFriends(typeList, targetList, this, _meteorRad);
 
         if (target != null) return target.PosInfo;
         Vector3 v = GameData.Center;

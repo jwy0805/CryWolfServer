@@ -10,9 +10,9 @@ public class PoisonBelt : Effect
         CellPos = Parent!.CellPos;
     }
 
-    public override void SetEffectEffect()
+    protected override void SetEffectEffect()
     {
-        if (Room == null || Parent == null) return;
+        if (Room == null || Parent == null || IsHit) return;
         List<GameObjectType> typeList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
         List<GameObject> targets = Room.FindTargets(this, typeList, 6.0f);
         
@@ -23,5 +23,10 @@ public class PoisonBelt : Effect
         }
         
         base.SetEffectEffect();
+    }
+    
+    public override PositionInfo SetEffectPos(GameObject parent)
+    {
+        return parent.PosInfo;
     }
 }

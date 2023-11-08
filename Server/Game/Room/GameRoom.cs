@@ -145,9 +145,9 @@ public partial class GameRoom : JobSerializer
         {
             S_Spawn spawnPacket = new S_Spawn();
             spawnPacket.Objects.Add(gameObject.Info);
-            foreach (var player in _players.Values)
+            foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
             {
-                if (player.Id != gameObject.Id) player.Session.Send(spawnPacket);
+                player.Session.Send(spawnPacket);
             }
         }
     }

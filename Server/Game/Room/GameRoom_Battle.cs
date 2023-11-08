@@ -72,26 +72,6 @@ public partial class GameRoom
         if (go.ObjectType == GameObjectType.Player) go.CellPos = cellPos;
         else go.ApplyMap(cellPos);
     }
-
-    public void HandleDir(Player? player, C_Dir dirPacket)
-    {
-        if (player == null) return;
-        GameObject? go = FindGameObjectById(dirPacket.ObjectId);
-        if (go == null) return;
-
-        GameObjectType type = go.ObjectType;
-        switch (type)
-        {
-            case GameObjectType.Effect:
-                Effect effect = (Effect)go;
-                effect.Dir = dirPacket.Dir;
-                effect.PacketReceived = true;
-                break;
-            default:
-                go.Dir = dirPacket.Dir;
-                break;
-        }
-    }
     
     public void HandleSetDest(Player? player, C_SetDest destPacket)
     {
@@ -204,28 +184,31 @@ public partial class GameRoom
         int attackerId = attackPacket.ObjectId;
         GameObject? attacker = FindGameObjectById(attackerId);
         GameObject? target = attacker?.Target;
-        if (attacker == null) return;
         
+        if (attacker == null) return;
         GameObjectType type = attacker.ObjectType;
+
+        if (attackPacket.AttackMethod == AttackMethod.EffectAttack)
+        {
+            Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
+            effect.Room = this;
+            effect.Parent = attacker;
+            effect.Info.Name = attackPacket.Effect.ToString();
+            effect.EffectId = attackPacket.Effect;
+            effect.PosInfo = effect.SetEffectPos(attacker);
+            effect.Info.PosInfo = effect.PosInfo;
+            effect.Init();
+            Push(EnterGame_Parent, effect, effect.Parent);
+        }
+        
         if (target == null)
         {
-            switch (type)
-            {
-                case GameObjectType.Monster:
-                case GameObjectType.Tower:
-                    Creature cAttacker = (Creature)attacker;
-                    cAttacker.SetNextState();
-                    break;
-                
-                case GameObjectType.Effect:
-                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
-                    if (FindGameObjectById(attackerId) is not Effect eAttacker) return;
-                    eAttacker.SetEffectEffect();
-                    break;
-            }
-
+            if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
+            Creature cAttacker = (Creature)attacker;
+            cAttacker.SetNextState();
             return;
         }
+        
         if (target.Targetable == false) return;
         
         switch (attackPacket.AttackMethod)
@@ -255,24 +238,6 @@ public partial class GameRoom
                 }
                 break;
             
-            case AttackMethod.EffectAttack:
-                if (!Enum.IsDefined(typeof(EffectId), attackPacket.Effect)) return;
-                Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
-                effect.Room = this;
-                effect.Parent = attacker;
-                effect.Info.Name = attackPacket.Effect.ToString();
-                effect.EffectId = attackPacket.Effect;
-                effect.PosInfo = effect.SetEffectPos(attacker);
-                effect.Info.PosInfo = effect.PosInfo;
-                effect.Init();
-                Push(EnterGame_Parent, effect, effect.Parent);
-                if (type is GameObjectType.Monster or GameObjectType.Tower)
-                {
-                    Creature cAttacker = (Creature)attacker;
-                    cAttacker.SetNextState();
-                }
-                break;
-            
             case AttackMethod.ProjectileAttack:
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
                 Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
@@ -295,7 +260,27 @@ public partial class GameRoom
                 break;
         }
     }
+    
+    public void HandleEffectAttack(Player? player, C_EffectAttack dirPacket)
+    {
+        if (player == null) return;
+        GameObject? go = FindGameObjectById(dirPacket.ObjectId);
+        if (go == null) return;
 
+        GameObjectType type = go.ObjectType;
+        switch (type)
+        {
+            case GameObjectType.Effect:
+                Effect effect = (Effect)go;
+                effect.Dir = dirPacket.Dir;
+                effect.PacketReceived = true;
+                break;
+            default:
+                go.Dir = dirPacket.Dir;
+                break;
+        }
+    }
+    
     public void HandleStatInit(Player? player, C_StatInit initPacket)
     {
         if (player == null) return;
