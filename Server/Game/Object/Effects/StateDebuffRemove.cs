@@ -2,12 +2,12 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class StateSlow : Effect
+public class StateDebuffRemove : Effect
 {
     public override void Init()
     {
         if (Room == null) return;
-        EffectId = EffectId.StateSlow;
+        EffectId = EffectId.StateDebuffRemove;
     }
     
     protected override void SetEffectEffect()

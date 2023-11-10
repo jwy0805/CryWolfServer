@@ -99,7 +99,8 @@ public sealed partial class BuffManager
 
     public void Update()
     {
-        if (Room != null) _job = Room.PushAfter(CallCycle, Update);
+        if (Room == null) return;
+        _job = Room.PushAfter(CallCycle, Update);
         if (Buffs.Count == 0) return;
         
         List<ABuff> expiredBuff = Buffs.Where(buff => buff.UpdateBuff(_stopwatch.ElapsedMilliseconds)).ToList();
@@ -168,8 +169,8 @@ public sealed partial class BuffManager
             effect.Parent = master;
             effect.PosInfo = master.PosInfo;
             effect.Info.PosInfo = master.Info.PosInfo;
-            effect.Info.Name = nameof(EffectId.HolyAura);
             effect.Init();
+            effect.Info.Name = effect.EffectId.ToString();
             Instance.Room?.EnterGame_Parent(effect, master);
         }
     }
@@ -458,7 +459,7 @@ public sealed partial class BuffManager
     {
         private float _param;
         private float _factor;
-        private readonly Effect _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
+        private Effect? _stateSlow;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -476,20 +477,22 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.TotalMoveSpeed -= _factor;
+            _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
             EffectSetting(_stateSlow, Master);
-
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.TotalMoveSpeed += _factor;
-            _stateSlow.PacketReceived = true;
+            if (_stateSlow != null) _stateSlow.PacketReceived = true;
         }
     }
 
     private class Curse : ABuff
     {
+        private Effect? _stateCurse;
+        
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
             base.Init(master, caster, startTime, duration, param);
@@ -498,6 +501,12 @@ public sealed partial class BuffManager
             Nested = true;
         }
 
+        public override void TriggerBuff()
+        {
+            _stateCurse = ObjectManager.Instance.CreateEffect(EffectId.StateCurse);
+            EffectSetting(_stateCurse, Master);
+        }
+        
         public override void RemoveBuff()
         {
             base.RemoveBuff();
@@ -508,6 +517,7 @@ public sealed partial class BuffManager
                 ObjectId = Master.Id,
                 Hp = Master.Hp
             });
+            if (_stateCurse != null) _stateCurse.PacketReceived = true;
         }
     }
     
@@ -516,7 +526,7 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
-        private readonly Effect _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
+        private Effect? _statePoison;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -529,6 +539,7 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
+            _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
             EffectSetting(_statePoison, Master);
         }
         
@@ -554,7 +565,7 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            _statePoison.PacketReceived = true;
+            if (_statePoison != null) _statePoison.PacketReceived = true;
         }
     }
 
@@ -563,7 +574,7 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
-        private readonly Effect _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
+        private Effect? _statePoison;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -576,6 +587,7 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
+            _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
             EffectSetting(_statePoison, Master);
         }
         
@@ -601,13 +613,14 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            _statePoison.PacketReceived = true;
+            if (_statePoison != null) _statePoison.PacketReceived = true;
         }
     }
 
     public class Aggro : ABuff
     {
-        private Creature _caster;
+        private Creature? _caster;
+        private Effect? _stateAggro;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -622,6 +635,14 @@ public sealed partial class BuffManager
         {
             if (Master.Invincible) return; 
             Master.Target = _caster;
+            _stateAggro = ObjectManager.Instance.CreateEffect(EffectId.StateAggro);
+            EffectSetting(_stateAggro, Master);
+        }
+        
+        public override void RemoveBuff()
+        {
+            base.RemoveBuff();
+            if (_stateAggro != null) _stateAggro.PacketReceived = true;
         }
     }
     
@@ -630,6 +651,7 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime = 0;
+        private Effect? _stateBurn;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -643,12 +665,14 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.Burn = true;
+            _stateBurn = ObjectManager.Instance.CreateEffect(EffectId.StateBurn);
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.Burn = false;
+            if (_stateBurn != null) _stateBurn.PacketReceived = true;
         }
 
         public override bool UpdateBuff(long deltaTime)
@@ -672,7 +696,7 @@ public sealed partial class BuffManager
     
     private class Fainted : ABuff
     {
-        private readonly Effect _stateFaint = ObjectManager.Instance.CreateEffect(EffectId.StateFaint);
+        private Effect? _stateFaint;
         
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
         {
@@ -686,6 +710,7 @@ public sealed partial class BuffManager
         {
             Master.State = State.Faint;
             Master.BroadcastMove();
+            _stateFaint = ObjectManager.Instance.CreateEffect(EffectId.StateFaint);
             EffectSetting(_stateFaint, Master);
         }
         
@@ -694,7 +719,7 @@ public sealed partial class BuffManager
             base.RemoveBuff();
             Master.State = State.Idle;
             Master.BroadcastMove();
-            _stateFaint.PacketReceived = true;
+            if (_stateFaint != null) _stateFaint.PacketReceived = true;
         }
     }
     

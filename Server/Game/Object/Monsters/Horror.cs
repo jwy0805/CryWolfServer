@@ -68,7 +68,7 @@ public class Horror : Creeper
             poisonBelt.Parent = this;
             poisonBelt.PosInfo = PosInfo;
             poisonBelt.Info.PosInfo = Info.PosInfo;
-            poisonBelt.Info.Name = nameof(EffectId.PoisonBelt);
+            poisonBelt.Info.Name = EffectId.PoisonBelt.ToString();
             poisonBelt.Init();
             Room.EnterGame_Parent(poisonBelt, this);
             Mp = 0;

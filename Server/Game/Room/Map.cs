@@ -366,10 +366,12 @@ public partial class Map
         Vector3 cell = new Vector3();
         if (type == GameObjectType.Monster)
         {
+            Random random = new();
             switch (way)
             {
                 case SpawnWay.West:
-                    cell = GameData.SpawnerPos[0];
+                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), 
+                        GameData.SpawnerPos[0].Y, GameData.SpawnerPos[0].Z);
                     break;
                 case SpawnWay.North:
                     cell = GameData.SpawnerPos[1];
@@ -409,15 +411,7 @@ public partial class Map
         }
 
         Pos pos = FindNearestEmptySpace(Cell2Pos(Vector3To2(cell)), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
-        Vector3 result;
-        if (gameObject.UnitType == 0)
-        {
-            result = Vector2To3(Pos2Cell(pos));
-        }
-        else
-        {
-            result = Vector2To3(Pos2Cell(pos), 9f);
-        }
+        Vector3 result = gameObject.UnitType == 0 ? Vector2To3(Pos2Cell(pos)) : Vector2To3(Pos2Cell(pos), 9f);
 
         return result;
     }

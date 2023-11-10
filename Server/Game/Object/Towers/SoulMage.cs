@@ -55,53 +55,56 @@ public class SoulMage : Haunt
     {
         base.Update();
         if (Room == null) return;
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 3 && _natureAttack)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
-
-        if (MaxMp != 1 && Mp >= MaxMp)
-        {
-            State = State.Skill;
-            BroadcastMove();
-            UpdateSkill();
-            Mp = 0;
-        }
-        else
-        {
-            switch (State)
+            List<GameObjectType> typeList = new() { GameObjectType.Monster };
+            List<Creature> monsters = Room.FindTargets(this, typeList, AttackRange, 2).Cast<Creature>().ToList();
+            if (monsters.Any())
             {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
+                Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
+                Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
+                greenGate.Room = Room;
+                greenGate.Parent = monster;
+                greenGate.PosInfo = monster.PosInfo;
+                greenGate.Info.PosInfo = monster.Info.PosInfo;
+                greenGate.Info.Name = nameof(EffectId.GreenGate);
+                greenGate.Init();
+                Room.EnterGame_Parent(greenGate, monster);
+            }
         }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.Skill2:
+                UpdateSkill2();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
     }
     
     protected override void UpdateMoving()

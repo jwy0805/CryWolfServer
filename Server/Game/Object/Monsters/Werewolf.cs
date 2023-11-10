@@ -52,12 +52,14 @@ public class Werewolf : Wolf
             {
                 TotalAttack -= Attack * (int)_enhanceParam;
                 TotalSkill -= Stat.Skill * (int)_enhanceParam;
-                TotalAttackSpeed -= AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
+                CriticalChance -= (int)_enhanceParam;
+                TotalAttackSpeed -= AttackSpeed * (float)_enhanceParam;
 
                 _enhanceParam = 0.5 * (MaxHp * 0.5 - Hp);
                 TotalAttack += Attack * (int)_enhanceParam;
                 TotalSkill += Stat.Skill * (int)_enhanceParam;
-                TotalAttackSpeed += AttackSpeed * (float)(0.5 - (double)Stat.Hp / MaxHp);
+                CriticalChance += (int)_enhanceParam;
+                TotalAttackSpeed += AttackSpeed * (float)_enhanceParam;
             }
         }
     }
@@ -122,11 +124,6 @@ public class Werewolf : Wolf
     protected override void UpdateSkill2()
     {
         UpdateAttack();
-    }
-    
-    protected override void UpdateDie()
-    {
-        base.UpdateDie();
     }
 
     public override void SetNormalAttackEffect(GameObject target)

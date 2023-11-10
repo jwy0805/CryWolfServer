@@ -72,7 +72,16 @@ public sealed partial class ObjectManager
         { EffectId.Meteor, new MeteorFactory() },
         { EffectId.StateSlow, new StateSlowFactory() },
         { EffectId.StatePoison, new StatePoisonFactory() },
-        { EffectId.StateFaint, new StateFaintFactory() }
+        { EffectId.StateFaint, new StateFaintFactory() },
+        { EffectId.StateCurse, new StateCurseFactory() },
+        { EffectId.StateBurn, new StateBurnFactory() },
+        { EffectId.StateHeal, new StateHealFactory() },
+        { EffectId.StateDebuffRemove, new StateDebuffRemoveFactory() },
+        { EffectId.StateAggro, new StateAggroFactory() },
+        { EffectId.GreenGate, new GreenGateFactory() },
+        { EffectId.NaturalTornado, new NaturalTornadoFactory() },
+        { EffectId.PurpleBeam, new PurpleBeamFactory() },
+        { EffectId.StarFall, new StarFallFactory() }
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -377,6 +386,51 @@ public sealed partial class ObjectManager
     public class StateFaintFactory : IEffectFactory
     {
         public Effect CreateEffect() => new StateFaint();
+    }
+
+    public class StateCurseFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateCurse();
+    }
+
+    public class StateBurnFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateBurn();
+    }
+    
+    public class StateHealFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateHeal();
+    }
+
+    public class StateAggroFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateAggro();
+    }
+
+    public class StateDebuffRemoveFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StateDebuffRemove();
+    }
+
+    public class GreenGateFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new GreenGate();
+    }
+
+    public class NaturalTornadoFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new NaturalTornado();
+    }
+
+    public class PurpleBeamFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new PurpleBeam();
+    }
+    
+    public class StarFallFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new StarFall();
     }
     
     public class CoinStarSilverFactory : IResourceFactory

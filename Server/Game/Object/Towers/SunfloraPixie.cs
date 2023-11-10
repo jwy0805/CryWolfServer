@@ -14,7 +14,7 @@ public class SunfloraPixie : SunflowerFairy
     private bool _attackSpeedBuff = false;
     private bool _triple = false;
     private bool _debuffRemove = false;
-    private bool _invincible = true;
+    private bool _invincible = false;
     
     protected override Skill NewSkill
     {
@@ -87,9 +87,9 @@ public class SunfloraPixie : SunflowerFairy
             foreach (var tower in towers)
                 BuffManager.Instance.AddBuff(BuffId.Invincible, tower, this, 0, 3000);
         }
-        
-        List<Creature> monsters = Room.FindTargets(this,
-            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+
+        List<GameObjectType> typeList = new() { GameObjectType.Monster };
+        List<Creature> monsters = Room.FindTargets(this, typeList, SkillRange, 2).Cast<Creature>().ToList();
         if (monsters.Any())
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
@@ -110,8 +110,8 @@ public class SunfloraPixie : SunflowerFairy
             }
         }
 
-        List<GameObject> fences = Room.FindTargets(this, 
-            new List<GameObjectType> { GameObjectType.Fence }, SkillRange);
+        List<GameObjectType> typeList2 = new() { GameObjectType.Fence };
+        List<GameObject> fences = Room.FindTargets(this, typeList2, SkillRange);
         if (fences.Any())
         {
             foreach (var fence in fences)

@@ -38,6 +38,8 @@ public class SunBlossom : Tower
         }
     }
 
+    protected override void UpdateIdle() { }
+
     public override void RunSkill()
     {
         if (Room == null) return;
@@ -72,7 +74,6 @@ public class SunBlossom : Tower
                 foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
                     BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
             }
-            
         }
     }
     
