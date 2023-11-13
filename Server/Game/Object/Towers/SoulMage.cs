@@ -9,7 +9,7 @@ public class SoulMage : Haunt
     public bool Fire = false;
     private bool _tornado = false;
     private bool _shareDamage = false;
-    private bool _natureAttack = false;
+    private bool _natureAttack = true;
     private bool _debuffResist = false;
     
     protected override Skill NewSkill
@@ -53,8 +53,9 @@ public class SoulMage : Haunt
     
     public override void Update()
     {
-        base.Update();
         if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 3 && _natureAttack)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
@@ -65,12 +66,13 @@ public class SoulMage : Haunt
                 Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
                 Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
                 greenGate.Room = Room;
-                greenGate.Parent = monster;
+                greenGate.Parent = this;
+                greenGate.Target = monster;
                 greenGate.PosInfo = monster.PosInfo;
                 greenGate.Info.PosInfo = monster.Info.PosInfo;
                 greenGate.Info.Name = nameof(EffectId.GreenGate);
                 greenGate.Init();
-                Room.EnterGame_Parent(greenGate, monster);
+                Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
             }
         }
         

@@ -370,11 +370,10 @@ public partial class Map
             switch (way)
             {
                 case SpawnWay.West:
-                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), 
-                        GameData.SpawnerPos[0].Y, GameData.SpawnerPos[0].Z);
+                    cell = new Vector3(-36, GameData.SpawnerPos[0].Y, (float)((random.NextDouble() - 0.5) * 8));
                     break;
                 case SpawnWay.North:
-                    cell = GameData.SpawnerPos[1];
+                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, 36);
                     break;
                 case SpawnWay.East:
                     cell = GameData.SpawnerPos[2];

@@ -6,13 +6,14 @@ public class NaturalTornado : Effect
     
     public override void Update()
     {
-        if (Room == null) return;
+        if (Room == null || Target == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        if (Parent == null) Room?.LeaveGame(Id);
-        else CellPos = Parent.CellPos;
+        // if (Target.Targetable == false) Room.LeaveGame(Id);
+        // else CellPos = Target.CellPos;
+        CellPos = Target.CellPos;
         
-        if (Room?.Stopwatch.ElapsedMilliseconds > _damageTime + 1000)
+        if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + 1000)
         {
             SetEffectEffect();
             _damageTime = Room.Stopwatch.ElapsedMilliseconds;
@@ -21,8 +22,12 @@ public class NaturalTornado : Effect
 
     protected override void SetEffectEffect()
     {
-        if (Parent == null || Room == null) return; 
-        int damage = Parent.MaxHp / 10;
-        Parent.OnDamaged(this, damage);
+        if (Target == null || Target.Targetable == false)
+        {
+            Room?.LeaveGame(Id);
+            return;
+        }
+        int damage = Target.MaxHp / 10;
+        Target.OnDamaged(this, damage);
     }
 }

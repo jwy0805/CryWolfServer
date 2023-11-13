@@ -152,7 +152,7 @@ public partial class GameRoom : JobSerializer
         }
     }
 
-    public void EnterGame_Parent(GameObject gameObject, GameObject parent)
+    public void EnterGameParent(GameObject gameObject, GameObject parent)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
 
@@ -168,6 +168,29 @@ public partial class GameRoom : JobSerializer
         }
 
         S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
+        foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
+        {
+            player.Session.Send(spawnPacket);
+        }
+    }
+
+    public void EnterGameTarget(GameObject gameObject, GameObject parent, GameObject target)
+    {
+        GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
+
+        switch (type)
+        {
+            case GameObjectType.Effect:
+                Effect effect = (Effect)gameObject;
+                _effects.Add(gameObject.Id, effect);
+                effect.Parent = parent;
+                effect.Target = target;
+                effect.Room = this;
+                effect.Update();
+                break;
+        }
+
+        S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = target.Id };
         foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
         {
             player.Session.Send(spawnPacket);
@@ -217,6 +240,11 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Projectile:
                 if (_projectiles.Remove(objectId, out var projectile) == false) return;
                 projectile.Room = null;
+                break;
+            
+            case GameObjectType.Effect:
+                if (_effects.Remove(objectId, out var effect) == false) return;
+                effect.Room = null;
                 break;
             
             case GameObjectType.RockPile:

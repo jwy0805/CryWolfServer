@@ -182,29 +182,29 @@ public partial class GameRoom
     {
         if (player == null) return;
         int attackerId = attackPacket.ObjectId;
-        GameObject? master = FindGameObjectById(attackerId); // Most of cases, master == attacker
-        GameObject? target = master?.Target;
+        GameObject? parent = FindGameObjectById(attackerId);
+        GameObject? target = parent?.Target;
         
-        if (master == null) return;
-        GameObjectType type = master.ObjectType;
+        if (parent == null) return;
+        GameObjectType type = parent.ObjectType;
 
         if (attackPacket.AttackMethod == AttackMethod.EffectAttack)
         {
             Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
             effect.Room = this;
-            effect.Parent = master;
+            effect.Parent = parent;
             effect.Info.Name = attackPacket.Effect.ToString();
             effect.EffectId = attackPacket.Effect;
-            effect.PosInfo = effect.SetEffectPos(master);
+            effect.PosInfo = effect.SetEffectPos(parent);
             effect.Info.PosInfo = effect.PosInfo;
             effect.Init();
-            Push(EnterGame_Parent, effect, effect.Parent);
+            Push(EnterGameParent, effect, effect.Parent);
         }
         
         if (target == null)
         {
             if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
-            Creature cAttacker = (Creature)master;
+            Creature cAttacker = (Creature)parent;
             cAttacker.SetNextState();
             return;
         }
@@ -216,23 +216,23 @@ public partial class GameRoom
             case AttackMethod.NoAttack:
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)master;
+                    Creature cAttacker = (Creature)parent;
                     cAttacker.SetNormalAttackEffect(target);
                 }
                 break;
             case AttackMethod.NormalAttack:
-                int damage = master.TotalAttack;
-                target.OnDamaged(master, damage);
+                int damage = parent.TotalAttack;
+                target.OnDamaged(parent, damage);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)master;
+                    Creature cAttacker = (Creature)parent;
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.Stat.MpRecovery;
                     cAttacker.SetNormalAttackEffect(target);
                 }
                 else if (type is GameObjectType.Projectile)
                 {
-                    master.Parent!.Mp += master.Parent.Stat.MpRecovery;
+                    parent.Parent!.Mp += parent.Parent.Stat.MpRecovery;
                     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
                     pAttacker?.SetProjectileEffect(target);
                 }
@@ -242,19 +242,19 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
                 Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
                 projectile.Room = this;
-                projectile.PosInfo = master.PosInfo;
+                projectile.PosInfo = parent.PosInfo;
                 // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;
                 projectile.Info.PosInfo = projectile.PosInfo;
                 projectile.Info.Name = attackPacket.Projectile.ToString();
                 projectile.ProjectileId = attackPacket.Projectile;
                 projectile.Target = target;
-                projectile.Parent = master;
-                projectile.TotalAttack = master.TotalAttack;
+                projectile.Parent = parent;
+                projectile.TotalAttack = parent.TotalAttack;
                 projectile.Init();
                 Push(EnterGame, projectile);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)master;
+                    Creature cAttacker = (Creature)parent;
                     cAttacker.SetNextState();
                 }
                 break;

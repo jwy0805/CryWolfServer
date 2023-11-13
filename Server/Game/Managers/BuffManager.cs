@@ -166,12 +166,12 @@ public sealed partial class BuffManager
         protected virtual void EffectSetting(Effect effect, GameObject master)
         {
             effect.Room = Instance.Room;
-            effect.Parent = master;
+            effect.Target = master;
             effect.PosInfo = master.PosInfo;
             effect.Info.PosInfo = master.Info.PosInfo;
             effect.Init();
             effect.Info.Name = effect.EffectId.ToString();
-            Instance.Room?.EnterGame_Parent(effect, master);
+            Instance.Room?.EnterGameParent(effect, master);
         }
     }
     

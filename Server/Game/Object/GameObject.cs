@@ -4,7 +4,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class GameObject : IGameObject, IDisposable
+public class GameObject : IGameObject
 {
     public Player Player;
     
@@ -345,12 +345,10 @@ public class GameObject : IGameObject, IDisposable
             Targetable = false;
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
             {
-                if (attacker.Parent != null) attacker.Parent.Target = null;
+                if (attacker.Parent != null) 
+                    attacker.Parent.Target = null;
             }
-            else
-            {
-                attacker.Target = null;
-            }
+            attacker.Target = null;
         }
         
         S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
@@ -400,10 +398,5 @@ public class GameObject : IGameObject, IDisposable
         bool canGo = Room.Map.ApplyMap(this, posInfo);
         if (!canGo) State = State.Idle;
         BroadcastMove();
-    }
-
-    public void Dispose()
-    {
-        
     }
 }
