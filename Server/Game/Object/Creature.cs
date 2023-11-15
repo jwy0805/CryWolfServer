@@ -84,7 +84,7 @@ public class Creature : GameObject
     {
         if (Room == null) return;
 
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
         }

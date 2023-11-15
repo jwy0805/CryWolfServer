@@ -8,8 +8,7 @@ public class Creeper : Lurker
 {
     protected double CrashTime;
     protected long RollCoolTime;
-    
-    private bool _start = false;
+    protected bool Start = false;
     private bool _roll = false;
     
     protected override Skill NewSkill
@@ -48,10 +47,10 @@ public class Creeper : Lurker
     
     protected override void UpdateMoving()
     {
-        if (_roll & _start == false)
+        if (_roll & Start == false)
         {
             State = State.Rush;
-            _start = true;
+            Start = true;
             BroadcastMove();
         }
         else

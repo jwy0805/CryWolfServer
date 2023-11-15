@@ -16,7 +16,7 @@ public class GreenGate : Effect
     {
         if (Room == null || Target == null || IsHit) return;
         Random random = new();
-        int rand = random.Next(1);
+        int rand = random.Next(1, 2);
         switch (rand)
         {
             case 0:

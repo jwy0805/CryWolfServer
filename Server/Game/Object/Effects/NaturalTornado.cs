@@ -6,17 +6,20 @@ public class NaturalTornado : Effect
     
     public override void Update()
     {
-        if (Room == null || Target == null) return;
+        if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
+        if (Target == null)
+        {
+            Room.LeaveGame(Id);
+            return;
+        }
         
-        // if (Target.Targetable == false) Room.LeaveGame(Id);
-        // else CellPos = Target.CellPos;
         CellPos = Target.CellPos;
         
         if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + 1000)
         {
             SetEffectEffect();
-            _damageTime = Room.Stopwatch.ElapsedMilliseconds;
+            if (Room != null) _damageTime = Room.Stopwatch.ElapsedMilliseconds;
         }
     }
 

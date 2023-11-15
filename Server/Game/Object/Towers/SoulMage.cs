@@ -56,7 +56,7 @@ public class SoulMage : Haunt
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 3 && _natureAttack)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 5 && _natureAttack)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
             List<GameObjectType> typeList = new() { GameObjectType.Monster };

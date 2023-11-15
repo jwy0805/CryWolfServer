@@ -5,18 +5,17 @@ namespace Server.Game;
 public class StarFall : Effect
 {
     private long _damageTime = 0;
-    private readonly long _duration = 2000;
+    private readonly long _duration = 2500;
+    private readonly long _interval = 500;
     private readonly float _starFallRad = 2f;
+    private readonly int _skillDamage = 120;
 
     public override void Update()
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        if (Target == null) Room?.LeaveGame(Id);
-        // else CellPos = Parent.CellPos;
-        
-        if (Room?.Stopwatch.ElapsedMilliseconds > _damageTime + 500)
+        if (Room?.Stopwatch.ElapsedMilliseconds > _damageTime + _interval)
         {
             SetEffectEffect();
             _damageTime = Room.Stopwatch.ElapsedMilliseconds;
@@ -25,11 +24,16 @@ public class StarFall : Effect
 
     protected override void SetEffectEffect()
     {
-        if (Target == null || Room == null) return;
-        int damage = 150;
+        if (Room == null) return;
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + _duration)
+        {
+            Room.LeaveGame(Id);
+            return;
+        }
+        
         List<GameObjectType> typeList = new() { GameObjectType.Monster };
         List<GameObject> targets = Room.FindTargets(this, typeList, _starFallRad);
-        foreach (var t in targets) t.OnDamaged(this, damage);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + _duration) Room.LeaveGame(Id);
+        if (!targets.Any()) return;
+        foreach (var t in targets) t.OnDamaged(this, _skillDamage);
     }
 }

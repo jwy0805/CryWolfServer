@@ -189,6 +189,36 @@ public partial class GameRoom
             where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
     }
 
+    public List<GameObject> FindTargetsInCone( List<GameObjectType> typeList, GameObject gameObject, float angle, float dist = 100, int targetType = 0)
+    {
+        Dictionary<int, GameObject> targetDict = new();
+        targetDict = typeList.Select(AddTargetType)
+            .Aggregate(targetDict, (current, dictionary) 
+                => current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
+        
+        if (targetDict.Count == 0) return new List<GameObject>();
+        
+        Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
+        Vector2Int upVector = new Vector2Int(0, 1);
+
+        var targets = targetDict.Values
+            .Select(obj => new 
+            { 
+                Object = obj, 
+                Position = Map.Vector3To2(obj.CellPos),
+                Direction = Map.Vector3To2(obj.CellPos) - currentPos
+            });
+
+        var targetsInDist = targets
+            .Where(t => t.Object.Stat.Targetable && targetType == 2 || t.Object.UnitType == targetType)
+            .Where(t => t.Direction.Magnitude < dist)
+            .Where(t => Math.Abs(Vector2Int.SignedAngle(upVector, t.Direction, gameObject.Dir)) <= angle / 2)
+            .Select(t => t.Object)
+            .ToList();
+
+        return targetsInDist;
+    }
+    
     public GameObject? FindTargetWithManyFriends(List<GameObjectType> type, List<GameObjectType> typeList, 
         GameObject gameObject, float skillRange = 5, int targetType = 2)
     {
@@ -259,7 +289,7 @@ public partial class GameRoom
                 => current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
         
         if (targetDict.Count == 0) return new List<GameObject>();
-
+        
         List<GameObject> objectsInDist = targetDict.Values
             .Where(obj => obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType)
             .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)

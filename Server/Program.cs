@@ -52,7 +52,8 @@ public class Program
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();
         IPHostEntry ipHost = Dns.GetHostEntry(host);
-        IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172"));
+        // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address.ToString()}");
+        IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
         // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
         if (ipAddress != null)
         {

@@ -200,16 +200,14 @@ public partial class GameRoom
             effect.Init();
             Push(EnterGameParent, effect, effect.Parent);
         }
-        
-        if (target == null)
+
+        if (target == null || target.Targetable == false)
         {
             if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
             Creature cAttacker = (Creature)parent;
             cAttacker.SetNextState();
             return;
         }
-        
-        if (target.Targetable == false) return;
         
         switch (attackPacket.AttackMethod)
         {
@@ -266,19 +264,8 @@ public partial class GameRoom
         if (player == null) return;
         GameObject? go = FindGameObjectById(dirPacket.ObjectId);
         if (go == null) return;
-
-        GameObjectType type = go.ObjectType;
-        switch (type)
-        {
-            case GameObjectType.Effect:
-                Effect effect = (Effect)go;
-                effect.Dir = dirPacket.Dir;
-                effect.PacketReceived = true;
-                break;
-            default:
-                go.Dir = dirPacket.Dir;
-                break;
-        }
+        var effect = (Effect)go;
+        effect.PacketReceived = true;
     }
     
     public void HandleStatInit(Player? player, C_StatInit initPacket)

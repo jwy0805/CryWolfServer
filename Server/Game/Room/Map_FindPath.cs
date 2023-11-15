@@ -57,6 +57,30 @@ public struct Vector2Int
         X = x;
         Z = z;
     }
+
+    public static Vector2Int operator +(Vector2Int v1, Vector2Int v2)
+    {
+        return new Vector2Int(v1.X + v2.X, v1.Z + v2.Z);
+    }
+    
+    public static Vector2Int operator -(Vector2Int v1, Vector2Int v2)
+    {
+        return new Vector2Int(v1.X - v2.X, v1.Z - v2.Z);
+    }
+
+    public static double SignedAngle(Vector2Int startVec, Vector2Int destVec, float rotation)
+    {
+        double unsignedAngle = Math.Atan2(destVec.Z, destVec.X) * 180 / Math.PI - 
+                               Math.Atan2(startVec.Z, startVec.X) * 180 / Math.PI;
+        double sign = Math.Sign(startVec.X * destVec.Z - startVec.Z * destVec.X);
+        unsignedAngle = (unsignedAngle + 180) % 360 - 180;
+        unsignedAngle -= rotation;
+
+        return unsignedAngle * sign;
+    }
+
+    public float Magnitude => (float)Math.Sqrt(SqrMagnitude);
+    public int SqrMagnitude => X * X + Z * Z;
 }
 
 public struct Region

@@ -7,7 +7,7 @@ namespace Server.Game;
 public class Horror : Creeper
 {
     private bool _poisonStack = false;
-    private bool _rollPoison = false;
+    private bool _rollPoison = true;
     private bool _poisonBelt = false;
     
     protected override Skill NewSkill
@@ -107,8 +107,72 @@ public class Horror : Creeper
         }   
     }
 
+    protected override void UpdateMoving()
+    {
+        if (Start == false)
+        {
+            State = State.Rush;
+            Start = true;
+            BroadcastMove();
+        }
+        else
+        {
+            // Targeting
+            double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
+            if (timeNow > LastSearch + SearchTick)
+            {
+                LastSearch = timeNow;
+                GameObject? target = Room?.FindNearestTarget(this);
+                if (Target?.Id != target?.Id)
+                {
+                    Target = target;
+                    if (Target != null)
+                    {
+                        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+                        (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
+                        BroadcastDest();
+                    }
+                }
+            }
+
+            if (Target == null || Target.Targetable == false || Target.Room != Room)
+            {
+                State = State.Idle;
+                BroadcastMove();
+                return;
+            }
+
+            if (Room != null)
+            {
+                // 이동
+                // target이랑 너무 가까운 경우
+                // Attack
+                StatInfo targetStat = Target.Stat;
+                Vector3 position = CellPos;
+                if (targetStat.Targetable)
+                {
+                    float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+                    double deltaX = DestPos.X - CellPos.X;
+                    double deltaZ = DestPos.Z - CellPos.Z;
+                    Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+                    if (distance <= AttackRange)
+                    {
+                        CellPos = position;
+                        State = State.Attack;
+                        BroadcastMove();
+                        return;
+                    }
+                }
+            }
+
+            BroadcastMove();
+        }
+    }
+    
     protected override void UpdateRush()
     {
+        if (Room == null) return;
+        
         // Targeting
         double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
         if (timeNow > LastSearch + SearchTick)
@@ -134,39 +198,45 @@ public class Horror : Creeper
             return;
         }
         
-        if (Room != null)
+        // 이동
+        // target이랑 너무 가까운 경우
+        StatInfo targetStat = Target.Stat;
+        Vector3 position = CellPos;
+        if (targetStat.Targetable)
         {
-            // 이동
-            // target이랑 너무 가까운 경우
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
+            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+            double deltaX = DestPos.X - CellPos.X;
+            double deltaZ = DestPos.Z - CellPos.Z;
+            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+            // Roll 충돌 처리
+            if (distance <= Stat.SizeX * 0.25 + 0.75f)
             {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                // Roll 충돌 처리
-                if (distance <= Stat.SizeX * 0.25 + 0.75f)
+                CellPos = position;
+                Target.OnDamaged(this, SkillDamage);
+                if (_rollPoison)
                 {
-                    CellPos = position;
-                    Target.OnDamaged(this, SkillDamage);
-                    if (_rollPoison)
-                    {
-                        BuffManager.Instance.AddBuff(_poisonStack ? BuffId.DeadlyAddicted : BuffId.Addicted,
-                            Target, this, Attack);
-                    }
-                    Mp += MpRecovery;
-                    State = State.KnockBack;
-                    DestPos = CellPos + -Vector3.Normalize(Target.CellPos - CellPos) * 3;
-                    BroadcastMove();
-                    Room.Broadcast(new S_SetKnockBack
-                    {
-                        ObjectId = Id, 
-                        Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
-                    });
-                    return;
+                    Effect effect = ObjectManager.Instance.CreateEffect(EffectId.HorrorRoll);
+                    effect.Room = Room;
+                    effect.Parent = this;
+                    effect.Target = Target;
+                    effect.PosInfo = PosInfo;
+                    effect.Info.PosInfo = effect.PosInfo;
+                    effect.Info.Name = EffectId.HorrorRoll.ToString();
+                    effect.Init();
+                    Room.EnterGameParent(effect, effect.Parent);
+                    BuffManager.Instance.AddBuff(_poisonStack ? BuffId.DeadlyAddicted : BuffId.Addicted,
+                        Target, this, Attack);
                 }
+                Mp += MpRecovery;
+                State = State.KnockBack;
+                DestPos = CellPos + -Vector3.Normalize(Target.CellPos - CellPos) * 3;
+                BroadcastMove();
+                Room.Broadcast(new S_SetKnockBack
+                {
+                    ObjectId = Id, 
+                    Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
+                });
+                return;
             }
         }
 

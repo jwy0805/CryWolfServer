@@ -13,6 +13,7 @@ public class HolyAura : Effect
     protected override void SetEffectEffect()
     {
         IsHit = true;
-        Room?.Broadcast(new S_LeaveGame { ObjectId = Id });
-    }
+        S_Despawn despawnPacket = new S_Despawn();
+        despawnPacket.ObjectIds.Add(Id);
+        Room?.Broadcast(despawnPacket);    }
 }
