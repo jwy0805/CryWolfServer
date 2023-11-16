@@ -9,7 +9,7 @@ public class SoulMage : Haunt
     public bool Fire = false;
     private bool _tornado = false;
     private bool _shareDamage = false;
-    private bool _natureAttack = true;
+    private bool _natureAttack = false;
     private bool _debuffResist = false;
     
     protected override Skill NewSkill

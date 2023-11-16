@@ -61,6 +61,8 @@ public sealed partial class ObjectManager
         { ProjectileId.MothMoonAttack, new MothMoonAttackFactory()},
         { ProjectileId.MothCelestialPoisonAttack, new MothCelestialPoisonAttackFactory() },
         { ProjectileId.MosquitoStingerAttack, new MosquitoStingerAttackFactory() },
+        { ProjectileId.SpikeArrow, new SpikeArrowFactory() },
+        { ProjectileId.HermitArrow, new HermitArrowFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -347,6 +349,16 @@ public sealed partial class ObjectManager
     public class MosquitoStingerAttackFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new MosquitoStingerAttack();
+    }
+
+    public class SpikeArrowFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new SpikeArrow();
+    }
+
+    public class HermitArrowFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new HermitArrow();
     }
     
     public class LightningStrikeFactory : IEffectFactory

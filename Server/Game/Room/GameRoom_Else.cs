@@ -201,8 +201,7 @@ public partial class GameRoom
         Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
         Vector2Int upVector = new Vector2Int(0, 1);
 
-        var targets = targetDict.Values
-            .Select(obj => new 
+        var targets = targetDict.Values.Select(obj => new 
             { 
                 Object = obj, 
                 Position = Map.Vector3To2(obj.CellPos),
