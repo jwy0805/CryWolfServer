@@ -16,7 +16,7 @@ public class Program
         while (true)
         {
             GameLogic.Instance.Update();
-            Thread.Sleep(0);
+            Thread.Sleep(10);
         }
     }
 
@@ -30,7 +30,7 @@ public class Program
                 session.FlushSend();
             }
             
-            Thread.Sleep(0);
+            Thread.Sleep(10);
         }
     }
 
@@ -39,7 +39,7 @@ public class Program
         while (true)
         {
             DbTransaction.Instance.Flush();
-            Thread.Sleep(0);
+            Thread.Sleep(10);
         }
     }
     
@@ -52,7 +52,8 @@ public class Program
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();
         IPHostEntry ipHost = Dns.GetHostEntry(host);
-        // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address.ToString()}");
+        // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address}");
+        // IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
         IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
         // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
         if (ipAddress != null)

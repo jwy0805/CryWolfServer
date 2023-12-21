@@ -120,6 +120,16 @@ public sealed partial class ObjectManager
     {
         Resource CreateResource();
     }
+
+    public class StatueFactory
+    {
+        public MonsterStatue CreateStatue() => new MonsterStatue();
+    }
+    
+    public class FenceFactory
+    {
+        public Fence CreateFence() => new Fence();
+    }
     
     public class BudFactory : ITowerFactory
     {

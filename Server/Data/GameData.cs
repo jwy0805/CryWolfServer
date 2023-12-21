@@ -6,211 +6,48 @@ namespace Server.Data;
 public class GameData
 {
     // Game 초기 설정
-    // 가변
-    public static int[] SpawnMonsterCnt = { 1, 1, 0 }; // { West, North, East }
     
     // 불변
-    public static Vector3 Center = new Vector3(0.0f, 6.0f, 0.0f); // Center of the Map
+    public static Vector3 Center = new(0.0f, 6.0f, 0.0f); // Center of the Map
     
-    public static int SpawnersCnt = 3;
     public static Vector3[] SpawnerPos { get; set; } = {
-        new Vector3(-40.0f, 6.0f, 0.0f), // West
-        new Vector3(0.0f, 6.0f, 40.0f),  // North
-        new Vector3(40.0f, 6.0f, 0.0f)  // East
+        new(0.0f, 6.0f, 25.0f), // North
+        new(0.0f, 6.0f, -25.0f) // South
     };
-    
-    #region MapData
-
-    public static List<Vector3> WestMap = new()
-    {
-        new Vector3(-62, 0, -16),
-        new Vector3(-19, 0, -16),
-        new Vector3(-19, 0, 20),
-        new Vector3(-62, 0, 20)
-    };
-
-    public static List<Vector3> SouthMap = new()
-    {
-        new Vector3(-13, 0, -16),
-        new Vector3(-13, 0, -21),
-        new Vector3(13, 0, -21),
-        new Vector3(13, 0, -16)
-    };
-
-    public static List<Vector3> EastMap = new()
-    {
-        new Vector3(13, 0, 10),
-        new Vector3(13, 0, -16),
-        new Vector3(70, 0, -16),
-        new Vector3(70, 0, 10),
-    };
-
-    public static List<Vector3> NorthMap = new()
-    {
-        new Vector3(-19, 0, 50),
-        new Vector3(-19, 0, 20),
-        new Vector3(15, 0, 20),
-        new Vector3(15, 0, 50)
-    };
-    
-    public List<Vector3> MidMap = new()
-    {
-        new Vector3(-19, 0, 20),
-        new Vector3(-19, 0, -16),
-        new Vector3(19, 0, -16),
-        new Vector3(19, 0, 20)
-    };
-
-    #endregion
     
     #region FenceData
 
     public static string[] FenceName = { "", "FenceLv1", "FenceLv2", "FenceLv3" };
-    public static int[] FenceCnt = { 0, 18, 22, 28 };
-    public static int CurrentFenceCnt = 0;
-    public static int CurrentRockPileCnt = 0;
-    public static int[] FenceRow = { 0, 4, 5, 6 };
-
-    public static readonly Vector3[] FenceStartPos =
+    public static readonly int NorthFenceMax = 6;
+    public static readonly int SouthFenceMax = 6;
+    public static readonly Vector3 FenceStartPos = new(-5, 6, -5);
+    public static readonly Vector3 FenceCenter = new(0, 6, 0);
+    public static readonly Vector3 FenceSize = new(12, 6, 10);
+    
+    public static readonly List<Vector3> FenceBounds = new()
     {
-        new Vector3(0, 0, 0), new Vector3(-3, 6, -7),
-        new Vector3(-4, 6, -7), new Vector3(-5, 6, -8)
-    };
-
-    public static readonly Vector3[] FenceCenter =
-    {
-        new Vector3(0, 0, 0), new Vector3(0, 6, -2),
-        new Vector3(0, 6, -1), new Vector3(0, 6, 0)
+        new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2),
+        new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
+        new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
+        new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2)
     };
 
-    public static readonly Vector3[] FenceSize =
+    public static readonly List<Vector3> SheepBounds = new()
     {
-        new Vector3(0, 0, 0), new Vector3(8, 6, 10),
-        new Vector3(10, 6, 12), new Vector3(12, 6, 16)
-    };
-
-    public static List<Vector3> FenceBounds;
-    
-    public static List<Vector3>[] NorthFenceBounds =
-    {
-        new List<Vector3>(),
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 + 1),  
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 - 1),  
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 - 1),  
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2, 6, FenceCenter[1].Z + FenceSize[1].Z / 2 + 1)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 + 1.5f),  
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 - 1.5f),  
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 - 1.5f),  
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2, 6, FenceCenter[2].Z + FenceSize[2].Z / 2 + 1.5f)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 + 2),  
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 - 2),  
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 - 2),  
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2 + 2)  
-        },
-    };
-    
-    public static List<Vector3>[] WestFenceBounds =
-    {
-        new List<Vector3>(),
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X - FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 + 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X - FenceSize[2].X / 2 + 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 + 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X - FenceSize[3].X / 2 + 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2)  
-        },
-    };
-    
-    public static List<Vector3>[] EastFenceBounds =
-    {
-        new List<Vector3>(),
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 - 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z - FenceSize[1].Z / 2),  
-          new Vector3(FenceCenter[1].X + FenceSize[1].X / 2 + 1, 6, FenceCenter[1].Z + FenceSize[1].Z / 2)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z - FenceSize[2].Z / 2),  
-          new Vector3(FenceCenter[2].X + FenceSize[2].X / 2 - 1.5f, 6, FenceCenter[2].Z + FenceSize[2].Z / 2)  
-        },
-        new List<Vector3>
-        {
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z - FenceSize[3].Z / 2),  
-          new Vector3(FenceCenter[3].X + FenceSize[3].X / 2 - 2, 6, FenceCenter[3].Z + FenceSize[3].Z / 2)  
-        },
-    };
-    
-    public static readonly List<Vector3>[] SheepBounds =
-    {
-        new List<Vector3>(),
-        new List<Vector3>()
-        {
-            new Vector3(Center.X - 2.5f, Center.Y, Center.Z + 2f),
-            new Vector3(Center.X - 2.5f, Center.Y, Center.Z - 2f),
-            new Vector3(Center.X + 2.5f, Center.Y, Center.Z - 2f),
-            new Vector3(Center.X + 2.5f, Center.Y, Center.Z + 2f),
-        },
-        new List<Vector3>()
-        {
-            new Vector3(-2.5f, Center.Y, 5.5f),
-            new Vector3(-2.5f, Center.Y, -1.5f),
-            new Vector3(2.5f, Center.Y, -1.5f),
-            new Vector3(2.5f, Center.Y, 5.5f),
-        },
-        new List<Vector3>()
-        {
-            new Vector3(-5, Center.Y, 7),
-            new Vector3(-5, Center.Y, -1),
-            new Vector3(5, Center.Y, -1),
-            new Vector3(5, Center.Y, 7),
-        },
+        new Vector3(Center.X - 4f, Center.Y, Center.Z + 3f),
+        new Vector3(Center.X - 4f, Center.Y, Center.Z - 3f),
+        new Vector3(Center.X + 6f, Center.Y, Center.Z - 3f),
+        new Vector3(Center.X + 6f, Center.Y, Center.Z + 3f)
     };
         
     public static Vector3[] GetPos(int cnt, int row, Vector3 startPos)
     {
         Vector3[] posArr = new Vector3[cnt];
-        int col = cnt / 2 - row;
 
         for (int i = 0; i < row; i++)
         {
-            posArr[i] = new Vector3(startPos.X + (i * 2), startPos.Y, startPos.Z); // south fence
-            posArr[row + col + i] = new Vector3(startPos.X + (i * 2), startPos.Y, startPos.Z + 2 * col); // north fence
-        }
-
-        for (int i = 0; i < col; i++)
-        {
-            posArr[row + i] = new Vector3(row , startPos.Y, startPos.Z + 1 + 2 * i); // east fence
-            posArr[row + col + row + i] =
-                new Vector3(-row, startPos.Y, startPos.Z + 1 + 2 * i); // west fence
+            posArr[i] = startPos with { X = startPos.X + i * 2, Z = -5}; // south fence
+            posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = 5 }; // north fence
         }
 
         return posArr;
@@ -219,18 +56,11 @@ public class GameData
     public static float[] GetRotation(int cnt, int row)
     {
         float[] rotationArr = new float[cnt];
-        int col = cnt / 2 - row;
-
+        
         for (int i = 0; i < row; i++)
         {
-            rotationArr[i] = 0;
-            rotationArr[row + col + i] = 180;
-        }
-
-        for (int i = 0; i < col; i++)
-        {
-            rotationArr[row + i] = 90;
-            rotationArr[row + col + row + i] = -90;
+            rotationArr[i] = 180;
+            rotationArr[row + i] = 0;
         }
 
         return rotationArr;
@@ -241,41 +71,11 @@ public class GameData
     // 게임 진행 정보
     #region GameInfo
 
-    public static readonly float RoundTime = 13000f;
-
-    public static int StartSheepResource = 5000;
-    public static int SheepYield = 20;
-    public static int StartWolfResource = 5000;
-    
+    public static readonly long RoundTime = 20000;
     public static int StorageLevel = 0;
     public static int[] StorageLvUpCost = { 0, 600, 2000 };
-    public static int TowerCapacity = 0;
-    public static int[] TowerMaxCapacity = {0, 3, 5, 7};
-    public static int SheepCapacity = 3;
-    public static int[] SheepMaxCapacity = {0, 6, 12, 20};
-    
-    public static int[] MonsterCapacity = new int[3];
-    public static int MonsterMaxCapacity = 0;
     
     #endregion
-    
-    public static readonly Dictionary<string, string> Tower = new()
-    {
-        { "00", "Bud" }, { "01", "Bloom" }, { "02", "Blossom" },
-        { "10", "PracticeDummy" }, { "11", "TargetDummy" }, { "12", "TrainingDummy" },
-        { "20", "SunBlossom" }, { "21", "SunflowerFairy" }, { "22", "SunfloraPixie" },
-        { "30", "MothLuna" }, { "31", "MothMoon" }, { "32", "MothCelestial" },
-        { "40", "Soul" }, { "41", "Haunt" }, { "42", "SoulMage" },
-    };
-    
-    public static readonly Dictionary<string, string> Monster = new()
-    {
-        { "50", "WolfPup" }, { "51", "Wolf" }, { "52", "Werewolf" },
-        { "60", "Lurker" }, { "61", "Creeper" }, { "62", "Horror" },
-        { "70", "Snakelet" }, { "71", "Snake" }, { "72", "SnakeNaga" },
-        { "80", "MosquitoBug" }, { "81", "MosquitoPester" }, { "82", "MosquitoStinger" },
-        { "90", "Shell" }, { "91", "Spike" }, { "92", "Hermit" },
-    };
     
     // public static readonly Dictionary<Define.Skill, int> SkillCost = new Dictionary<Define.Skill, int>()
     // {

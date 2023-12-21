@@ -1,42 +1,93 @@
-using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Game.Resources;
-using Server.Util;
 
 namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
+    public GameInfo GameInfo;
+    public List<TowerSize> TowerSizeList = new();
+    public List<MonsterSize> MonsterSizeList = new();
+
     private readonly object _lock = new();
-    public int RoomId { get; set; }
 
     private Dictionary<int, Player> _players = new();
     private Dictionary<int, Tower> _towers = new();
     private Dictionary<int, Monster> _monsters = new();
+    private Dictionary<int, MonsterStatue> _statues = new();
     private Dictionary<int, Sheep> _sheeps = new();
     private Dictionary<int, Fence> _fences = new();
     private Dictionary<int, Effect> _effects = new();
     private Dictionary<int, Projectile> _projectiles = new();
-    private Dictionary<int, RockPile> _rockPiles = new();
-
-    public Map Map { get; private set; } = new();
+    private Dictionary<int, Portal> _portals = new();
+    
+    private List<TowerSlot> _northTowers = new();
+    private List<TowerSlot> _southTowers = new();
+    private List<MonsterSlot> _northMonsters = new();
+    private List<MonsterSlot> _southMonsters = new();
 
     private int _storageLevel = 0;
-
+    private int _roundTime = 19;
+    private int _round = 0;
+    private readonly long _interval = 1000;
+    private long _timeSendTime;
+    
+    public int RoomId { get; set; }
+    public Map Map { get; private set; } = new();
+    
     public void Init(int mapId)
     {
         Map.LoadMap(mapId);
         Map.MapSetting();
+        UnitSizeMapping();
         GameInit();
     }
 
     public void Update()
     {
         Flush();
+        SetTimeAndRound();
     }
 
+    private void UnitSizeMapping()
+    {
+        int[] towerIds = Enum.GetValues(typeof(TowerId)) as int[] ?? Array.Empty<int>();
+        int[] monsterIds = Enum.GetValues(typeof(MonsterId)) as int[] ?? Array.Empty<int>();
+        
+        foreach (var towerId in towerIds)
+        {
+            DataManager.TowerDict.TryGetValue(towerId, out var towerData);
+            StatInfo stat = new StatInfo();
+            stat.MergeFrom(towerData?.stat);
+            TowerSizeList.Add(new TowerSize((TowerId)towerId, stat.SizeX, stat.SizeZ));
+        }
+        
+        foreach (var monsterId in monsterIds)
+        {
+            DataManager.MonsterDict.TryGetValue(monsterId, out var monsterData);
+            StatInfo stat = new StatInfo();
+            stat.MergeFrom(monsterData?.stat);
+            MonsterSizeList.Add(new MonsterSize((MonsterId)monsterId, stat.SizeX, stat.SizeZ));
+        }
+    }
+    
+    private void SetTimeAndRound()
+    {
+        long time = Stopwatch.ElapsedMilliseconds;
+        if (time < _timeSendTime + _interval || time < 10000) return;
+        Broadcast(new S_Time { Time = _roundTime, Round = _round});
+        _roundTime--;
+        if (_roundTime < 0) 
+        {
+            _roundTime = 19;
+            _round++;
+            SpawnMonster();
+        }
+        _timeSendTime = time;
+    }
+    
     public void EnterGame(GameObject gameObject)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
@@ -63,7 +114,7 @@ public partial class GameRoom : JobSerializer
                 foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
                 foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                 foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
-                foreach (var r in _rockPiles.Values) spawnPacket.Objects.Add(r.Info);
+                foreach (var r in _portals.Values) spawnPacket.Objects.Add(r.Info);
                 
                 player.Session.Send(spawnPacket);
             }
@@ -88,6 +139,13 @@ public partial class GameRoom : JobSerializer
                 _monsters.Add(gameObject.Id, monster);
                 Map.ApplyMap(monster);
                 monster.Update();
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                MonsterStatue statue = (MonsterStatue)gameObject;
+                statue.Info = gameObject.Info;
+                _statues.Add(gameObject.Id, statue);
+                Map.ApplyMap(statue);
                 break;
             
             case GameObjectType.Fence:
@@ -133,12 +191,11 @@ public partial class GameRoom : JobSerializer
                 resource.Update();
                 break;
             
-            case GameObjectType.RockPile:
-                RockPile rockPile = (RockPile)gameObject;
-                _rockPiles.Add(gameObject.Id, rockPile);
-                rockPile.Room = this;
-                Map.ApplyMap(rockPile);
-                GameData.CurrentRockPileCnt++;
+            case GameObjectType.Portal:
+                Portal portal = (Portal)gameObject;
+                _portals.Add(gameObject.Id, portal);
+                portal.Room = this;
+                Map.ApplyMap(portal);
                 break;
         }
         // 타인에게 정보 전송
@@ -219,6 +276,12 @@ public partial class GameRoom : JobSerializer
                 monster.Room = null;
                 break;
             
+            case GameObjectType.MonsterStatue:
+                if (_statues.Remove(objectId, out var statue) == false) return;
+                Map.ApplyLeave(statue);
+                statue.Room = null;
+                break;
+            
             case GameObjectType.Tower:
                 if (_towers.Remove(objectId, out var tower) == false) return;
                 Map.ApplyLeave(tower);
@@ -247,10 +310,9 @@ public partial class GameRoom : JobSerializer
                 effect.Room = null;
                 break;
             
-            case GameObjectType.RockPile:
-                if (_rockPiles.Remove(objectId, out var rockPile) == false) return;
-                rockPile.Room = null;
-                GameData.CurrentRockPileCnt--;
+            case GameObjectType.Portal:
+                if (_portals.Remove(objectId, out var portal) == false) return;
+                portal.Room = null;
                 break;
         }
 

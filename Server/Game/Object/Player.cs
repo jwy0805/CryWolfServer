@@ -8,6 +8,7 @@ public class Player : GameObject
     public int PlayerNo;
     public List<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public SkillSubject SkillSubject = new();
+    public Camp Camp { get; set; }
 
     public int Resource { get; set; } = 0;
 

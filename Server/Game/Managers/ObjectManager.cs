@@ -30,6 +30,15 @@ public sealed partial class ObjectManager : IFactory
         
         return gameObject as Monster ?? throw new InvalidCastException();
     }
+
+    public MonsterStatue CreateMonsterStatue()
+    {
+        StatueFactory factory = new();
+        GameObject gameObject = factory.CreateStatue();
+        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
+        
+        return gameObject as MonsterStatue ?? throw new InvalidCastException();
+    }
     
     public Projectile CreateProjectile(ProjectileId projectileId)
     {

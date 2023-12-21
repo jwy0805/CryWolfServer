@@ -5,7 +5,7 @@ namespace Server.Game;
 
 public class Fence : GameObject
 {
-    public int FenceNum;
+    public int FenceNum { get; set; }
 
     public Fence()
     {

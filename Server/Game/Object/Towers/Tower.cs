@@ -7,9 +7,9 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    public int TowerNum;
-    public TowerId TowerId;
-    public Vector3 StartCell;
+    public int TowerNum { get; set; }
+    public TowerId TowerId { get; set; }
+    public Vector3 StartCell { get; set; }
 
     protected Tower()
     {

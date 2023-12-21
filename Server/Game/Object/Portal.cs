@@ -3,14 +3,14 @@ using Server.Data;
 
 namespace Server.Game;
 
-public class RockPile : GameObject      
+public class Portal : GameObject      
 {
     private readonly int _rockPileNum = 2;
     public SpawnWay Way { get; set; } = SpawnWay.Any;
     
-    public RockPile()
+    public Portal()
     {
-        ObjectType = GameObjectType.RockPile;
+        ObjectType = GameObjectType.Portal;
     }
 
     public override void Init()

@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public class Effect : GameObject
 {
-    public EffectId EffectId;
+    public EffectId EffectId { get; set; }
     public bool PacketReceived { get; set; } = false;
     protected bool IsHit = false;
 

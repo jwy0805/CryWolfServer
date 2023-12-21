@@ -12,17 +12,50 @@ public partial class GameRoom
         StorageLevel = 1;
 
         // Spawn Rock Pile
-        Vector3[] rockPilePos = GameData.SpawnerPos;
-        List<SpawnWay> way = new() { SpawnWay.West, SpawnWay.North, SpawnWay.East };
+        Vector3[] portalPos = GameData.SpawnerPos;
 
-        for (int i = 0; i < rockPilePos.Length; i++)
+        Portal northPortal = ObjectManager.Instance.Add<Portal>();
+        northPortal.Init();
+        northPortal.Way = SpawnWay.North;
+        northPortal.Info.Name = "Portal#6Red";
+        northPortal.CellPos = portalPos[0];
+        northPortal.Dir = 90;
+        Push(EnterGame, northPortal);
+        
+        Portal southPortal = ObjectManager.Instance.Add<Portal>();
+        southPortal.Init();
+        southPortal.Way = SpawnWay.South;
+        southPortal.Info.Name = "Portal#6Blue";
+        southPortal.CellPos = portalPos[1];
+        southPortal.Dir = 270;
+        Push(EnterGame, southPortal);
+    }
+    
+    public void InfoInit()
+    {
+        GameInfo = new GameInfo(_players);
+        foreach (var player in _players.Values)
         {
-            RockPile rockPile = ObjectManager.Instance.Add<RockPile>();
-            rockPile.Init();
-            rockPile.Way = way[i];
-            rockPile.Info.Name = "RockPile";
-            rockPile.CellPos = rockPilePos[i];
-            Push(EnterGame, rockPile);
+            if (player.Camp == Camp.Sheep)
+            {
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.Sheep, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxTower, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthTower, Max = false });
+            }
+            else
+            {
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.WolfResource, Max = false});
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.Sheep, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMonster, Max = false });
+            }
         }
     }
     
@@ -296,6 +329,23 @@ public partial class GameRoom
         
         return objectsInDist;
     }
+
+    private PositionInfo FindMonsterSpawnPos(MonsterStatue statue)
+    {
+        PositionInfo posInfo = statue.PosInfo;
+        posInfo.State = State.Idle;
+        
+        if (statue.Way == SpawnWay.North)
+        {
+            posInfo.PosZ = statue.PosInfo.PosZ - statue.Stat.SizeZ;
+        }
+        else
+        {
+            posInfo.PosZ = statue.PosInfo.PosZ + statue.Stat.SizeZ;
+        }
+
+        return posInfo;
+    }
     
     public GameObject? FindMosquitoInFence()
     {
@@ -409,10 +459,9 @@ public partial class GameRoom
     
     private bool InsideFence(GameObject gameObject)
     {
-        int lv = StorageLevel;
         Vector3 cell = gameObject.CellPos;
-        Vector3 center = GameData.FenceCenter[lv];
-        Vector3 size = GameData.FenceSize[lv];
+        Vector3 center = GameData.FenceCenter;
+        Vector3 size = GameData.FenceSize;
 
         float halfWidth = size.X / 2;
         float minX = center.X - halfWidth;
@@ -429,7 +478,7 @@ public partial class GameRoom
 
     private bool ReachableInFence()
     {
-        return _fences.Count < GameData.FenceCnt[_storageLevel];
+        return _fences.Count < GameData.NorthFenceMax;
     }
 
     private bool CanUpgradeSkill(Player player, Skill skill)

@@ -369,14 +369,11 @@ public partial class Map
             Random random = new();
             switch (way)
             {
-                case SpawnWay.West:
-                    cell = new Vector3(-36, GameData.SpawnerPos[0].Y, (float)((random.NextDouble() - 0.5) * 8));
-                    break;
                 case SpawnWay.North:
-                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, 36);
+                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, 25);
                     break;
-                case SpawnWay.East:
-                    cell = GameData.SpawnerPos[2];
+                case SpawnWay.South:
+                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, -25);
                     break;
                 default:
                     cell = GameData.SpawnerPos[0];
@@ -390,7 +387,7 @@ public partial class Map
             {
                 int level = GameData.StorageLevel;
                 Random random = new();
-                List<Vector3> xList = new List<Vector3>(GameData.SheepBounds[level]);
+                List<Vector3> xList = new List<Vector3>(GameData.SheepBounds);
                 int minX = (int)(xList.Min(v => v.X) * 4);
                 int maxX = (int)(xList.Max(v => v.X) * 4);
                 int minZ = (int)(xList.Min(v => v.Z) * 4);

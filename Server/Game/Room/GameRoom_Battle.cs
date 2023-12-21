@@ -24,16 +24,6 @@ public partial class GameRoom
             {
                 foreach (var fenceId in _fences.Keys) Push(LeaveGame, fenceId);
             }
-
-            Vector3 center = GameData.FenceCenter[_storageLevel];
-            Vector3 size = GameData.FenceSize[_storageLevel];
-            GameData.FenceBounds = new List<Vector3>
-            {
-                new(center.X - size.X / 2 , 6, center.Z + size.Z / 2),
-                new(center.X - size.X / 2 , 6, center.Z - size.Z / 2),
-                new(center.X + size.X / 2 , 6, center.Z - size.Z / 2),
-                new(center.X + size.X / 2 , 6, center.Z + size.Z / 2)
-            };
             
             SpawnFence(_storageLevel);
         }
@@ -42,6 +32,7 @@ public partial class GameRoom
     private void GameInit()
     {
         Stopwatch.Start();
+        _timeSendTime = Stopwatch.ElapsedMilliseconds;
         BaseInit();
         BuffManager.Instance.Room = this;
         BuffManager.Instance.Update();
@@ -93,7 +84,7 @@ public partial class GameRoom
     {
         if (player == null) return;
         GameObjectType type = spawnPacket.Type;
-
+        
         switch (type)
         {
             case GameObjectType.Tower:
@@ -106,13 +97,9 @@ public partial class GameRoom
                 tower.Player = player;
                 tower.TowerId = towerType;
                 tower.Room = this;
-                tower.Way = spawnPacket.Way;
+                tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
                 tower.Init();
-                if (towerType is TowerId.MothLuna or TowerId.MothMoon or TowerId.MothCelestial)
-                {
-                    tower.CellPos = Map.FindSpawnPos(tower, SpawnWay.Any);
-                    tower.StartCell = tower.CellPos;
-                }
+                if (spawnPacket.Register) RegisterTower(tower);
                 Push(EnterGame, tower);
                 break;
 
@@ -126,10 +113,27 @@ public partial class GameRoom
                 monster.Player = player;
                 monster.MonsterId = monsterType;
                 monster.Room = this;
-                monster.Way = spawnPacket.Way;
+                monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
                 monster.Init();
                 monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 Push(EnterGame, monster);
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                MonsterStatue statue = ObjectManager.Instance.CreateMonsterStatue();
+                statue.PosInfo = spawnPacket.PosInfo;
+                statue.Info.PosInfo = statue.PosInfo;
+                statue.MonsterNum = spawnPacket.Num;
+                statue.Player = player;
+                statue.MonsterId = (MonsterId)spawnPacket.Num;
+                statue.Room = this;
+                statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+                statue.Init();
+                statue.CellPos = Map.FindSpawnPos(statue, spawnPacket.Way);
+                RegisterMonsterStatue(statue);
+                Push(EnterGame, statue);
                 break;
             
             case GameObjectType.Sheep:
@@ -152,21 +156,91 @@ public partial class GameRoom
                 break;
         }
     }
+
+    private void RegisterTower(Tower tower) 
+    {
+        TowerSlot towerSlot = new(tower.Id, tower.TowerId, tower.Way);
+        int slotNum = 0;
+        if (towerSlot.Way == SpawnWay.North)
+        {
+            _northTowers.Add(towerSlot);
+            slotNum = _northTowers.Count - 1;
+        }
+        else
+        {
+            _southTowers.Add(towerSlot);
+            slotNum = _southTowers.Count - 1;
+        }
+        
+        S_RegisterTower registerPacket = new()
+        {
+            TowerId = (int)towerSlot.TowerId,
+            ObjectId = towerSlot.ObjectId,
+            Way = towerSlot.Way,
+            SlotNumber = slotNum
+        };
+        _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
+    }
+    
+    private void RegisterMonsterStatue(MonsterStatue statue)
+    {
+        MonsterSlot monsterSlot = new(statue, statue.MonsterId, statue.Way);
+        int slotNum = 0;
+        if (monsterSlot.Way == SpawnWay.North)
+        {
+            _northMonsters.Add(monsterSlot);
+            slotNum = _northMonsters.Count - 1;
+        }
+        else
+        {
+            _southMonsters.Add(monsterSlot);
+            slotNum = _southMonsters.Count - 1;
+        }
+        
+        S_RegisterMonster registerPacket = new()
+        {
+            MonsterId = (int)monsterSlot.MonsterId,
+            ObjectId = monsterSlot.Statue.Id,
+            Way = monsterSlot.Way,
+            SlotNumber = slotNum
+        };
+        _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session.Send(registerPacket);
+    }
     
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
-        Vector3[] fencePos = GameData.GetPos(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv], GameData.FenceStartPos[storageLv]);
-        float[] fenceRotation = GameData.GetRotation(GameData.FenceCnt[storageLv], GameData.FenceRow[storageLv]);
+        Vector3[] fencePos = GameData.GetPos(GameData.NorthFenceMax + GameData.SouthFenceMax, 6, GameData.FenceStartPos);
+        float[] fenceRotation = GameData.GetRotation(GameData.NorthFenceMax + GameData.SouthFenceMax, 6);
 
-        for (int i = 0; i < GameData.FenceCnt[storageLv]; i++)
+        for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
         {
             Fence fence = ObjectManager.Instance.Add<Fence>();
             fence.Init();
             fence.Info.Name = GameData.FenceName[storageLv];
             fence.CellPos = fencePos[i];
             fence.Dir = fenceRotation[i];
+            fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+            fence.Room = this;
             fence.FenceNum = fenceLv;
             Push(EnterGame, fence);
+        }
+    }
+
+    private void SpawnMonster()
+    {
+        List<MonsterSlot> slots = _northMonsters.Concat(_southMonsters).ToList();
+        foreach (var slot in slots)
+        {
+            Monster monster = ObjectManager.Instance.CreateMonster(slot.MonsterId);
+            monster.MonsterNum = slot.Statue.MonsterNum;
+            monster.PosInfo = FindMonsterSpawnPos(slot.Statue);
+            monster.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
+            monster.MonsterId = slot.MonsterId;
+            monster.Way = slot.Way;
+            monster.Room = this;
+            monster.Init();
+            monster.CellPos = new Vector3(monster.PosInfo.PosX, monster.PosInfo.PosY, monster.PosInfo.PosZ);
+            Push(EnterGame, monster);
         }
     }
 
@@ -350,14 +424,9 @@ public partial class GameRoom
         S_Despawn despawnPacket = new S_Despawn();
         int objId = resourcePacket.ObjectId;
         despawnPacket.ObjectIds.Add(objId);
-        foreach (var p in _players.Values)
-        {
-            if (p.Id != objId) p.Session.Send(despawnPacket);
-        }
+        foreach (var p in _players.Values.Where(p => p.Id != objId)) p.Session.Send(despawnPacket);
         
-        player.Resource += resourcePacket.Resource;
-        player.Session.Send(new S_ChangeResource 
-            { PlayerId = player.Id, Resource = player.Resource });
+        GameInfo.SheepResource += GameInfo.SheepYield;
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
@@ -365,6 +434,4 @@ public partial class GameRoom
         if (player == null) return;
         LeaveGame(leavePacket.ObjectId);
     }
-    
-
 }

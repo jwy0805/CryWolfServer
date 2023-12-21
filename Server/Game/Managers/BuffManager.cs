@@ -255,7 +255,7 @@ public sealed partial class BuffManager
         public sealed override void CalculateFactor()
         {
             if (Master.Burn) _factor = (int)(Master.Hp * _param * Master.FireResist * 0.01f);
-            else _factor = (int)(Master.Hp * _param);
+            else _factor = (int)_param;
         }
 
         public override void TriggerBuff()

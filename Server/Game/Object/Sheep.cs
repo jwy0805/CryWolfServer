@@ -42,7 +42,7 @@ public class Sheep : Creature, ISkillObserver
         {
             if (YieldStop == false)
             {
-                Resource = GameData.SheepYield;
+                Resource = Room.GameInfo.SheepYield;
                 _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
                 YieldCoin(Resource + YieldIncrement - YieldDecrement);
                 YieldIncrement = 0;

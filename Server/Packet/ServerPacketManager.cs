@@ -23,6 +23,8 @@ class PacketManager
 
 	public void Register()
 	{		
+		_onRecv.Add((ushort)MessageId.CEnterGame, MakePacket<C_EnterGame>);
+		_handler.Add((ushort)MessageId.CEnterGame, PacketHandler.C_EnterGameHandler);		
 		_onRecv.Add((ushort)MessageId.CSpawn, MakePacket<C_Spawn>);
 		_handler.Add((ushort)MessageId.CSpawn, PacketHandler.C_SpawnHandler);		
 		_onRecv.Add((ushort)MessageId.CPlayerMove, MakePacket<C_PlayerMove>);
@@ -52,7 +54,11 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
 		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);		
 		_onRecv.Add((ushort)MessageId.CTowerSpawnPos, MakePacket<C_TowerSpawnPos>);
-		_handler.Add((ushort)MessageId.CTowerSpawnPos, PacketHandler.C_TowerSpawnPosHandler);
+		_handler.Add((ushort)MessageId.CTowerSpawnPos, PacketHandler.C_TowerSpawnPosHandler);		
+		_onRecv.Add((ushort)MessageId.CMonsterSpawnPos, MakePacket<C_MonsterSpawnPos>);
+		_handler.Add((ushort)MessageId.CMonsterSpawnPos, PacketHandler.C_MonsterSpawnPosHandler);		
+		_onRecv.Add((ushort)MessageId.CSetTextUI, MakePacket<C_SetTextUI>);
+		_handler.Add((ushort)MessageId.CSetTextUI, PacketHandler.C_SetTextUIHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

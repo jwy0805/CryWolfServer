@@ -6,12 +6,12 @@ namespace Server.Game.Resources;
 
 public class Resource : GameObject
 {
-    public int ResourceNum;
-    public ResourceId ResourceId;
-
     private long _activeTime;
-    public int Yield;
     private readonly float _dist = 8f;
+    
+    public int ResourceNum { get; set; }
+    public ResourceId ResourceId { get; set; }
+    public int Yield { get; set; }
     
     protected Resource()
     {

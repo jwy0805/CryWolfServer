@@ -7,8 +7,8 @@ namespace Server.Game;
 
 public class Monster : Creature, ISkillObserver
 {
-    public int MonsterNum;
-    public MonsterId MonsterId;
+    public int MonsterNum { get; set; }
+    public MonsterId MonsterId { get; set; }
 
     protected Monster()
     {

@@ -142,8 +142,7 @@ public class Creature : GameObject
     
     protected virtual Vector3 GetRandomDestInFence()
     {
-        int level = Room!.StorageLevel;
-        List<Vector3> sheepBound = GameData.SheepBounds[level];
+        List<Vector3> sheepBound = GameData.SheepBounds;
         float minX = sheepBound.Select(v => v.X).ToList().Min();
         float maxX = sheepBound.Select(v => v.X).ToList().Max();
         float minZ = sheepBound.Select(v => v.Z).ToList().Min();

@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public class Projectile : GameObject
 {
-    public ProjectileId ProjectileId;
+    public ProjectileId ProjectileId { get; set; }
     
     public override void Init()
     {
