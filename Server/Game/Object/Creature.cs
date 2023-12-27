@@ -101,7 +101,7 @@ public class Creature : GameObject
                 }
                 else
                 {
-                    DestPos = Target.CellPos;
+                    DestPos = targetPos;
                     (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
                     BroadcastDest();
                     State = State.Moving;

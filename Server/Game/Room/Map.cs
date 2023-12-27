@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
 using Google.Protobuf.Protocol;
@@ -7,7 +8,7 @@ namespace Server.Game;
 
 public partial class Map
 {
-    public bool ApplyMap(GameObject gameObject, Vector3 pos = new Vector3())
+    public bool ApplyMap(GameObject gameObject, Vector3 pos = new())
     {
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
@@ -263,44 +264,31 @@ public partial class Map
     //     return cnt == 0 || !checkObjects;
     // }
     
-    public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject gameObject, Vector3 s, Vector3 d, bool checkObjects = true)
+    public (List<Vector3>, List<Vector3>, List<double>) Move(GameObject go, Vector3 s, Vector3 d, bool checkObjects = true)
     {
         Vector2Int startCell = Vector3To2(s);
         Vector2Int destCell = Vector3To2(d);
-        int startRegionId = GetRegionByVector(Cell2Pos(startCell));
-        int destRegionId = GetRegionByVector(Cell2Pos(destCell));
+        if (CanGo(go, destCell, checkObjects) == false)
+        {
+            Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
+            destCell = newDestCell;
+        }
+        
+        int startRegionId = GetRegionByVector(startCell);
+        int destRegionId = GetRegionByVector(destCell);
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        List<Vector2Int> center = regionPath.Select(t => Pos2Cell(_regionGraph[t].CenterPos)).ToList();
-        List<Vector3> path = new List<Vector3>();
+        
+        List<Vector2Int> center = new List<Vector2Int>();
+        foreach (var region in regionPath) center.Add(GetCenter(region, startCell, destCell));
         List<double> arctan = new List<double>();
-        Vector2Int start = startCell;
+        List<Vector3> path = FindPath(go, startCell, regionPath.Count <= 1 ? destCell : center[1], checkObjects)
+            .Distinct().ToList();
 
-        if (regionPath.Count == 0)
-        {
-            path = FindPath(gameObject, startCell, destCell, checkObjects);
-        }
-        else
-        {
-            for (int i = 0; i < center.Count; i++)
-            {
-                // Console.WriteLine($"{center[i].X}, {center[i].Z}");
-                List<Vector3> aStar = FindPath(gameObject, start, center[i], checkObjects);
-                path.AddRange(aStar);
-                start = Vector3To2(path.Last());
-            }
-
-            List<Vector3> lastPath = FindPath(gameObject, center.Last(), destCell, checkObjects);
-            path.AddRange(lastPath);
-        }
-
-        List<Vector3> uniquePath = path.Distinct().ToList();
-
-        // arctan.Add(Math.Round(Math.Atan2(uniquePath[0].X - startCell.X, uniquePath[0].Z - startCell.Z))); // i = 0
         arctan.Add(Math.Round((Math.Atan2(0, 0))));
-        for (int i = 1; i < uniquePath.Count; i++)
+        for (int i = 1; i < path.Count; i++)
         {
-            double xDiff = uniquePath[i].X - uniquePath[i - 1].X;
-            double zDiff = uniquePath[i].Z - uniquePath[i - 1].Z;
+            double xDiff = path[i].X - path[i - 1].X;
+            double zDiff = path[i].Z - path[i - 1].Z;
             double atan2 = Math.Round(Math.Atan2(xDiff, zDiff) * (180 / Math.PI), 2);
             arctan.Add(atan2);
         }
@@ -311,7 +299,7 @@ public partial class Map
         {
             if (Math.Abs(arctan[i] - arctan[i + 1]) > 0.001f) // float 비교 -> arctan[i] != arctan[i + 1], Tolerance = 0.001f
             {
-                destList.Add(uniquePath[i]);
+                destList.Add(path[i]);
             }
         }
         
@@ -325,7 +313,7 @@ public partial class Map
 
         // 예외처리
         if (atanList.Count == 0) atanList.Add(arctan[^1]);
-        destList.Add(uniquePath.Count != 0 ? uniquePath[^1] : gameObject.CellPos);
+        destList.Add(path.Count != 0 ? path[^1] : go.CellPos);
         return (path, destList, atanList);
     }
 
@@ -360,54 +348,32 @@ public partial class Map
         }
     }
 
-    public Vector3 FindSpawnPos(GameObject gameObject, SpawnWay? way = SpawnWay.Any)
+    public Vector3 FindSpawnPos(GameObject gameObject)
     {
         GameObjectType type = gameObject.ObjectType;
         Vector3 cell = new Vector3();
-        if (type == GameObjectType.Monster)
+        if (type != GameObjectType.Sheep) return new Vector3();
+        
+        bool canSpawn = false;
+        while (canSpawn == false)
         {
             Random random = new();
-            switch (way)
-            {
-                case SpawnWay.North:
-                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, 25);
-                    break;
-                case SpawnWay.South:
-                    cell = new Vector3((float)((random.NextDouble() - 0.5) * 8), GameData.SpawnerPos[0].Y, -25);
-                    break;
-                default:
-                    cell = GameData.SpawnerPos[0];
-                    break;
-            }
-        }
-        else if (type == GameObjectType.Sheep)
-        {
-            bool canSpawn = false;
-            while (canSpawn == false)
-            {
-                int level = GameData.StorageLevel;
-                Random random = new();
-                List<Vector3> xList = new List<Vector3>(GameData.SheepBounds);
-                int minX = (int)(xList.Min(v => v.X) * 4);
-                int maxX = (int)(xList.Max(v => v.X) * 4);
-                int minZ = (int)(xList.Min(v => v.Z) * 4);
-                int maxZ = (int)(xList.Max(v => v.Z) * 4);
-                
-                float x = (float)(random.Next(minX, maxX) * 0.25);
-                float z = (float)(random.Next(minZ, maxZ) * 0.25);
-                cell = new Vector3(x, 6, z);
-                
-                if (CanGo(gameObject, Vector3To2(cell), true, gameObject.Stat.SizeX))
-                    canSpawn = true;
-            }
-        }
-        else if (type == GameObjectType.Tower)
-        {
-            cell = new Vector3(0, 9, -2);
+            List<Vector3> xList = new List<Vector3>(GameData.SheepBounds);
+            int minX = (int)(xList.Min(v => v.X) * 4);
+            int maxX = (int)(xList.Max(v => v.X) * 4);
+            int minZ = (int)(xList.Min(v => v.Z) * 4);
+            int maxZ = (int)(xList.Max(v => v.Z) * 4);
+            
+            float x = (float)(random.Next(minX, maxX) * 0.25);
+            float z = (float)(random.Next(minZ, maxZ) * 0.25);
+            cell = new Vector3(x, 6, z);
+            
+            if (CanGo(gameObject, Vector3To2(cell), true, gameObject.Stat.SizeX))
+                canSpawn = true;
         }
 
-        Pos pos = FindNearestEmptySpace(Cell2Pos(Vector3To2(cell)), gameObject, gameObject.Stat.SizeX, gameObject.Stat.SizeX);
-        Vector3 result = gameObject.UnitType == 0 ? Vector2To3(Pos2Cell(pos)) : Vector2To3(Pos2Cell(pos), 9f);
+        Vector2Int vector = FindNearestEmptySpace(Vector3To2(cell), gameObject);
+        Vector3 result = gameObject.UnitType == 0 ? Vector2To3(vector) : Vector2To3(vector, GameData.AirHeight);
 
         return result;
     }

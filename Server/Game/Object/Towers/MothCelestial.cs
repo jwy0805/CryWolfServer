@@ -72,7 +72,7 @@ public class MothCelestial : MothMoon
             {
                 Map map = Room.Map;
                 Sheep sheep = ObjectManager.Instance.Add<Sheep>();
-                sheep.CellPos = map.FindSpawnPos(sheep, SpawnWay.Any);
+                sheep.CellPos = map.FindSpawnPos(sheep);
                 sheep.Info.PosInfo = sheep.PosInfo;
                 sheep.Player = Player;
                 sheep.Init();

@@ -115,7 +115,6 @@ public partial class GameRoom
                 monster.Room = this;
                 monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
                 monster.Init();
-                monster.CellPos = Map.FindSpawnPos(monster, spawnPacket.Way);
                 Push(EnterGame, monster);
                 break;
             
@@ -131,7 +130,6 @@ public partial class GameRoom
                 statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
                 statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
                 statue.Init();
-                statue.CellPos = Map.FindSpawnPos(statue, spawnPacket.Way);
                 RegisterMonsterStatue(statue);
                 Push(EnterGame, statue);
                 break;
@@ -142,7 +140,7 @@ public partial class GameRoom
                 sheep.Info.PosInfo = sheep.PosInfo;
                 sheep.Player = player;
                 sheep.Init();
-                sheep.CellPos = Map.FindSpawnPos(sheep, SpawnWay.Any);
+                sheep.CellPos = Map.FindSpawnPos(sheep);
                 Push(EnterGame, sheep);
                 break;
             
@@ -209,8 +207,8 @@ public partial class GameRoom
     
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
-        Vector3[] fencePos = GameData.GetPos(GameData.NorthFenceMax + GameData.SouthFenceMax, 6, GameData.FenceStartPos);
-        float[] fenceRotation = GameData.GetRotation(GameData.NorthFenceMax + GameData.SouthFenceMax, 6);
+        Vector3[] fencePos = GameData.GetPos(GameData.NorthFenceMax + GameData.SouthFenceMax, 8, GameData.FenceStartPos);
+        float[] fenceRotation = GameData.GetRotation(GameData.NorthFenceMax + GameData.SouthFenceMax, 8);
 
         for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
         {

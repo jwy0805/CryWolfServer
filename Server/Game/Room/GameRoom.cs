@@ -135,6 +135,7 @@ public partial class GameRoom : JobSerializer
                 Monster monster = (Monster)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNum.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
+                gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);
                 Map.ApplyMap(monster);
@@ -143,9 +144,12 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.MonsterStatue:
                 MonsterStatue statue = (MonsterStatue)gameObject;
+                string? monsterName = Enum.Parse(typeof(MonsterId), statue.MonsterNum.ToString()).ToString();
+                gameObject.Info.Name = string.Concat(monsterName, "Statue");
                 statue.Info = gameObject.Info;
                 _statues.Add(gameObject.Id, statue);
                 Map.ApplyMap(statue);
+                statue.Update();
                 break;
             
             case GameObjectType.Fence:

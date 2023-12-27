@@ -85,17 +85,13 @@ public struct Vector2Int
 
 public struct Region
 {
-    public int Id;
-    public Pos CenterPos;
-    public List<int> Neighbor;
-    public List<Pos> Vertices;
+    public readonly int Id;
+    public readonly int[] ZCoordinates;
 
-    public Region(int id)
+    public Region(int id, int[] zCoordinates)
     {
         Id = id;
-        CenterPos = new Pos();
-        Neighbor = new List<int>();
-        Vertices = new List<Pos>();
+        ZCoordinates = zCoordinates;
     }
 }
 
@@ -121,49 +117,9 @@ public partial class Map
     private int[,] _dist;
     private int[,] _parents;
     
-    #region RegionDirection
-
-    private static readonly List<Vector2Int> West = new()
-    {
-        new Vector2Int(-248, -64),
-        new Vector2Int(-76, -64),
-        new Vector2Int(-76, 80),
-        new Vector2Int(-248, 80)
-    };
-
-    private static readonly List<Vector2Int> South = new()
-    {
-        new Vector2Int(-52, -64),
-        new Vector2Int(-52, -84),
-        new Vector2Int(52, -84),
-        new Vector2Int(52, -64)
-    };
-
-    private static readonly List<Vector2Int> East = new()
-    {
-        new Vector2Int(60, 40),
-        new Vector2Int(60, -64),
-        new Vector2Int(216, -64),
-        new Vector2Int(216, 40),
-    };
-
-    private static readonly List<Vector2Int> North = new()
-    {
-        new Vector2Int(-76, 200),
-        new Vector2Int(-76, 80),
-        new Vector2Int(60, 80),
-        new Vector2Int(60, 200)
-    };
-
-    #endregion
-    
     public void MapSetting()
     {
-        DivideRegionMid();
-        DivideRegion(East, 6f);
-        DivideRegion(West, 6f);
-        DivideRegion(South, 6f);
-        DivideRegion(North, 6f);
+        DivideRegion();
         _connectionMatrix = RegionConnectivity();
 
         int cnt = _regionGraph.Count;
@@ -173,219 +129,43 @@ public partial class Map
         for (int i = 0; i < _regionGraph.Count; i++) Dijkstra(i);
     }
     
-	private void SortPointsCcw(List<Pos> points)
+    private void DivideRegion()
     {
-        float sumX = 0;
-        float sumZ = 0;
-
-        for (int i = 0; i < points.Count; i++)
+        int[] yCoordinates = GameData.ZCoordinatesOfMap;
+        for (int i = 0; i < yCoordinates.Length - 1; i++)
         {
-            sumX += points[i].X;
-            sumZ += points[i].Z;
-        }
-
-        float averageX = sumX / points.Count;
-        float averageZ = sumZ / points.Count;
-
-        points.Sort((lhs, rhs) =>
-        {
-            double lhsAngle = Math.Atan2(lhs.Z - averageZ, lhs.X - averageX);
-            double rhsAngle = Math.Atan2(rhs.Z - averageZ, rhs.X - averageX);
-
-            if (lhsAngle < rhsAngle) return -1;
-            if (lhsAngle > rhsAngle) return 1;
-            double lhsDist = Math.Sqrt(Math.Pow(lhs.Z - averageZ, 2) + Math.Pow(lhs.X - averageX, 2));
-            double rhsDist = Math.Sqrt(Math.Pow(rhs.Z - averageZ, 2) + Math.Pow(rhs.X - averageX, 2));
-            if (lhsDist < rhsDist) return 1;
-            if (lhsDist > rhsDist) return -1;
-            return 0;
-        });
-    }
-
-    private Pos FindCenter(List<Pos> vertices)
-    {
-        int minZ = vertices.Select(v => v.Z).ToList().Min();
-        int maxZ = vertices.Select(v => v.Z).ToList().Max();
-        int minX = vertices.Select(v => v.X).ToList().Min();
-        int maxX = vertices.Select(v => v.X).ToList().Max();
-        int centerZ = (minZ + maxZ) / 2;
-        int centerX = (minX + maxX) / 2;
-
-        int size = 1;
-        int startZ = centerZ;
-        int startX = centerX;
-
-        Pos pos = new Pos();
-        while (startZ >= minZ && startX >= minX && startZ < maxZ && startX < maxX)
-        {
-            for (int i = startZ - size; i <= startZ + size; i++)
-            {
-                for (int j = startX - size; j <= startX + size; j++)
-                {
-                    if (i >= 0 && i < maxZ && j >= 0 && j < maxX && _collision[i, j] == false)
-                    {
-                        pos = new Pos { Z = i, X = j };
-                    }
-                }
-            }
-
-            size++;
-            startZ = centerZ - size;
-            startX = centerX - size;
-        }
-
-        return pos;
-    }
-
-    private void DivideRegion(List<Vector2Int> region, float lenSide)
-    {
-        int len = (int)(lenSide * 4);
-	    
-        int minX = region.Min(v => v.X);
-        int maxX = region.Max(v => v.X);
-        int minZ = region.Min(v => v.Z);
-        int maxZ = region.Max(v => v.Z);
-
-        int sideX = GetSideLen(maxX - minX, len);
-        int sideZ = GetSideLen(maxZ - minZ, len);
-
-        int remainX = (maxX - minX) % sideX;
-        int remainZ = (maxZ - minZ) % sideZ;
-
-        for (int i = minZ; i < maxZ - remainZ; i += sideZ)
-        {
-            for (int j = minX; j < maxX - remainX; j += sideX)
-            {
-                int lenZ = sideZ;
-                int lenX = sideX;
-                if (i + 2 * sideZ > maxZ) lenZ += remainZ;
-                if (j + 2 * sideX > maxX) lenX += remainX;
-
-                List<Pos> vertices = new List<Pos>
-                {
-                    Cell2Pos(new Vector2Int(j, i)),
-                    Cell2Pos(new Vector2Int(j, i + lenZ)),
-                    Cell2Pos(new Vector2Int(j + lenX, i + lenZ)),
-                    Cell2Pos(new Vector2Int(j + lenX, i))
-                };
-
-                SortPointsCcw(vertices);
-                
-                Region newRegion = new()
-                {
-                    Id = _regionIdGenerator,
-                    CenterPos = FindCenter(vertices),
-                    Neighbor = new List<int>(),
-                    Vertices = vertices,
-                };
-
-                _regionGraph.Add(newRegion);
-                _regionIdGenerator++;
-            }
+            Region region = new(_regionIdGenerator, new [] {yCoordinates[i], yCoordinates[i + 1]});
+            _regionGraph.Add(region);
+            _regionIdGenerator++;
         }
     }
 
-    private void DivideRegionMid()
-    {
-        List<Pos> vertices = new List<Pos>
-        {
-            Cell2Pos(new Vector2Int(-76, 80)),
-            Cell2Pos(new Vector2Int(60, 80)),
-            Cell2Pos(new Vector2Int(-76, -64)),
-            Cell2Pos(new Vector2Int(60, -64))
-        };
-        
-        SortPointsCcw(vertices);
-        Region newRegion = new Region
-        {
-            Id = _regionIdGenerator,
-            CenterPos = FindCenter(vertices),
-            Neighbor = new List<int>(),
-            Vertices = vertices,
-        };
-        
-        _regionGraph.Add(newRegion);
-        _regionIdGenerator++;
-    }
-
-    private int[,] RegionConnectivity()
+    private int[,] RegionConnectivity() // -1: not connected, (10, 14): connected, 연결 정보를 확인할 수 있는 2차원 배열 생성
     {
         int[,] connectionMatrix = new int[_regionGraph.Count, _regionGraph.Count];
-        
+
         for (int i = 0; i < _regionGraph.Count; i++)
         {
-            List<Pos> regionOrigin = _regionGraph[i].Vertices;
-            float xMinOrigin = regionOrigin.Min(v => v.X);
-            float xMaxOrigin = regionOrigin.Max(v => v.X);
-            float zMinOrigin = regionOrigin.Min(v => v.Z);
-            float zMaxOrigin = regionOrigin.Max(v => v.Z);
+            int[] origin = _regionGraph[i].ZCoordinates;
             
             for (int j = 0; j < _regionGraph.Count; j++)
             {
-                List<Pos> regionCompare = _regionGraph[j].Vertices;
-                List<int> zOrigin = new List<int>();
-                List<int> xOrigin = new List<int>();
-                List<int> zCompared = new List<int>();
-                List<int> xCompared = new List<int>();
-
-                if (i < j)
+                int[] compared = _regionGraph[j].ZCoordinates;
+                
+                if (i == j)
                 {
-                    foreach (var p in regionOrigin)
-                    {
-                        zOrigin.Add(p.Z);
-                        xOrigin.Add(p.X);
-                    }
-
-                    foreach (var p in regionCompare)
-                    {
-                        zCompared.Add(p.Z);
-                        xCompared.Add(p.X);
-                    }
-
-                    List<int> zIntersection = zOrigin.Intersect(zCompared).ToList();
-                    List<int> xIntersection = xOrigin.Intersect(xCompared).ToList();
-                    bool adjacent = false;
-
-                    if (zIntersection.Count != 0 && i != j)
-                    {
-                        for (int k = 0; k < regionCompare.Count; k++)
-                        {
-                            if (regionCompare[k].X > xMinOrigin && regionCompare[k].X < xMaxOrigin)
-                                adjacent = true;
-                        }
-                    }
-                    else if (xIntersection.Count != 0 && i != j)
-                    {
-                        for (int k = 0; k < regionCompare.Count; k++)
-                        {
-                            if (regionCompare[k].Z > zMinOrigin && regionCompare[k].Z < zMaxOrigin)
-                                adjacent = true;
-                        }
-                    }
-                    else
-                    {
-                        connectionMatrix[i, j] = -1;
-                        continue;
-                    }
-
-                    if (adjacent)
+                    connectionMatrix[i, j] = -1;
+                }
+                else
+                {
+                    if (origin.Intersect(compared).Any())
                     {
                         connectionMatrix[i, j] = 10;
                     }
                     else
                     {
-                        List<Pos> vIntersection = regionOrigin.Intersect(_regionGraph[j].Vertices).ToList();
-                        connectionMatrix[i, j] = vIntersection.Count switch { 1 => 14, > 1 => 10, _ => -1 };
+                        connectionMatrix[i, j] = -1;
                     }
-                }
-                else
-                {
-                    connectionMatrix[i, j] = connectionMatrix[j, i];
-                }
-                
-                if (connectionMatrix[i, j] != -1)
-                {
-                    _regionGraph[i].Neighbor.Add(_regionGraph[j].Id);
                 }
             }
         }
@@ -393,7 +173,7 @@ public partial class Map
         return connectionMatrix;
     }
 
-    public void Dijkstra(int start)
+    private void Dijkstra(int start)
     {
         bool[] visited = new bool[_regionGraph.Count];
         int[] distance = new int[_regionGraph.Count];
@@ -436,8 +216,8 @@ public partial class Map
         for (int i = 0; i < distance.Length; i++) _dist[start, i] = distance[i];
         for (int i = 0; i < parent.Length; i++) _parents[start, i] = parent[i];
     }
-    
-    public List<int> RegionPath(int startRegionId, int destRegionId)
+
+    private List<int> RegionPath(int startRegionId, int destRegionId)
     {
         List<int> path = new List<int>();
         int id = destRegionId;
@@ -452,30 +232,32 @@ public partial class Map
         return path;
     }
     
-    private int GetRegionByVector(Pos pos)
+    private int GetRegionByVector(Vector2Int vector)
     {
-        int crosses = 0;
-       
         foreach (var region in _regionGraph)
         {
-            List<Pos> v = region.Vertices;
-            for (int i = 0; i < v.Count; i++)
-            {
-                int j = (i + 1) % v.Count;
-                if (v[i].X > pos.X == v[j].X > pos.X) continue;
-                double meetZ = (v[j].Z - v[i].Z) * (double)(pos.X - v[i].X) / (v[j].X - v[i].X) + v[i].Z;
-                if (pos.Z < meetZ) crosses++;
-            }
-        
-            if (crosses % 2 > 0) return region.Id;
+            int maxZ = region.ZCoordinates.Max();
+            int minZ = region.ZCoordinates.Min();
+            if (vector.Z <= maxZ && vector.Z >= minZ) return region.Id;
         }
 
         return int.MaxValue;
     }
-    
-    private int GetSideLen(float len, float minSide)
+
+    private Vector2Int GetCenter(int regionId, Vector2Int start, Vector2Int dest)
     {
-        return len / 2 < minSide ? (int)len : GetSideLen(len / 2, minSide);
+        var region = _regionGraph.FirstOrDefault(region => region.Id == regionId);
+        if (region.ZCoordinates == null) return new Vector2Int();
+        
+        double m = (double)(dest.Z - start.Z) / (dest.X - start.X);
+        double b = start.Z - m * start.X;
+        double n1 = region.ZCoordinates.Min();
+        double n2 = region.ZCoordinates.Max();
+        double x1 = (n1 - b) / m;
+        double x2 = (n2 - b) / m;
+        int x = (int)((x1 + x2) / 2);
+            
+        return new Vector2Int(x, (int)((n1 + n2) / 2));
     }
     
     public Pos Cell2Pos(Vector2Int cell)
@@ -529,10 +311,11 @@ public partial class Map
 
 		while (pq.Count > 0)
 		{
+            if (pq.Count > 1000) return new List<Vector3>();                                                             // 길찾기 실패 (경로가 존재하지 않음)
+            
 			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
 			Pos node = new Pos(pqNode.Z, pqNode.X);
 			if (closeList.Contains(node)) continue;                                                                      // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
-            
 			closeList.Add(node);                                                                                         // 제일 좋은 후보를 찾는다
 			if (node.Z == dest.Z && node.X == dest.X) break;                                                             // 목적지 도착했으면 바로 종료
             
@@ -551,13 +334,12 @@ public partial class Map
                         if (CanGoAir(gameObject, Pos2Cell(next), checkObjects) == false) continue;
                     }
 				}
-                
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
-				int g = pqNode.G + _cost[i];                                                                          // 비용 계산 : node.G + _cost[i];
+				int g = pqNode.G + _cost[i];                                                                             // 비용 계산 : node.G + _cost[i];
                 int h = 10 * (Math.Abs(dest.Z - next.Z) + Math.Abs(dest.X - next.X));
-				if (openList.TryGetValue(next, out int value) == false) value = Int32.MaxValue;                          // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
-				if (value < g + h) continue;
+				int value = openList.GetValueOrDefault(next, Int32.MaxValue);                                            // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
+                if (value < g + h) continue;
                 
 				if (openList.TryAdd(next, g + h) == false) openList[next] = g + h;                                       // 예약 진행
 				pq.Push(new PQNode { F = (g + h), G = g, Z = next.Z, X = next.X });
@@ -587,10 +369,13 @@ public partial class Map
         return cells;
     }
     
-    public Pos FindNearestEmptySpace(Pos pos, GameObject gameObject, int sizeZ = 1, int sizeX = 1)
+    public Vector2Int FindNearestEmptySpace(Vector2Int vector, GameObject gameObject)
     {
+        Pos pos = Cell2Pos(vector);
         int cnt = 0;
         int move = 0;
+        int sizeX = gameObject.Stat.SizeX;
+        int sizeZ = gameObject.Stat.SizeZ;
         sizeZ--;
         sizeX--;
 
@@ -609,7 +394,7 @@ public partial class Map
                             if (Objects[k, l] != null) cnt++;
                         }
                     }
-                    if (cnt == 0) return pos;
+                    if (cnt == 0) return Pos2Cell(pos);
                     cnt = 0;
                 }
             }
@@ -630,7 +415,7 @@ public partial class Map
         double deltaZ = cellPos.Z - targetCellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
         double x;
-        double y = target.Stat.UnitType == 0 ? 6 : 8;
+        double y = target.Stat.UnitType == 0 ? GameData.GroundHeight : GameData.AirHeight;
         double z;
 
         if (deltaX != 0)

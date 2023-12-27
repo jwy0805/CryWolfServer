@@ -19,4 +19,10 @@ public class MonsterStatue : GameObject
         Stat.MergeFrom(monsterData!.stat);
         Hp = MaxHp;
     }
+
+    public override void Update()
+    {
+        base.Update();
+        Console.WriteLine($"{PosInfo.PosX}, {PosInfo.PosZ}");
+    }
 }

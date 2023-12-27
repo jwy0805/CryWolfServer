@@ -140,7 +140,7 @@ namespace Google.Protobuf.Protocol {
             "Uk9KRUNUSUxFEAgSCgoGRUZGRUNUEAkSDAoIUkVTT1VSQ0UQCipTCglTa2ls",
             "bFR5cGUSDgoKU0tJTExfTk9ORRAAEg4KClNLSUxMX0FVVE8QARIUChBTS0lM",
             "TF9QUk9KRUNUSUxFEAISEAoMU0tJTExfRUZGRUNUEAMqKQoJRGlyZWN0aW9u",
-            "EgUKAU4QABIGCgFTELQBEgUKAUUQWhIGCgFXEI4CKqIgCgVTa2lsbBIQCgxC",
+            "EgUKAVMQABIFCgFFEFoSBgoBThC0ARIGCgFXEI4CKqIgCgVTa2lsbBIQCgxC",
             "TE9PTV9BVFRBQ0sQABIWChJCTE9PTV9BVFRBQ0tfU1BFRUQQARIPCgtCTE9P",
             "TV9SQU5HRRACEhcKE0JMT09NX0FUVEFDS19TUEVFRDIQAxIUChBCTE9PTV9B",
             "SVJfQVRUQUNLEAQSEAoMQkxPT01fM0NPTUJPEAUSEgoOQkxPU1NPTV9QT0lT",
@@ -432,9 +432,9 @@ namespace Google.Protobuf.Protocol {
   }
 
   public enum Direction {
-    [pbr::OriginalName("N")] N = 0,
-    [pbr::OriginalName("S")] S = 180,
+    [pbr::OriginalName("S")] S = 0,
     [pbr::OriginalName("E")] E = 90,
+    [pbr::OriginalName("N")] N = 180,
     [pbr::OriginalName("W")] W = 270,
   }
 
