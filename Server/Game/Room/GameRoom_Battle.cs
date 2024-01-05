@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Game.Object.etc;
 using Server.Util;
 
 namespace Server.Game;
@@ -89,49 +90,73 @@ public partial class GameRoom
         {
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
-                TowerId towerType = (TowerId)spawnPacket.Num;
-                Tower tower = ObjectManager.Instance.CreateTower(towerType);
-                tower.PosInfo = spawnPacket.PosInfo;
-                tower.Info.PosInfo = tower.PosInfo;
-                tower.TowerNum = spawnPacket.Num;
-                tower.Player = player;
-                tower.TowerId = towerType;
-                tower.Room = this;
-                tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                tower.Init();
-                if (spawnPacket.Register) RegisterTower(tower);
-                Push(EnterGame, tower);
+                var towerId = (TowerId)spawnPacket.Num;
+                DataManager.TowerDict.TryGetValue((int)towerId, out var towerData);
+                var tBehaviour = (Behaviour)Enum.Parse(typeof(Behaviour), towerData!.behavior);
+                if (tBehaviour == Behaviour.Offence)
+                {
+                    var towerStatue = ObjectManager.Instance.CreateTowerStatue();
+                    towerStatue.PosInfo = spawnPacket.PosInfo;
+                    towerStatue.Info.PosInfo = towerStatue.PosInfo;
+                    towerStatue.TowerNum = spawnPacket.Num;
+                    towerStatue.Player = player;
+                    towerStatue.TowerId = (TowerId)spawnPacket.Num;
+                    towerStatue.Room = this;
+                    towerStatue.Way = towerStatue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    towerStatue.Dir = towerStatue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+                    towerStatue.Init();
+                    RegisterTowerStatue(towerStatue);
+                    Push(EnterGame, towerStatue);
+                }
+                else if (tBehaviour == Behaviour.Defence)
+                {
+                    var tower = ObjectManager.Instance.CreateTower(towerId);
+                    tower.PosInfo = spawnPacket.PosInfo;
+                    tower.Info.PosInfo = tower.PosInfo;
+                    tower.TowerNum = spawnPacket.Num;
+                    tower.Player = player;
+                    tower.TowerId = towerId;
+                    tower.Room = this;
+                    tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    tower.Init();
+                    if (spawnPacket.Register) RegisterTower(tower);
+                    Push(EnterGame, tower);
+                }
                 break;
 
             case GameObjectType.Monster:
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
-                MonsterId monsterType = (MonsterId)spawnPacket.Num;
-                Monster monster = ObjectManager.Instance.CreateMonster(monsterType);
-                monster.PosInfo = spawnPacket.PosInfo;
-                monster.Info.PosInfo = monster.PosInfo;
-                monster.MonsterNum = spawnPacket.Num;
-                monster.Player = player;
-                monster.MonsterId = monsterType;
-                monster.Room = this;
-                monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                monster.Init();
-                Push(EnterGame, monster);
-                break;
-            
-            case GameObjectType.MonsterStatue:
-                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
-                MonsterStatue statue = ObjectManager.Instance.CreateMonsterStatue();
-                statue.PosInfo = spawnPacket.PosInfo;
-                statue.Info.PosInfo = statue.PosInfo;
-                statue.MonsterNum = spawnPacket.Num;
-                statue.Player = player;
-                statue.MonsterId = (MonsterId)spawnPacket.Num;
-                statue.Room = this;
-                statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
-                statue.Init();
-                RegisterMonsterStatue(statue);
-                Push(EnterGame, statue);
+                var monsterId = (MonsterId)spawnPacket.Num;
+                DataManager.TowerDict.TryGetValue((int)monsterId, out var monsterData);
+                var mBehaviour = (Behaviour)Enum.Parse(typeof(Behaviour), monsterData!.behavior);
+                if (mBehaviour == Behaviour.Offence)
+                {
+                    MonsterStatue monsterStatue = ObjectManager.Instance.CreateMonsterStatue();
+                    monsterStatue.PosInfo = spawnPacket.PosInfo;
+                    monsterStatue.Info.PosInfo = monsterStatue.PosInfo;
+                    monsterStatue.MonsterNum = spawnPacket.Num;
+                    monsterStatue.Player = player;
+                    monsterStatue.MonsterId = (MonsterId)spawnPacket.Num;
+                    monsterStatue.Room = this;
+                    monsterStatue.Way = monsterStatue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    monsterStatue.Dir = monsterStatue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+                    monsterStatue.Init();
+                    RegisterMonsterStatue(monsterStatue);
+                    Push(EnterGame, monsterStatue);
+                }
+                else if (mBehaviour == Behaviour.Defence)
+                {
+                    var monster = ObjectManager.Instance.CreateMonster(monsterId);
+                    monster.PosInfo = spawnPacket.PosInfo;
+                    monster.Info.PosInfo = monster.PosInfo;
+                    monster.MonsterNum = spawnPacket.Num;
+                    monster.Player = player;
+                    monster.MonsterId = monsterId;
+                    monster.Room = this;
+                    monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    monster.Init();
+                    Push(EnterGame, monster);
+                }
                 break;
             
             case GameObjectType.Sheep:
@@ -152,93 +177,6 @@ public partial class GameRoom
                 effect.Init();
                 Push(EnterGame, effect);
                 break;
-        }
-    }
-
-    private void RegisterTower(Tower tower) 
-    {
-        TowerSlot towerSlot = new(tower.Id, tower.TowerId, tower.Way);
-        int slotNum = 0;
-        if (towerSlot.Way == SpawnWay.North)
-        {
-            _northTowers.Add(towerSlot);
-            slotNum = _northTowers.Count - 1;
-        }
-        else
-        {
-            _southTowers.Add(towerSlot);
-            slotNum = _southTowers.Count - 1;
-        }
-        
-        S_RegisterTower registerPacket = new()
-        {
-            TowerId = (int)towerSlot.TowerId,
-            ObjectId = towerSlot.ObjectId,
-            Way = towerSlot.Way,
-            SlotNumber = slotNum
-        };
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
-    }
-    
-    private void RegisterMonsterStatue(MonsterStatue statue)
-    {
-        MonsterSlot monsterSlot = new(statue, statue.MonsterId, statue.Way);
-        int slotNum = 0;
-        if (monsterSlot.Way == SpawnWay.North)
-        {
-            _northMonsters.Add(monsterSlot);
-            slotNum = _northMonsters.Count - 1;
-        }
-        else
-        {
-            _southMonsters.Add(monsterSlot);
-            slotNum = _southMonsters.Count - 1;
-        }
-        
-        S_RegisterMonster registerPacket = new()
-        {
-            MonsterId = (int)monsterSlot.MonsterId,
-            ObjectId = monsterSlot.Statue.Id,
-            Way = monsterSlot.Way,
-            SlotNumber = slotNum
-        };
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session.Send(registerPacket);
-    }
-    
-    private void SpawnFence(int storageLv = 1, int fenceLv = 0)
-    {
-        Vector3[] fencePos = GameData.GetPos(GameData.NorthFenceMax + GameData.SouthFenceMax, 8, GameData.FenceStartPos);
-        float[] fenceRotation = GameData.GetRotation(GameData.NorthFenceMax + GameData.SouthFenceMax, 8);
-
-        for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
-        {
-            Fence fence = ObjectManager.Instance.Add<Fence>();
-            fence.Init();
-            fence.Info.Name = GameData.FenceName[storageLv];
-            fence.CellPos = fencePos[i];
-            fence.Dir = fenceRotation[i];
-            fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-            fence.Room = this;
-            fence.FenceNum = fenceLv;
-            Push(EnterGame, fence);
-        }
-    }
-
-    private void SpawnMonster()
-    {
-        List<MonsterSlot> slots = _northMonsters.Concat(_southMonsters).ToList();
-        foreach (var slot in slots)
-        {
-            Monster monster = ObjectManager.Instance.CreateMonster(slot.MonsterId);
-            monster.MonsterNum = slot.Statue.MonsterNum;
-            monster.PosInfo = FindMonsterSpawnPos(slot.Statue);
-            monster.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
-            monster.MonsterId = slot.MonsterId;
-            monster.Way = slot.Way;
-            monster.Room = this;
-            monster.Init();
-            monster.CellPos = new Vector3(monster.PosInfo.PosX, monster.PosInfo.PosY, monster.PosInfo.PosZ);
-            Push(EnterGame, monster);
         }
     }
 
@@ -385,7 +323,7 @@ public partial class GameRoom
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
 
-    public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
+    public void HandlePortraitUpgrade(Player? player, C_PortraitUpgrade upgradePacket)
     {
         if (player == null) return;
 
@@ -411,10 +349,69 @@ public partial class GameRoom
         {
             if (monsterId == MonsterId.UnknownMonster) towerId = (TowerId)((int)towerId + 1);
             else monsterId = (MonsterId)((int)monsterId + 1);
-            player.Session.Send(new S_UnitUpgrade { TowerId = towerId, MonsterId = monsterId });
+            player.Session.Send(new S_PortraitUpgrade { TowerId = towerId, MonsterId = monsterId });
         }
     }
 
+    public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
+    {
+        if (player == null) return;
+        
+        bool canUpgrade = false;
+        
+        if (canUpgrade == false)
+        {
+            // Client에 메시지 전달 -> cost 부족
+        }
+        else
+        {
+            var go = FindGameObjectById(upgradePacket.ObjectId);
+            if (go == null) return;
+            int id = go.Id;
+            GameObjectType type = go.ObjectType;
+            PositionInfo posInfo = new() { PosX = go.PosInfo.PosX, PosY = go.PosInfo.PosY, PosZ = go.PosInfo.PosZ };
+            Behaviour behaviour = go.Behaviour;
+            LeaveGame(id);
+            Broadcast(new S_Despawn { ObjectIds = { id }});
+            if (behaviour == Behaviour.Defence)
+            {
+                if (type == GameObjectType.Monster)
+                {
+                    if (go is not Monster m) return;
+                    Monster monster = ObjectManager.Instance.CreateMonster((MonsterId)(m.MonsterNum + 1));
+                    monster.PosInfo = posInfo;
+                }
+                else if (type == GameObjectType.Tower)
+                {
+                    if (go is not Tower t) return;
+                    TowerId towerId = (TowerId)(t.TowerNum + 1);
+                    Tower tower = ObjectManager.Instance.CreateTower(towerId);
+                    tower.PosInfo = posInfo;
+                    tower.Info.PosInfo = tower.PosInfo;
+                    tower.TowerNum = (int)towerId;
+                    tower.Player = player;
+                    tower.TowerId = towerId;
+                    tower.Room = this;
+                    tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    tower.Init();
+                    Push(EnterGame, tower);
+                }
+            }
+            else if (behaviour == Behaviour.Offence)
+            {
+                if (type == GameObjectType.MonsterStatue)
+                {
+                    if (go is not MonsterStatue monsterStatue) return;
+                    
+                }
+                else if (type == GameObjectType.TowerStatue)
+                {
+                    if (go is not TowerStatue towerStatue) return;
+                }
+            }
+        }
+    }
+    
     public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)
     {
         if (player == null) return;

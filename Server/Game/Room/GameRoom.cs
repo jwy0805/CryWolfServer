@@ -83,7 +83,8 @@ public partial class GameRoom : JobSerializer
         {
             _roundTime = 19;
             _round++;
-            SpawnMonster();
+            SpawnMonstersInNewRound();
+            SpawnTowersInNewRound();
         }
         _timeSendTime = time;
     }

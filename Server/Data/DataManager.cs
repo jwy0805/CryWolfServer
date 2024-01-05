@@ -4,6 +4,7 @@ public interface ILoader<TKey, TValue>
 {
     Dictionary<TKey, TValue> MakeDict();
 }
+
 public class DataManager
 {
     public static Dictionary<int, MonsterData> MonsterDict { get; private set; } = new();

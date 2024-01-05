@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Game.Object.etc;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -33,11 +34,20 @@ public sealed partial class ObjectManager : IFactory
 
     public MonsterStatue CreateMonsterStatue()
     {
-        StatueFactory factory = new();
+        MonsterStatueFactory factory = new();
         GameObject gameObject = factory.CreateStatue();
         lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
         
         return gameObject as MonsterStatue ?? throw new InvalidCastException();
+    }
+
+    public TowerStatue CreateTowerStatue()
+    {
+        TowerStatueFactory factory = new();
+        GameObject gameObject = factory.CreateState();
+        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
+
+        return gameObject as TowerStatue ?? throw new InvalidCastException();
     }
     
     public Projectile CreateProjectile(ProjectileId projectileId)

@@ -63,6 +63,8 @@ public class GameObject : IGameObject
 
     #region Stat
     
+    public Behaviour Behaviour { get; set; }
+    
     public virtual int Hp
     {
         get => Stat.Hp;

@@ -8,6 +8,8 @@ public class MonsterData
     public int id;
     public int no;
     public string name;
+    public List<string> unitRole;
+    public string behavior;
     public StatInfo stat;
 }
 
@@ -16,6 +18,8 @@ public class TowerData
     public int id;
     public int no;
     public string name;
+    public List<string> unitRole;
+    public string behavior;
     public StatInfo stat;
 }
 
