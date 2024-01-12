@@ -92,7 +92,7 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
                 var towerId = (TowerId)spawnPacket.Num;
                 DataManager.TowerDict.TryGetValue((int)towerId, out var towerData);
-                var tBehaviour = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                var tBehaviour = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
                 if (tBehaviour == Behavior.Offence)
                 {
                     var towerStatue = ObjectManager.Instance.CreateTowerStatue();
@@ -120,7 +120,7 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
                 var monsterId = (MonsterId)spawnPacket.Num;
                 DataManager.TowerDict.TryGetValue((int)monsterId, out var monsterData);
-                var mBehaviour = (Behavior)Enum.Parse(typeof(Behavior), monsterData!.behavior);
+                var mBehaviour = (Behavior)Enum.Parse(typeof(Behavior), monsterData!.unitBehavior);
                 if (mBehaviour == Behavior.Offence)
                 {
                     MonsterStatue monsterStatue = ObjectManager.Instance.CreateMonsterStatue();

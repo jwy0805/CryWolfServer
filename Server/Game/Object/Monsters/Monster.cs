@@ -18,7 +18,7 @@ public class Monster : Creature, ISkillObserver
     public override void Init()
     {
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
-        Behavior = (Behavior)Enum.Parse(typeof(Behavior), monsterData!.behavior);
+        Behavior = (Behavior)Enum.Parse(typeof(Behavior), monsterData!.unitBehavior);
         Stat.MergeFrom(monsterData.stat);
         base.Init();
         Hp = MaxHp;

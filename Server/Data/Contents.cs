@@ -9,7 +9,7 @@ public class MonsterData
     public int no;
     public string name;
     public List<string> unitRole;
-    public string behavior;
+    public string unitBehavior;
     public StatInfo stat;
 }
 
@@ -19,7 +19,7 @@ public class TowerData
     public int no;
     public string name;
     public List<string> unitRole;
-    public string behavior;
+    public string unitBehavior;
     public StatInfo stat;
 }
 

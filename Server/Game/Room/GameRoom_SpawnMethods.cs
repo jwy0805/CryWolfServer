@@ -92,7 +92,7 @@ public partial class GameRoom
             .Where(slot =>
             {
                 DataManager.TowerDict.TryGetValue((int)slot.MonsterId, out var towerData);
-                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
                 return behavior == Behavior.Offence;            
             }).ToList();
         
@@ -111,7 +111,7 @@ public partial class GameRoom
             .Where(slot => 
             {
                 DataManager.TowerDict.TryGetValue((int)slot.TowerId, out var towerData);
-                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
                 return behavior == Behavior.Offence;
             }).ToList();
 
