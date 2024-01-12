@@ -92,8 +92,8 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
                 var towerId = (TowerId)spawnPacket.Num;
                 DataManager.TowerDict.TryGetValue((int)towerId, out var towerData);
-                var tBehaviour = (Behaviour)Enum.Parse(typeof(Behaviour), towerData!.behavior);
-                if (tBehaviour == Behaviour.Offence)
+                var tBehaviour = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                if (tBehaviour == Behavior.Offence)
                 {
                     var towerStatue = ObjectManager.Instance.CreateTowerStatue();
                     towerStatue.PosInfo = spawnPacket.PosInfo;
@@ -108,17 +108,9 @@ public partial class GameRoom
                     RegisterTowerStatue(towerStatue);
                     Push(EnterGame, towerStatue);
                 }
-                else if (tBehaviour == Behaviour.Defence)
+                else if (tBehaviour == Behavior.Defence)
                 {
-                    var tower = ObjectManager.Instance.CreateTower(towerId);
-                    tower.PosInfo = spawnPacket.PosInfo;
-                    tower.Info.PosInfo = tower.PosInfo;
-                    tower.TowerNum = spawnPacket.Num;
-                    tower.Player = player;
-                    tower.TowerId = towerId;
-                    tower.Room = this;
-                    tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                    tower.Init();
+                    var tower = EnterTower(spawnPacket.Num, spawnPacket.PosInfo, player);
                     if (spawnPacket.Register) RegisterTower(tower);
                     Push(EnterGame, tower);
                 }
@@ -128,8 +120,8 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
                 var monsterId = (MonsterId)spawnPacket.Num;
                 DataManager.TowerDict.TryGetValue((int)monsterId, out var monsterData);
-                var mBehaviour = (Behaviour)Enum.Parse(typeof(Behaviour), monsterData!.behavior);
-                if (mBehaviour == Behaviour.Offence)
+                var mBehaviour = (Behavior)Enum.Parse(typeof(Behavior), monsterData!.behavior);
+                if (mBehaviour == Behavior.Offence)
                 {
                     MonsterStatue monsterStatue = ObjectManager.Instance.CreateMonsterStatue();
                     monsterStatue.PosInfo = spawnPacket.PosInfo;
@@ -144,16 +136,9 @@ public partial class GameRoom
                     RegisterMonsterStatue(monsterStatue);
                     Push(EnterGame, monsterStatue);
                 }
-                else if (mBehaviour == Behaviour.Defence)
+                else if (mBehaviour == Behavior.Defence)
                 {
-                    var monster = ObjectManager.Instance.CreateMonster(monsterId);
-                    monster.PosInfo = spawnPacket.PosInfo;
-                    monster.Info.PosInfo = monster.PosInfo;
-                    monster.MonsterNum = spawnPacket.Num;
-                    monster.Player = player;
-                    monster.MonsterId = monsterId;
-                    monster.Room = this;
-                    monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+                    var monster = EnterMonster(spawnPacket.Num, spawnPacket.PosInfo, player);
                     monster.Init();
                     Push(EnterGame, monster);
                 }
@@ -370,10 +355,10 @@ public partial class GameRoom
             int id = go.Id;
             GameObjectType type = go.ObjectType;
             PositionInfo posInfo = new() { PosX = go.PosInfo.PosX, PosY = go.PosInfo.PosY, PosZ = go.PosInfo.PosZ };
-            Behaviour behaviour = go.Behaviour;
+            Behavior behaviour = go.Behavior;
             LeaveGame(id);
             Broadcast(new S_Despawn { ObjectIds = { id }});
-            if (behaviour == Behaviour.Defence)
+            if (behaviour == Behavior.Defence)
             {
                 if (type == GameObjectType.Monster)
                 {
@@ -397,7 +382,7 @@ public partial class GameRoom
                     Push(EnterGame, tower);
                 }
             }
-            else if (behaviour == Behaviour.Offence)
+            else if (behaviour == Behavior.Offence)
             {
                 if (type == GameObjectType.MonsterStatue)
                 {

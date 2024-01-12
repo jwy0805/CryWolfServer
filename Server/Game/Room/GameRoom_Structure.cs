@@ -1,34 +1,39 @@
 using Google.Protobuf.Protocol;
+using Server.Game.Object.etc;
 
 namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
-    private struct TowerSlot
+    private struct TowerSlot 
     {
-        public readonly int ObjectId;
         public readonly TowerId TowerId;
         public readonly SpawnWay Way;
+        public readonly int ObjectId;
+        public readonly TowerStatue? Statue;
         
-        public TowerSlot(int objectId, TowerId towerId, SpawnWay way)
+        public TowerSlot(TowerId towerId, SpawnWay way, int objectId = 0, TowerStatue? statue = null)
         {
-            ObjectId = objectId;
             TowerId = towerId;
             Way = way;
+            ObjectId = objectId;
+            Statue = statue;
         }
     }
 
     private struct MonsterSlot
     {
-        public readonly MonsterStatue Statue;
         public readonly MonsterId MonsterId;
         public readonly SpawnWay Way;
+        public readonly int ObjectId;
+        public readonly MonsterStatue? Statue;
         
-        public MonsterSlot(MonsterStatue statue, MonsterId monsterId, SpawnWay way)
+        public MonsterSlot(MonsterId monsterId, SpawnWay way, int objectId, MonsterStatue? statue)
         {
-            Statue = statue;
             MonsterId = monsterId;
             Way = way;
+            ObjectId = objectId;
+            Statue = statue;
         }
     }
 

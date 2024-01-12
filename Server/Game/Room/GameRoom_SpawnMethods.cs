@@ -9,7 +9,7 @@ public partial class GameRoom
 {
     private void RegisterTower(Tower tower) 
     {
-        TowerSlot towerSlot = new(tower.Id, tower.TowerId, tower.Way);
+        TowerSlot towerSlot = new(tower.TowerId, tower.Way, tower.Id);
         int slotNum = 0;
         if (towerSlot.Way == SpawnWay.North)
         {
@@ -44,7 +44,7 @@ public partial class GameRoom
     
     private void RegisterMonsterStatue(MonsterStatue statue)
     {
-        MonsterSlot monsterSlot = new(statue, statue.MonsterId, statue.Way);
+        MonsterSlot monsterSlot = new(statue.MonsterId, statue.Way, 0, statue);
         int slotNum = 0;
         if (monsterSlot.Way == SpawnWay.North)
         {
@@ -88,34 +88,69 @@ public partial class GameRoom
 
     private void SpawnMonstersInNewRound()
     {
-        List<MonsterSlot> slots = _northMonsters.Concat(_southMonsters).ToList();
+        List<MonsterSlot> slots = _northMonsters.Concat(_southMonsters)
+            .Where(slot =>
+            {
+                DataManager.TowerDict.TryGetValue((int)slot.MonsterId, out var towerData);
+                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                return behavior == Behavior.Offence;            
+            }).ToList();
+        
         foreach (var slot in slots)
         {
-            Monster monster = ObjectManager.Instance.CreateMonster(slot.MonsterId);
-            monster.MonsterNum = slot.Statue.MonsterNum;
-            monster.PosInfo = FindMonsterSpawnPos(slot.Statue);
-            monster.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
-            monster.MonsterId = slot.MonsterId;
-            monster.Way = slot.Way;
-            monster.Room = this;
-            monster.Init();
-            monster.CellPos = new Vector3(monster.PosInfo.PosX, monster.PosInfo.PosY, monster.PosInfo.PosZ);
+            var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
+            if (slot.Statue == null) continue;
+            var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
             Push(EnterGame, monster);
         }
     }
 
     private void SpawnTowersInNewRound()
     {
-        
+        List<TowerSlot> slots = _northTowers.Concat(_southTowers)
+            .Where(slot => 
+            {
+                DataManager.TowerDict.TryGetValue((int)slot.TowerId, out var towerData);
+                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.behavior);
+                return behavior == Behavior.Offence;
+            }).ToList();
+
+        foreach (var slot in slots)
+        {
+            var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+            if (slot.Statue == null) continue;
+            var tower = EnterTower((int)slot.TowerId, FindTowerSpawnPos(slot.Statue), player);
+            Push(EnterGame, tower);
+        }
     }
 
-    private void SetTowerInfo()
+    private Tower EnterTower(int towerId, PositionInfo posInfo, Player player)
     {
-        
+        var tower = ObjectManager.Instance.CreateTower((TowerId)towerId);
+        tower.PosInfo = posInfo;
+        tower.Info.PosInfo = tower.PosInfo;
+        tower.TowerNum = towerId;
+        tower.Player = player;
+        tower.TowerId = (TowerId)towerId;
+        tower.Room = this;
+        tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        tower.Dir = tower.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+        tower.Init();
+        return tower;
     }
 
-    private void SetMonsterInfo()
+    private Monster EnterMonster(int monsterId, PositionInfo posInfo, Player player)
     {
-        
+        var monster = ObjectManager.Instance.CreateMonster((MonsterId)monsterId);
+        monster.PosInfo = posInfo;
+        monster.Info.PosInfo = monster.PosInfo;
+        monster.MonsterNum = monsterId;
+        monster.Player = player;
+        monster.MonsterId = (MonsterId)monsterId;
+        monster.Room = this;
+        monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+        monster.Init();
+        return monster;
     }
 }
