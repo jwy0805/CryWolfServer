@@ -60,7 +60,9 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CMonsterSpawnPos, MakePacket<C_MonsterSpawnPos>);
 		_handler.Add((ushort)MessageId.CMonsterSpawnPos, PacketHandler.C_MonsterSpawnPosHandler);		
 		_onRecv.Add((ushort)MessageId.CSetTextUI, MakePacket<C_SetTextUI>);
-		_handler.Add((ushort)MessageId.CSetTextUI, PacketHandler.C_SetTextUIHandler);
+		_handler.Add((ushort)MessageId.CSetTextUI, PacketHandler.C_SetTextUIHandler);		
+		_onRecv.Add((ushort)MessageId.CDeleteUnit, MakePacket<C_DeleteUnit>);
+		_handler.Add((ushort)MessageId.CDeleteUnit, PacketHandler.C_DeleteUnitHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

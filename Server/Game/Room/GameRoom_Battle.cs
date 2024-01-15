@@ -402,11 +402,46 @@ public partial class GameRoom
         if (player == null) return;
 
         S_Despawn despawnPacket = new S_Despawn();
-        int objId = resourcePacket.ObjectId;
-        despawnPacket.ObjectIds.Add(objId);
-        foreach (var p in _players.Values.Where(p => p.Id != objId)) p.Session.Send(despawnPacket);
+        int objectId = resourcePacket.ObjectId;
+        despawnPacket.ObjectIds.Add(objectId);
+        foreach (var p in _players.Values.Where(p => p.Id != objectId)) p.Session.Send(despawnPacket);
         
         GameInfo.SheepResource += GameInfo.SheepYield;
+    }
+
+    public void HandleDelete(Player? player, C_DeleteUnit deletePacket)
+    {
+        if (player == null) return;
+
+        int objectId = deletePacket.ObjectId;
+        var gameObject = FindGameObjectById(objectId);
+        if (gameObject == null) return;
+        
+        if (gameObject.ObjectType is GameObjectType.Tower or GameObjectType.TowerStatue)
+        {
+            TowerSlot? slotToBeDeleted = null;
+            if (gameObject.Way == SpawnWay.North)
+            {
+                slotToBeDeleted = _northTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
+            }
+            else if (gameObject.Way == SpawnWay.South)
+            {
+                slotToBeDeleted = _southTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
+            }
+            
+        }
+        else if (gameObject.ObjectType is GameObjectType.Monster or GameObjectType.MonsterStatue)
+        {
+            MonsterSlot? slotToBeDeleted = null;
+            if (gameObject.Way == SpawnWay.North)
+            {
+                slotToBeDeleted = _northMonsters.FirstOrDefault(slot => slot.ObjectId == objectId);
+            }
+            else if (gameObject.Way == SpawnWay.South)
+            {
+                slotToBeDeleted = _southMonsters.FirstOrDefault(slot => slot.ObjectId == objectId);
+            }
+        }
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
