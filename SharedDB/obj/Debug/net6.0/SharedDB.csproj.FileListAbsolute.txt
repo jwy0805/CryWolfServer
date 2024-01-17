@@ -1,0 +1,14 @@
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/bin/Debug/net6.0/SharedDB.deps.json
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/bin/Debug/net6.0/SharedDB.runtimeconfig.json
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/bin/Debug/net6.0/SharedDB.dll
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/bin/Debug/net6.0/SharedDB.pdb
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.csproj.AssemblyReference.cache
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.AssemblyInfoInputs.cache
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.AssemblyInfo.cs
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.csproj.CoreCompileInputs.cache
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.dll
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/refint/SharedDB.dll
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.pdb
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/SharedDB.genruntimeconfig.cache
+/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/Debug/net6.0/ref/SharedDB.dll

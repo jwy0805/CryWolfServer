@@ -14,6 +14,5 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<AccountDb>().HasIndex(account => account.AccountName).IsUnique();
-        
     }
 }
