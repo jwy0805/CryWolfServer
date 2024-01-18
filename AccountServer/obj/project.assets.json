@@ -3648,6 +3648,19 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
+      },
+      "SharedDB/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "dependencies": {
+          "Pomelo.EntityFrameworkCore.MySql": "7.0.0"
+        },
+        "compile": {
+          "bin/placeholder/SharedDB.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SharedDB.dll": {}
+        }
       }
     }
   },
@@ -10485,6 +10498,11 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
+    },
+    "SharedDB/1.0.0": {
+      "type": "project",
+      "path": "../SharedDB/SharedDB.csproj",
+      "msbuildProject": "../SharedDB/SharedDB.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -10492,6 +10510,7 @@
       "Microsoft.EntityFrameworkCore.Design >= 7.0.15",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 6.0.16",
       "Pomelo.EntityFrameworkCore.MySql >= 7.0.0",
+      "SharedDB >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.2.3"
     ]
   },
@@ -10519,7 +10538,11 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj": {
+              "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

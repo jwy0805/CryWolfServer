@@ -21,11 +21,14 @@ public class ServerInfo
 {
     public string Name { get; set; }
     public string IP { get; set; }
-    public int CrowdedLevel { get; set; }
+    public int Port { get; set; }
+    public int BusyScore { get; set; }
 }
 
 public class LoginAccountPacketResponse
 {
     public bool LoginOK { get; set; }
+    public int AccountId { get; set; }
+    public int Token { get; set; }
     public List<ServerInfo> ServerList { get; set; } = new();
 }

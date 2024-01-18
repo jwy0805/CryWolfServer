@@ -4,7 +4,7 @@ namespace SharedDB;
 
 public class SharedDbContext : DbContext
 {
-    public DbSet<TokenDb> Tokens { get; set; }
+    public DbSet<TokenDb?> Tokens { get; set; }
     public DbSet<ServerDb> Servers { get; set; }
 
     // GameServer

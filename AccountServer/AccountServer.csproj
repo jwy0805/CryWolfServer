@@ -20,4 +20,8 @@
       <Folder Include="Controllers\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\SharedDB\SharedDB.csproj" />
+    </ItemGroup>
+
 </Project>
