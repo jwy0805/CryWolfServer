@@ -1,5 +1,4 @@
 using Google.Protobuf.Protocol;
-using Server.Game.Object.etc;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -125,11 +124,6 @@ public sealed partial class ObjectManager
     public class MonsterStatueFactory
     {
         public MonsterStatue CreateStatue() => new MonsterStatue();
-    }
-
-    public class TowerStatueFactory
-    {
-        public TowerStatue CreateState() => new TowerStatue();
     }
     
     public class FenceFactory

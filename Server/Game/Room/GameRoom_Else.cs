@@ -1,7 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
-using Server.Game.Object.etc;
 using Server.Util;
 
 namespace Server.Game;
@@ -331,13 +330,6 @@ public partial class GameRoom
         return objectsInDist;
     }
 
-    private PositionInfo FindTowerSpawnPos(TowerStatue statue)
-    {
-        PositionInfo posInfo = new PositionInfo();
-
-        return posInfo;
-    }
-    
     private PositionInfo FindMonsterSpawnPos(MonsterStatue statue)
     {
         PositionInfo posInfo = new PositionInfo()

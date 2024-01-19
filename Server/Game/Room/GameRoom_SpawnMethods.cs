@@ -1,7 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
-using Server.Game.Object.etc;
 
 namespace Server.Game;
 
@@ -31,20 +30,10 @@ public partial class GameRoom
         };
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
     }
-
-    private void RegisterMonster(Monster monster)
-    {
-        
-    }
-
-    private void RegisterTowerStatue(TowerStatue towerStatue)
-    {
-        
-    }
     
     private void RegisterMonsterStatue(MonsterStatue statue)
     {
-        MonsterSlot monsterSlot = new(statue.MonsterId, statue.Way, 0, statue);
+        MonsterSlot monsterSlot = new(statue.MonsterId, statue.Way, statue);
         int slotNum = 0;
         if (monsterSlot.Way == SpawnWay.North)
         {
@@ -88,13 +77,7 @@ public partial class GameRoom
 
     private void SpawnMonstersInNewRound()
     {
-        List<MonsterSlot> slots = _northMonsters.Concat(_southMonsters)
-            .Where(slot =>
-            {
-                DataManager.TowerDict.TryGetValue((int)slot.MonsterId, out var towerData);
-                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
-                return behavior == Behavior.Offence;            
-            }).ToList();
+        var slots = _northMonsters.Concat(_southMonsters).ToList();
         
         foreach (var slot in slots)
         {
@@ -107,20 +90,12 @@ public partial class GameRoom
 
     private void SpawnTowersInNewRound()
     {
-        List<TowerSlot> slots = _northTowers.Concat(_southTowers)
-            .Where(slot => 
-            {
-                DataManager.TowerDict.TryGetValue((int)slot.TowerId, out var towerData);
-                var behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
-                return behavior == Behavior.Offence;
-            }).ToList();
+        List<TowerSlot> slots = _northTowers.Concat(_southTowers).ToList();
 
         foreach (var slot in slots)
         {
             var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-            if (slot.Statue == null) continue;
-            var tower = EnterTower((int)slot.TowerId, FindTowerSpawnPos(slot.Statue), player);
-            Push(EnterGame, tower);
+            
         }
     }
 

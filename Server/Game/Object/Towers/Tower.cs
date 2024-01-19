@@ -19,7 +19,6 @@ public class Tower : Creature, ISkillObserver
     public override void Init()
     {
         DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
-        Behavior = (Behavior)Enum.Parse(typeof(Behavior), towerData!.unitBehavior);
         Stat.MergeFrom(towerData?.stat);
         base.Init();
         Hp = MaxHp;

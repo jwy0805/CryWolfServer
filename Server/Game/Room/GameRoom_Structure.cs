@@ -1,5 +1,4 @@
 using Google.Protobuf.Protocol;
-using Server.Game.Object.etc;
 
 namespace Server.Game;
 
@@ -10,14 +9,12 @@ public partial class GameRoom : JobSerializer
         public readonly TowerId TowerId;
         public readonly SpawnWay Way;
         public readonly int ObjectId;
-        public readonly TowerStatue? Statue;
         
-        public TowerSlot(TowerId towerId, SpawnWay way, int objectId = 0, TowerStatue? statue = null)
+        public TowerSlot(TowerId towerId, SpawnWay way, int objectId = 0)
         {
             TowerId = towerId;
             Way = way;
             ObjectId = objectId;
-            Statue = statue;
         }
     }
 
@@ -25,14 +22,12 @@ public partial class GameRoom : JobSerializer
     {
         public readonly MonsterId MonsterId;
         public readonly SpawnWay Way;
-        public readonly int ObjectId;
         public readonly MonsterStatue? Statue;
         
-        public MonsterSlot(MonsterId monsterId, SpawnWay way, int objectId, MonsterStatue? statue)
+        public MonsterSlot(MonsterId monsterId, SpawnWay way, MonsterStatue statue)
         {
             MonsterId = monsterId;
             Way = way;
-            ObjectId = objectId;
             Statue = statue;
         }
     }
