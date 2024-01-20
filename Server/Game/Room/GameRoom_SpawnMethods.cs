@@ -95,7 +95,16 @@ public partial class GameRoom
         foreach (var slot in slots)
         {
             var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-            
+            if (slot.ObjectId == 0) continue;
+            var gameObject = FindGameObjectById(slot.ObjectId);
+            if (gameObject == null)
+            {
+                // Create New Tower
+            }
+            else
+            {
+                gameObject.Hp = gameObject.MaxHp;
+            }
         }
     }
 
