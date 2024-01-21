@@ -408,6 +408,9 @@ public partial class GameRoom
             case GameObjectType.Monster:
                 if (_monsters.TryGetValue(id, out var monster)) go = monster;
                 break;
+            case GameObjectType.MonsterStatue:
+                if (_statues.TryGetValue(id, out var statue)) go = statue;
+                break;
             case GameObjectType.Projectile:
                 if (_projectiles.TryGetValue(id, out var projectile)) go = projectile;
                 break;
