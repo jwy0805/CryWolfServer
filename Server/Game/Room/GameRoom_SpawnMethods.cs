@@ -21,7 +21,7 @@ public partial class GameRoom
             slotNum = _southTowers.Count - 1;
         }
         
-        S_RegisterTower registerPacket = new()
+        S_RegisterTowerInSlot registerPacket = new()
         {
             TowerId = (int)towerSlot.TowerId,
             ObjectId = towerSlot.ObjectId,
@@ -46,7 +46,7 @@ public partial class GameRoom
             slotNum = _southMonsters.Count - 1;
         }
         
-        S_RegisterMonster registerPacket = new()
+        S_RegisterMonsterInSlot registerPacket = new()
         {
             MonsterId = (int)monsterSlot.MonsterId,
             ObjectId = monsterSlot.Statue.Id,
@@ -84,6 +84,7 @@ public partial class GameRoom
             var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
             if (slot.Statue == null) continue;
             var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
+            monster.StatueId = slot.Statue.Id;
             Push(EnterGame, monster);
         }
     }
@@ -136,5 +137,20 @@ public partial class GameRoom
         monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         monster.Init();
         return monster;
+    }
+
+    private MonsterStatue EnterMonsterStatue(int monsterId, PositionInfo posInfo, Player player)
+    {
+        var statue = ObjectManager.Instance.CreateMonsterStatue();
+        statue.PosInfo = posInfo;
+        statue.Info.PosInfo = statue.PosInfo;
+        statue.MonsterNum = monsterId;
+        statue.Player = player;
+        statue.MonsterId = (MonsterId)monsterId;
+        statue.Room = this;
+        statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+        statue.Init();
+        return statue;
     }
 }

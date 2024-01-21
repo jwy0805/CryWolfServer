@@ -9,6 +9,7 @@ public class Monster : Creature, ISkillObserver
 {
     public int MonsterNum { get; set; }
     public MonsterId MonsterId { get; set; }
+    public int StatueId { get; set; }
 
     protected Monster()
     {

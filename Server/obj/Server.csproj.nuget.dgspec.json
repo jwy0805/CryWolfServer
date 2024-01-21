@@ -1,103 +1,36 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jwy08\\fleet\\CryWolfServer\\Server\\Server.csproj": {}
+    "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj": {
+    "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj",
-        "projectName": "ServerCore",
-        "projectPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj",
-        "packagesPath": "C:\\Users\\jwy08\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\jwy08\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net6.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net6.0": {
-            "targetAlias": "net6.0",
-            "projectReferences": {}
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        }
-      },
-      "frameworks": {
-        "net6.0": {
-          "targetAlias": "net6.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\jwy08\\fleet\\CryWolfServer\\Server\\Server.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\Server\\Server.csproj",
+        "projectUniqueName": "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj",
         "projectName": "Server",
-        "projectPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\Server\\Server.csproj",
-        "packagesPath": "C:\\Users\\jwy08\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\Server\\obj\\",
+        "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/Server/Server.csproj",
+        "packagesPath": "/Users/jwy/.nuget/packages/",
+        "outputPath": "/Users/jwy/Documents/dev/CryWolf/Server/Server/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\jwy08\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/jwy/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj": {
-                "projectPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj"
+              "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj": {
+                "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj"
               },
-              "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\SharedDB.csproj": {
-                "projectPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\SharedDB.csproj"
+              "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj": {
+                "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj"
               }
             }
           }
@@ -153,33 +86,79 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.402/RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\SharedDB.csproj": {
+    "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\SharedDB.csproj",
-        "projectName": "SharedDB",
-        "projectPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\SharedDB.csproj",
-        "packagesPath": "C:\\Users\\jwy08\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\SharedDB\\obj\\",
+        "projectUniqueName": "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj",
+        "projectName": "ServerCore",
+        "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj",
+        "packagesPath": "/Users/jwy/.nuget/packages/",
+        "outputPath": "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\jwy08\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/jwy/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.402/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj",
+        "projectName": "SharedDB",
+        "projectPath": "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/SharedDB.csproj",
+        "packagesPath": "/Users/jwy/.nuget/packages/",
+        "outputPath": "/Users/jwy/Documents/dev/CryWolf/Server/SharedDB/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/jwy/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -231,7 +210,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.402/RuntimeIdentifierGraph.json"
         }
       }
     }

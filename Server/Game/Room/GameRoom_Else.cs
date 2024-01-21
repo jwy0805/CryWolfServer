@@ -348,7 +348,7 @@ public partial class GameRoom
         {
             posInfo.PosZ = statue.PosInfo.PosZ + statue.Stat.SizeZ;
         }
-
+        
         return posInfo;
     }
     
@@ -364,7 +364,7 @@ public partial class GameRoom
                 return monster;
             }
         }
-
+        
         return null;
     }
 

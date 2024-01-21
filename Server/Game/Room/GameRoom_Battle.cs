@@ -89,8 +89,6 @@ public partial class GameRoom
         {
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
-                var towerId = (TowerId)spawnPacket.Num;
-                DataManager.TowerDict.TryGetValue((int)towerId, out var towerData);
                 var tower = EnterTower(spawnPacket.Num, spawnPacket.PosInfo, player);
                 if (spawnPacket.Register) RegisterTower(tower);
                 Push(EnterGame, tower);
@@ -98,18 +96,13 @@ public partial class GameRoom
 
             case GameObjectType.Monster:
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
-                var monsterId = (MonsterId)spawnPacket.Num;
-                DataManager.TowerDict.TryGetValue((int)monsterId, out var monsterData);
-                MonsterStatue monsterStatue = ObjectManager.Instance.CreateMonsterStatue();
-                monsterStatue.PosInfo = spawnPacket.PosInfo;
-                monsterStatue.Info.PosInfo = monsterStatue.PosInfo;
-                monsterStatue.MonsterNum = spawnPacket.Num;
-                monsterStatue.Player = player;
-                monsterStatue.MonsterId = (MonsterId)spawnPacket.Num;
-                monsterStatue.Room = this;
-                monsterStatue.Way = monsterStatue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                monsterStatue.Dir = monsterStatue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
-                monsterStatue.Init();
+                Monster monster = EnterMonster(spawnPacket.Num, spawnPacket.PosInfo, player);
+                Push(EnterGame, monster);
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                MonsterStatue monsterStatue = EnterMonsterStatue(spawnPacket.Num, spawnPacket.PosInfo, player);
                 RegisterMonsterStatue(monsterStatue);
                 Push(EnterGame, monsterStatue);
                 break;
@@ -312,7 +305,7 @@ public partial class GameRoom
     {
         if (player == null) return;
         
-        bool canUpgrade = false;
+        bool canUpgrade = true;
         
         if (canUpgrade == false)
         {
@@ -323,31 +316,48 @@ public partial class GameRoom
             var go = FindGameObjectById(upgradePacket.ObjectId);
             if (go == null) return;
             int id = go.Id;
-            GameObjectType type = go.ObjectType;
-            PositionInfo posInfo = new() { PosX = go.PosInfo.PosX, PosY = go.PosInfo.PosY, PosZ = go.PosInfo.PosZ };
-            LeaveGame(id);
-            Broadcast(new S_Despawn { ObjectIds = { id }});
-            
-            if (type == GameObjectType.Monster)
-            {
-                if (go is not Monster m) return;
-                Monster monster = ObjectManager.Instance.CreateMonster((MonsterId)(m.MonsterNum + 1));
-                monster.PosInfo = posInfo;
-            }
-            else if (type == GameObjectType.Tower)
+
+            if (go.ObjectType == GameObjectType.Tower)
             {
                 if (go is not Tower t) return;
-                TowerId towerId = (TowerId)(t.TowerNum + 1);
-                Tower tower = ObjectManager.Instance.CreateTower(towerId);
-                tower.PosInfo = posInfo;
-                tower.Info.PosInfo = tower.PosInfo;
-                tower.TowerNum = (int)towerId;
-                tower.Player = player;
-                tower.TowerId = towerId;
-                tower.Room = this;
-                tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-                tower.Init();
+                PositionInfo newTowerPos = new()
+                {
+                    PosX = t.PosInfo.PosX, PosY = t.PosInfo.PosY, PosZ = t.PosInfo.PosZ, State = State.Idle
+                };
+                LeaveGame(id);
+                Broadcast(new S_Despawn { ObjectIds = { id } });
+                int towerId = (int)t.TowerId + 1;
+                Tower tower = EnterTower(towerId, newTowerPos, player);
                 Push(EnterGame, tower);
+            }
+            else if (go.ObjectType == GameObjectType.Monster)
+            {
+                if (go is not Monster m) return;
+                int statueId = m.StatueId;
+                var statue = FindGameObjectById(statueId);
+                if (statue == null) return;
+                PositionInfo newStatuePos = new()
+                {
+                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
+                };
+                LeaveGame(statueId);
+                Broadcast(new S_Despawn { ObjectIds = { statueId } });
+                int monsterId = (int)m.MonsterId + 1;
+                MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+                Push(EnterGame, monsterStatue);
+            }
+            else if (go.ObjectType == GameObjectType.MonsterStatue)
+            {
+                if (go is not MonsterStatue ms) return;
+                PositionInfo newStatuePos = new()
+                {
+                    PosX = ms.PosInfo.PosX, PosY = ms.PosInfo.PosY, PosZ = ms.PosInfo.PosZ
+                };
+                LeaveGame(id);
+                Broadcast(new S_Despawn { ObjectIds = { id } });
+                int monsterId = (int)ms.MonsterId + 1;
+                MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+                Push(EnterGame, monsterStatue);
             }
         }
     }
@@ -372,23 +382,55 @@ public partial class GameRoom
         var gameObject = FindGameObjectById(objectId);
         if (gameObject == null) return;
         
-        if (gameObject.ObjectType is GameObjectType.Tower)
+        switch (gameObject.ObjectType)
         {
-            TowerSlot? slotToBeDeleted = null;
-            if (gameObject.Way == SpawnWay.North)
-            {
-                slotToBeDeleted = _northTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
-            }
-            else if (gameObject.Way == SpawnWay.South)
-            {
-                slotToBeDeleted = _southTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
-            }
+            case GameObjectType.Tower:
+                if (gameObject.Way == SpawnWay.North)
+                {
+                    TowerSlot? slotToBeDeleted = _northTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
+                    if (slotToBeDeleted is not null) _northTowers.Remove((TowerSlot)slotToBeDeleted);
+                }
+                else if (gameObject.Way == SpawnWay.South)
+                {
+                    TowerSlot? slotToBeDeleted = _southTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
+                    if (slotToBeDeleted is not null) _southTowers.Remove((TowerSlot)slotToBeDeleted);
+                }
+                break;
             
+            case GameObjectType.Monster:
+                if (gameObject is not Monster monster) return;
+                int statueId = monster.StatueId;
+                if (monster.Way == SpawnWay.North)
+                {
+                    MonsterSlot? slotToBeDeleted = _northMonsters.FirstOrDefault(slot => slot.Statue.Id == statueId);
+                    if (slotToBeDeleted is not null) _northMonsters.Remove((MonsterSlot)slotToBeDeleted);
+                }
+                else if (gameObject.Way == SpawnWay.South)
+                {
+                    MonsterSlot? slotToBeDeleted = _southMonsters.FirstOrDefault(slot => slot.Statue.Id == statueId);
+                    if (slotToBeDeleted is not null) _southMonsters.Remove((MonsterSlot)slotToBeDeleted);
+                }
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                if (gameObject.Way == SpawnWay.North)
+                {
+                    MonsterSlot? slotToBeDeleted = _northMonsters.FirstOrDefault(slot => slot.Statue.Id == objectId);
+                    if (slotToBeDeleted is not null) _northMonsters.Remove((MonsterSlot)slotToBeDeleted);
+                }
+                else if (gameObject.Way == SpawnWay.South)
+                {
+                    MonsterSlot? slotToBeDeleted = _southMonsters.FirstOrDefault(slot => slot.Statue.Id == objectId);
+                    if (slotToBeDeleted is not null) _southMonsters.Remove((MonsterSlot)slotToBeDeleted);
+                }
+                break;
+            
+            default:
+                return;
         }
-        else if (gameObject.ObjectType is GameObjectType.Monster or GameObjectType.MonsterStatue)
-        {
-            MonsterSlot? slotToBeDeleted = null;
-        }
+        
+        LeaveGame(objectId);
+        Broadcast(new S_Despawn { ObjectIds = { objectId } });
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)

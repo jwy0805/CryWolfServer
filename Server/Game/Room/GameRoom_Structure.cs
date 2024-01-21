@@ -22,7 +22,7 @@ public partial class GameRoom : JobSerializer
     {
         public readonly MonsterId MonsterId;
         public readonly SpawnWay Way;
-        public readonly MonsterStatue? Statue;
+        public readonly MonsterStatue Statue;
         
         public MonsterSlot(MonsterId monsterId, SpawnWay way, MonsterStatue statue)
         {
