@@ -9,24 +9,20 @@ public partial class GameRoom
     private void RegisterTower(Tower tower) 
     {
         TowerSlot towerSlot = new(tower.TowerId, tower.Way, tower.Id);
-        int slotNum = 0;
+        
         if (towerSlot.Way == SpawnWay.North)
         {
             _northTowers.Add(towerSlot);
-            slotNum = _northTowers.Count - 1;
         }
         else
         {
             _southTowers.Add(towerSlot);
-            slotNum = _southTowers.Count - 1;
         }
         
-        S_RegisterTowerInSlot registerPacket = new()
+        S_RegisterInSlot registerPacket = new()
         {
-            TowerId = (int)towerSlot.TowerId,
             ObjectId = towerSlot.ObjectId,
-            Way = towerSlot.Way,
-            SlotNumber = slotNum
+            UnitId = (int)towerSlot.TowerId,
         };
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
     }
@@ -34,24 +30,20 @@ public partial class GameRoom
     private void RegisterMonsterStatue(MonsterStatue statue)
     {
         MonsterSlot monsterSlot = new(statue.MonsterId, statue.Way, statue);
-        int slotNum = 0;
+
         if (monsterSlot.Way == SpawnWay.North)
         {
             _northMonsters.Add(monsterSlot);
-            slotNum = _northMonsters.Count - 1;
         }
         else
         {
             _southMonsters.Add(monsterSlot);
-            slotNum = _southMonsters.Count - 1;
         }
         
-        S_RegisterMonsterInSlot registerPacket = new()
+        S_RegisterInSlot registerPacket = new()
         {
-            MonsterId = (int)monsterSlot.MonsterId,
             ObjectId = monsterSlot.Statue.Id,
-            Way = monsterSlot.Way,
-            SlotNumber = slotNum
+            UnitId = (int)monsterSlot.MonsterId,
         };
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session.Send(registerPacket);
     }
@@ -82,10 +74,10 @@ public partial class GameRoom
         foreach (var slot in slots)
         {
             var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
-            if (slot.Statue == null) continue;
             var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
             monster.StatueId = slot.Statue.Id;
             Push(EnterGame, monster);
+            player.Session.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.MonsterId });
         }
     }
 

@@ -328,7 +328,9 @@ public partial class GameRoom
                 Broadcast(new S_Despawn { ObjectIds = { id } });
                 int towerId = (int)t.TowerId + 1;
                 Tower tower = EnterTower(towerId, newTowerPos, player);
+                
                 Push(EnterGame, tower);
+                player.Session.Send(new S_UpgradeSlot { ObjectId = id });
             }
             else if (go.ObjectType == GameObjectType.Monster)
             {
@@ -344,7 +346,9 @@ public partial class GameRoom
                 Broadcast(new S_Despawn { ObjectIds = { statueId } });
                 int monsterId = (int)m.MonsterId + 1;
                 MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+                
                 Push(EnterGame, monsterStatue);
+                player.Session.Send(new S_UpgradeSlot { ObjectId = statueId });
             }
             else if (go.ObjectType == GameObjectType.MonsterStatue)
             {
@@ -357,7 +361,9 @@ public partial class GameRoom
                 Broadcast(new S_Despawn { ObjectIds = { id } });
                 int monsterId = (int)ms.MonsterId + 1;
                 MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+                
                 Push(EnterGame, monsterStatue);
+                player.Session.Send(new S_UpgradeSlot { ObjectId = id });
             }
         }
     }
@@ -377,7 +383,7 @@ public partial class GameRoom
     public void HandleDelete(Player? player, C_DeleteUnit deletePacket)
     {
         if (player == null) return;
-
+        
         int objectId = deletePacket.ObjectId;
         var gameObject = FindGameObjectById(objectId);
         if (gameObject == null) return;
