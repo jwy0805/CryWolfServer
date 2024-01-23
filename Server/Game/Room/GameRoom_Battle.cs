@@ -330,7 +330,8 @@ public partial class GameRoom
                 Tower tower = EnterTower(towerId, newTowerPos, player);
                 
                 Push(EnterGame, tower);
-                player.Session.Send(new S_UpgradeSlot { ObjectId = id });
+                UpgradeTower(t, tower);
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id});
             }
             else if (go.ObjectType == GameObjectType.Monster)
             {
@@ -348,7 +349,8 @@ public partial class GameRoom
                 MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
                 
                 Push(EnterGame, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { ObjectId = statueId });
+                UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id });
             }
             else if (go.ObjectType == GameObjectType.MonsterStatue)
             {
@@ -363,7 +365,8 @@ public partial class GameRoom
                 MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
                 
                 Push(EnterGame, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { ObjectId = id });
+                UpgradeMonsterStatue(ms, monsterStatue);
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id });
             }
         }
     }

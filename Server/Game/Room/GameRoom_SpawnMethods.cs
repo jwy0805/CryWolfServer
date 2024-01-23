@@ -23,6 +23,8 @@ public partial class GameRoom
         {
             ObjectId = towerSlot.ObjectId,
             UnitId = (int)towerSlot.TowerId,
+            ObjectType = GameObjectType.Tower,
+            Way = towerSlot.Way
         };
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
     }
@@ -44,8 +46,42 @@ public partial class GameRoom
         {
             ObjectId = monsterSlot.Statue.Id,
             UnitId = (int)monsterSlot.MonsterId,
+            ObjectType = GameObjectType.MonsterStatue,
+            Way = monsterSlot.Way
         };
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session.Send(registerPacket);
+    }
+
+    private void UpgradeTower(Tower oldTower, Tower newTower)
+    {
+        TowerSlot newTowerSlot = new(newTower.TowerId, newTower.Way, newTower.Id);
+
+        if (newTower.Way == SpawnWay.North)
+        {
+            int index = _northTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
+            _northTowers[index] = newTowerSlot;
+        }
+        else
+        {
+            int index = _southTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
+            _southTowers[index] = newTowerSlot;
+        }
+    }
+    
+    private void UpgradeMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
+    {
+        MonsterSlot newMonsterSlot = new(newStatue.MonsterId, newStatue.Way, newStatue);
+
+        if (newStatue.Way == SpawnWay.North)
+        {
+            int index = _northMonsters.FindIndex(slot => slot.Statue.Id == oldStatue.Id);
+            _northMonsters[index] = newMonsterSlot;
+        }
+        else
+        {
+            int index = _southMonsters.FindIndex(slot => slot.Statue.Id == oldStatue.Id);
+            _southMonsters[index] = newMonsterSlot;
+        }
     }
     
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
