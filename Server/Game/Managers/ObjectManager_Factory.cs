@@ -1,4 +1,6 @@
 using Google.Protobuf.Protocol;
+using Server.Game.etc;
+using Server.Game.Object.etc;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -21,7 +23,8 @@ public sealed partial class ObjectManager
         { TowerId.MothCelestial, new MothCelestialFactory() },
         { TowerId.Soul, new SoulFactory() },
         { TowerId.Haunt, new HauntFactory() },
-        { TowerId.SoulMage, new SoulMageFactory() }
+        { TowerId.SoulMage, new SoulMageFactory() },
+        { TowerId.Pumpkin, new PumpkinFactory() }
     };
 
     private readonly Dictionary<MonsterId, IMonsterFactory> _monsterDict = new()
@@ -40,7 +43,8 @@ public sealed partial class ObjectManager
         { MonsterId.SnakeNaga, new SnakeNagaFactory() },
         { MonsterId.MosquitoBug, new MosquitoBugFactory() },
         { MonsterId.MosquitoPester, new MosquitoPesterFactory() },
-        { MonsterId.MosquitoStinger, new MosquitoStingerFactory() }
+        { MonsterId.MosquitoStinger, new MosquitoStingerFactory() },
+        { MonsterId.Tusk, new TuskFactory() }
     };
     
     private readonly Dictionary<ProjectileId, IProjectileFactory> _projectileDict = new()
@@ -205,6 +209,11 @@ public sealed partial class ObjectManager
     {
         public Tower CreateTower() => new SoulMage();
     }
+
+    public class PumpkinFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Pumpkin();
+    }
     
     public class WolfPupFactory : IMonsterFactory
     {
@@ -279,6 +288,11 @@ public sealed partial class ObjectManager
     public class MosquitoStingerFactory : IMonsterFactory
     {
         public Monster CreateMonster() => new MosquitoStinger();
+    }
+
+    public class TuskFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new Tusk();
     }
     
     public class BasicAttackFactory : IProjectileFactory

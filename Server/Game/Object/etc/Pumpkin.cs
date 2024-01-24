@@ -1,14 +1,14 @@
 using Google.Protobuf.Protocol;
 using Server.Data;
 
-namespace Server.Game.etc;
+namespace Server.Game.Object.etc;
 
-public class Tusk : Monster
+public class Pumpkin : Tower
 {
     public override void Init()
     {
-        DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
-        Stat.MergeFrom(monsterData?.stat);
+        DataManager.MonsterDict.TryGetValue(TowerNum, out var towerData);
+        Stat.MergeFrom(towerData?.stat);
         if (Room == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;
         Hp = MaxHp;
@@ -28,10 +28,10 @@ public class Tusk : Monster
             attacker.Target = null;
         }
         
-        var diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
         Room.Broadcast(diePacket);
 
-        var room = Room;
+        GameRoom room = Room;
         room.LeaveGame(Id);
     }
     

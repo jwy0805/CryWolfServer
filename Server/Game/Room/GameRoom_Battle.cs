@@ -440,6 +440,9 @@ public partial class GameRoom
         
         LeaveGame(objectId);
         Broadcast(new S_Despawn { ObjectIds = { objectId } });
+
+        if (deletePacket.Inactive == false) return;
+        
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
