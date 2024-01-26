@@ -5,6 +5,8 @@ namespace Server.Game.Object.etc;
 
 public class Pumpkin : Tower
 {
+    public TowerId OriginalTowerId { get; set; }
+    
     public override void Init()
     {
         DataManager.MonsterDict.TryGetValue(TowerNum, out var towerData);

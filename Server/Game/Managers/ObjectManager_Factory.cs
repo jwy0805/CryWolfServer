@@ -44,7 +44,6 @@ public sealed partial class ObjectManager
         { MonsterId.MosquitoBug, new MosquitoBugFactory() },
         { MonsterId.MosquitoPester, new MosquitoPesterFactory() },
         { MonsterId.MosquitoStinger, new MosquitoStingerFactory() },
-        { MonsterId.Tusk, new TuskFactory() }
     };
     
     private readonly Dictionary<ProjectileId, IProjectileFactory> _projectileDict = new()
@@ -127,12 +126,17 @@ public sealed partial class ObjectManager
 
     public class MonsterStatueFactory
     {
-        public MonsterStatue CreateStatue() => new MonsterStatue();
+        public MonsterStatue CreateStatue() => new();
+    }
+
+    public class TuskFactory
+    {
+        public Tusk CreateTusk() => new();
     }
     
     public class FenceFactory
     {
-        public Fence CreateFence() => new Fence();
+        public Fence CreateFence() => new();
     }
     
     public class BudFactory : ITowerFactory
@@ -288,11 +292,6 @@ public sealed partial class ObjectManager
     public class MosquitoStingerFactory : IMonsterFactory
     {
         public Monster CreateMonster() => new MosquitoStinger();
-    }
-
-    public class TuskFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Tusk();
     }
     
     public class BasicAttackFactory : IProjectileFactory

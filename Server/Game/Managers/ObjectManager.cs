@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Game.etc;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -38,6 +39,15 @@ public sealed partial class ObjectManager : IFactory
         lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
         
         return gameObject as MonsterStatue ?? throw new InvalidCastException();
+    }
+    
+    public Tusk CreateTusk()
+    {
+        TuskFactory factory = new();
+        GameObject gameObject = factory.CreateTusk();
+        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
+        
+        return gameObject as Tusk ?? throw new InvalidCastException();
     }
     
     public Projectile CreateProjectile(ProjectileId projectileId)

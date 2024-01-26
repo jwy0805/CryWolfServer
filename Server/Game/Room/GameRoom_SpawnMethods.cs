@@ -1,6 +1,7 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Game.etc;
 
 namespace Server.Game;
 
@@ -180,5 +181,20 @@ public partial class GameRoom
         statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         statue.Init();
         return statue;
+    }
+    
+    private Tusk EnterTusk(int monsterId, PositionInfo posInfo, Player player)
+    {
+        var tusk = ObjectManager.Instance.CreateTusk();
+        tusk.PosInfo = posInfo;
+        tusk.Info.PosInfo = tusk.PosInfo;
+        tusk.MonsterNum = monsterId;
+        tusk.Player = player;
+        tusk.MonsterId = (MonsterId)monsterId;
+        tusk.Room = this;
+        tusk.Way = tusk.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        tusk.Dir = tusk.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+        tusk.Init();
+        return tusk;
     }
 }

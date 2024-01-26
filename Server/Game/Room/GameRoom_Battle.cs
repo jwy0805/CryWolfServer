@@ -390,8 +390,9 @@ public partial class GameRoom
         int objectId = deletePacket.ObjectId;
         var gameObject = FindGameObjectById(objectId);
         if (gameObject == null) return;
+        var type = gameObject.ObjectType;
         
-        switch (gameObject.ObjectType)
+        switch (type)
         {
             case GameObjectType.Tower:
                 if (gameObject.Way == SpawnWay.North)
@@ -442,7 +443,31 @@ public partial class GameRoom
         Broadcast(new S_Despawn { ObjectIds = { objectId } });
 
         if (deletePacket.Inactive == false) return;
-        
+        HandleInactive(gameObject, player);
+    }
+
+    private void HandleInactive(GameObject gameObject, Player player)
+    {
+        var type = gameObject.ObjectType;
+        switch (type)
+        {
+            case GameObjectType.Tower:
+                var tower = EnterTower((int)TowerId.Pumpkin, gameObject.PosInfo, player);
+                Push(EnterGame, tower);
+                break;
+            
+            case GameObjectType.Monster:
+                if (gameObject is not Monster m) return;
+                var statue = FindGameObjectById(m.StatueId);
+                
+                if (statue == null) return;
+                var monster = EnterMonster((int)MonsterId.Tusk, statue.PosInfo, player);
+                
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                break;
+        }
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
