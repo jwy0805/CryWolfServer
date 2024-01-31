@@ -93,6 +93,7 @@ public class Program
         // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address}");
         // IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
         IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+        Console.WriteLine(ipAddress);
         // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
         if (ipAddress != null)
         {

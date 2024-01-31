@@ -4,8 +4,8 @@ namespace Server.Game;
 
 public class SunBlossom : Tower
 {
-    protected int HealParam = 40;
-    protected readonly int HealthParam = 50;
+    protected int HealParam = 25;
+    protected readonly int HealthParam = 30;
     protected readonly float SlowParam = 0.2f;
     protected readonly float SlowAttackParam = 0.2f;
     

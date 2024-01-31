@@ -28,7 +28,7 @@ public class SunfloraPixie : SunflowerFairy
                     _faint = true;
                     break;
                 case Skill.SunfloraPixieHeal:
-                    HealParam = 75;
+                    HealParam = 120;
                     break;
                 case Skill.SunfloraPixieRange:
                     AttackRange += 2;

@@ -11,6 +11,7 @@ public class DataManager
     public static Dictionary<int, TowerData> TowerDict { get; private set; } = new();
     public static Dictionary<int, FenceData> FenceDict { get; private set; } = new();
     public static Dictionary<int, ObjectData> ObjectDict { get; private set; } = new();
+    public static Dictionary<int, SkillData> SkillDict { get; private set; } = new();
 
     public static void LoadData()
     {
@@ -18,6 +19,7 @@ public class DataManager
         TowerDict = LoadJson<TowerLoader, int, TowerData>("TowerData")!.MakeDict();
         FenceDict = LoadJson<FenceLoader, int, FenceData>("FenceData")!.MakeDict();
         ObjectDict = LoadJson<ObjectLoader, int, ObjectData>("ObjectData")!.MakeDict();
+        SkillDict = LoadJson<SkillLoader, int, SkillData>("SkillData")!.MakeDict();
     }
 
     private static TLoader? LoadJson<TLoader, TKey, TValue>(string path) where TLoader : ILoader<TKey, TValue>

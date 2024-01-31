@@ -3,19 +3,19 @@ using Server.Game;
 
 namespace Server.Data;
 
-public class GameInfo
+public class GameInfo // 한 판마다 초기화되는 정보
 {
     private readonly Dictionary<int, Player> _players;
-    private int _northMaxTower = 5;
-    private int _northTower = 1;
-    private int _southMaxTower = 5;
-    private int _southTower = 1;
+    private int _northMaxTower = 6;
+    private int _northTower = 0;
+    private int _southMaxTower = 6;
+    private int _southTower = 0;
     private int _maxSheep = 5;
     private int _sheep = 1;
     private int _northMaxMonster = 6;
-    private int _northMonster = 1;
+    private int _northMonster = 0;
     private int _southMaxMonster = 6;
-    private int _southMonster = 1;
+    private int _southMonster = 0;
     private int _sheepResource = 200;
     private int _wolfResource = 250;
     
@@ -134,8 +134,8 @@ public class GameInfo
         }
     } 
 
-    public int NorthFenceCnt { get; set; } = 6;
-    public int SouthFenceCnt { get; set; } = 6;
+    public int NorthFenceCnt { get; set; } = 8;
+    public int SouthFenceCnt { get; set; } = 8;
 
     public int SheepResource
     {

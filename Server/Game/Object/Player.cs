@@ -9,9 +9,7 @@ public class Player : GameObject
     public List<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public SkillSubject SkillSubject = new();
     public Camp Camp { get; set; }
-
-    public int Resource { get; set; } = 0;
-
+    
     public ClientSession Session { get; set; }
 
     public Player()

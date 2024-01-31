@@ -7,6 +7,9 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
+    private bool _tutorialSet = false;
+    private Player _npc = new();
+
     public GameInfo GameInfo;
     public List<TowerSize> TowerSizeList = new();
     public List<MonsterSize> MonsterSizeList = new();
@@ -79,11 +82,21 @@ public partial class GameRoom : JobSerializer
         if (time < _timeSendTime + _interval || time < 10000) return;
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
+        
+        // Tutorial
+        if (_roundTime < 10 && _tutorialSet == false)
+        {
+            SetTutorialRound(_round);
+            _tutorialSet = true;
+        }
+        // Tutorial
+        
         if (_roundTime < 0) 
         {
             _roundTime = 19;
             _round++;
-            SpawnMonstersInNewRound();
+            _tutorialSet = false;
+            T_SpawnMonstersInNewRound();
             SpawnTowersInNewRound();
         }
         _timeSendTime = time;

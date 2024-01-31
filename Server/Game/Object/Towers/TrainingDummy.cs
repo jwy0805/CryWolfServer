@@ -8,6 +8,7 @@ public class TrainingDummy : TargetDummy
 {
     private bool _faint = false;
     private bool _debuffRemove = false;
+    private readonly int _faintProb = 30;
     
     protected override Skill NewSkill
     {
@@ -49,7 +50,13 @@ public class TrainingDummy : TargetDummy
 
     public override void SetNormalAttackEffect(GameObject target)
     {
-        if (_faint == true && Target != null) Target.State = State.Faint;
+        if (!_faint) return;
+        Random r = new Random();
+        if (r.Next(99) < _faintProb)
+        {
+            target.State = State.Faint;
+            BroadcastMove();
+        }
     }
     
     public override void RunSkill()

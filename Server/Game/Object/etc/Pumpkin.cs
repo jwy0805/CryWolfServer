@@ -9,7 +9,7 @@ public class Pumpkin : Tower
     
     public override void Init()
     {
-        DataManager.MonsterDict.TryGetValue(TowerNum, out var towerData);
+        DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
         Stat.MergeFrom(towerData?.stat);
         if (Room == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;

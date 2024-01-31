@@ -14,10 +14,12 @@ public partial class GameRoom
         if (towerSlot.Way == SpawnWay.North)
         {
             _northTowers.Add(towerSlot);
+            GameInfo.NorthTower++;
         }
         else
         {
             _southTowers.Add(towerSlot);
+            GameInfo.SouthTower++;
         }
         
         S_RegisterInSlot registerPacket = new()
@@ -37,10 +39,12 @@ public partial class GameRoom
         if (monsterSlot.Way == SpawnWay.North)
         {
             _northMonsters.Add(monsterSlot);
+            GameInfo.NorthMonster++;
         }
         else
         {
             _southMonsters.Add(monsterSlot);
+            GameInfo.SouthMonster++;
         }
         
         S_RegisterInSlot registerPacket = new()

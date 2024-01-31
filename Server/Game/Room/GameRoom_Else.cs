@@ -489,19 +489,6 @@ public partial class GameRoom
         return _fences.Count < GameData.NorthFenceMax;
     }
 
-    private bool CanUpgradeSkill(Player player, Skill skill)
-    {
-        Skill[] skills = GameData.SkillTree[skill];
-        int resource = player.Resource;
-
-        if (skills.All(item => player.SkillUpgradedList.Contains(item)))
-        {
-            return true;
-        }
-        
-        return false;
-    }
-
     private bool CanUpgradeTower(Player player, TowerId towerId)
     {
         return true;

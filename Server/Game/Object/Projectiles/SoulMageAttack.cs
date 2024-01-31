@@ -10,7 +10,7 @@ public class SoulMageAttack : Projectile
         
         if (Target is Creature creature && soulMage.Fire)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, creature, soulMage, soulMage.Attack);
+            BuffManager.Instance.AddBuff(BuffId.Burn, creature, soulMage, 90);
         }
     }
 }

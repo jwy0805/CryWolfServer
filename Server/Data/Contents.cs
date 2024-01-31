@@ -12,6 +12,7 @@ public class MonsterData
     public StatInfo stat;
 }
 
+[Serializable]
 public class TowerData
 {
     public int id;
@@ -21,6 +22,7 @@ public class TowerData
     public StatInfo stat;
 }
 
+[Serializable]
 public class FenceData
 {
     public int id;
@@ -29,10 +31,19 @@ public class FenceData
     public StatInfo stat;
 }
 
+[Serializable]
 public class ObjectData
 {
     public int no;
     public StatInfo stat;
+}
+
+[Serializable]
+public class SkillData
+{
+    public int id;
+    public string explanation;
+    public int cost;
 }
 
 [Serializable]
@@ -76,5 +87,16 @@ public class ObjectLoader : ILoader<int, ObjectData>
     public Dictionary<int, ObjectData> MakeDict()
     {
         return objects.ToDictionary(player => player.no);
+    }
+}
+
+[Serializable]
+public class SkillLoader : ILoader<int, SkillData>
+{
+    public List<SkillData> skills = new();
+
+    public Dictionary<int, SkillData> MakeDict()
+    {
+        return skills.ToDictionary(skill => skill.id);
     }
 }

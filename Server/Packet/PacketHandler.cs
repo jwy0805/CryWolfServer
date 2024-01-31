@@ -222,4 +222,14 @@ public class PacketHandler
         
         room?.Push(room.HandleDelete, player, deletePacket);
     }
+
+    public static void C_SetUpgradePopupHandler(PacketSession session, IMessage packet)
+    {
+        var popupPacket = (C_SetUpgradePopup)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleSetUpgradePopup, player, popupPacket);
+    }
 }

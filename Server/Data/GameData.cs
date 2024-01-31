@@ -103,9 +103,9 @@ public class GameData
     {
         { Skill.BloomAttack, new[] { Skill.NoSkill } },
         { Skill.BloomAttackSpeed, new[] { Skill.NoSkill } },
-        { Skill.BloomRange, new[] { Skill.NoSkill } },
+        { Skill.BloomRange, new[] { Skill.BloomAirAttack } },
         { Skill.BloomAttackSpeed2, new[] { Skill.BloomAttackSpeed } },
-        { Skill.BloomAirAttack, new[] { Skill.BloomRange } },
+        { Skill.BloomAirAttack, new[] { Skill.NoSkill } },
         { Skill.Bloom3Combo, new[] { Skill.BloomAttack, Skill.BloomAttackSpeed2 } },
     
         { Skill.BlossomPoison, new[] { Skill.NoSkill } },
@@ -131,9 +131,9 @@ public class GameData
         { Skill.MothCelestialSheepHealth, new[] { Skill.NoSkill } },
         { Skill.MothCelestialGroundAttack, new[] { Skill.NoSkill } },
         { Skill.MothCelestialAccuracy, new[] { Skill.NoSkill } },
-        { Skill.MothCelestialFireResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialGroundAttack } },
-        { Skill.MothCelestialPoisonResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialGroundAttack } },
-        { Skill.MothCelestialPoison, new[] { Skill.MothCelestialAccuracy } },
+        { Skill.MothCelestialFireResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialAccuracy } },
+        { Skill.MothCelestialPoisonResist, new[] { Skill.MothCelestialSheepHealth, Skill.MothCelestialAccuracy } },
+        { Skill.MothCelestialPoison, new[] { Skill.MothCelestialGroundAttack } },
         { Skill.MothCelestialBreedSheep, new[] { Skill.MothCelestialPoisonResist, Skill.MothCelestialFireResist } },
     
         { Skill.MothMoonRemoveDebuffSheep, new[] { Skill.NoSkill } },

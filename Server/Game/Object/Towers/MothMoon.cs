@@ -33,7 +33,7 @@ public class MothMoon : MothLuna
                     AttackRange += 3;
                     break;
                 case Skill.MothMoonOutput:
-                    _output = _debuffRemoveSheep;
+                    _output = true;
                     break;
                 case Skill.MothMoonAttackSpeed:
                     AttackSpeed += 0.15f;

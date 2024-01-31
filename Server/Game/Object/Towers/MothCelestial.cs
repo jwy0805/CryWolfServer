@@ -7,7 +7,7 @@ public class MothCelestial : MothMoon
     private bool _sheepHealth = false;
     private bool _breedSheep = false;
     private readonly int _healthParam = 100;
-    private readonly int _breedProb = 3;
+    private readonly int _breedProb = 10;
 
     protected override Skill NewSkill
     {

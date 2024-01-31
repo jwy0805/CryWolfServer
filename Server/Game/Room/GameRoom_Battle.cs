@@ -80,7 +80,7 @@ public partial class GameRoom
         }
     }
     
-    public void HandleSpawn(Player? player, C_Spawn spawnPacket)
+    public void HandleSpawn(Player? player, C_Spawn spawnPacket) // 클라이언트의 요청으로 Spawn되는 경우
     {
         if (player == null) return;
         GameObjectType type = spawnPacket.Type;
@@ -89,6 +89,10 @@ public partial class GameRoom
         {
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
+                bool lackOfTowerCost = VerifyResourceForTower(player, spawnPacket.Num);
+                bool lackOfTowerCapacity = VerifyCapacityForTower(player, spawnPacket.Num, spawnPacket.Way);
+                Console.WriteLine(spawnPacket.Way);
+                if (lackOfTowerCost || lackOfTowerCapacity) return;
                 var tower = EnterTower(spawnPacket.Num, spawnPacket.PosInfo, player);
                 if (spawnPacket.Register) RegisterTower(tower);
                 Push(EnterGame, tower);
@@ -102,6 +106,9 @@ public partial class GameRoom
             
             case GameObjectType.MonsterStatue:
                 if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                bool lackOfMonsterCost = VerifyResourceForMonster(player, spawnPacket.Num);
+                bool lackOfMonsterCapacity = VerifyCapacityForMonster(player, spawnPacket.Num, spawnPacket.Way);
+                if (lackOfMonsterCost || lackOfMonsterCapacity) return;
                 MonsterStatue monsterStatue = EnterMonsterStatue(spawnPacket.Num, spawnPacket.PosInfo, player);
                 RegisterMonsterStatue(monsterStatue);
                 Push(EnterGame, monsterStatue);
@@ -255,15 +262,32 @@ public partial class GameRoom
     {
         if (player == null) return;
         
-        Skill skill = upgradePacket.Skill;
-        bool canUpgrade = CanUpgradeSkill(player, skill);
-        if (canUpgrade == false)
+        var skill = upgradePacket.Skill;
+        // 테스트 (스킬 업그레이드 무료, 트리 무시)
+        bool lackOfSkill = false;
+        bool lackOfCost = false;
+        
+        // 실제 환경
+        lackOfSkill = VerifySkillTree(player, skill);
+        lackOfCost = VerifyResourceForSkill(player, skill);
+        
+        if (lackOfSkill)
         {
-            // Client에 메시지 전달 -> "cost가 부족합니다"
+            var warningMsg = "선행스킬이 부족합니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
             return;
         }
         
-        if (Enum.IsDefined(typeof(Skill), skill.ToString()))
+        if (lackOfCost)
+        {
+            var warningMsg = "골드가 부족합니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return;
+        }
+        
+        if (Enum.IsDefined(typeof(Skill), skill.ToString())) 
             player.SkillSubject.SkillUpgraded(skill);
         else ProcessingBaseSkill(player);
         
@@ -305,11 +329,13 @@ public partial class GameRoom
     {
         if (player == null) return;
         
-        bool canUpgrade = true;
+        bool lackOfCost = false;
         
-        if (canUpgrade == false)
+        // 실제 환경
+        
+        if (lackOfCost)
         {
-            // Client에 메시지 전달 -> cost 부족
+            
         }
         else
         {
@@ -331,7 +357,7 @@ public partial class GameRoom
                 
                 Push(EnterGame, tower);
                 UpgradeTower(t, tower);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id});
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
             }
             else if (go.ObjectType == GameObjectType.Monster)
             {
@@ -350,7 +376,7 @@ public partial class GameRoom
                 
                 Push(EnterGame, monsterStatue);
                 UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id });
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = monsterId });
             }
             else if (go.ObjectType == GameObjectType.MonsterStatue)
             {
@@ -366,9 +392,18 @@ public partial class GameRoom
                 
                 Push(EnterGame, monsterStatue);
                 UpgradeMonsterStatue(ms, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id });
+                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = monsterId });
             }
         }
+    }
+
+    public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
+    {
+        DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
+        if (skillData == null) return;
+        SkillInfo skillInfo = new() { Explanation = skillData.explanation, Cost = skillData.cost };
+        S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
+        player?.Session.Send(popupPacket);
     }
     
     public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)
