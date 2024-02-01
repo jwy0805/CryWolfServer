@@ -92,7 +92,7 @@ public class TargetDummy : PracticeDummy
     public override void RunSkill()
     {
         base.RunSkill();
-        if (_heal == true)
+        if (_heal)
         {
             Hp += (int)(MaxHp * HealParam);
         }

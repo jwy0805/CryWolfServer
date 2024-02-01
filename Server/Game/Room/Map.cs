@@ -314,6 +314,11 @@ public partial class Map
         // 예외처리
         if (atanList.Count == 0) atanList.Add(arctan[^1]);
         destList.Add(path.Count != 0 ? path[^1] : go.CellPos);
+        
+        // 예외 2 - 나중에 바꿔야함
+        int diff = destList.Count - atanList.Count;
+        for (int i = 0 ; i < diff; i++) atanList.Add(0);
+        
         return (path, destList, atanList);
     }
 

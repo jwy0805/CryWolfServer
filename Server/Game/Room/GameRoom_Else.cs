@@ -9,8 +9,6 @@ public partial class GameRoom
 {
     private void BaseInit()
     {
-        StorageLevel = 1;
-
         // Spawn Rock Pile
         Vector3[] portalPos = GameData.SpawnerPos;
 
@@ -34,13 +32,16 @@ public partial class GameRoom
     public void InfoInit()
     {
         GameInfo = new GameInfo(_players);
+        StorageLevel = 1;
         foreach (var player in _players.Values)
         {
             if (player.Camp == Camp.Sheep)
             {
+                EnterSheepByServer(player);
+                EnterSheepByServer(player);
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.Sheep, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxTower, Max = true });
@@ -50,7 +51,7 @@ public partial class GameRoom
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.WolfResource, Max = false});
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.Sheep, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
@@ -68,7 +69,7 @@ public partial class GameRoom
         switch (gameObject.ObjectType)
         {
             case GameObjectType.Monster:
-                if (ReachableInFence())
+                if (ReachableInFence(gameObject))
                 {
                     targetType = new List<GameObjectType>
                         { GameObjectType.Fence, GameObjectType.Tower, GameObjectType.Sheep };
@@ -104,7 +105,7 @@ public partial class GameRoom
             }
         }
 
-        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence())
+        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence(gameObject))
         {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
             List<int> keysToRemove = new List<int>();
             if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
@@ -163,7 +164,7 @@ public partial class GameRoom
             }
         }
 
-        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence())
+        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence(gameObject))
         {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
             List<int> keysToRemove = new List<int>();
             if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
@@ -484,9 +485,18 @@ public partial class GameRoom
         return insideX && insideZ;
     }
 
-    private bool ReachableInFence()
+    private bool ReachableInFence(GameObject go)
     {
-        return _fences.Count < GameData.NorthFenceMax;
+        if (go.Way == SpawnWay.North)
+        {
+            if (GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt) return true;
+        }
+        else
+        {
+            if (GameInfo.SouthFenceCnt < GameInfo.SouthMaxFenceCnt) return true;
+        }
+
+        return false;
     }
 
     private bool CanUpgradeTower(Player player, TowerId towerId)
@@ -497,10 +507,5 @@ public partial class GameRoom
     private bool CanUpgradeMonster(Player player, MonsterId monsterId)
     {
         return true;
-    }
-    
-    private void ProcessingBaseSkill(Player player)
-    {
-        
     }
 }

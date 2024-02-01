@@ -116,6 +116,16 @@ public class PacketHandler
         room?.Push(room.HandleSkill, player, skillPacket);
     }
 
+    public static void C_BaseSkillRunHandler(PacketSession session, IMessage packet)
+    {
+        var skillPacket = (C_BaseSkillRun)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleBaseSkillRun, player, skillPacket);
+    }
+    
     public static void C_SkillUpgradeHandler(PacketSession session, IMessage packet)
     {
         var upgradePacket = (C_SkillUpgrade)packet;

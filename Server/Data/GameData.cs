@@ -75,7 +75,6 @@ public class GameData
     #region GameInfo
 
     public static readonly long RoundTime = 20000;
-    public static int StorageLevel = 0;
     public static int[] StorageLvUpCost = { 0, 600, 2000 };
     
     #endregion

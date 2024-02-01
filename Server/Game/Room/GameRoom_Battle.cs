@@ -16,13 +16,39 @@ public partial class GameRoom
         set
         {
             _storageLevel = value;
-            if (_storageLevel > 3) _storageLevel = 3;
-            GameData.StorageLevel = _storageLevel;
+            if (_storageLevel > GameInfo.MaxStorageLevel)
+            {
+                _storageLevel = GameInfo.MaxStorageLevel;
+                return;
+            }
+            GameInfo.StorageLevel = _storageLevel;
+            
+            // 인구수 증가
+            if (_storageLevel == 1)
+            {
+                GameInfo.MaxSheep = 5;
+                GameInfo.NorthMaxTower = 6;
+                GameInfo.SouthMaxTower = 6;
+            }
+            else if (_storageLevel == 2)
+            {
+                GameInfo.MaxSheep = 8;
+                GameInfo.NorthMaxTower = 9;
+                GameInfo.SouthMaxTower = 9;
+                GameInfo.SheepYield += 20;
+            }
             
             // 울타리 생성
             if (_storageLevel != 1 && _fences.Count > 0)
             {
-                foreach (var fenceId in _fences.Keys) Push(LeaveGame, fenceId);
+                // 기존 울타리 삭제
+                List<int> deleteFences = _fences.Keys.ToList();
+                foreach (var fenceId in deleteFences)
+                {
+                    LeaveGame(fenceId);
+                    Broadcast(new S_Despawn { ObjectIds = { fenceId } });
+                }
+                _fences.Clear();
             }
             
             SpawnFence(_storageLevel);
@@ -91,7 +117,6 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
                 bool lackOfTowerCost = VerifyResourceForTower(player, spawnPacket.Num);
                 bool lackOfTowerCapacity = VerifyCapacityForTower(player, spawnPacket.Num, spawnPacket.Way);
-                Console.WriteLine(spawnPacket.Way);
                 if (lackOfTowerCost || lackOfTowerCapacity) return;
                 var tower = EnterTower(spawnPacket.Num, spawnPacket.PosInfo, player);
                 if (spawnPacket.Register) RegisterTower(tower);
@@ -115,13 +140,9 @@ public partial class GameRoom
                 break;
             
             case GameObjectType.Sheep:
-                Sheep sheep = ObjectManager.Instance.Add<Sheep>();
-                sheep.PosInfo = spawnPacket.PosInfo;
-                sheep.Info.PosInfo = sheep.PosInfo;
-                sheep.Player = player;
-                sheep.Init();
-                sheep.CellPos = Map.FindSpawnPos(sheep);
+                var sheep = EnterSheep(player);
                 Push(EnterGame, sheep);
+                GameInfo.SheepCount++;
                 break;
             
             case GameObjectType.Effect:
@@ -257,19 +278,51 @@ public partial class GameRoom
         creature?.RunSkill();
         creature?.SetNextState();
     }
+    
+    public void HandleBaseSkillRun(Player? player, C_BaseSkillRun skillPacket)
+    {
+        if (player == null) return;
+        var skill = skillPacket.Skill;
+
+        switch (skill)
+        {
+            case Skill.FenceRepair:
+                FenceRepair();
+                break;
+            
+            case Skill.StorageLvUp:
+                StorageLevel = 2;
+                break;
+            
+            case Skill.GoldIncrease:
+                GameInfo.SheepYield *= 2;
+                break;
+            
+            case Skill.SheepHealth:
+                foreach (var sheep in _sheeps.Values)
+                {
+                    sheep.MaxHp *= 2;
+                    sheep.Hp += sheep.MaxHp / 2;
+                }
+                break;
+            
+            case Skill.SheepIncrease:
+                
+                break;
+        }
+    }
 
     public void HandleSkillUpgrade(Player? player, C_SkillUpgrade upgradePacket)
     {
         if (player == null) return;
         
         var skill = upgradePacket.Skill;
-        // 테스트 (스킬 업그레이드 무료, 트리 무시)
         bool lackOfSkill = false;
         bool lackOfCost = false;
         
         // 실제 환경
         lackOfSkill = VerifySkillTree(player, skill);
-        lackOfCost = VerifyResourceForSkill(player, skill);
+        lackOfCost = VerifyResourceForSkill(skill);
         
         if (lackOfSkill)
         {
@@ -287,10 +340,7 @@ public partial class GameRoom
             return;
         }
         
-        if (Enum.IsDefined(typeof(Skill), skill.ToString())) 
-            player.SkillSubject.SkillUpgraded(skill);
-        else ProcessingBaseSkill(player);
-        
+        player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
@@ -335,7 +385,9 @@ public partial class GameRoom
         
         if (lackOfCost)
         {
-            
+            var warningMsg = "골드가 부족합니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
         }
         else
         {
@@ -399,9 +451,13 @@ public partial class GameRoom
 
     public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
     {
+        int skillId = packet.SkillId;
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
         if (skillData == null) return;
-        SkillInfo skillInfo = new() { Explanation = skillData.explanation, Cost = skillData.cost };
+
+        var skillInfo = skillId is >= 700 and < 900 
+            ? new SkillInfo {Explanation = skillData.explanation, Cost = CheckBaseSkillCost((Skill)skillId)} 
+            : new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player?.Session.Send(popupPacket);
     }

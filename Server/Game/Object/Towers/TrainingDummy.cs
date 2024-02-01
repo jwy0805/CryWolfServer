@@ -65,35 +65,5 @@ public class TrainingDummy : TargetDummy
         if (_debuffRemove == true) BuffManager.Instance.RemoveAllDebuff(this);
     }
 
-    public override void SetNextState()
-    {
-        if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
-        {
-            State = State.Idle;
-        }
-        else
-        {
-            if (Target.Hp > 0)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = State.Attack;
-                    SetDirection();
-                }
-                else
-                {
-                    State = State.Idle;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
-        }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
-    }
+
 }

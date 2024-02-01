@@ -121,18 +121,18 @@ public class Sheep : Creature, ISkillObserver
         
         switch (yield)
         {
-            case < 30:
+            case < 100:
                 resource = ObjectManager.Instance.CreateResource(ResourceId.CoinStarSilver);
                 break;
-            case < 100:
+            case < 10000:
                 resource = ObjectManager.Instance.CreateResource(ResourceId.CoinStarGolden);
                 break;
-            case < 200:
-                resource = ObjectManager.Instance.CreateResource(ResourceId.PouchGreen);
-                break;
-            case < 300:
-                resource = ObjectManager.Instance.CreateResource(ResourceId.PouchRed);
-                break;
+            // case < 200:
+            //     resource = ObjectManager.Instance.CreateResource(ResourceId.PouchGreen);
+            //     break;
+            // case < 300:
+            //     resource = ObjectManager.Instance.CreateResource(ResourceId.PouchRed);
+            //     break;
             default:
                 resource = ObjectManager.Instance.CreateResource(ResourceId.ChestGold);
                 break;

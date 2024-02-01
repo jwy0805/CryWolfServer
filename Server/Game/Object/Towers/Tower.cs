@@ -33,6 +33,7 @@ public class Tower : Creature, ISkillObserver
     {
         GameObject? target = Room?.FindNearestTarget(this);
         if (target == null) return;
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target ??= target;
         if (Target == null) return;
 

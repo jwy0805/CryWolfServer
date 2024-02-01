@@ -85,7 +85,7 @@ public class Program
     {
         ConfigManager.LoadConfig();
         DataManager.LoadData();
-        GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
+        // GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
         
         // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
         string host = Dns.GetHostName();
@@ -102,7 +102,7 @@ public class Program
             Console.WriteLine($"Listening... {endPoint}");
         }
         
-        StartServerInfoTask();
+        // StartServerInfoTask();
         
         Task gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
         gameLogicTask.Start();

@@ -39,55 +39,88 @@ public class PracticeDummy : Tower
 
     public override void Update()
     {
-        if (Room != null) Job = Room.PushAfter(CallCycle, Update);
         if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        Console.WriteLine(State.ToString());
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room!.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
         }
 
-        if (_aggro && Mp >= MaxMp)
+        switch (State)
         {
-            State = State.Skill;
-            BroadcastMove();
-            UpdateSkill();
-            Mp = 0;
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.Skill2:
+                UpdateSkill2();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
         }
-        else
-        {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
-        }
+
+        // if (_aggro && Mp >= MaxMp)
+        // {
+        //     State = State.Skill;
+        //     BroadcastMove();
+        //     UpdateSkill();
+        //     Mp = 0;
+        // }
+        // else
+        // {
+        //     switch (State)
+        //     {
+        //         case State.Die:
+        //             UpdateDie();
+        //             break;
+        //         case State.Moving:
+        //             UpdateMoving();
+        //             break;
+        //         case State.Idle:
+        //             UpdateIdle();
+        //             break;
+        //         case State.Rush:
+        //             UpdateRush();
+        //             break;
+        //         case State.Attack:
+        //             UpdateAttack();
+        //             break;
+        //         case State.Skill:
+        //             UpdateSkill();
+        //             break;
+        //         case State.Skill2:
+        //             UpdateSkill2();
+        //             break;
+        //         case State.KnockBack:
+        //             UpdateKnockBack();
+        //             break;
+        //         case State.Faint:
+        //             break;
+        //         case State.Standby:
+        //             break;
+        //     }
+        // }
     }
     
     public override void RunSkill()
@@ -101,11 +134,5 @@ public class PracticeDummy : Tower
         {
             BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 3000);
         }
-    }
-
-    public override void SetNextState()
-    {
-        State = State.Idle;
-        Room?.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

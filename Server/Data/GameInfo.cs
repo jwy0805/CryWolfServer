@@ -11,18 +11,27 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _southMaxTower = 6;
     private int _southTower = 0;
     private int _maxSheep = 5;
-    private int _sheep = 1;
+    private int _sheepCount = 0;
     private int _northMaxMonster = 6;
     private int _northMonster = 0;
     private int _southMaxMonster = 6;
     private int _southMonster = 0;
-    private int _sheepResource = 200;
+    private int _sheepResource = 2000;
     private int _wolfResource = 250;
+    public int SheepYield { get; set; } = 30;
+    public int NorthFenceCnt { get; set; } = 0;
+    public int SouthFenceCnt { get; set; } = 0;
+    public int NorthMaxFenceCnt { get; set; } = 8;
+    public int SouthMaxFenceCnt { get; set; } = 8;
     
     public GameInfo(Dictionary<int, Player> players)
     {
         _players = players;
     }
+    
+    public int MaxStorageLevel => 2;
+    public int StorageLevel { get; set; } = 0;
+    public int StorageLevelUpCost => 400;
     
     public int NorthMaxTower
     {
@@ -79,14 +88,14 @@ public class GameInfo // 한 판마다 초기화되는 정보
         }
     }
 
-    public int Sheep
+    public int SheepCount
     {
-        get => _sheep;
+        get => _sheepCount;
         set
         {
-            _sheep = value;
+            _sheepCount = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _sheep, Max = false});
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _sheepCount, Max = false});
         }
     } 
 
@@ -134,9 +143,6 @@ public class GameInfo // 한 판마다 초기화되는 정보
         }
     } 
 
-    public int NorthFenceCnt { get; set; } = 8;
-    public int SouthFenceCnt { get; set; } = 8;
-
     public int SheepResource
     {
         get => _sheepResource;
@@ -147,7 +153,6 @@ public class GameInfo // 한 판마다 초기화되는 정보
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource});
         }
     }
-    public int SheepYield { get; set; } = 20;
 
     public int WolfResource
     {
