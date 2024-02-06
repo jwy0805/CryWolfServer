@@ -26,8 +26,7 @@ public class Lurker : Monster
                     BroadcastHealth();
                     break;
                 case Skill.LurkerSpeed:
-                    MoveSpeed += 2f;
-                    TotalMoveSpeed += 2f;
+                    MoveSpeed += 0.5f;
                     break;
             }
         }

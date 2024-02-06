@@ -78,25 +78,114 @@ public class GameData
     public static int[] StorageLvUpCost = { 0, 600, 2000 };
     
     #endregion
-    
-    // public static readonly Dictionary<Define.Skill, int> SkillCost = new Dictionary<Define.Skill, int>()
-    // {
-    //     { Define.Skill.Bloom3Combo, 120 }
-    // };
-    //
-    // public static readonly Dictionary<Define.UnitId, int> UnitUpgradeCost = new Dictionary<Define.UnitId, int>()
-    // {
-    //     { Define.UnitId.Bud, 160 }, { Define.UnitId.Bloom, 430 },
-    //     { Define.UnitId.PracticeDummy, 200 }, { Define.UnitId.TargetDummy, 520 },
-    //     { Define.UnitId.SunBlossom, 250 }, { Define.UnitId.SunflowerFairy, 630 },
-    //     { Define.UnitId.MothLuna, 220 }, { Define.UnitId.MothMoon, 500 },
-    //     { Define.UnitId.Soul, 180 }, { Define.UnitId.Haunt, 640 },
-    //     { Define.UnitId.WolfPup, 150 }, { Define.UnitId.Wolf, 700 },
-    //     { Define.UnitId.Lurker, 240 }, { Define.UnitId.Creeper, 480 },
-    //     { Define.UnitId.Snakelet, 300 }, { Define.UnitId.Snake, 660 },
-    //     { Define.UnitId.MosquitoBug, 180 }, { Define.UnitId.MosquitoPester, 450 },
-    //     { Define.UnitId.Shell, 250 }, { Define.UnitId.Spike, 650 },
-    // };
+
+    public static readonly Dictionary<TowerId, Skill[]> OwnSkills = new()
+    {
+        {
+            TowerId.Bud, new[] { Skill.BudAttack, Skill.BudDouble, Skill.BudRange, Skill.BudSeed, Skill.BudAttackSpeed }
+        },
+        {
+            TowerId.Bloom,
+            new[]
+            {
+                Skill.Bloom3Combo, Skill.BloomAttack, Skill.BloomRange, Skill.BloomAirAttack, Skill.BloomAttackSpeed,
+                Skill.BloomAttackSpeed2
+            }
+        },
+        {
+            TowerId.Blossom,
+            new[]
+            {
+                Skill.BlossomAccuracy, Skill.BlossomAttack, Skill.BlossomDeath, Skill.BlossomPoison, Skill.BlossomRange,
+                Skill.BlossomAttackSpeed
+            }
+        },
+        {
+            TowerId.PracticeDummy,
+            new[]
+            {
+                Skill.PracticeDummyAggro, Skill.PracticeDummyDefence, Skill.PracticeDummyDefence2,
+                Skill.PracticeDummyHealth, Skill.PracticeDummyHealth2
+            }
+        },
+        {
+            TowerId.TargetDummy,
+            new[]
+            {
+                Skill.TargetDummyHeal, Skill.TargetDummyHealth, Skill.TargetDummyReflection,
+                Skill.TargetDummyFireResist, Skill.TargetDummyPoisonResist
+            }
+        },
+        {
+            TowerId.TrainingDummy,
+            new[]
+            {
+                Skill.TrainingDummyAggro, Skill.TrainingDummyDefence, Skill.TrainingDummyFaint, Skill.TrainingDummyHeal,
+                Skill.TrainingDummyHealth, Skill.TrainingDummyDebuffRemove, Skill.TrainingDummyFireResist,
+                Skill.TrainingDummyPoisonResist
+            }
+        },
+        {
+            TowerId.SunBlossom,
+            new[] { Skill.SunBlossomHeal, Skill.SunBlossomHealth, Skill.SunBlossomSlow, Skill.SunBlossomSlowAttack }
+        },
+        {
+            TowerId.SunflowerFairy,
+            new[]
+            {
+                Skill.SunflowerFairyAttack, Skill.SunflowerFairyDefence, Skill.SunflowerFairyDouble,
+                Skill.SunflowerFairyFenceHeal, Skill.SunflowerFairyMpDown
+            }
+        },
+        {
+            TowerId.SunfloraPixie,
+            new[]
+            {
+                Skill.SunfloraPixieAttack, Skill.SunfloraPixieCurse, Skill.SunfloraPixieFaint, Skill.SunfloraPixieHeal,
+                Skill.SunfloraPixieInvincible, Skill.SunfloraPixieRange, Skill.SunfloraPixieTriple,
+                Skill.SunfloraPixieAttackSpeed, Skill.SunfloraPixieDebuffRemove
+            }
+        },
+        {
+            TowerId.MothLuna,
+            new[] { Skill.MothLunaAccuracy, Skill.MothLunaAttack, Skill.MothLunaFaint, Skill.MothLunaSpeed }
+        },
+        {
+            TowerId.MothMoon,
+            new[]
+            {
+                Skill.MothMoonOutput, Skill.MothMoonRange, Skill.MothMoonAttackSpeed, Skill.MothMoonHealSheep,
+                Skill.MothMoonRemoveDebuffSheep
+            }
+        },
+        {
+            TowerId.MothCelestial,
+            new[]
+            {
+                Skill.MothCelestialAccuracy, Skill.MothCelestialPoison, Skill.MothCelestialBreedSheep,
+                Skill.MothCelestialFireResist, Skill.MothCelestialGroundAttack, Skill.MothCelestialPoisonResist,
+                Skill.MothCelestialSheepHealth
+            }
+        },
+        { TowerId.Soul, new[] { Skill.SoulAttack, Skill.SoulDefence, Skill.SoulDrain, Skill.SoulHealth } },
+        {
+            TowerId.Haunt,
+            new[]
+            {
+                Skill.HauntAttack, Skill.HauntFire, Skill.HauntAttackSpeed, Skill.HauntFireResist,
+                Skill.HauntLongAttack, Skill.HauntPoisonResist
+            }
+        },
+        {
+            TowerId.SoulMage,
+            new[]
+            {
+                Skill.SoulMageAvoid, Skill.SoulMageCritical, Skill.SoulMageTornado, Skill.SoulMageDebuffResist,
+                Skill.SoulMageDefenceAll, Skill.SoulMageFireDamage, Skill.SoulMageNatureAttack,
+                Skill.SoulMageShareDamage
+            }
+        },
+    };
     
     public static readonly Dictionary<Skill, Skill[]> SkillTree = new()
     {

@@ -345,17 +345,22 @@ public class GameObject : IGameObject
         {
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
             {
-                if (attacker.Parent != null) 
+                if (attacker.Parent != null)
+                {
                     attacker.Parent.Target = null;
+                    attacker.State = State.Idle;
+                    BroadcastMove();
+                }
             }
             attacker.Target = null;
+            attacker.State = State.Idle;
+            BroadcastMove();
         }
         
-        S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
         Room.Broadcast(diePacket);
-
-        GameRoom room = Room;
-        room.LeaveGame(Id);
+        Room.DieAndLeave(Id);
+        // Room.LeaveGame(Id);
     }
     
     public virtual void BroadcastMove()

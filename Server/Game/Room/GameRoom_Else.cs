@@ -126,7 +126,10 @@ public partial class GameRoom
             Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
             bool targetable = go.Stat.Targetable; 
             float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && go.Id != gameObject.Id && (go.UnitType == attackType || attackType == 2))
+            if (dist < closestDist && targetable 
+                                   && go.Id != gameObject.Id 
+                                   && (go.UnitType == attackType 
+                                       || attackType == 2))
             {
                 closestDist = dist;
                 target = go;
@@ -331,6 +334,14 @@ public partial class GameRoom
         return objectsInDist;
     }
 
+    public bool IsExistId(GameObject gameObject, int targetId)
+    {
+        return _towers.Keys.ToList().Contains(targetId) 
+               || _monsters.Keys.ToList().Contains(targetId) 
+               || _sheeps.Keys.ToList().Contains(targetId) 
+               || _fences.Keys.ToList().Contains(targetId);
+    }
+
     private PositionInfo FindMonsterSpawnPos(MonsterStatue statue)
     {
         PositionInfo posInfo = new PositionInfo()
@@ -497,15 +508,5 @@ public partial class GameRoom
         }
 
         return false;
-    }
-
-    private bool CanUpgradeTower(Player player, TowerId towerId)
-    {
-        return true;
-    }
-    
-    private bool CanUpgradeMonster(Player player, MonsterId monsterId)
-    {
-        return true;
     }
 }

@@ -31,10 +31,8 @@ public class Tower : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null) return;
+        Target = Room?.FindNearestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        Target ??= target;
         if (Target == null) return;
 
         StatInfo targetStat = Target.Stat;
@@ -54,7 +52,7 @@ public class Tower : Creature, ISkillObserver
 
     protected override void UpdateAttack()
     {
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
             BroadcastMove();

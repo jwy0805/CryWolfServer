@@ -283,22 +283,35 @@ public partial class GameRoom
     {
         if (player == null) return;
         var skill = skillPacket.Skill;
-
+        int cost = CheckBaseSkillCost(skill);
+        bool lackOfCost = GameInfo.SheepResource <= cost;
+        if (lackOfCost)
+        {
+            var warningMsg = "골드가 부족합니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return;
+        }
+        
         switch (skill)
         {
             case Skill.FenceRepair:
+                GameInfo.SheepResource -= cost;
                 FenceRepair();
                 break;
             
             case Skill.StorageLvUp:
+                GameInfo.SheepResource -= cost;
                 StorageLevel = 2;
                 break;
             
             case Skill.GoldIncrease:
+                GameInfo.SheepResource -= cost;
                 GameInfo.SheepYield *= 2;
                 break;
             
             case Skill.SheepHealth:
+                GameInfo.SheepResource -= cost;
                 foreach (var sheep in _sheeps.Values)
                 {
                     sheep.MaxHp *= 2;
@@ -307,7 +320,12 @@ public partial class GameRoom
                 break;
             
             case Skill.SheepIncrease:
-                
+                bool lackOfSheepCapacity = VerifyCapacityForSheep(player);
+                if (lackOfSheepCapacity == false)
+                {
+                    GameInfo.SheepResource -= cost;
+                    EnterSheepByServer(player);
+                }
                 break;
         }
     }
@@ -323,6 +341,14 @@ public partial class GameRoom
         // 실제 환경
         lackOfSkill = VerifySkillTree(player, skill);
         lackOfCost = VerifyResourceForSkill(skill);
+
+        if (player.SkillUpgradedList.Contains(skill))
+        {
+            var warningMsg = "이미 스킬을 배웠습니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return;
+        }
         
         if (lackOfSkill)
         {
@@ -331,7 +357,7 @@ public partial class GameRoom
             player.Session.Send(warningPacket);
             return;
         }
-        
+
         if (lackOfCost)
         {
             var warningMsg = "골드가 부족합니다.";
@@ -339,7 +365,9 @@ public partial class GameRoom
             player.Session.Send(warningPacket);
             return;
         }
-        
+
+
+
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
@@ -349,28 +377,32 @@ public partial class GameRoom
     {
         if (player == null) return;
 
-        bool canUpgrade = false;
+        bool lackOfGold = false;
         TowerId towerId = TowerId.UnknownTower;
         MonsterId monsterId = MonsterId.UnknownMonster;
         if (upgradePacket.MonsterId == MonsterId.UnknownMonster)
         {
             towerId = upgradePacket.TowerId;
-            canUpgrade = CanUpgradeTower(player, towerId);
+            lackOfGold = CheckUpgradeTowerPortrait(player, towerId);
         }
         else
         {
             monsterId = upgradePacket.MonsterId;
-            canUpgrade = CanUpgradeMonster(player, monsterId);
+            lackOfGold = CheckUpgradeMonsterPortrait(player, monsterId);
         }
         
-        if (canUpgrade == false)
+        if (lackOfGold == false)
         {
-            // Client에 메시지 전달 -> cost 부족
-        }
-        else
-        {
-            if (monsterId == MonsterId.UnknownMonster) towerId = (TowerId)((int)towerId + 1);
-            else monsterId = (MonsterId)((int)monsterId + 1);
+            if (monsterId == MonsterId.UnknownMonster)
+            {
+                towerId = (TowerId)((int)towerId + 1);
+                player.Portraits.Add((int)towerId);
+            }
+            else
+            {
+                monsterId = (MonsterId)((int)monsterId + 1);
+                player.Portraits.Add((int)monsterId);
+            }
             player.Session.Send(new S_PortraitUpgrade { TowerId = towerId, MonsterId = monsterId });
         }
     }
@@ -378,23 +410,24 @@ public partial class GameRoom
     public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
     {
         if (player == null) return;
-        
-        bool lackOfCost = false;
+        var go = FindGameObjectById(upgradePacket.ObjectId);
+        if (go is not Tower towerr) return;
         
         // 실제 환경
+        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)towerr.TowerId);
+        bool lackOfCost = VerifyUnitUpgradeCost(player, (int)towerr.TowerId);
         
-        if (lackOfCost)
+        if (lackOfUpgrade)
         {
-            var warningMsg = "골드가 부족합니다.";
-            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-            player.Session.Send(warningPacket);
+            return;
+        }
+        else if (lackOfCost)
+        {
+            return;
         }
         else
         {
-            var go = FindGameObjectById(upgradePacket.ObjectId);
-            if (go == null) return;
             int id = go.Id;
-
             if (go.ObjectType == GameObjectType.Tower)
             {
                 if (go is not Tower t) return;
@@ -460,6 +493,16 @@ public partial class GameRoom
             : new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player?.Session.Send(popupPacket);
+    }
+
+    public void HandleSetUpgradeButton(Player? player, C_SetUpgradeButton packet)
+    {
+        if (player == null) return;
+        var cost = player.Camp == Camp.Sheep 
+            ? VerifyUpgradeTowerPortrait(player, (TowerId)packet.UnitId) 
+            : VerifyUpgradeMonsterPortrait(player, (MonsterId)packet.UnitId);
+        S_SetUpgradeButton buttonPacket = new() { UnitId = packet.UnitId, Cost = cost };
+        player.Session.Send(buttonPacket);
     }
     
     public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)

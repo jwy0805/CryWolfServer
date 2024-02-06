@@ -1,5 +1,4 @@
 using Google.Protobuf.Protocol;
-using Microsoft.VisualBasic.CompilerServices;
 using Server.Data;
 
 namespace Server.Game;
@@ -40,6 +39,48 @@ public partial class GameRoom
         return false;
     }
 
+    private bool CheckUpgradeTowerPortrait(Player player, TowerId towerId)
+    {
+        int resource = GameInfo.SheepResource;
+        int cost = VerifyUpgradeTowerPortrait(player, towerId);
+
+        if (resource < cost)
+        {
+            var warningMsg = "골드가 부족합니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return true;
+        }
+
+        GameInfo.SheepResource -= cost;
+        return false;
+    }
+
+    private int VerifyUpgradeTowerPortrait(Player player, TowerId towerId)
+    {
+        GameData.OwnSkills.TryGetValue(towerId, out var skills);
+        if (skills == null) return 100000;
+        int cost = 0;
+        foreach (var skill in skills)
+        {
+            if (player.SkillUpgradedList.Contains(skill)) continue;
+            if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
+            cost += skillData.cost;
+        }
+        
+        return cost;
+    }
+    
+    private bool CheckUpgradeMonsterPortrait(Player player, MonsterId monsterId)
+    {
+        return true;
+    }
+    
+    private int VerifyUpgradeMonsterPortrait(Player player, MonsterId monsterId)
+    {
+        return 0;
+    }
+    
     private bool VerifyCapacityForTower(Player player, int towerId, SpawnWay way)
     {
         if (!DataManager.TowerDict.TryGetValue(towerId, out _)) return true;
@@ -65,6 +106,19 @@ public partial class GameRoom
             return true;
         } 
         
+        return false;
+    }
+
+    private bool VerifyCapacityForSheep(Player player)
+    {
+        if (GameInfo.SheepCount >= GameInfo.MaxSheep)
+        {
+            var warningMsg = "인구수를 초과했습니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return true;
+        }
+
         return false;
     }
     
@@ -99,9 +153,8 @@ public partial class GameRoom
     private bool VerifyResourceForSkill(Skill skill)
     {
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
-        int resource = GameInfo.SheepResource;
         int cost = skillData.cost;
-        if (resource <= cost) return true;
+        if (GameInfo.SheepResource < cost) return true;
         GameInfo.SheepResource -= cost;
         return false;
     }
@@ -162,7 +215,48 @@ public partial class GameRoom
             foreach (var fence in _fences)
             {
                 fence.Value.Hp = fence.Value.MaxHp;
+                Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
             }
         }
+    }
+
+    private bool VerifyUnitUpgrade(Player player, int towerId)
+    {
+        if (player.Portraits.Contains(towerId + 1)) return false;
+        var warningMsg = "먼저 진화가 필요합니다.";
+        S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+        player.Session.Send(warningPacket);
+        return true;
+    }
+
+    private bool VerifyUnitUpgradeCost(Player player, int towerId)
+    {
+        int cost = 0;
+        int cost1 = 0;
+        int cost2 = 0;
+        if (DataManager.TowerDict.TryGetValue(towerId, out var towerData)) cost1 = towerData.stat.RequiredResources;
+        if (DataManager.TowerDict.TryGetValue(towerId + 1, out var towerData2))
+        {
+            cost2 = towerData2.stat.RequiredResources;
+            cost = cost2 - cost1;
+        }
+        else
+        {
+            var warningMsg = "더 이상 진화할 수 없습니다.";
+            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+            player.Session.Send(warningPacket);
+            return true;
+        }
+
+        if (cost <= GameInfo.SheepResource)
+        {
+            GameInfo.SheepResource -= cost;
+            return false;
+        }
+        
+        var warningMsg2 = "골드가 부족합니다.";
+        S_SendWarningInGame warningPacket2 = new() { Warning = warningMsg2 };
+        player.Session.Send(warningPacket2);
+        return true;
     }
 }

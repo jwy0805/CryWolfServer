@@ -24,12 +24,10 @@ public class Creeper : Lurker
                     TotalAttack += 10;
                     break;
                 case Skill.CreeperSpeed:
-                    MoveSpeed += 2.5f;
-                    TotalMoveSpeed += 2.5f;
+                    MoveSpeed += 0.5f;
                     break;
                 case Skill.CreeperAttackSpeed:
                     AttackSpeed += 0.15f;
-                    TotalAttackSpeed += 0.15f;
                     break;
                 case Skill.CreeperRoll:
                     _roll = true;

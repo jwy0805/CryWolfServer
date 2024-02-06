@@ -36,13 +36,10 @@ public class Soul : Tower
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null) return;
-        DestPos = Room!.Map.GetClosestPoint(CellPos, target);
+        Target = Room?.FindNearestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        
-        if (Target == null) Target = target;
-        else DestPos = Room!.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
+        if (Target == null) return;
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
         BroadcastDest();

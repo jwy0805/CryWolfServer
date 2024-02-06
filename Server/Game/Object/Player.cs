@@ -8,6 +8,7 @@ public class Player : GameObject
     public int PlayerNo;
     public List<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public SkillSubject SkillSubject = new();
+    public List<int> Portraits = new ();
     public Camp Camp { get; set; }
     
     public ClientSession Session { get; set; }

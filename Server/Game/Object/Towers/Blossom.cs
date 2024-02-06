@@ -46,10 +46,9 @@ public class Blossom : Bloom
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null) return;
+        Target = Room?.FindNearestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        Target ??= target;
+        if (Target == null) return;
 
         StatInfo targetStat = Target.Stat;
         if (targetStat.Targetable)

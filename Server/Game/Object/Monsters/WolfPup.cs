@@ -21,7 +21,7 @@ public class WolfPup : Monster
                     BroadcastHealth();
                     break;
                 case Skill.WolfPupSpeed:
-                    MoveSpeed += 1.0f;
+                    MoveSpeed += 0.5f;
                     break;
                 case Skill.WolfPupAttackSpeed:
                     AttackSpeed += 0.1f;

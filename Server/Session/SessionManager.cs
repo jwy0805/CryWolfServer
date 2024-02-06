@@ -41,10 +41,10 @@ public class SessionManager
         {
             int sessionId = ++_sessionId;
             ClientSession session = new ClientSession { SessionId = sessionId };
-            GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
             _sessions.Add(sessionId, session);
 
             Console.WriteLine($"Connected : {sessionId}");
+            GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
 
             return session;
         }

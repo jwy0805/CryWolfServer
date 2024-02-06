@@ -46,9 +46,8 @@ public class Bloom : Bud
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this);
-        if (target == null) return;
-        Target ??= target;
+        Target = Room?.FindNearestTarget(this);
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
 
         StatInfo targetStat = Target.Stat;

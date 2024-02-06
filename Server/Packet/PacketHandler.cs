@@ -242,4 +242,14 @@ public class PacketHandler
         
         room?.Push(room.HandleSetUpgradePopup, player, popupPacket);
     }
+
+    public static void C_SetUpgradeButtonHandler(PacketSession session, IMessage packet)
+    {
+        var buttonPacket = (C_SetUpgradeButton)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleSetUpgradeButton, player, buttonPacket);
+    }
 }

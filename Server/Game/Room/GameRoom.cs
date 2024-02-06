@@ -36,7 +36,9 @@ public partial class GameRoom : JobSerializer
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
-    
+
+
+    public int Round => _round;
     public int RoomId { get; set; }
     public Map Map { get; private set; } = new();
     
@@ -79,21 +81,20 @@ public partial class GameRoom : JobSerializer
     private void SetTimeAndRound()
     {
         long time = Stopwatch.ElapsedMilliseconds;
-        if (time < _timeSendTime + _interval || time < 10000) return;
+        if (time < _timeSendTime + _interval || time < 1000) return;
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
         // Tutorial
-        if (_roundTime < 10 && _tutorialSet == false)
-        {
-            SetTutorialRound(_round);
-            _tutorialSet = true;
-        }
-        // Tutorial
+        // if (_roundTime < 10 && _tutorialSet == false)
+        // {
+        //     SetTutorialRound(_round);
+        //     _tutorialSet = true;
+        // }
         
         if (_roundTime < 0) 
         {
-            _roundTime = 19;
+            _roundTime = 24;
             _round++;
             _tutorialSet = false;
             T_SpawnMonstersInNewRound();
@@ -272,6 +273,33 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void DieAndLeave(int objectId)
+    {
+        GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
+
+        switch (type)   
+        {
+            case GameObjectType.Monster:
+                if (_monsters.Remove(objectId, out var monster) == false) return;
+                Map.ApplyLeave(monster);
+                monster.Room = null;
+                break;
+            
+            case GameObjectType.Tower:
+                if (_towers.Remove(objectId, out var tower) == false) return;
+                Map.ApplyLeave(tower);
+                tower.Room = null;
+                break;
+            
+            case GameObjectType.Sheep:
+                if (_sheeps.Remove(objectId, out var sheep) == false) return;
+                Map.ApplyLeave(sheep);
+                sheep.Room = null;
+                break;
+            default: return;
+        }
+    }
+    
     public void LeaveGame(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);

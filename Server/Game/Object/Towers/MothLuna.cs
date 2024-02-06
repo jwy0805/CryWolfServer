@@ -38,9 +38,7 @@ public class MothLuna : Tower
     
     protected override void UpdateIdle()
     {
-        GameObject? target = Room.FindMosquitoInFence();
-        if (target == null) return;
-        Target ??= target;
+        Target = Room?.FindMosquitoInFence();
         if (Target is { Targetable: true })
         {
             DestPos = Target.CellPos;

@@ -7,9 +7,16 @@ namespace Server.Game;
 
 public partial class GameRoom 
 {
-    private void RegisterTower(Tower tower) 
+    private void RegisterTower(Tower tower)
     {
-        TowerSlot towerSlot = new(tower.TowerId, tower.Way, tower.Id);
+        PositionInfo posInfo = new PositionInfo
+        {
+            PosX = tower.PosInfo.PosX,
+            PosY = tower.PosInfo.PosY,
+            PosZ = tower.PosInfo.PosZ,
+            State = State.Idle
+        };
+        TowerSlot towerSlot = new(tower.TowerId, posInfo, tower.Way, tower.Id);
         
         if (towerSlot.Way == SpawnWay.North)
         {
@@ -59,17 +66,48 @@ public partial class GameRoom
 
     private void UpgradeTower(Tower oldTower, Tower newTower)
     {
-        TowerSlot newTowerSlot = new(newTower.TowerId, newTower.Way, newTower.Id);
+        TowerSlot newTowerSlot = new(newTower.TowerId, newTower.PosInfo, newTower.Way, newTower.Id);
 
         if (newTower.Way == SpawnWay.North)
         {
             int index = _northTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-            _northTowers[index] = newTowerSlot;
+            if (index != -1)
+            {
+                _northTowers[index] = newTowerSlot;
+            }
+            else
+            {
+                int index2 = _southTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
+                if (index2 == -1)
+                {
+                    var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
+                    S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(warningPacket);
+                    return;
+                }
+
+                _southTowers[index2] = newTowerSlot;
+            }
         }
         else
         {
             int index = _southTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-            _southTowers[index] = newTowerSlot;
+            if (index != -1)
+            {
+                _southTowers[index] = newTowerSlot;
+            }
+            else
+            {
+                int index2 = _northTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
+                if (index2 == -1)
+                {
+                    var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
+                    S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
+                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(warningPacket);
+                    return;
+                }
+                _northTowers[index2] = newTowerSlot;
+            }
         }
     }
     
@@ -150,21 +188,45 @@ public partial class GameRoom
 
     private void SpawnTowersInNewRound()
     {
+        // YieldCoin
+        foreach (var sheep in _sheeps.Values)
+        {
+            if (sheep.YieldStop == false)
+            {
+                sheep.YieldCoin(GameInfo.SheepYield + sheep.YieldIncrement - sheep.YieldDecrement);
+                sheep.YieldIncrement = 0;
+                sheep.YieldDecrement = 0;
+            }
+            
+            sheep.YieldStop = false;
+        }
+        
         List<TowerSlot> slots = _northTowers.Concat(_southTowers).ToList();
 
+        // Spawn Towers
         foreach (var slot in slots)
         {
             var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-            if (slot.ObjectId == 0) continue;
+            // if (slot.ObjectId == 0) continue;
             var gameObject = FindGameObjectById(slot.ObjectId);
-            if (gameObject == null)
+            if (gameObject == null || gameObject.Id == 0)
             {
-                // Create New Tower
+                var tower = EnterTower((int)slot.TowerId, slot.PosInfo, player);
+                RenewTowerSlot(slot, tower);
+                Push(EnterGame, tower);
             }
             else
             {
                 gameObject.Hp = gameObject.MaxHp;
+                Broadcast(new S_ChangeHp { ObjectId = gameObject.Id, Hp = gameObject.Hp });
             }
+        }
+        
+        // Reset State
+        foreach (var tower in _towers.Values)
+        {
+            tower.State = State.Idle;
+            Broadcast(new S_State { ObjectId = tower.Id, State = State.Idle });
         }
     }
 

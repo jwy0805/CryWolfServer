@@ -6,13 +6,15 @@ public partial class GameRoom : JobSerializer
 {
     private struct TowerSlot 
     {
-        public readonly TowerId TowerId;
-        public readonly SpawnWay Way;
-        public readonly int ObjectId;
+        public TowerId TowerId;
+        public PositionInfo PosInfo;
+        public SpawnWay Way;
+        public int ObjectId;
         
-        public TowerSlot(TowerId towerId, SpawnWay way, int objectId = 0)
+        public TowerSlot(TowerId towerId, PositionInfo positionInfo, SpawnWay way, int objectId = 0)
         {
             TowerId = towerId;
+            PosInfo = positionInfo;
             Way = way;
             ObjectId = objectId;
         }

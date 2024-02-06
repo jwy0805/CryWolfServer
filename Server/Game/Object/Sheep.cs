@@ -11,7 +11,6 @@ public class Sheep : Creature, ISkillObserver
     private long _lastSetDest = 0;
     private bool _idle = false;
     private long _idleTime;
-    private long _lastYieldTime = 0;
     private readonly float _infectionDist = 3f;
 
     public int YieldIncrement { get; set; }
@@ -38,19 +37,6 @@ public class Sheep : Creature, ISkillObserver
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room?.Stopwatch.ElapsedMilliseconds > _lastYieldTime + GameData.RoundTime)
-        {
-            if (YieldStop == false)
-            {
-                Resource = Room.GameInfo.SheepYield;
-                _lastYieldTime = Room.Stopwatch.ElapsedMilliseconds;
-                YieldCoin(Resource + YieldIncrement - YieldDecrement);
-                YieldIncrement = 0;
-                YieldDecrement = 0;
-            }
-
-            YieldStop = false;
-        }
         switch (State)
         {
             case State.Die:
@@ -114,7 +100,7 @@ public class Sheep : Creature, ISkillObserver
         }
     }
 
-    private void YieldCoin(int yield)
+    public void YieldCoin(int yield)
     {
         if (Room == null) return;
         Resource resource;
@@ -162,5 +148,11 @@ public class Sheep : Creature, ISkillObserver
         {
             foreach (var skill in SkillList) NewSkill = skill;
         }
+    }
+    
+    public override void OnDead(GameObject attacker)
+    {
+        Room!.GameInfo.SheepCount--;
+        base.OnDead(attacker);
     }
 }

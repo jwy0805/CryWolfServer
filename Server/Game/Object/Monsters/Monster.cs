@@ -20,6 +20,7 @@ public class Monster : Creature, ISkillObserver
     {
         DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
         Stat.MergeFrom(monsterData.stat);
+        Console.WriteLine($"{Id}, {MonsterId}");
         base.Init();
         Hp = MaxHp;
 
@@ -29,13 +30,10 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room.FindNearestTarget(this);
-        if (target == null) return;
-        DestPos = Room.Map.GetClosestPoint(CellPos, target);
-        LastSearch = Room.Stopwatch.Elapsed.Milliseconds;
-        
-        if (Target == null) Target = target;
-        else DestPos = Room.Map.GetClosestPoint(CellPos, Target.Id != target.Id ? target : Target);
+        Target = Room?.FindNearestTarget(this);
+        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
+        if (Target == null) return;
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();

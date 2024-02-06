@@ -66,7 +66,9 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CDeleteUnit, MakePacket<C_DeleteUnit>);
 		_handler.Add((ushort)MessageId.CDeleteUnit, PacketHandler.C_DeleteUnitHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUpgradePopup, MakePacket<C_SetUpgradePopup>);
-		_handler.Add((ushort)MessageId.CSetUpgradePopup, PacketHandler.C_SetUpgradePopupHandler);
+		_handler.Add((ushort)MessageId.CSetUpgradePopup, PacketHandler.C_SetUpgradePopupHandler);		
+		_onRecv.Add((ushort)MessageId.CSetUpgradeButton, MakePacket<C_SetUpgradeButton>);
+		_handler.Add((ushort)MessageId.CSetUpgradeButton, PacketHandler.C_SetUpgradeButtonHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)
