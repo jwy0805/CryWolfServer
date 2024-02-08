@@ -10,12 +10,12 @@ public class GameData
     // 불변
     public static readonly float GroundHeight = 6.0f;
     public static readonly float AirHeight = 9.0f;
-    public static Vector3 Center = new(25.0f, 6.0f, 60.0f); // Center of the Map
+    public static Vector3 Center = new(0.0f, 6.0f, 0.0f); // Center of the Map
     public static readonly int[] ZCoordinatesOfMap = { 112, 84, 52, 20, 0, -20, -52, -84, -112 }; // Vector2Int, Vector3 * 4
     
     public static Vector3[] SpawnerPos { get; set; } = {
-        new(25.0f, 6.0f, 90.0f), // North
-        new(25.0f, 6.0f, 30.0f) // South
+        new(0.0f, 6.0f, 30.0f), // North
+        new(0.0f, 6.0f, -30.0f) // South
     };
     
     #region FenceData
@@ -23,8 +23,8 @@ public class GameData
     public static readonly string[] FenceName = { "", "FenceLv1", "FenceLv2", "FenceLv3" };
     public static readonly int NorthFenceMax = 8;
     public static readonly int SouthFenceMax = 8;
-    public static readonly Vector3 FenceStartPos = new(18, 6, 30);
-    public static readonly Vector3 FenceCenter = new(25, 6, 60);
+    public static readonly Vector3 FenceStartPos = new(-7, 6, -5);
+    public static readonly Vector3 FenceCenter = new(0, 6, 0);
     public static readonly Vector3 FenceSize = new(12, 6, 10);
     
     public static readonly List<Vector3> FenceBounds = new()
