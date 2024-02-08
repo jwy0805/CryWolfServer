@@ -287,9 +287,7 @@ public partial class GameRoom
         bool lackOfCost = GameInfo.SheepResource <= cost;
         if (lackOfCost)
         {
-            var warningMsg = "골드가 부족합니다.";
-            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-            player.Session.Send(warningPacket);
+            SendWarningMessage(player, "골드가 부족합니다.");
             return;
         }
         
@@ -297,7 +295,7 @@ public partial class GameRoom
         {
             case Skill.FenceRepair:
                 GameInfo.SheepResource -= cost;
-                FenceRepair();
+                FenceRepair(player);
                 break;
             
             case Skill.StorageLvUp:
@@ -320,11 +318,15 @@ public partial class GameRoom
                 break;
             
             case Skill.SheepIncrease:
-                bool lackOfSheepCapacity = VerifyCapacityForSheep(player);
+                bool lackOfSheepCapacity = GameInfo.SheepCount >= GameInfo.MaxSheep;
                 if (lackOfSheepCapacity == false)
                 {
                     GameInfo.SheepResource -= cost;
                     EnterSheepByServer(player);
+                }
+                else
+                {
+                    SendWarningMessage(player, "인구수를 초과했습니다.");
                 }
                 break;
         }
@@ -344,25 +346,19 @@ public partial class GameRoom
 
         if (player.SkillUpgradedList.Contains(skill))
         {
-            var warningMsg = "이미 스킬을 배웠습니다.";
-            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-            player.Session.Send(warningPacket);
+            SendWarningMessage(player, "이미 스킬을 배웠습니다.");
             return;
         }
         
         if (lackOfSkill)
         {
-            var warningMsg = "선행스킬이 부족합니다.";
-            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-            player.Session.Send(warningPacket);
+            SendWarningMessage(player, "선행 스킬이 부족합니다.");
             return;
         }
 
         if (lackOfCost)
         {
-            var warningMsg = "골드가 부족합니다.";
-            S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-            player.Session.Send(warningPacket);
+            SendWarningMessage(player, "골드가 부족합니다.");
             return;
         }
 
@@ -383,12 +379,12 @@ public partial class GameRoom
         if (upgradePacket.MonsterId == MonsterId.UnknownMonster)
         {
             towerId = upgradePacket.TowerId;
-            lackOfGold = CheckUpgradeTowerPortrait(player, towerId);
+            lackOfGold = CalcUpgradeTowerPortrait(player, towerId);
         }
         else
         {
             monsterId = upgradePacket.MonsterId;
-            lackOfGold = CheckUpgradeMonsterPortrait(player, monsterId);
+            lackOfGold = CalcUpgradeMonsterPortrait(player, monsterId);
         }
         
         if (lackOfGold == false)
@@ -405,6 +401,10 @@ public partial class GameRoom
             }
             player.Session.Send(new S_PortraitUpgrade { TowerId = towerId, MonsterId = monsterId });
         }
+        else
+        {
+            SendWarningMessage(player, "골드가 부족합니다.");
+        }
     }
 
     public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
@@ -414,71 +414,79 @@ public partial class GameRoom
         if (go is not Tower towerr) return;
         
         // 실제 환경
+        bool evolutionEnded = !DataManager.TowerDict.TryGetValue((int)towerr.TowerId+ 1, out _);
         bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)towerr.TowerId);
-        bool lackOfCost = VerifyUnitUpgradeCost(player, (int)towerr.TowerId);
+        bool lackOfCost = VerifyUnitUpgradeCost((int)towerr.TowerId);
         
+        if (evolutionEnded)
+        {
+            SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+            return;
+        }
+
         if (lackOfUpgrade)
         {
+            SendWarningMessage(player, "먼저 진화가 필요합니다.");
             return;
         }
-        else if (lackOfCost)
+
+        if (lackOfCost)
         {
+            SendWarningMessage(player, "골드가 부족합니다.");
             return;
         }
-        else
+
+        int id = go.Id;
+        if (go.ObjectType == GameObjectType.Tower)
         {
-            int id = go.Id;
-            if (go.ObjectType == GameObjectType.Tower)
+            if (go is not Tower t) return;
+            PositionInfo newTowerPos = new()
             {
-                if (go is not Tower t) return;
-                PositionInfo newTowerPos = new()
-                {
-                    PosX = t.PosInfo.PosX, PosY = t.PosInfo.PosY, PosZ = t.PosInfo.PosZ, State = State.Idle
-                };
-                LeaveGame(id);
-                Broadcast(new S_Despawn { ObjectIds = { id } });
-                int towerId = (int)t.TowerId + 1;
-                Tower tower = EnterTower(towerId, newTowerPos, player);
-                
-                Push(EnterGame, tower);
-                UpgradeTower(t, tower);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
-            }
-            else if (go.ObjectType == GameObjectType.Monster)
+                PosX = t.PosInfo.PosX, PosY = t.PosInfo.PosY, PosZ = t.PosInfo.PosZ, State = State.Idle
+            };
+            LeaveGame(id);
+            Broadcast(new S_Despawn { ObjectIds = { id } });
+            int towerId = (int)t.TowerId + 1;
+            Tower tower = EnterTower(towerId, newTowerPos, player);
+
+            Push(EnterGame, tower);
+            UpgradeTower(t, tower);
+            player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
+        }
+        else if (go.ObjectType == GameObjectType.Monster)
+        {
+            if (go is not Monster m) return;
+            int statueId = m.StatueId;
+            var statue = FindGameObjectById(statueId);
+            if (statue == null) return;
+            PositionInfo newStatuePos = new()
             {
-                if (go is not Monster m) return;
-                int statueId = m.StatueId;
-                var statue = FindGameObjectById(statueId);
-                if (statue == null) return;
-                PositionInfo newStatuePos = new()
-                {
-                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
-                };
-                LeaveGame(statueId);
-                Broadcast(new S_Despawn { ObjectIds = { statueId } });
-                int monsterId = (int)m.MonsterId + 1;
-                MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
-                
-                Push(EnterGame, monsterStatue);
-                UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = monsterId });
-            }
-            else if (go.ObjectType == GameObjectType.MonsterStatue)
+                PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
+            };
+            LeaveGame(statueId);
+            Broadcast(new S_Despawn { ObjectIds = { statueId } });
+            int monsterId = (int)m.MonsterId + 1;
+            MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+
+            Push(EnterGame, monsterStatue);
+            UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
+            player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = monsterId });
+        }
+        else if (go.ObjectType == GameObjectType.MonsterStatue)
+        {
+            if (go is not MonsterStatue ms) return;
+            PositionInfo newStatuePos = new()
             {
-                if (go is not MonsterStatue ms) return;
-                PositionInfo newStatuePos = new()
-                {
-                    PosX = ms.PosInfo.PosX, PosY = ms.PosInfo.PosY, PosZ = ms.PosInfo.PosZ
-                };
-                LeaveGame(id);
-                Broadcast(new S_Despawn { ObjectIds = { id } });
-                int monsterId = (int)ms.MonsterId + 1;
-                MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
-                
-                Push(EnterGame, monsterStatue);
-                UpgradeMonsterStatue(ms, monsterStatue);
-                player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = monsterId });
-            }
+                PosX = ms.PosInfo.PosX, PosY = ms.PosInfo.PosY, PosZ = ms.PosInfo.PosZ
+            };
+            LeaveGame(id);
+            Broadcast(new S_Despawn { ObjectIds = { id } });
+            int monsterId = (int)ms.MonsterId + 1;
+            MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
+
+            Push(EnterGame, monsterStatue);
+            UpgradeMonsterStatue(ms, monsterStatue);
+            player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = monsterId });
         }
     }
 
