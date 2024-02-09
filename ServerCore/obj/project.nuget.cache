@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3cFZTGjO5j61cmTlKXf3R97v+X4Z0aNAmt02nDHDZBzwnICvjkrhLV1R7zE6zaMsCnlJAxUrjKqgeiVJDDemng==",
+  "dgSpecHash": "tJD5fWi4h38SxVjGILS103rfK/ElWqYkDRZjOlON+yGW3ZxBXjKgNTcdSn/7iZKgPMwMGb5nD976Bb3NTpF7Ew==",
   "success": true,
-  "projectFilePath": "C:\\Users\\jwy08\\fleet\\CryWolfServer\\ServerCore\\ServerCore.csproj",
+  "projectFilePath": "/Users/jwy/Documents/dev/CryWolf/Server/ServerCore/ServerCore.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -10,13 +10,9 @@ public partial class GameRoom
         if (!DataManager.TowerDict.TryGetValue(towerId, out var towerData)) return true;
         int resource = GameInfo.SheepResource;
         int cost = towerData.stat.RequiredResources;
-        if (resource < cost)
-        {
-            SendWarningMessage(player, "골드가 부족합니다.");
-            return true;
-        }
-        
+        if (resource < cost) return true;
         GameInfo.SheepResource -= cost;
+        
         return false;
     }
     
@@ -25,13 +21,9 @@ public partial class GameRoom
         int resource = GameInfo.WolfResource;
         if (!DataManager.MonsterDict.TryGetValue(monsterId, out var monsterData)) return true;
         int cost = monsterData.stat.RequiredResources;
-        if (resource < cost)
-        {
-            SendWarningMessage(player, "골드가 부족합니다.");
-            return true;
-        }
-        
+        if (resource < cost) return true;
         GameInfo.WolfResource -= cost;
+        
         return false;
     }
 
@@ -87,13 +79,7 @@ public partial class GameRoom
             nowCapacity = GameInfo.SouthTower;
         }
 
-        if (nowCapacity >= maxCapacity)
-        {
-            SendWarningMessage(player, "인구수를 초과했습니다.");
-            return true;
-        }
-
-        return false;
+        return nowCapacity >= maxCapacity;
     }
     
     private bool VerifyCapacityForMonster(Player player, int monsterId, SpawnWay way)
@@ -113,13 +99,7 @@ public partial class GameRoom
             nowCapacity = GameInfo.SouthMonster;
         }
 
-        if (nowCapacity >= maxCapacity)
-        {
-            SendWarningMessage(player, "인구수를 초과했습니다.");
-            return true;
-        } 
-        
-        return false;
+        return nowCapacity >= maxCapacity;
     }
     
     private bool VerifyResourceForSkill(Skill skill)
@@ -172,21 +152,12 @@ public partial class GameRoom
         return cost;
     }
 
-    private void FenceRepair(Player player)
+    private void FenceRepair()
     {
-        int cost = VerifyFenceRepairCost();
-        if (cost > GameInfo.SheepResource)
+        foreach (var fence in _fences)
         {
-            SendWarningMessage(player, "골드가 부족합니다.");
-        }
-        else
-        {
-            GameInfo.SheepResource -= cost;
-            foreach (var fence in _fences)
-            {
-                fence.Value.Hp = fence.Value.MaxHp;
-                Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
-            }
+            fence.Value.Hp = fence.Value.MaxHp;
+            Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
         }
     }
 
