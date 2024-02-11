@@ -97,7 +97,8 @@ public partial class GameRoom : JobSerializer
             _roundTime = 24;
             _round++;
             _tutorialSet = false;
-            T_SpawnMonstersInNewRound();
+            // T_SpawnMonstersInNewRound();
+            SpawnMonstersInNewRound();
             SpawnTowersInNewRound();
         }
         _timeSendTime = time;

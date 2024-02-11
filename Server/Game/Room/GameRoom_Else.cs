@@ -360,6 +360,12 @@ public partial class GameRoom
         {
             posInfo.PosZ = statue.PosInfo.PosZ + statue.Stat.SizeZ;
         }
+
+        var pos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
+        pos = Map.Vector2To3(Map.FindNearestEmptySpace(Map.Vector3To2(pos), statue));
+        posInfo.PosX = pos.X;
+        posInfo.PosY = pos.Y;
+        posInfo.PosZ = pos.Z;
         
         return posInfo;
     }
