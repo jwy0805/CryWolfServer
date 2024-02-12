@@ -334,14 +334,6 @@ public partial class GameRoom
         return objectsInDist;
     }
 
-    public bool IsExistId(GameObject gameObject, int targetId)
-    {
-        return _towers.Keys.ToList().Contains(targetId) 
-               || _monsters.Keys.ToList().Contains(targetId) 
-               || _sheeps.Keys.ToList().Contains(targetId) 
-               || _fences.Keys.ToList().Contains(targetId);
-    }
-
     private PositionInfo FindMonsterSpawnPos(MonsterStatue statue)
     {
         PositionInfo posInfo = new PositionInfo()

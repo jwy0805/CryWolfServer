@@ -48,49 +48,49 @@ public class Soul : Tower
         BroadcastMove();
     }
 
-    protected override void UpdateMoving()
-    {
-        // Targeting
-        Target = Room?.FindNearestTarget(this);
-        if (Target != null)
-        {
-            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
-        }
-        
-        if (Target == null || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastMove();
-            return;
-        }
-
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            // Attack
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                if (distance <= AttackRange)
-                {
-                    CellPos = position;
-                    State = State.Attack;
-                    BroadcastMove();
-                    return;
-                }
-            }
-            
-            BroadcastMove();
-        }
-    }
+    // protected override void UpdateMoving()
+    // {
+    //     // Targeting
+    //     Target = Room?.FindNearestTarget(this);
+    //     if (Target != null)
+    //     {
+    //         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+    //         (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
+    //         BroadcastDest();
+    //     }
+    //     
+    //     if (Target == null || Target.Room != Room)
+    //     {
+    //         State = State.Idle;
+    //         BroadcastMove();
+    //         return;
+    //     }
+    //
+    //     if (Room != null)
+    //     {
+    //         // 이동
+    //         // target이랑 너무 가까운 경우
+    //         // Attack
+    //         StatInfo targetStat = Target.Stat;
+    //         Vector3 position = CellPos;
+    //         if (targetStat.Targetable)
+    //         {
+    //             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+    //             double deltaX = DestPos.X - CellPos.X;
+    //             double deltaZ = DestPos.Z - CellPos.Z;
+    //             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+    //             if (distance <= AttackRange)
+    //             {
+    //                 CellPos = position;
+    //                 State = State.Attack;
+    //                 BroadcastMove();
+    //                 return;
+    //             }
+    //         }
+    //         
+    //         BroadcastMove();
+    //     }
+    // }
 
     public override void SetNextState()
     {
