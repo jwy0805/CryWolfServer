@@ -239,3 +239,10 @@
 /Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Drawing.Common.dll
 /Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 /Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.Google.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/Microsoft.Owin.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/Microsoft.Owin.Security.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/Microsoft.Owin.Security.Google.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/Owin.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/SharedDB.dll
+/Users/jwy/Documents/dev/CryWolf/Server/AccountServer/bin/Debug/net6.0/SharedDB.pdb
