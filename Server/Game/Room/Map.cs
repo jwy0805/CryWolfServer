@@ -324,10 +324,10 @@ public partial class Map
 
     public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")
     {
-        MinX = -400;
-        MaxX = 400;
-        MinZ = -400;
-        MaxZ = 400;
+        MinX = -100;
+        MaxX = 100;
+        MinZ = -240;
+        MaxZ = 240;
 
         int xCount = MaxX - MinX + 1;
         int zCount = MaxZ - MinZ + 1;

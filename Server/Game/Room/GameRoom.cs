@@ -86,19 +86,19 @@ public partial class GameRoom : JobSerializer
         _roundTime--;
         
         // Tutorial
-        // if (_roundTime < 10 && _tutorialSet == false)
-        // {
-        //     SetTutorialRound(_round);
-        //     _tutorialSet = true;
-        // }
+        if (_roundTime < 15 && _tutorialSet == false)
+        {
+            SetTutorialRound(_round);
+            _tutorialSet = true;
+        }
         
         if (_roundTime < 0) 
         {
             _roundTime = 24;
             _round++;
-            _tutorialSet = false;
-            // T_SpawnMonstersInNewRound();
-            SpawnMonstersInNewRound();
+            _tutorialSet = true;
+            T_SpawnMonstersInNewRound();
+            // SpawnMonstersInNewRound();
             SpawnTowersInNewRound();
         }
         _timeSendTime = time;
