@@ -1,19 +1,19 @@
 namespace AccountServer.DB;
 
-public class CreateAccountPacketRequired
+public class CreateUserAccountPacketRequired
 {
-    public string AccountName { get; set; }
+    public string UserName { get; set; }
     public string Password { get; set; }
 }
 
-public class CreateAccountPacketResponse
+public class CreateUserAccountPacketResponse
 {
     public bool CreateOK { get; set; }
 }
 
-public class LoginAccountPacketRequired
+public class LoginUserAccountPacketRequired
 {
-    public string AccountName { get; set; }
+    public string UserName { get; set; }
     public string Password { get; set; }
 }
 
@@ -25,10 +25,10 @@ public class ServerInfo
     public int BusyScore { get; set; }
 }
 
-public class LoginAccountPacketResponse
+public class LoginUserAccountPacketResponse
 {
     public bool LoginOK { get; set; }
-    public int AccountId { get; set; }
+    public int UserId { get; set; }
     public int Token { get; set; }
     public List<ServerInfo> ServerList { get; set; } = new();
 }

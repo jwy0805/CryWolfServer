@@ -4,7 +4,10 @@ namespace AccountServer.DB;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<AccountDb> Accounts { get; set; }
+    public DbSet<User> User { get; set; }
+    public DbSet<UserUnit> UserUnit { get; set; }
+    public DbSet<Deck> Deck { get;set; }
+    public DbSet<DeckUnit> DeckUnit { get; set; }
     
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -13,6 +16,6 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<AccountDb>().HasIndex(account => account.AccountName).IsUnique();
+        builder.Entity<User>().HasIndex(user => user.UserName).IsUnique();
     }
 }

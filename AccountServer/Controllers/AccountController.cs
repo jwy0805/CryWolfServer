@@ -7,12 +7,12 @@ namespace AccountServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class UserAccountController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly SharedDbContext _shared;
         
-        public AccountController(AppDbContext context, SharedDbContext shared)
+        public UserAccountController(AppDbContext context, SharedDbContext shared)
         {
             _context = context;
             _shared = shared;
@@ -20,22 +20,32 @@ namespace AccountServer.Controllers
         
         [HttpPost]
         [Route("create")]
-        public CreateAccountPacketResponse CreateAccount([FromBody] CreateAccountPacketRequired required)
+        public CreateUserAccountPacketResponse CreateAccount([FromBody] CreateUserAccountPacketRequired required)
         {
-            CreateAccountPacketResponse res = new();
-            var account = _context.Accounts
+            CreateUserAccountPacketResponse res = new();
+            var account = _context.User
                 .AsNoTracking()
-                .FirstOrDefault(account => account.AccountName == required.AccountName);
+                .FirstOrDefault(account => account.UserName == required.UserName);
 
             if (account == null)
             {
-                _context.Accounts.Add(new AccountDb
+                var newUser = new User
                 {
-                    AccountName = required.AccountName,
-                    Password = required.Password
-                });
-
+                    UserName = required.UserName,
+                    Password = required.Password,
+                    Role = UserRole.User,
+                    State = UserState.Activate,
+                    CreatedAt = DateTime.Now,
+                    RankPoint = 0,
+                    Gold = 500,
+                    Gem = 50
+                };
+                
+                _context.User.Add(newUser);
                 bool success = _context.SaveChangesExtended();
+
+                CreateFirstDecks(newUser.UserId);
+                
                 res.CreateOK = success;
             }
             else
@@ -46,14 +56,38 @@ namespace AccountServer.Controllers
             return res;
         }
 
+        private void CreateFirstDecks(int userId)
+        {
+            int[] sheepUnitIds = { 103, 106, 109, 112, 115, 124 };
+            int[] wolfUnitIds = { 503, 506, 509, 512, 515, 521 };
+
+            foreach (var unitId in sheepUnitIds)
+            {
+                _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId });
+            }
+
+            foreach (var unitId in wolfUnitIds)
+            {
+                _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId });
+            }
+            
+            _context.SaveChangesExtended();
+            
+            var deck = new Deck { UserId = userId, Camp = Camp.Sheep };
+            _context.Deck.Add(deck);
+            _context.SaveChangesExtended();
+            
+            
+        }
+
         [HttpPost]
         [Route("login")]
-        public LoginAccountPacketResponse LoginAccount([FromBody] LoginAccountPacketRequired required)
+        public LoginUserAccountPacketResponse LoginAccount([FromBody] LoginUserAccountPacketRequired required)
         {
-            LoginAccountPacketResponse res = new();
-            var account = _context.Accounts
+            LoginUserAccountPacketResponse res = new();
+            var account = _context.User
                 .AsNoTracking()
-                .FirstOrDefault(account => account.AccountName == required.AccountName && account.Password == required.Password);
+                .FirstOrDefault(account => account.UserName == required.UserName && account.Password == required.Password);
 
             if (account == null)
             {
@@ -67,7 +101,7 @@ namespace AccountServer.Controllers
                 var expired = DateTime.UtcNow;
                 var addSeconds = expired.AddSeconds(600);
                 
-                TokenDb? tokenDb = _shared.Tokens.FirstOrDefault(token => token != null && token.AccountDbId == account.AccountDbId);
+                TokenDb? tokenDb = _shared.Tokens.FirstOrDefault(token => token != null && token.AccountDbId == account.UserId);
                 if (tokenDb != null)
                 {
                     tokenDb.Token = new Random().Next(int.MinValue, int.MaxValue);
@@ -78,7 +112,7 @@ namespace AccountServer.Controllers
                 {
                     tokenDb = new TokenDb
                     {
-                        AccountDbId = account.AccountDbId,
+                        AccountDbId = account.UserId,
                         Token = new Random().Next(int.MinValue, int.MaxValue),
                         Expired = expired,
                     };
@@ -86,7 +120,7 @@ namespace AccountServer.Controllers
                     _shared.SaveChangesExtended();
                 }
 
-                res.AccountId = account.AccountDbId;
+                res.UserId = account.UserId;
                 res.Token = tokenDb.Token;
                 res.ServerList = new List<ServerInfo>();
 
