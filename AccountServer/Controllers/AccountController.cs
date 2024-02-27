@@ -35,7 +35,7 @@ namespace AccountServer.Controllers
                     Password = required.Password,
                     Role = UserRole.User,
                     State = UserState.Activate,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     RankPoint = 0,
                     Gold = 500,
                     Gem = 50
@@ -71,13 +71,23 @@ namespace AccountServer.Controllers
                 _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId });
             }
             
+            var sheepDeck = new Deck { UserId = userId, Camp = Camp.Sheep };
+            var wolfDeck = new Deck { UserId = userId, Camp = Camp.Wolf };
+            _context.Deck.Add(sheepDeck);
+            _context.Deck.Add(wolfDeck);
             _context.SaveChangesExtended();
             
-            var deck = new Deck { UserId = userId, Camp = Camp.Sheep };
-            _context.Deck.Add(deck);
+            foreach (var unitId in sheepUnitIds)
+            {
+                _context.DeckUnit.Add(new DeckUnit { DeckId = sheepDeck.DeckId, UnitId = unitId });
+            }
+            
+            foreach (var unitId in wolfUnitIds)
+            {
+                _context.DeckUnit.Add(new DeckUnit { DeckId = wolfDeck.DeckId, UnitId = unitId });
+            }
+            
             _context.SaveChangesExtended();
-            
-            
         }
 
         [HttpPost]
@@ -97,11 +107,11 @@ namespace AccountServer.Controllers
             {
                 res.LoginOK = true;
                 
-                // TODO 토큰 생성
+                // 토큰 생성
                 var expired = DateTime.UtcNow;
                 var addSeconds = expired.AddSeconds(600);
                 
-                TokenDb? tokenDb = _shared.Tokens.FirstOrDefault(token => token != null && token.AccountDbId == account.UserId);
+                TokenDb? tokenDb = _shared.Tokens.FirstOrDefault(token => token != null && token.UserId == account.UserId);
                 if (tokenDb != null)
                 {
                     tokenDb.Token = new Random().Next(int.MinValue, int.MaxValue);
@@ -112,7 +122,7 @@ namespace AccountServer.Controllers
                 {
                     tokenDb = new TokenDb
                     {
-                        AccountDbId = account.UserId,
+                        UserId = account.UserId,
                         Token = new Random().Next(int.MinValue, int.MaxValue),
                         Expired = expired,
                     };

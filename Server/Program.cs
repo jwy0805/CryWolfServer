@@ -1,11 +1,12 @@
 ﻿using System.Net;
-using System.Numerics;
+using System.Timers;
 using Server.Data;
 using Server.DB;
 using Server.Game;
 using Server.Util;
 using ServerCore;
 using SharedDB;
+using Timer = System.Timers.Timer;
 
 namespace Server;
 
@@ -38,9 +39,9 @@ public class Program
 
     private static void StartServerInfoTask()
     {
-        var t = new System.Timers.Timer();
+        var t = new Timer();
         t.AutoReset = true;
-        t.Elapsed += new System.Timers.ElapsedEventHandler((s, e) =>
+        t.Elapsed += new ElapsedEventHandler((s, e) =>
         {
             using SharedDbContext shared = new SharedDbContext();
             var serverDb = shared.Servers.FirstOrDefault(server => server.Name == Name);
@@ -55,9 +56,9 @@ public class Program
             {
                 serverDb = new ServerDb
                 {
-                    Name = Program.Name,
-                    IpAddress = Program.IpAddress,
-                    Port = Program.Port,
+                    Name = Name,
+                    IpAddress = IpAddress,
+                    Port = Port,
                     BusyScore = SessionManager.Instance.GetBusyScore()
                 };
                 shared.Servers.Add(serverDb);

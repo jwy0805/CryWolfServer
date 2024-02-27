@@ -4,7 +4,7 @@ namespace SharedDB;
 
 public class SharedDbContext : DbContext
 {
-    public DbSet<TokenDb?> Tokens { get; set; }
+    public DbSet<TokenDb> Tokens { get; set; }
     public DbSet<ServerDb> Servers { get; set; }
 
     // GameServer
@@ -31,7 +31,7 @@ public class SharedDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<TokenDb>().HasIndex(token => token.AccountDbId).IsUnique();
+        builder.Entity<TokenDb>().HasIndex(token => token.UserId).IsUnique();
         builder.Entity<ServerDb>().HasIndex(server => server.Name).IsUnique();
     }
 }
