@@ -7,65 +7,64 @@ namespace Server.Game;
 
 public sealed partial class ObjectManager
 {
-    private readonly Dictionary<TowerId, ITowerFactory> _towerDict = new()
+    private readonly Dictionary<UnitId, ITowerFactory> _towerDict = new()
     {
-        { TowerId.Bud, new BudFactory() },
-        { TowerId.Bloom, new BloomFactory() },
-        { TowerId.Blossom, new BlossomFactory() },
-        { TowerId.PracticeDummy, new PracticeDummyFactory() },
-        { TowerId.TargetDummy, new TargetDummyFactory() },
-        { TowerId.TrainingDummy, new TrainingDummyFactory() },
-        { TowerId.SunBlossom, new SunBlossomFactory() },
-        { TowerId.SunflowerFairy, new SunflowerFairyFactory() },
-        { TowerId.SunfloraPixie, new SunfloraPixieFactory() },
-        { TowerId.MothLuna, new MothLunaFactory() },
-        { TowerId.MothMoon, new MothMoonFactory() },
-        { TowerId.MothCelestial, new MothCelestialFactory() },
-        { TowerId.Soul, new SoulFactory() },
-        { TowerId.Haunt, new HauntFactory() },
-        { TowerId.SoulMage, new SoulMageFactory() },
-        { TowerId.Pumpkin, new PumpkinFactory() }
+        { UnitId.Bud, new BudFactory() },
+        { UnitId.Bloom, new BloomFactory() },
+        { UnitId.Blossom, new BlossomFactory() },
+        { UnitId.PracticeDummy, new PracticeDummyFactory() },
+        { UnitId.TargetDummy, new TargetDummyFactory() },
+        { UnitId.TrainingDummy, new TrainingDummyFactory() },
+        { UnitId.SunBlossom, new SunBlossomFactory() },
+        { UnitId.SunflowerFairy, new SunflowerFairyFactory() },
+        { UnitId.SunfloraPixie, new SunfloraPixieFactory() },
+        { UnitId.MothLuna, new MothLunaFactory() },
+        { UnitId.MothMoon, new MothMoonFactory() },
+        { UnitId.MothCelestial, new MothCelestialFactory() },
+        { UnitId.Soul, new SoulFactory() },
+        { UnitId.Haunt, new HauntFactory() },
+        { UnitId.SoulMage, new SoulMageFactory() },
     };
 
-    private readonly Dictionary<MonsterId, IMonsterFactory> _monsterDict = new()
+    private readonly Dictionary<UnitId, IMonsterFactory> _monsterDict = new()
     {
-        { MonsterId.WolfPup, new WolfPupFactory() },
-        { MonsterId.Wolf, new WolfFactory() },
-        { MonsterId.Werewolf, new WerewolfFactory() },
-        { MonsterId.Lurker, new LurkerFactory() },
-        { MonsterId.Creeper, new CreeperFactory() },
-        { MonsterId.Horror, new HorrorFactory() },
-        { MonsterId.Shell, new ShellFactory() },
-        { MonsterId.Spike, new SpikeFactory() },
-        { MonsterId.Hermit, new HermitFactory() },
-        { MonsterId.Snakelet, new SnakeletFactory() },
-        { MonsterId.Snake, new SnakeFactory() },
-        { MonsterId.SnakeNaga, new SnakeNagaFactory() },
-        { MonsterId.MosquitoBug, new MosquitoBugFactory() },
-        { MonsterId.MosquitoPester, new MosquitoPesterFactory() },
-        { MonsterId.MosquitoStinger, new MosquitoStingerFactory() },
+        { UnitId.WolfPup, new WolfPupFactory() },
+        { UnitId.Wolf, new WolfFactory() },
+        { UnitId.Werewolf, new WerewolfFactory() },
+        { UnitId.Lurker, new LurkerFactory() },
+        { UnitId.Creeper, new CreeperFactory() },
+        { UnitId.Horror, new HorrorFactory() },
+        { UnitId.Shell, new ShellFactory() },
+        { UnitId.Spike, new SpikeFactory() },
+        { UnitId.Hermit, new HermitFactory() },
+        { UnitId.Snakelet, new SnakeletFactory() },
+        { UnitId.Snake, new SnakeFactory() },
+        { UnitId.SnakeNaga, new SnakeNagaFactory() },
+        { UnitId.MosquitoBug, new MosquitoBugFactory() },
+        { UnitId.MosquitoPester, new MosquitoPesterFactory() },
+        { UnitId.MosquitoStinger, new MosquitoStingerFactory() },
     };
     
     private readonly Dictionary<ProjectileId, IProjectileFactory> _projectileDict = new()
     {
-        { ProjectileId.BasicAttack, new BasicAttackFactory() },
+        { ProjectileId.BasicProjectile, new BasicAttackFactory() },
         { ProjectileId.SmallFire, new SmallFireFactory() },
         { ProjectileId.BigFire, new BigFireFactory() },
-        { ProjectileId.PoisonAttack, new PoisonAttackFactory() },
+        { ProjectileId.PoisonProjectile, new PoisonAttackFactory() },
         { ProjectileId.BigPoison, new BigPoisonFactory() },
-        { ProjectileId.Seed, new SeedFactory() },
+        { ProjectileId.SeedProjectile, new SeedFactory() },
         { ProjectileId.BlossomSeed, new BlossomSeedFactory() },
-        { ProjectileId.BlossomArrow, new BlossomArrowFactory() },
-        { ProjectileId.HauntArrow, new HauntArrowFactory() },
-        { ProjectileId.HauntFireAttack, new HauntFireAttackFactory() },
-        { ProjectileId.SoulMageAttack, new SoulMageAttackFactory() },
-        { ProjectileId.SunfloraPixieArrow, new SunfloraPixieArrowFactory() },
+        { ProjectileId.BlossomProjectile, new BlossomArrowFactory() },
+        { ProjectileId.HauntProjectile, new HauntArrowFactory() },
+        { ProjectileId.HauntFireProjectile, new HauntFireAttackFactory() },
+        { ProjectileId.SoulMageProjectile, new SoulMageAttackFactory() },
+        { ProjectileId.SunfloraPixieProjectile, new SunfloraPixieArrowFactory() },
         { ProjectileId.SunfloraPixieFire, new SunfloraPixieFireFactory() },
         { ProjectileId.MothMoonAttack, new MothMoonAttackFactory()},
-        { ProjectileId.MothCelestialPoisonAttack, new MothCelestialPoisonAttackFactory() },
-        { ProjectileId.MosquitoStingerAttack, new MosquitoStingerAttackFactory() },
-        { ProjectileId.SpikeArrow, new SpikeArrowFactory() },
-        { ProjectileId.HermitArrow, new HermitArrowFactory() }
+        { ProjectileId.MothCelestialPoisonProjectile, new MothCelestialPoisonAttackFactory() },
+        { ProjectileId.MosquitoStingerProjectile, new MosquitoStingerAttackFactory() },
+        { ProjectileId.SpikeProjectile, new SpikeArrowFactory() },
+        { ProjectileId.HermitProjectile, new HermitArrowFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()

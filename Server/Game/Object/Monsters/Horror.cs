@@ -18,34 +18,34 @@ public class Horror : Creeper
             Skill = value;
             switch (Skill)
             {
-                case Skill.HorrorRollPoison:
-                    _rollPoison = true;
-                    break;
-                case Skill.HorrorPoisonStack:
-                    _poisonStack = true;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)MonsterId,
-                        ObjectType = GameObjectType.Monster,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-                case Skill.HorrorHealth:
-                    MaxHp += 200;
-                    Hp += 200;
-                    BroadcastHealth();
-                    break;
-                case Skill.HorrorDefence:
-                    Defence += 5;
-                    TotalDefence += 5;
-                    break;
-                case Skill.HorrorPoisonResist:
-                    PoisonResist += 15;
-                    TotalPoisonResist += 15;
-                    break;
-                case Skill.HorrorPoisonBelt:
-                    _poisonBelt = true;
-                    break;
+                // case Skill.HorrorRollPoison:
+                //     _rollPoison = true;
+                //     break;
+                // case Skill.HorrorPoisonStack:
+                //     _poisonStack = true;
+                //     Room?.Broadcast(new S_SkillUpdate
+                //     {
+                //         ObjectEnumId = (int)MonsterId,
+                //         ObjectType = GameObjectType.Monster,
+                //         SkillType = SkillType.SkillProjectile
+                //     });
+                //     break;
+                // case Skill.HorrorHealth:
+                //     MaxHp += 200;
+                //     Hp += 200;
+                //     BroadcastHealth();
+                //     break;
+                // case Skill.HorrorDefence:
+                //     Defence += 5;
+                //     TotalDefence += 5;
+                //     break;
+                // case Skill.HorrorPoisonResist:
+                //     PoisonResist += 15;
+                //     TotalPoisonResist += 15;
+                //     break;
+                // case Skill.HorrorPoisonBelt:
+                //     _poisonBelt = true;
+                //     break;
             }
         }
     }

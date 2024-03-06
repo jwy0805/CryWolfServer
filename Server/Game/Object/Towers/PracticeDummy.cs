@@ -12,28 +12,28 @@ public class PracticeDummy : Tower
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.PracticeDummyDefence:
-                    Defence += 3;
-                    break;
-                case Skill.PracticeDummyDefence2:
-                    Defence += 4;
-                    break;
-                case Skill.PracticeDummyHealth:
-                    MaxHp += 40;
-                    Hp += 40;
-                    BroadcastHealth();
-                    break;
-                case Skill.PracticeDummyHealth2:
-                    MaxHp += 60;
-                    Hp += 60;
-                    BroadcastHealth();
-                    break;
-                case Skill.PracticeDummyAggro:
-                    _aggro = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.PracticeDummyDefence:
+            //         Defence += 3;
+            //         break;
+            //     case Skill.PracticeDummyDefence2:
+            //         Defence += 4;
+            //         break;
+            //     case Skill.PracticeDummyHealth:
+            //         MaxHp += 40;
+            //         Hp += 40;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.PracticeDummyHealth2:
+            //         MaxHp += 60;
+            //         Hp += 60;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.PracticeDummyAggro:
+            //         _aggro = true;
+            //         break;
+            // }
         }
     }
 

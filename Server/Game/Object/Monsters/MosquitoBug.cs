@@ -16,21 +16,21 @@ public class MosquitoBug : Monster
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MosquitoBugAvoid:
-                    Evasion += 10;
-                    break;
-                case Skill.MosquitoBugDefence:
-                    Defence += 2;
-                    break;
-                case Skill.MosquitoBugSpeed:
-                    MoveSpeed += 1.0f;
-                    break;
-                case Skill.MosquitoBugWoolDown:
-                    _woolDown = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MosquitoBugAvoid:
+            //         Evasion += 10;
+            //         break;
+            //     case Skill.MosquitoBugDefence:
+            //         Defence += 2;
+            //         break;
+            //     case Skill.MosquitoBugSpeed:
+            //         MoveSpeed += 1.0f;
+            //         break;
+            //     case Skill.MosquitoBugWoolDown:
+            //         _woolDown = true;
+            //         break;
+            // }
         }
     }
 

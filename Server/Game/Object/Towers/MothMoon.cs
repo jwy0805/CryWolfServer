@@ -21,24 +21,24 @@ public class MothMoon : MothLuna
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MothMoonRemoveDebuffSheep:
-                    _debuffRemoveSheep = true;
-                    break;
-                case Skill.MothMoonHealSheep:
-                    _healSheep = true;
-                    break;
-                case Skill.MothMoonRange:
-                    AttackRange += 3;
-                    break;
-                case Skill.MothMoonOutput:
-                    _output = true;
-                    break;
-                case Skill.MothMoonAttackSpeed:
-                    AttackSpeed += 0.15f;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MothMoonRemoveDebuffSheep:
+            //         _debuffRemoveSheep = true;
+            //         break;
+            //     case Skill.MothMoonHealSheep:
+            //         _healSheep = true;
+            //         break;
+            //     case Skill.MothMoonRange:
+            //         AttackRange += 3;
+            //         break;
+            //     case Skill.MothMoonOutput:
+            //         _output = true;
+            //         break;
+            //     case Skill.MothMoonAttackSpeed:
+            //         AttackSpeed += 0.15f;
+            //         break;
+            // }
         }
     }
 

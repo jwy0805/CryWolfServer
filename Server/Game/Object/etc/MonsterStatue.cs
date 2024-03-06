@@ -5,8 +5,7 @@ namespace Server.Game;
 
 public class MonsterStatue : GameObject
 {
-    public MonsterId MonsterId { get; set; }
-    public int MonsterNum { get; set; }
+    public UnitId UnitId { get; set; }
     
     public MonsterStatue()
     {
@@ -15,8 +14,8 @@ public class MonsterStatue : GameObject
     
     public override void Init()
     {
-        DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
-        Stat.MergeFrom(monsterData!.stat);
+        DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
+        Stat.MergeFrom(unitData!.stat);
         Hp = MaxHp;
     }
 }

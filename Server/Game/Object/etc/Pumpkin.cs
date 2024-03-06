@@ -5,11 +5,11 @@ namespace Server.Game.Object.etc;
 
 public class Pumpkin : Tower
 {
-    public TowerId OriginalTowerId { get; set; }
+    public UnitId OriginalTowerId { get; set; }
     
     public override void Init()
     {
-        DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
+        DataManager.UnitDict.TryGetValue((int)UnitId, out var towerData);
         Stat.MergeFrom(towerData?.stat);
         if (Room == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;

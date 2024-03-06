@@ -14,31 +14,31 @@ public class Bud : Tower
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.BudAttack:
-                    Attack += 5;
-                    break;
-                case Skill.BudAttackSpeed:
-                    AttackSpeed += 0.1f;
-                    break;
-                case Skill.BudRange:
-                    AttackRange += 2.0f;
-                    break;
-                case Skill.BudSeed:
-                    _seed = true;
-                    break;
-                case Skill.BudDouble:
-                    Attack -= 3;
-                    AttackSpeed -= 0.1f;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)TowerId,
-                        ObjectType = GameObjectType.Tower,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.BudAttack:
+            //         Attack += 5;
+            //         break;
+            //     case Skill.BudAttackSpeed:
+            //         AttackSpeed += 0.1f;
+            //         break;
+            //     case Skill.BudRange:
+            //         AttackRange += 2.0f;
+            //         break;
+            //     case Skill.BudSeed:
+            //         _seed = true;
+            //         break;
+            //     case Skill.BudDouble:
+            //         Attack -= 3;
+            //         AttackSpeed -= 0.1f;
+            //         Room?.Broadcast(new S_SkillUpdate
+            //         {
+            //             ObjectEnumId = (int)TowerId,
+            //             ObjectType = GameObjectType.Tower,
+            //             SkillType = SkillType.SkillProjectile
+            //         });
+            //         break;
+            // }
         }
     }
     

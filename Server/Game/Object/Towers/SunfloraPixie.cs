@@ -22,42 +22,42 @@ public class SunfloraPixie : SunflowerFairy
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SunfloraPixieFaint:
-                    _faint = true;
-                    break;
-                case Skill.SunfloraPixieHeal:
-                    HealParam = 120;
-                    break;
-                case Skill.SunfloraPixieRange:
-                    AttackRange += 2;
-                    SkillRange += 2;
-                    break;
-                case Skill.SunfloraPixieCurse:
-                    _curse = true;
-                    break;
-                case Skill.SunfloraPixieAttackSpeed:
-                    _attackSpeedBuff = true;
-                    break;
-                case Skill.SunfloraPixieTriple:
-                    _triple = true;
-                    break;
-                case Skill.SunfloraPixieDebuffRemove:
-                    _debuffRemove = true;
-                    break;
-                case Skill.SunfloraPixieAttack:
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)TowerId,
-                        ObjectType = GameObjectType.Tower,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-                case Skill.SunfloraPixieInvincible:
-                    _invincible = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SunfloraPixieFaint:
+            //         _faint = true;
+            //         break;
+            //     case Skill.SunfloraPixieHeal:
+            //         HealParam = 120;
+            //         break;
+            //     case Skill.SunfloraPixieRange:
+            //         AttackRange += 2;
+            //         SkillRange += 2;
+            //         break;
+            //     case Skill.SunfloraPixieCurse:
+            //         _curse = true;
+            //         break;
+            //     case Skill.SunfloraPixieAttackSpeed:
+            //         _attackSpeedBuff = true;
+            //         break;
+            //     case Skill.SunfloraPixieTriple:
+            //         _triple = true;
+            //         break;
+            //     case Skill.SunfloraPixieDebuffRemove:
+            //         _debuffRemove = true;
+            //         break;
+            //     case Skill.SunfloraPixieAttack:
+            //         Room?.Broadcast(new S_SkillUpdate
+            //         {
+            //             ObjectEnumId = (int)TowerId,
+            //             ObjectType = GameObjectType.Tower,
+            //             SkillType = SkillType.SkillProjectile
+            //         });
+            //         break;
+            //     case Skill.SunfloraPixieInvincible:
+            //         _invincible = true;
+            //         break;
+            // }
         }
     }
     

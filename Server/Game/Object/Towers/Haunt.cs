@@ -14,33 +14,33 @@ public class Haunt : Soul
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.HauntLongAttack:
-                    _longAttack = true;
-                    AttackRange += 3.5f;
-                    break;
-                case Skill.HauntAttackSpeed:
-                    AttackSpeed += 0.15f;
-                    break;
-                case Skill.HauntAttack:
-                    Attack += 10;
-                    break;
-                case Skill.HauntFireResist:
-                    FireResist += 10;
-                    break;
-                case Skill.HauntPoisonResist:
-                    PoisonResist += 10;
-                    break;
-                case Skill.HauntFire:
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)TowerId,
-                        ObjectType = GameObjectType.Tower,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.HauntLongAttack:
+            //         _longAttack = true;
+            //         AttackRange += 3.5f;
+            //         break;
+            //     case Skill.HauntAttackSpeed:
+            //         AttackSpeed += 0.15f;
+            //         break;
+            //     case Skill.HauntAttack:
+            //         Attack += 10;
+            //         break;
+            //     case Skill.HauntFireResist:
+            //         FireResist += 10;
+            //         break;
+            //     case Skill.HauntPoisonResist:
+            //         PoisonResist += 10;
+            //         break;
+            //     case Skill.HauntFire:
+            //         Room?.Broadcast(new S_SkillUpdate
+            //         {
+            //             ObjectEnumId = (int)TowerId,
+            //             ObjectType = GameObjectType.Tower,
+            //             SkillType = SkillType.SkillProjectile
+            //         });
+            //         break;
+            // }
         }
     }
     

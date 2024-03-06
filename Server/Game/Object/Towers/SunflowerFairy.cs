@@ -19,24 +19,24 @@ public class SunflowerFairy : SunBlossom
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SunflowerFairyAttack:
-                    _attackBuff = true;
-                    break;
-                case Skill.SunflowerFairyDefence:
-                    _defenceBuff = true;
-                    break;
-                case Skill.SunflowerFairyDouble:
-                    _double = true;
-                    break;
-                case Skill.SunflowerFairyMpDown:
-                    MaxMp = 45;
-                    break;
-                case Skill.SunflowerFairyFenceHeal:
-                    _fenceHeal = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SunflowerFairyAttack:
+            //         _attackBuff = true;
+            //         break;
+            //     case Skill.SunflowerFairyDefence:
+            //         _defenceBuff = true;
+            //         break;
+            //     case Skill.SunflowerFairyDouble:
+            //         _double = true;
+            //         break;
+            //     case Skill.SunflowerFairyMpDown:
+            //         MaxMp = 45;
+            //         break;
+            //     case Skill.SunflowerFairyFenceHeal:
+            //         _fenceHeal = true;
+            //         break;
+            // }
         }
     }
     

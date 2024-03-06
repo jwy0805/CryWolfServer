@@ -5,5 +5,5 @@ namespace Server.Game.etc;
 
 public class Tusk : MonsterStatue
 {
-    public MonsterId OriginalMonsterId { get; set; }
+    public UnitId OriginalMonsterId { get; set; }
 }

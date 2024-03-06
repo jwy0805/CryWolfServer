@@ -20,21 +20,21 @@ public class SunBlossom : Tower
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SunBlossomHeal:
-                    _heal = true;
-                    break;
-                case Skill.SunBlossomHealth:
-                    _health = true;
-                    break;
-                case Skill.SunBlossomSlow:
-                    _slow = true;
-                    break;
-                case Skill.SunBlossomSlowAttack:
-                    _slowAttack = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SunBlossomHeal:
+            //         _heal = true;
+            //         break;
+            //     case Skill.SunBlossomHealth:
+            //         _health = true;
+            //         break;
+            //     case Skill.SunBlossomSlow:
+            //         _slow = true;
+            //         break;
+            //     case Skill.SunBlossomSlowAttack:
+            //         _slowAttack = true;
+            //         break;
+            // }
         }
     }
 

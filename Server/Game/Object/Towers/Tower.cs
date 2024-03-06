@@ -7,8 +7,7 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    public int TowerNum { get; set; }
-    public TowerId TowerId { get; set; }
+    public UnitId UnitId { get; set; }
     public Vector3 StartCell { get; set; }
 
     protected Tower()
@@ -18,8 +17,8 @@ public class Tower : Creature, ISkillObserver
 
     public override void Init()
     {
-        DataManager.TowerDict.TryGetValue(TowerNum, out var towerData);
-        Stat.MergeFrom(towerData?.stat);
+        DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
+        Stat.MergeFrom(unitData?.stat);
         base.Init();
         Hp = MaxHp;
         
@@ -99,7 +98,7 @@ public class Tower : Creature, ISkillObserver
     public virtual void OnSkillUpgrade(Skill skill)
     {
         string skillName = skill.ToString();
-        string towerName = TowerId.ToString();
+        string towerName = UnitId.ToString();
         if (skillName.Contains(towerName))
         {
             NewSkill = skill;
@@ -110,7 +109,7 @@ public class Tower : Creature, ISkillObserver
     public override void SkillInit()
     {
         List<Skill> skillUpgradedList = Player.SkillUpgradedList;
-        string towerName = TowerId.ToString();
+        string towerName = UnitId.ToString();
         if (skillUpgradedList.Count == 0) return;
         
         foreach (var skill in skillUpgradedList)

@@ -18,21 +18,21 @@ public class MothLuna : Tower
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MothLunaAttack:
-                    Attack += 3;
-                    break;
-                case Skill.MothLunaAccuracy:
-                    Accuracy += 5;
-                    break;
-                case Skill.MothLunaFaint:
-                    _faint = true;
-                    break;
-                case Skill.MothLunaSpeed:
-                    MoveSpeed += 2;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MothLunaAttack:
+            //         Attack += 3;
+            //         break;
+            //     case Skill.MothLunaAccuracy:
+            //         Accuracy += 5;
+            //         break;
+            //     case Skill.MothLunaFaint:
+            //         _faint = true;
+            //         break;
+            //     case Skill.MothLunaSpeed:
+            //         MoveSpeed += 2;
+            //         break;
+            // }
         }
     }
     

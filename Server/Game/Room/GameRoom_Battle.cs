@@ -112,7 +112,7 @@ public partial class GameRoom
         switch (type)
         {
             case GameObjectType.Tower:
-                if (!Enum.IsDefined(typeof(TowerId), spawnPacket.Num)) return;
+                if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
                 bool lackOfTowerCost = VerifyResourceForTower(player, spawnPacket.Num);
                 bool lackOfTowerCapacity = VerifyCapacityForTower(player, spawnPacket.Num, spawnPacket.Way);
                 if (lackOfTowerCost)
@@ -131,13 +131,13 @@ public partial class GameRoom
                 break;
 
             case GameObjectType.Monster:
-                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
                 Monster monster = EnterMonster(spawnPacket.Num, spawnPacket.PosInfo, player);
                 Push(EnterGame, monster);
                 break;
             
             case GameObjectType.MonsterStatue:
-                if (!Enum.IsDefined(typeof(MonsterId), spawnPacket.Num)) return;
+                if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
                 bool lackOfMonsterCost = VerifyResourceForMonster(player, spawnPacket.Num);
                 bool lackOfMonsterCapacity = VerifyCapacityForMonster(player, spawnPacket.Num, spawnPacket.Way);
                 if (lackOfMonsterCost)

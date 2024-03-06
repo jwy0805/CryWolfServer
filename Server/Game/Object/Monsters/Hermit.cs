@@ -14,31 +14,31 @@ public class Hermit : Spike
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.HermitPoisonResist:
-                    PoisonResist += 25;
-                    break;
-                case Skill.HermitFireResist:
-                    FireResist += 25;
-                    break;
-                case Skill.HermitDebuffRemove:
-                    _debuffRemove = true;
-                    break;
-                case Skill.HermitRange:
-                    //어그로 범위 증가
-                    AttackRange += 2.0f;
-                    break;
-                case Skill.HermitAggro:
-                    _aggro = true;
-                    break;
-                case Skill.HermitReflection:
-                    Reflection = true;
-                    break;
-                case Skill.HermitFaint:
-                    _faint = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.HermitPoisonResist:
+            //         PoisonResist += 25;
+            //         break;
+            //     case Skill.HermitFireResist:
+            //         FireResist += 25;
+            //         break;
+            //     case Skill.HermitDebuffRemove:
+            //         _debuffRemove = true;
+            //         break;
+            //     case Skill.HermitRange:
+            //         //어그로 범위 증가
+            //         AttackRange += 2.0f;
+            //         break;
+            //     case Skill.HermitAggro:
+            //         _aggro = true;
+            //         break;
+            //     case Skill.HermitReflection:
+            //         Reflection = true;
+            //         break;
+            //     case Skill.HermitFaint:
+            //         _faint = true;
+            //         break;
+            // }
         }
     }
 

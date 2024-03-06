@@ -13,34 +13,34 @@ public class Bloom : Bud
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.BloomAttack:
-                    Attack += 10;
-                    break;
-                case Skill.BloomRange:
-                    AttackRange += 2;
-                    break;
-                case Skill.BloomAttackSpeed:
-                    AttackSpeed += 0.15f;
-                    break;
-                case Skill.BloomAttackSpeed2:
-                    AttackSpeed += 0.2f;
-                    break;
-                case Skill.Bloom3Combo:
-                    _combo = true;
-                    Attack -= 16;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)TowerId,
-                        ObjectType = GameObjectType.Tower,
-                        SkillType = SkillType.SkillProjectile
-                    });
-                    break;
-                case Skill.BloomAirAttack:
-                    AttackType = 2;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.BloomAttack:
+            //         Attack += 10;
+            //         break;
+            //     case Skill.BloomRange:
+            //         AttackRange += 2;
+            //         break;
+            //     case Skill.BloomAttackSpeed:
+            //         AttackSpeed += 0.15f;
+            //         break;
+            //     case Skill.BloomAttackSpeed2:
+            //         AttackSpeed += 0.2f;
+            //         break;
+            //     case Skill.Bloom3Combo:
+            //         _combo = true;
+            //         Attack -= 16;
+            //         Room?.Broadcast(new S_SkillUpdate
+            //         {
+            //             ObjectEnumId = (int)TowerId,
+            //             ObjectType = GameObjectType.Tower,
+            //             SkillType = SkillType.SkillProjectile
+            //         });
+            //         break;
+            //     case Skill.BloomAirAttack:
+            //         AttackType = 2;
+            //         break;
+            // }
         }
     }
 

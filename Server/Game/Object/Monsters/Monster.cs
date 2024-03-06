@@ -7,8 +7,7 @@ namespace Server.Game;
 
 public class Monster : Creature, ISkillObserver
 {
-    public int MonsterNum { get; set; }
-    public MonsterId MonsterId { get; set; }
+    public UnitId UnitId { get; set; }
     public int StatueId { get; set; }
 
     protected Monster()
@@ -18,9 +17,9 @@ public class Monster : Creature, ISkillObserver
 
     public override void Init()
     {
-        DataManager.MonsterDict.TryGetValue(MonsterNum, out var monsterData);
-        Stat.MergeFrom(monsterData.stat);
-        Console.WriteLine($"{Id}, {MonsterId}");
+        DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
+        Stat.MergeFrom(unitData?.stat);
+        Console.WriteLine($"{Id}, {UnitId}");
         base.Init();
         Hp = MaxHp;
 
@@ -95,7 +94,7 @@ public class Monster : Creature, ISkillObserver
     public virtual void OnSkillUpgrade(Skill skill)
     {
         string skillName = skill.ToString();
-        string monsterName = MonsterId.ToString();
+        string monsterName = UnitId.ToString();
         if (skillName.Contains(monsterName))
         {
             NewSkill = skill;
@@ -106,7 +105,7 @@ public class Monster : Creature, ISkillObserver
     public override void SkillInit()
     {
         List<Skill> skillUpgradedList = Player.SkillUpgradedList;
-        string monsterName = MonsterId.ToString();
+        string monsterName = UnitId.ToString();
         if (skillUpgradedList.Count == 0) return;
         
         foreach (var skill in skillUpgradedList)

@@ -3,6 +3,16 @@ using Google.Protobuf.Protocol;
 namespace Server.Data;
 
 [Serializable]
+public class UnitData
+{
+    public int id;
+    public string name;
+    public string camp;
+    public List<string> unitRole;
+    public StatInfo stat;
+}
+
+[Serializable]
 public class MonsterData
 {
     public int id;
@@ -47,24 +57,13 @@ public class SkillData
 }
 
 [Serializable]
-public class MonsterLoader : ILoader<int, MonsterData>
+public class UnitLoader : ILoader<int, UnitData>
 {
-    public List<MonsterData> monsters = new();
-
-    public Dictionary<int, MonsterData> MakeDict()
+    public List<UnitData> units = new();
+    
+    public Dictionary<int, UnitData> MakeDict()
     {
-        return monsters.ToDictionary(monster => monster.no);
-    }
-}
-
-[Serializable]
-public class TowerLoader : ILoader<int, TowerData>
-{
-    public List<TowerData> towers = new();
-
-    public Dictionary<int, TowerData> MakeDict()
-    {
-        return towers.ToDictionary(tower => tower.no);
+        return units.ToDictionary(unit => unit.id);
     }
 }
 

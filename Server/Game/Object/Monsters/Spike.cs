@@ -20,24 +20,24 @@ public class Spike : Shell
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SpikeSelfDefence:
-                    Defence += 10;
-                    break;
-                case Skill.SpikeLostHeal:
-                    _lostHeal = true;
-                    break;
-                case Skill.SpikeAttack:
-                    _attackBuff = true;
-                    break;
-                case Skill.SpikeDefence:
-                    _defenceBuff = true;
-                    break;
-                case Skill.SpikeDoubleBuff:
-                    _doubleBuff = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SpikeSelfDefence:
+            //         Defence += 10;
+            //         break;
+            //     case Skill.SpikeLostHeal:
+            //         _lostHeal = true;
+            //         break;
+            //     case Skill.SpikeAttack:
+            //         _attackBuff = true;
+            //         break;
+            //     case Skill.SpikeDefence:
+            //         _defenceBuff = true;
+            //         break;
+            //     case Skill.SpikeDoubleBuff:
+            //         _doubleBuff = true;
+            //         break;
+            // }
         }
     }
 

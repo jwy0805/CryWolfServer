@@ -188,7 +188,7 @@ public class PacketHandler
         Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
         Vector2Int cellPos = room.Map.Vector3To2(vector);
 
-        int size = room.TowerSizeList.FirstOrDefault(s => s.TowerId == (TowerId)spawnPacket.TowerId).SizeX;
+        int size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
         bool canSpawn = room.Map.CanSpawn(cellPos, size);
         
         var towerSpawnPacket = new S_TowerSpawnPos { CanSpawn = canSpawn };
@@ -207,7 +207,7 @@ public class PacketHandler
         Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
         Vector2Int cellPos = room.Map.Vector3To2(vector);
 
-        int size = room.MonsterSizeList.FirstOrDefault(s => s.MonsterId == (MonsterId)spawnPacket.MonsterId).SizeX;
+        int size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
         bool canSpawn = room.Map.CanSpawn(cellPos, size);
         
         var monsterSpawnPacket = new S_MonsterSpawnPos { CanSpawn = canSpawn };

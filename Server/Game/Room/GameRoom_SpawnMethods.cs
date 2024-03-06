@@ -16,7 +16,7 @@ public partial class GameRoom
             PosZ = tower.PosInfo.PosZ,
             State = State.Idle
         };
-        TowerSlot towerSlot = new(tower.TowerId, posInfo, tower.Way, tower.Id);
+        TowerSlot towerSlot = new(tower.UnitId, posInfo, tower.Way, tower.Id);
         
         if (towerSlot.Way == SpawnWay.North)
         {
@@ -41,7 +41,7 @@ public partial class GameRoom
     
     private void RegisterMonsterStatue(MonsterStatue statue)
     {
-        MonsterSlot monsterSlot = new(statue.MonsterId, statue.Way, statue);
+        MonsterSlot monsterSlot = new(statue.UnitId, statue.Way, statue);
 
         if (monsterSlot.Way == SpawnWay.North)
         {
@@ -66,7 +66,7 @@ public partial class GameRoom
 
     private void UpgradeTower(Tower oldTower, Tower newTower)
     {
-        TowerSlot newTowerSlot = new(newTower.TowerId, newTower.PosInfo, newTower.Way, newTower.Id);
+        TowerSlot newTowerSlot = new(newTower.UnitId, newTower.PosInfo, newTower.Way, newTower.Id);
 
         if (newTower.Way == SpawnWay.North)
         {
@@ -113,7 +113,7 @@ public partial class GameRoom
     
     private void UpgradeMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
     {
-        MonsterSlot newMonsterSlot = new(newStatue.MonsterId, newStatue.Way, newStatue);
+        MonsterSlot newMonsterSlot = new(newStatue.UnitId, newStatue.Way, newStatue);
 
         if (newStatue.Way == SpawnWay.North)
         {
@@ -182,7 +182,7 @@ public partial class GameRoom
             var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
             monster.StatueId = slot.Statue.Id;
             Push(EnterGame, monster);
-            player.Session.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.MonsterId });
+            player.Session.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.UnitId });
         }
     }
 
@@ -230,14 +230,13 @@ public partial class GameRoom
         }
     }
 
-    private Tower EnterTower(int towerId, PositionInfo posInfo, Player player)
+    private Tower EnterTower(int unitId, PositionInfo posInfo, Player player)
     {
-        var tower = ObjectManager.Instance.CreateTower((TowerId)towerId);
+        var tower = ObjectManager.Instance.CreateTower((UnitId)unitId);
         tower.PosInfo = posInfo;
         tower.Info.PosInfo = tower.PosInfo;
-        tower.TowerNum = towerId;
         tower.Player = player;
-        tower.TowerId = (TowerId)towerId;
+        tower.UnitId = (UnitId)unitId;
         tower.Room = this;
         tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         tower.Dir = tower.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
@@ -245,14 +244,13 @@ public partial class GameRoom
         return tower;
     }
 
-    private Monster EnterMonster(int monsterId, PositionInfo posInfo, Player player)
+    private Monster EnterMonster(int unitId, PositionInfo posInfo, Player player)
     {
-        var monster = ObjectManager.Instance.CreateMonster((MonsterId)monsterId);
+        var monster = ObjectManager.Instance.CreateMonster((UnitId)unitId);
         monster.PosInfo = posInfo;
         monster.Info.PosInfo = monster.PosInfo;
-        monster.MonsterNum = monsterId;
         monster.Player = player;
-        monster.MonsterId = (MonsterId)monsterId;
+        monster.UnitId = (UnitId)unitId;
         monster.Room = this;
         monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
@@ -260,14 +258,13 @@ public partial class GameRoom
         return monster;
     }
 
-    private MonsterStatue EnterMonsterStatue(int monsterId, PositionInfo posInfo, Player player)
+    private MonsterStatue EnterMonsterStatue(int unitId, PositionInfo posInfo, Player player)
     {
         var statue = ObjectManager.Instance.CreateMonsterStatue();
         statue.PosInfo = posInfo;
         statue.Info.PosInfo = statue.PosInfo;
-        statue.MonsterNum = monsterId;
         statue.Player = player;
-        statue.MonsterId = (MonsterId)monsterId;
+        statue.UnitId = (UnitId)unitId;
         statue.Room = this;
         statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
@@ -301,14 +298,13 @@ public partial class GameRoom
         GameInfo.SheepCount++;
     }
     
-    private Tusk EnterTusk(int monsterId, PositionInfo posInfo, Player player)
+    private Tusk EnterTusk(int unitId, PositionInfo posInfo, Player player)
     {
         var tusk = ObjectManager.Instance.CreateTusk();
         tusk.PosInfo = posInfo;
         tusk.Info.PosInfo = tusk.PosInfo;
-        tusk.MonsterNum = monsterId;
         tusk.Player = player;
-        tusk.MonsterId = (MonsterId)monsterId;
+        tusk.UnitId = (UnitId)unitId;
         tusk.Room = this;
         tusk.Way = tusk.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         tusk.Dir = tusk.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;

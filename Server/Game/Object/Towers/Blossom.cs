@@ -15,32 +15,32 @@ public class Blossom : Bloom
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.BlossomPoison:
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)TowerId,
-                        ObjectType = GameObjectType.Tower,
-                        SkillType = SkillType.SkillProjectile,
-                    });
-                    break;
-                case Skill.BlossomAccuracy:
-                    Accuracy += 20;
-                    break;
-                case Skill.BlossomAttack:
-                    Attack += 20;
-                    break;
-                case Skill.BlossomAttackSpeed:
-                    AttackSpeed += 0.2f;
-                    break;
-                case Skill.BlossomRange:
-                    AttackRange += 3.0f;
-                    break;
-                case Skill.BlossomDeath:
-                    BlossomDeath = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.BlossomPoison:
+            //         Room?.Broadcast(new S_SkillUpdate
+            //         {
+            //             ObjectEnumId = (int)TowerId,
+            //             ObjectType = GameObjectType.Tower,
+            //             SkillType = SkillType.SkillProjectile,
+            //         });
+            //         break;
+            //     case Skill.BlossomAccuracy:
+            //         Accuracy += 20;
+            //         break;
+            //     case Skill.BlossomAttack:
+            //         Attack += 20;
+            //         break;
+            //     case Skill.BlossomAttackSpeed:
+            //         AttackSpeed += 0.2f;
+            //         break;
+            //     case Skill.BlossomRange:
+            //         AttackRange += 3.0f;
+            //         break;
+            //     case Skill.BlossomDeath:
+            //         BlossomDeath = true;
+            //         break;
+            // }
         }
     }
 

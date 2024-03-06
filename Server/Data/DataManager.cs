@@ -7,16 +7,14 @@ public interface ILoader<TKey, TValue>
 
 public class DataManager
 {
-    public static Dictionary<int, MonsterData> MonsterDict { get; private set; } = new();
-    public static Dictionary<int, TowerData> TowerDict { get; private set; } = new();
+    public static Dictionary<int, UnitData> UnitDict { get; private set; } = new();
     public static Dictionary<int, FenceData> FenceDict { get; private set; } = new();
     public static Dictionary<int, ObjectData> ObjectDict { get; private set; } = new();
     public static Dictionary<int, SkillData> SkillDict { get; private set; } = new();
 
     public static void LoadData()
     {
-        MonsterDict = LoadJson<MonsterLoader, int, MonsterData>("MonsterData")!.MakeDict();
-        TowerDict = LoadJson<TowerLoader, int, TowerData>("TowerData")!.MakeDict();
+        UnitDict = LoadJson<UnitLoader, int, UnitData>("UnitData")!.MakeDict();
         FenceDict = LoadJson<FenceLoader, int, FenceData>("FenceData")!.MakeDict();
         ObjectDict = LoadJson<ObjectLoader, int, ObjectData>("ObjectData")!.MakeDict();
         SkillDict = LoadJson<SkillLoader, int, SkillData>("SkillData")!.MakeDict();

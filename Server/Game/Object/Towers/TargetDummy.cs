@@ -13,26 +13,26 @@ public class TargetDummy : PracticeDummy
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.TargetDummyHeal:
-                    _heal = true;
-                    break;
-                case Skill.TargetDummyHealth:
-                    MaxHp += 100;
-                    Hp += 100;
-                    break;
-                case Skill.TargetDummyFireResist:
-                    FireResist += 10;
-                    break;
-                case Skill.TargetDummyPoisonResist:
-                    PoisonResist += 10;
-                    break;
-                case Skill.TargetDummyReflection:
-                    Reflection = true;
-                    ReflectionRate = 0.1f;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.TargetDummyHeal:
+            //         _heal = true;
+            //         break;
+            //     case Skill.TargetDummyHealth:
+            //         MaxHp += 100;
+            //         Hp += 100;
+            //         break;
+            //     case Skill.TargetDummyFireResist:
+            //         FireResist += 10;
+            //         break;
+            //     case Skill.TargetDummyPoisonResist:
+            //         PoisonResist += 10;
+            //         break;
+            //     case Skill.TargetDummyReflection:
+            //         Reflection = true;
+            //         ReflectionRate = 0.1f;
+            //         break;
+            // }
         }
     }
 

@@ -17,29 +17,29 @@ public class Creeper : Lurker
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.CreeperAttack:
-                    Attack += 10;
-                    TotalAttack += 10;
-                    break;
-                case Skill.CreeperSpeed:
-                    MoveSpeed += 0.5f;
-                    break;
-                case Skill.CreeperAttackSpeed:
-                    AttackSpeed += 0.15f;
-                    break;
-                case Skill.CreeperRoll:
-                    _roll = true;
-                    break;
-                case Skill.CreeperPoison:
-                    Room?.Broadcast(new S_SkillUpdate { 
-                        ObjectEnumId = (int)MonsterId, 
-                        ObjectType = GameObjectType.Monster, 
-                        SkillType = SkillType.SkillProjectile 
-                    });
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.CreeperAttack:
+            //         Attack += 10;
+            //         TotalAttack += 10;
+            //         break;
+            //     case Skill.CreeperSpeed:
+            //         MoveSpeed += 0.5f;
+            //         break;
+            //     case Skill.CreeperAttackSpeed:
+            //         AttackSpeed += 0.15f;
+            //         break;
+            //     case Skill.CreeperRoll:
+            //         _roll = true;
+            //         break;
+            //     case Skill.CreeperPoison:
+            //         Room?.Broadcast(new S_SkillUpdate { 
+            //             ObjectEnumId = (int)MonsterId, 
+            //             ObjectType = GameObjectType.Monster, 
+            //             SkillType = SkillType.SkillProjectile 
+            //         });
+            //         break;
+            // }
         }
     }
     

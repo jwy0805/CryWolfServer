@@ -14,7 +14,7 @@ public sealed partial class ObjectManager : IFactory
     // [UNUSED(1)][TYPE(7)][ID(24)]
     private int _counter = 0;
     
-    public Tower CreateTower(TowerId towerId)
+    public Tower CreateTower(UnitId towerId)
     {
         if (!_towerDict.TryGetValue(towerId, out var factory)) throw new InvalidDataException();
         GameObject gameObject = factory.CreateTower();
@@ -23,7 +23,7 @@ public sealed partial class ObjectManager : IFactory
         return gameObject as Tower ?? throw new InvalidCastException();
     }
 
-    public Monster CreateMonster(MonsterId monsterId)
+    public Monster CreateMonster(UnitId monsterId)
     {
         if (!_monsterDict.TryGetValue(monsterId, out var factory)) throw new InvalidDataException();
         GameObject gameObject = factory.CreateMonster();

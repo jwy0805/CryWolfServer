@@ -15,22 +15,22 @@ public class Soul : Tower
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SoulAttack:
-                    Attack += 8;
-                    break;
-                case Skill.SoulDefence:
-                    Defence += 5;
-                    break;
-                case Skill.SoulHealth:
-                    MaxHp += 25;
-                    Hp += 25;
-                    break;
-                case Skill.SoulDrain:
-                    _drain = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SoulAttack:
+            //         Attack += 8;
+            //         break;
+            //     case Skill.SoulDefence:
+            //         Defence += 5;
+            //         break;
+            //     case Skill.SoulHealth:
+            //         MaxHp += 25;
+            //         Hp += 25;
+            //         break;
+            //     case Skill.SoulDrain:
+            //         _drain = true;
+            //         break;
+            // }
         }
     }
 

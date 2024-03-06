@@ -13,26 +13,26 @@ public class Wolf : WolfPup
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.WolfDefence:
-                    Defence += 4;
-                    break;
-                case Skill.WolfDrain:
-                    _drain = true;
-                    break;
-                case Skill.WolfAvoid:
-                    Evasion += 10;
-                    break;
-                case Skill.WolfFireResist:
-                    FireResist += 10;
-                    break;
-                case Skill.WolfPoisonResist:
-                    PoisonResist += 10;
-                    break;
-                case Skill.WolfDna:
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.WolfDefence:
+            //         Defence += 4;
+            //         break;
+            //     case Skill.WolfDrain:
+            //         _drain = true;
+            //         break;
+            //     case Skill.WolfAvoid:
+            //         Evasion += 10;
+            //         break;
+            //     case Skill.WolfFireResist:
+            //         FireResist += 10;
+            //         break;
+            //     case Skill.WolfPoisonResist:
+            //         PoisonResist += 10;
+            //         break;
+            //     case Skill.WolfDna:
+            //         break;
+            // }
         }
     }
 

@@ -16,35 +16,35 @@ public class TrainingDummy : TargetDummy
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.TrainingDummyAggro:
-                    SkillRange += 4.0f;
-                    break;
-                case Skill.TrainingDummyDefence:
-                    Defence += 6;
-                    break;
-                case Skill.TrainingDummyHeal:
-                    HealParam += 0.1f;
-                    break;
-                case Skill.TrainingDummyHealth:
-                    MaxHp += 200;
-                    Hp += 200;
-                    BroadcastHealth();
-                    break;
-                case Skill.TrainingDummyFireResist:
-                    FireResist += 15;
-                    break;
-                case Skill.TrainingDummyPoisonResist:
-                    PoisonResist += 15;
-                    break;
-                case Skill.TrainingDummyFaint:
-                    _faint = true;
-                    break;
-                case Skill.TrainingDummyDebuffRemove:
-                    _debuffRemove = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.TrainingDummyAggro:
+            //         SkillRange += 4.0f;
+            //         break;
+            //     case Skill.TrainingDummyDefence:
+            //         Defence += 6;
+            //         break;
+            //     case Skill.TrainingDummyHeal:
+            //         HealParam += 0.1f;
+            //         break;
+            //     case Skill.TrainingDummyHealth:
+            //         MaxHp += 200;
+            //         Hp += 200;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.TrainingDummyFireResist:
+            //         FireResist += 15;
+            //         break;
+            //     case Skill.TrainingDummyPoisonResist:
+            //         PoisonResist += 15;
+            //         break;
+            //     case Skill.TrainingDummyFaint:
+            //         _faint = true;
+            //         break;
+            //     case Skill.TrainingDummyDebuffRemove:
+            //         _debuffRemove = true;
+            //         break;
+            // }
         }
     }
 

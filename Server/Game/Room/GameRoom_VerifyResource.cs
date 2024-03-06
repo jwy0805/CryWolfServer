@@ -5,9 +5,9 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    private bool VerifyResourceForTower(Player player, int towerId)
+    private bool VerifyResourceForTower(Player player, int unitId)
     {
-        if (!DataManager.TowerDict.TryGetValue(towerId, out var towerData)) return true;
+        if (!DataManager.UnitDict.TryGetValue(unitId, out var towerData)) return true;
         int resource = GameInfo.SheepResource;
         int cost = towerData.stat.RequiredResources;
         if (resource < cost) return true;
@@ -16,10 +16,10 @@ public partial class GameRoom
         return false;
     }
     
-    private bool VerifyResourceForMonster(Player player, int monsterId)
+    private bool VerifyResourceForMonster(Player player, int unitId)
     {
         int resource = GameInfo.WolfResource;
-        if (!DataManager.MonsterDict.TryGetValue(monsterId, out var monsterData)) return true;
+        if (!DataManager.UnitDict.TryGetValue(unitId, out var monsterData)) return true;
         int cost = monsterData.stat.RequiredResources;
         if (resource < cost) return true;
         GameInfo.WolfResource -= cost;
@@ -27,24 +27,29 @@ public partial class GameRoom
         return false;
     }
 
-    private bool CalcUpgradeTowerPortrait(Player player, TowerId towerId)
+    private bool CalcUpgradeTowerPortrait(Player player, UnitId unitId)
     {
         int resource = GameInfo.SheepResource;
-        int cost = VerifyUpgradeTowerPortrait(player, towerId);
+        int cost = VerifyUpgradePortrait(player, unitId);
         if (resource < cost) return true;
         GameInfo.SheepResource -= cost;
 
         return false;
     }
-
-    private bool CalcUpgradeMonsterPortrait(Player player, MonsterId monsterId)
+    
+    private bool CalcUpgradeMonsterPortrait(Player player, UnitId unitId)
     {
-        return true;
+        int resource = GameInfo.WolfResource;
+        int cost = VerifyUpgradePortrait(player, unitId);
+        if (resource < cost) return true;
+        GameInfo.WolfResource -= cost;
+
+        return false;
     }
 
-    private int VerifyUpgradeTowerPortrait(Player player, TowerId towerId)
+    private int VerifyUpgradePortrait(Player player, UnitId unitId)
     {
-        GameData.OwnSkills.TryGetValue(towerId, out var skills);
+        GameData.OwnSkills.TryGetValue(unitId, out var skills);
         if (skills == null) return 100000;
         int cost = 0;
         foreach (var skill in skills)
@@ -57,14 +62,9 @@ public partial class GameRoom
         return cost;
     }
     
-    private int VerifyUpgradeMonsterPortrait(Player player, MonsterId monsterId)
-    {
-        return 0;
-    }
-    
     private bool VerifyCapacityForTower(Player player, int towerId, SpawnWay way)
     {
-        if (!DataManager.TowerDict.TryGetValue(towerId, out _)) return true;
+        if (!DataManager.UnitDict.TryGetValue(towerId, out _)) return true;
         int maxCapacity = 0;
         int nowCapacity = 0;
         
@@ -84,7 +84,7 @@ public partial class GameRoom
     
     private bool VerifyCapacityForMonster(Player player, int monsterId, SpawnWay way)
     {
-        if (!DataManager.MonsterDict.TryGetValue(monsterId, out _)) return true;
+        if (!DataManager.UnitDict.TryGetValue(monsterId, out _)) return true;
         int maxCapacity = 0;
         int nowCapacity = 0;
         
@@ -102,12 +102,21 @@ public partial class GameRoom
         return nowCapacity >= maxCapacity;
     }
     
-    private bool VerifyResourceForSkill(Skill skill)
+    private bool VerifyResourceForTowerSkill(Skill skill)
     {
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
         int cost = skillData.cost;
         if (GameInfo.SheepResource < cost) return true;
         GameInfo.SheepResource -= cost;
+        return false;
+    }
+    
+    private bool VerifyResourceForMonsterSkill(Skill skill)
+    {
+        if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
+        int cost = skillData.cost;
+        if (GameInfo.WolfResource < cost) return true;
+        GameInfo.WolfResource -= cost;
         return false;
     }
 
@@ -161,18 +170,18 @@ public partial class GameRoom
         }
     }
 
-    private bool VerifyUnitUpgrade(Player player, int towerId)
+    private bool VerifyUnitUpgrade(Player player, int unitId)
     {
-        if (player.Portraits.Contains(towerId + 1)) return false;
+        if (player.Portraits.Contains(unitId + 1)) return false;
         return true;
     }
 
-    private bool VerifyUnitUpgradeCost(int towerId)
+    private bool VerifyUnitUpgradeCost(int unitId)
     {
         int cost = 0;
         int cost1 = 0;
-        if (DataManager.TowerDict.TryGetValue(towerId, out var towerData)) cost1 = towerData.stat.RequiredResources;
-        if (DataManager.TowerDict.TryGetValue(towerId + 1, out var towerData2))
+        if (DataManager.UnitDict.TryGetValue(unitId, out var towerData)) cost1 = towerData.stat.RequiredResources;
+        if (DataManager.UnitDict.TryGetValue(unitId + 1, out var towerData2))
         {
             var cost2 = towerData2.stat.RequiredResources;
             cost = cost2 - cost1;

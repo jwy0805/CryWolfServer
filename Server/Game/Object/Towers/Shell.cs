@@ -22,23 +22,23 @@ public class Shell : Monster
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.ShellHealth:
-                    MaxHp += 35;
-                    Hp += 35;
-                    BroadcastHealth();
-                    break;
-                case Skill.ShellSpeed:
-                    _moveSpeedBuff = true;
-                    break;
-                case Skill.ShellAttackSpeed:
-                    _attackSpeedBuff = true;
-                    break;
-                case Skill.ShellRoll:
-                    _roll = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.ShellHealth:
+            //         MaxHp += 35;
+            //         Hp += 35;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.ShellSpeed:
+            //         _moveSpeedBuff = true;
+            //         break;
+            //     case Skill.ShellAttackSpeed:
+            //         _attackSpeedBuff = true;
+            //         break;
+            //     case Skill.ShellRoll:
+            //         _roll = true;
+            //         break;
+            // }
         }
     }
 

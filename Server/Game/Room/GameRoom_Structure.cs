@@ -6,14 +6,14 @@ public partial class GameRoom : JobSerializer
 {
     private struct TowerSlot 
     {
-        public TowerId TowerId;
+        public UnitId TowerId;
         public PositionInfo PosInfo;
         public SpawnWay Way;
         public int ObjectId;
         
-        public TowerSlot(TowerId towerId, PositionInfo positionInfo, SpawnWay way, int objectId = 0)
+        public TowerSlot(UnitId unitId, PositionInfo positionInfo, SpawnWay way, int objectId = 0)
         {
-            TowerId = towerId;
+            TowerId = unitId;
             PosInfo = positionInfo;
             Way = way;
             ObjectId = objectId;
@@ -22,41 +22,27 @@ public partial class GameRoom : JobSerializer
 
     private struct MonsterSlot
     {
-        public readonly MonsterId MonsterId;
+        public readonly UnitId MonsterId;
         public readonly SpawnWay Way;
         public readonly MonsterStatue Statue;
         
-        public MonsterSlot(MonsterId monsterId, SpawnWay way, MonsterStatue statue)
+        public MonsterSlot(UnitId unitId, SpawnWay way, MonsterStatue statue)
         {
-            MonsterId = monsterId;
+            MonsterId = unitId;
             Way = way;
             Statue = statue;
         }
     }
 
-    public struct TowerSize
+    public struct UnitSize
     {
-        public readonly TowerId TowerId;
+        public readonly UnitId UnitId;
         public readonly int SizeX;
         public readonly int SizeZ;
         
-        public TowerSize(TowerId towerId, int sizeX, int sizeZ)
+        public UnitSize(UnitId towerId, int sizeX, int sizeZ)
         {
-            TowerId = towerId;
-            SizeX = sizeX;
-            SizeZ = sizeZ;
-        }
-    }
-
-    public struct MonsterSize
-    {
-        public readonly MonsterId MonsterId;
-        public readonly int SizeX;
-        public readonly int SizeZ;
-        
-        public MonsterSize(MonsterId monsterId, int sizeX, int sizeZ)
-        {
-            MonsterId = monsterId;
+            UnitId = towerId;
             SizeX = sizeX;
             SizeZ = sizeZ;
         }

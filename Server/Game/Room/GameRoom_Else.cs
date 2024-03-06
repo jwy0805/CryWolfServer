@@ -287,14 +287,14 @@ public partial class GameRoom
         return target;
     }
     
-    public GameObject? FindNearestTower(List<TowerId> towerIdList)
+    public GameObject? FindNearestTower(List<UnitId> unitIdList)
     {
         Dictionary<int, GameObject> targetDict = new();
-        foreach (var towerId in towerIdList)
+        foreach (var unitId in unitIdList)
         {
             foreach (var (key, tower) in _towers)
             {
-                if (tower.TowerId == towerId) targetDict.Add(key, tower);
+                if (tower.UnitId == unitId) targetDict.Add(key, tower);
             }
         }
 
@@ -366,8 +366,8 @@ public partial class GameRoom
     {
         foreach (var monster in _monsters.Values)
         {
-            if (monster.MonsterId is not 
-                (MonsterId.MosquitoBug or MonsterId.MosquitoPester or MonsterId.MosquitoStinger)) continue;
+            if (monster.UnitId is not 
+                (UnitId.MosquitoBug or UnitId.MosquitoPester or UnitId.MosquitoStinger)) continue;
 
             if (InsideFence(monster))
             {

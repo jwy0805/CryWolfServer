@@ -68,7 +68,7 @@ public partial class GameRoom
         
         // 실제 환경
         lackOfSkill = VerifySkillTree(player, skill);
-        lackOfCost = VerifyResourceForSkill(skill);
+        lackOfCost = VerifyResourceForTowerSkill(skill);
 
         if (player.SkillUpgradedList.Contains(skill))
         {
@@ -99,33 +99,20 @@ public partial class GameRoom
     {
         if (player == null) return;
 
-        bool lackOfGold = false;
-        TowerId towerId = TowerId.UnknownTower;
-        MonsterId monsterId = MonsterId.UnknownMonster;
-        if (upgradePacket.MonsterId == MonsterId.UnknownMonster)
-        {
-            towerId = upgradePacket.TowerId;
-            lackOfGold = CalcUpgradeTowerPortrait(player, towerId);
-        }
-        else
-        {
-            monsterId = upgradePacket.MonsterId;
-            lackOfGold = CalcUpgradeMonsterPortrait(player, monsterId);
-        }
+        var unitId = upgradePacket.UnitId;
+        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
+        if (unitData == null) return;
+        if(Enum.TryParse(unitData.camp, out Camp camp) == false) return;
+        
+        var lackOfGold = camp == Camp.Sheep 
+            ? CalcUpgradeTowerPortrait(player, unitId) 
+            : CalcUpgradeMonsterPortrait(player, unitId);
         
         if (lackOfGold == false)
         {
-            if (monsterId == MonsterId.UnknownMonster)
-            {
-                towerId = (TowerId)((int)towerId + 1);
-                player.Portraits.Add((int)towerId);
-            }
-            else
-            {
-                monsterId = (MonsterId)((int)monsterId + 1);
-                player.Portraits.Add((int)monsterId);
-            }
-            player.Session.Send(new S_PortraitUpgrade { TowerId = towerId, MonsterId = monsterId });
+            var newUnitId = (UnitId)((int)unitId + 1);
+            player.Portraits.Add((int)newUnitId);
+            player.Session.Send(new S_PortraitUpgrade { UnitId = newUnitId });
         }
         else
         {
@@ -140,9 +127,9 @@ public partial class GameRoom
         if (go is not Tower towerr) return;
         
         // 실제 환경
-        bool evolutionEnded = !DataManager.TowerDict.TryGetValue((int)towerr.TowerId+ 1, out _);
-        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)towerr.TowerId);
-        bool lackOfCost = VerifyUnitUpgradeCost((int)towerr.TowerId);
+        bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)towerr.UnitId+ 1, out _);
+        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)towerr.UnitId);
+        bool lackOfCost = VerifyUnitUpgradeCost((int)towerr.UnitId);
         
         if (evolutionEnded)
         {
@@ -172,7 +159,7 @@ public partial class GameRoom
             };
             LeaveGame(id);
             Broadcast(new S_Despawn { ObjectIds = { id } });
-            int towerId = (int)t.TowerId + 1;
+            int towerId = (int)t.UnitId + 1;
             Tower tower = EnterTower(towerId, newTowerPos, player);
 
             Push(EnterGame, tower);
@@ -191,7 +178,7 @@ public partial class GameRoom
             };
             LeaveGame(statueId);
             Broadcast(new S_Despawn { ObjectIds = { statueId } });
-            int monsterId = (int)m.MonsterId + 1;
+            int monsterId = (int)m.UnitId + 1;
             MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
 
             Push(EnterGame, monsterStatue);
@@ -207,7 +194,7 @@ public partial class GameRoom
             };
             LeaveGame(id);
             Broadcast(new S_Despawn { ObjectIds = { id } });
-            int monsterId = (int)ms.MonsterId + 1;
+            int monsterId = (int)ms.UnitId + 1;
             MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
 
             Push(EnterGame, monsterStatue);
@@ -232,9 +219,7 @@ public partial class GameRoom
     public void HandleSetUpgradeButton(Player? player, C_SetUpgradeButton packet)
     {
         if (player == null) return;
-        var cost = player.Camp == Camp.Sheep 
-            ? VerifyUpgradeTowerPortrait(player, (TowerId)packet.UnitId) 
-            : VerifyUpgradeMonsterPortrait(player, (MonsterId)packet.UnitId);
+        var cost = VerifyUpgradePortrait(player, (UnitId)packet.UnitId);
         S_SetUpgradeButton buttonPacket = new() { UnitId = packet.UnitId, Cost = cost };
         player.Session.Send(buttonPacket);
     }
@@ -299,30 +284,5 @@ public partial class GameRoom
         Broadcast(new S_Despawn { ObjectIds = { objectId } });
 
         if (deletePacket.Inactive == false) return;
-        HandleInactive(gameObject, player);
-    }
-
-    private void HandleInactive(GameObject gameObject, Player player)
-    {
-        var type = gameObject.ObjectType;
-        switch (type)
-        {
-            case GameObjectType.Tower:
-                var tower = EnterTower((int)TowerId.Pumpkin, gameObject.PosInfo, player);
-                Push(EnterGame, tower);
-                break;
-            
-            case GameObjectType.Monster:
-                if (gameObject is not Monster m) return;
-                var statue = FindGameObjectById(m.StatueId);
-                
-                if (statue == null) return;
-                var monster = EnterMonster((int)MonsterId.Tusk, statue.PosInfo, player);
-                
-                break;
-            
-            case GameObjectType.MonsterStatue:
-                break;
-        }
     }
 }

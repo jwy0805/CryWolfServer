@@ -18,36 +18,36 @@ public class SoulMage : Haunt
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.SoulMageAvoid:
-                    Evasion += 20;
-                    break;
-                case Skill.SoulMageDefenceAll:
-                    Defence += 20;
-                    FireResist += 35;
-                    PoisonResist += 35;
-                    break;
-                case Skill.SoulMageFireDamage:
-                    Fire = true;
-                    break;
-                case Skill.SoulMageTornado:
-                    _tornado = true;
-                    break;
-                case Skill.SoulMageShareDamage:
-                    _shareDamage = true;
-                    break;
-                case Skill.SoulMageNatureAttack:
-                    _natureAttack = true;
-                    break;
-                case Skill.SoulMageDebuffResist:
-                    _debuffResist = true;
-                    break;
-                case Skill.SoulMageCritical:
-                    CriticalChance += 25;
-                    CriticalMultiplier = 1.5f;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.SoulMageAvoid:
+            //         Evasion += 20;
+            //         break;
+            //     case Skill.SoulMageDefenceAll:
+            //         Defence += 20;
+            //         FireResist += 35;
+            //         PoisonResist += 35;
+            //         break;
+            //     case Skill.SoulMageFireDamage:
+            //         Fire = true;
+            //         break;
+            //     case Skill.SoulMageTornado:
+            //         _tornado = true;
+            //         break;
+            //     case Skill.SoulMageShareDamage:
+            //         _shareDamage = true;
+            //         break;
+            //     case Skill.SoulMageNatureAttack:
+            //         _natureAttack = true;
+            //         break;
+            //     case Skill.SoulMageDebuffResist:
+            //         _debuffResist = true;
+            //         break;
+            //     case Skill.SoulMageCritical:
+            //         CriticalChance += 25;
+            //         CriticalMultiplier = 1.5f;
+            //         break;
+            // }
         }
     }
     
@@ -164,19 +164,19 @@ public class SoulMage : Haunt
         
         if (_shareDamage)
         {
-            List<TowerId> towerIds = new() 
-                { TowerId.PracticeDummy, TowerId.TargetDummy, TowerId.TrainingDummy }; 
-            GameObject? nearestDummy = Room.FindNearestTower(towerIds);
-            if (nearestDummy == null)
-            {
-                Hp = Math.Max(Stat.Hp - damage, 0);
-            }
-            else
-            {
-                damage = (int)(damage * 0.5f);
-                nearestDummy.OnDamaged(attacker, damage);
-                Hp = Math.Max(Stat.Hp - damage, 0);
-            }
+            // List<UnitId> towerIds = new() 
+            //     { ((Tower)this).UnitId.PracticeDummy, ((Tower)this).UnitId.TargetDummy, ((Tower)this).UnitId.TrainingDummy }; 
+            // GameObject? nearestDummy = Room.FindNearestTower(towerIds);
+            // if (nearestDummy == null)
+            // {
+            //     Hp = Math.Max(Stat.Hp - damage, 0);
+            // }
+            // else
+            // {
+            //     damage = (int)(damage * 0.5f);
+            //     nearestDummy.OnDamaged(attacker, damage);
+            //     Hp = Math.Max(Stat.Hp - damage, 0);
+            // }
         }
         else
         {

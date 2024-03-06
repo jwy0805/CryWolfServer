@@ -19,26 +19,26 @@ public class Werewolf : Wolf
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.WerewolfThunder:
-                    _thunder = true;
-                    break;
-                case Skill.WerewolfDebuffResist:
-                    _debuffResist = true;
-                    break;
-                case Skill.WerewolfFaint:
-                    _faint = true;
-                    break;
-                case Skill.WerewolfHealth:
-                    MaxHp += 250;
-                    Hp += 250;
-                    BroadcastHealth();
-                    break;
-                case Skill.WerewolfEnhance:
-                    _enhance = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.WerewolfThunder:
+            //         _thunder = true;
+            //         break;
+            //     case Skill.WerewolfDebuffResist:
+            //         _debuffResist = true;
+            //         break;
+            //     case Skill.WerewolfFaint:
+            //         _faint = true;
+            //         break;
+            //     case Skill.WerewolfHealth:
+            //         MaxHp += 250;
+            //         Hp += 250;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.WerewolfEnhance:
+            //         _enhance = true;
+            //         break;
+            // }
         }
     }
 

@@ -13,26 +13,26 @@ public class MosquitoPester : MosquitoBug
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MosquitoPesterAttack:
-                    Attack += 4;
-                    break;
-                case Skill.MosquitoPesterHealth:
-                    MaxHp += 25;
-                    Hp += 25;
-                    BroadcastHealth();
-                    break;
-                case Skill.MosquitoPesterWoolDown2:
-                    WoolDownRate = 30;
-                    break;
-                case Skill.MosquitoPesterWoolRate:
-                    _woolProduceStop = true;
-                    break;
-                case Skill.MosquitoPesterWoolStop:
-                    _woolStop = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MosquitoPesterAttack:
+            //         Attack += 4;
+            //         break;
+            //     case Skill.MosquitoPesterHealth:
+            //         MaxHp += 25;
+            //         Hp += 25;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.MosquitoPesterWoolDown2:
+            //         WoolDownRate = 30;
+            //         break;
+            //     case Skill.MosquitoPesterWoolRate:
+            //         _woolProduceStop = true;
+            //         break;
+            //     case Skill.MosquitoPesterWoolStop:
+            //         _woolStop = true;
+            //         break;
+            // }
         }
     }
 

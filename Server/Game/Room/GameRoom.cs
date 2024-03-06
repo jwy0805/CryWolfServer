@@ -11,8 +11,7 @@ public partial class GameRoom : JobSerializer
     private Player _npc = new();
 
     public GameInfo GameInfo;
-    public List<TowerSize> TowerSizeList = new();
-    public List<MonsterSize> MonsterSizeList = new();
+    public List<UnitSize> UnitSizeList = new();
 
     private readonly object _lock = new();
 
@@ -58,23 +57,14 @@ public partial class GameRoom : JobSerializer
 
     private void UnitSizeMapping()
     {
-        int[] towerIds = Enum.GetValues(typeof(TowerId)) as int[] ?? Array.Empty<int>();
-        int[] monsterIds = Enum.GetValues(typeof(MonsterId)) as int[] ?? Array.Empty<int>();
+        int[] unitIds = Enum.GetValues(typeof(UnitId)) as int[] ?? Array.Empty<int>();
         
-        foreach (var towerId in towerIds)
+        foreach (var unitId in unitIds)
         {
-            DataManager.TowerDict.TryGetValue(towerId, out var towerData);
+            DataManager.UnitDict.TryGetValue(unitId, out var unitData);
             StatInfo stat = new StatInfo();
-            stat.MergeFrom(towerData?.stat);
-            TowerSizeList.Add(new TowerSize((TowerId)towerId, stat.SizeX, stat.SizeZ));
-        }
-        
-        foreach (var monsterId in monsterIds)
-        {
-            DataManager.MonsterDict.TryGetValue(monsterId, out var monsterData);
-            StatInfo stat = new StatInfo();
-            stat.MergeFrom(monsterData?.stat);
-            MonsterSizeList.Add(new MonsterSize((MonsterId)monsterId, stat.SizeX, stat.SizeZ));
+            stat.MergeFrom(unitData?.stat);
+            UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
     
@@ -138,7 +128,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Tower:
                 Tower tower = (Tower)gameObject;
-                gameObject.Info.Name = Enum.Parse(typeof(TowerId), tower.TowerNum.ToString()).ToString();
+                gameObject.Info.Name = Enum.Parse(typeof(UnitId), tower.UnitId.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
@@ -149,7 +139,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Monster:
                 Monster monster = (Monster)gameObject;
-                gameObject.Info.Name = Enum.Parse(typeof(MonsterId), monster.MonsterNum.ToString()).ToString();
+                gameObject.Info.Name = Enum.Parse(typeof(UnitId), monster.UnitId.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
@@ -160,7 +150,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.MonsterStatue:
                 MonsterStatue statue = (MonsterStatue)gameObject;
-                string? monsterName = Enum.Parse(typeof(MonsterId), statue.MonsterNum.ToString()).ToString();
+                string? monsterName = Enum.Parse(typeof(UnitId), statue.UnitId.ToString()).ToString();
                 gameObject.Info.Name = string.Concat(monsterName, "Statue");
                 statue.Info = gameObject.Info;
                 _statues.Add(gameObject.Id, statue);

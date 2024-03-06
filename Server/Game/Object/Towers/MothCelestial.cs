@@ -15,34 +15,34 @@ public class MothCelestial : MothMoon
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MothCelestialSheepHealth:
-                    _sheepHealth = true;
-                    break;
-                case Skill.MothCelestialGroundAttack:
-                    AttackType = 2;
-                    break;
-                case Skill.MothCelestialAccuracy:
-                    Accuracy += 10;
-                    break;
-                case Skill.MothCelestialPoisonResist:
-                    PoisonResist += 15;
-                    break;
-                case Skill.MothCelestialFireResist:
-                    FireResist += 15;
-                    break;
-                case Skill.MothCelestialPoison:
-                    Room?.Broadcast(new S_SkillUpdate { 
-                        ObjectEnumId = (int)TowerId, 
-                        ObjectType = GameObjectType.Monster, 
-                        SkillType = SkillType.SkillProjectile 
-                    });
-                    break;
-                case Skill.MothCelestialBreedSheep:
-                    _breedSheep = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MothCelestialSheepHealth:
+            //         _sheepHealth = true;
+            //         break;
+            //     case Skill.MothCelestialGroundAttack:
+            //         AttackType = 2;
+            //         break;
+            //     case Skill.MothCelestialAccuracy:
+            //         Accuracy += 10;
+            //         break;
+            //     case Skill.MothCelestialPoisonResist:
+            //         PoisonResist += 15;
+            //         break;
+            //     case Skill.MothCelestialFireResist:
+            //         FireResist += 15;
+            //         break;
+            //     case Skill.MothCelestialPoison:
+            //         Room?.Broadcast(new S_SkillUpdate { 
+            //             ObjectEnumId = (int)TowerId, 
+            //             ObjectType = GameObjectType.Monster, 
+            //             SkillType = SkillType.SkillProjectile 
+            //         });
+            //         break;
+            //     case Skill.MothCelestialBreedSheep:
+            //         _breedSheep = true;
+            //         break;
+            // }
         }
     }
 

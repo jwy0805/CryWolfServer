@@ -22,33 +22,33 @@ public class MosquitoStinger : MosquitoPester
         set
         {
             Skill = value;
-            switch (Skill)
-            {
-                case Skill.MosquitoStingerAvoid:
-                    Evasion += 15;
-                    break;
-                case Skill.MosquitoStingerHealth:
-                    MaxHp += 60;
-                    Hp += 60;
-                    BroadcastHealth();
-                    break;
-                case Skill.MosquitoStingerLongAttack:
-                    _longAttack = true;
-                    AttackRange += 3;
-                    break;
-                case Skill.MosquitoStingerPoison:
-                    _poison = true;
-                    break;
-                case Skill.MosquitoStingerPoisonResist:
-                    PoisonResist += 20;
-                    break;
-                case Skill.MosquitoStingerInfection:
-                    _infection = true;
-                    break;
-                case Skill.MosquitoStingerSheepDeath:
-                    _sheepDeath = true;
-                    break;
-            }
+            // switch (Skill)
+            // {
+            //     case Skill.MosquitoStingerAvoid:
+            //         Evasion += 15;
+            //         break;
+            //     case Skill.MosquitoStingerHealth:
+            //         MaxHp += 60;
+            //         Hp += 60;
+            //         BroadcastHealth();
+            //         break;
+            //     case Skill.MosquitoStingerLongAttack:
+            //         _longAttack = true;
+            //         AttackRange += 3;
+            //         break;
+            //     case Skill.MosquitoStingerPoison:
+            //         _poison = true;
+            //         break;
+            //     case Skill.MosquitoStingerPoisonResist:
+            //         PoisonResist += 20;
+            //         break;
+            //     case Skill.MosquitoStingerInfection:
+            //         _infection = true;
+            //         break;
+            //     case Skill.MosquitoStingerSheepDeath:
+            //         _sheepDeath = true;
+            //         break;
+            // }
         }
     }
     
