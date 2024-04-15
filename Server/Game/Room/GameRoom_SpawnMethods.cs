@@ -287,7 +287,7 @@ public partial class GameRoom
 
     private void EnterSheepByServer(Player player)
     {
-        Sheep sheep = ObjectManager.Instance.Add<Sheep>();
+        var sheep = ObjectManager.Instance.Add<Sheep>();
         sheep.PosInfo = new PositionInfo { State = State.Idle };
         sheep.Info.PosInfo = sheep.PosInfo;
         sheep.Room = this;

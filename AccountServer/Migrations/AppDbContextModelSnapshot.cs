@@ -28,6 +28,12 @@ namespace AccountServer.Migrations
                     b.Property<int>("Camp")
                         .HasColumnType("int");
 
+                    b.Property<int>("DeckNumber")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("LastPicked")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -49,6 +55,44 @@ namespace AccountServer.Migrations
                     b.ToTable("Deck_Unit");
                 });
 
+            modelBuilder.Entity("AccountServer.DB.ExpTable", b =>
+                {
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Exp")
+                        .HasColumnType("int");
+
+                    b.HasKey("Level");
+
+                    b.ToTable("ExpTable");
+                });
+
+            modelBuilder.Entity("AccountServer.DB.Unit", b =>
+                {
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Camp")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Class")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Species")
+                        .HasColumnType("int");
+
+                    b.HasKey("UnitId");
+
+                    b.ToTable("Unit");
+                });
+
             modelBuilder.Entity("AccountServer.DB.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -58,9 +102,8 @@ namespace AccountServer.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Exp")
+                        .HasColumnType("int");
 
                     b.Property<int>("Gem")
                         .HasColumnType("int");
@@ -81,13 +124,20 @@ namespace AccountServer.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("UserAccount")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.HasKey("UserId");
 
-                    b.HasIndex("UserName")
+                    b.HasIndex("UserAccount")
                         .IsUnique();
 
                     b.ToTable("User");

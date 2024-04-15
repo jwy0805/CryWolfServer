@@ -44,7 +44,7 @@ public class MothMoon : MothLuna
 
     protected override void UpdateIdle()
     {
-        GameObject? target = Room?.FindNearestTarget(this, AttackType);
+        GameObject? target = Room?.FindClosestTarget(this, AttackType);
         if (target == null) return;
         Target ??= target;
         if (Target == null) return;

@@ -38,8 +38,7 @@ public partial class GameRoom
             
             // 울타리 생성
             if (_storageLevel != 1 && _fences.Count > 0)
-            {
-                // 기존 울타리 삭제
+            {   // 기존 울타리 삭제
                 List<int> deleteFences = _fences.Keys.ToList();
                 foreach (var fenceId in deleteFences)
                 {
@@ -179,25 +178,35 @@ public partial class GameRoom
         if (go == null) return;
         go.State = statePacket.State;
     }
-    
+
+    #region Summary
+
+    /// <summary>
+    /// Handle Attack method by packets.
+    /// OnDamaged method of Additional Attack must be set separately, in override method.
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="attackPacket"></param>
+
+    #endregion
     public void HandleAttack(Player? player, C_Attack attackPacket)
     {
         if (player == null) return;
         int attackerId = attackPacket.ObjectId;
-        GameObject? parent = FindGameObjectById(attackerId);
-        GameObject? target = parent?.Target;
+        GameObject? attacker = FindGameObjectById(attackerId);
+        GameObject? target = attacker?.Target;
         
-        if (parent == null) return;
-        GameObjectType type = parent.ObjectType;
+        if (attacker == null) return;
+        GameObjectType type = attacker.ObjectType;
 
         if (attackPacket.AttackMethod == AttackMethod.EffectAttack)
         {
             Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
             effect.Room = this;
-            effect.Parent = parent;
+            effect.Parent = attacker;
             effect.Info.Name = attackPacket.Effect.ToString();
             effect.EffectId = attackPacket.Effect;
-            effect.PosInfo = effect.SetEffectPos(parent);
+            effect.PosInfo = effect.SetEffectPos(attacker);
             effect.Info.PosInfo = effect.PosInfo;
             effect.Init();
             Push(EnterGameParent, effect, effect.Parent);
@@ -206,7 +215,7 @@ public partial class GameRoom
         if (target == null || target.Targetable == false)
         {
             if (type is not (GameObjectType.Tower or GameObjectType.Monster)) return;
-            Creature cAttacker = (Creature)parent;
+            Creature cAttacker = (Creature)attacker;
             cAttacker.SetNextState();
             return;
         }
@@ -216,25 +225,36 @@ public partial class GameRoom
             case AttackMethod.NoAttack:
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)parent;
+                    Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNormalAttackEffect(target);
                 }
                 break;
+            
             case AttackMethod.NormalAttack:
-                int damage = parent.TotalAttack;
-                target.OnDamaged(parent, damage);
+                int damage = attacker.TotalAttack;
+                target.OnDamaged(attacker, damage, Damage.Normal);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)parent;
+                    Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.Stat.MpRecovery;
                     cAttacker.SetNormalAttackEffect(target);
                 }
                 else if (type is GameObjectType.Projectile)
                 {
-                    parent.Parent!.Mp += parent.Parent.Stat.MpRecovery;
+                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
                     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
                     pAttacker?.SetProjectileEffect(target);
+                }
+                break;
+            
+            case AttackMethod.AdditionalAttack:
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetNextState();
+                    cAttacker.Mp += cAttacker.Stat.MpRecovery;
+                    cAttacker.SetAdditionalAttackEffect(target);
                 }
                 break;
             
@@ -242,19 +262,19 @@ public partial class GameRoom
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
                 Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
                 projectile.Room = this;
-                projectile.PosInfo = parent.PosInfo;
+                projectile.PosInfo = attacker.PosInfo;
                 // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;
                 projectile.Info.PosInfo = projectile.PosInfo;
                 projectile.Info.Name = attackPacket.Projectile.ToString();
                 projectile.ProjectileId = attackPacket.Projectile;
                 projectile.Target = target;
-                projectile.Parent = parent;
-                projectile.TotalAttack = parent.TotalAttack;
+                projectile.Parent = attacker;
+                projectile.Attack = attacker.Attack;
                 projectile.Init();
                 Push(EnterGame, projectile);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
-                    Creature cAttacker = (Creature)parent;
+                    Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
                 }
                 break;

@@ -1,3 +1,5 @@
+using Google.Protobuf.Protocol;
+
 namespace Server.Game;
 
 public class NaturalTornado : Effect
@@ -31,6 +33,6 @@ public class NaturalTornado : Effect
             return;
         }
         int damage = Target.MaxHp / 10;
-        Target.OnDamaged(this, damage);
+        Target.OnDamaged(this, damage, Damage.Magical);
     }
 }

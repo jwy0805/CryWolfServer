@@ -4,7 +4,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class Shell : Monster
+public class Shell : Tower
 {
     private bool _moveSpeedBuff = false;
     private bool _attackSpeedBuff = false;
@@ -54,7 +54,7 @@ public class Shell : Monster
         Random random = new Random();
         if (Room!.Stopwatch.ElapsedMilliseconds < CrashTime + random.Next(1500, 3000) && _start) return;
         
-        GameObject? target = Room?.FindNearestTarget(this);
+        GameObject? target = Room?.FindClosestTarget(this);
         if (target == null || Room == null || Target?.Id == target.Id) return;
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
@@ -79,7 +79,7 @@ public class Shell : Monster
             if (timeNow > LastSearch + SearchTick)
             {
                 LastSearch = timeNow;
-                GameObject? target = Room?.FindNearestTarget(this);
+                GameObject? target = Room?.FindClosestTarget(this);
                 if (Target?.Id != target?.Id)
                 {
                     Target = target;
@@ -133,7 +133,7 @@ public class Shell : Monster
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room?.FindClosestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -170,7 +170,7 @@ public class Shell : Monster
                 {
                     CellPos = position;
                     CrashTime = Room.Stopwatch.ElapsedMilliseconds;
-                    Target.OnDamaged(this, SkillDamage);
+                    Target.OnDamaged(this, SkillDamage, Damage.Normal);
                     Mp += MpRecovery;
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);

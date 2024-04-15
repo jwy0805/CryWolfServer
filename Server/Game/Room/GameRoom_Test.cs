@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    List<MonsterStatue> _testStatues = new();
+    readonly List<MonsterStatue> _testStatues = new();
 
     private void RenewTowerSlot(TowerSlot slot, Tower tower)
     {

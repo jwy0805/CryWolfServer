@@ -1,3 +1,5 @@
+using Google.Protobuf.Protocol;
+
 namespace Server.Game;
 
 public class PurpleBeam : Effect
@@ -41,6 +43,6 @@ public class PurpleBeam : Effect
             Room.LeaveGame(Id);
             return;
         }
-        Target.OnDamaged(this, _skillDamage);
+        Target.OnDamaged(this, _skillDamage, Damage.Magical);
     }
 }

@@ -9,12 +9,24 @@ public sealed partial class ObjectManager
 {
     private readonly Dictionary<UnitId, ITowerFactory> _towerDict = new()
     {
+        { UnitId.Bunny, new BunnyFactory() },
+        { UnitId.Rabbit, new RabbitFactory() },
+        { UnitId.Hare, new HareFactory() },
+        { UnitId.Mushroom, new MushroomFactory() },
+        { UnitId.Fungi, new FungiFactory() },
+        { UnitId.Toadstool, new ToadstoolFactory() },
+        { UnitId.Seed, new SeedFactory() },
+        { UnitId.Sprout, new SproutFactory() },
+        { UnitId.FlowerPot, new FlowerPotFactory() },
         { UnitId.Bud, new BudFactory() },
         { UnitId.Bloom, new BloomFactory() },
         { UnitId.Blossom, new BlossomFactory() },
         { UnitId.PracticeDummy, new PracticeDummyFactory() },
         { UnitId.TargetDummy, new TargetDummyFactory() },
         { UnitId.TrainingDummy, new TrainingDummyFactory() },
+        { UnitId.Shell, new ShellFactory() },
+        { UnitId.Spike, new SpikeFactory() },
+        { UnitId.Hermit, new HermitFactory() },
         { UnitId.SunBlossom, new SunBlossomFactory() },
         { UnitId.SunflowerFairy, new SunflowerFairyFactory() },
         { UnitId.SunfloraPixie, new SunfloraPixieFactory() },
@@ -28,43 +40,55 @@ public sealed partial class ObjectManager
 
     private readonly Dictionary<UnitId, IMonsterFactory> _monsterDict = new()
     {
+        { UnitId.DogPup, new DogPupFactory() },
+        { UnitId.DogBark, new DogBarkFactory() },
+        { UnitId.DogBowwow, new DogBowwowFactory() },
+        { UnitId.Burrow, new BurrowFactory() },
+        { UnitId.MoleRat, new MoleRatFactory() },
+        { UnitId.MoleRatKing, new MoleRatKingFactory() },
         { UnitId.WolfPup, new WolfPupFactory() },
         { UnitId.Wolf, new WolfFactory() },
         { UnitId.Werewolf, new WerewolfFactory() },
+        { UnitId.Bomb, new BombFactory() },
+        { UnitId.SnowBomb, new SnowBombFactory() },
+        { UnitId.PoisonBomb, new PoisonBombFactory() },
+        { UnitId.Cacti, new CactiFactory() },
+        { UnitId.Cactus, new CactusFactory() },
+        { UnitId.CactusBoss, new CactusBossFactory() },
         { UnitId.Lurker, new LurkerFactory() },
         { UnitId.Creeper, new CreeperFactory() },
         { UnitId.Horror, new HorrorFactory() },
-        { UnitId.Shell, new ShellFactory() },
-        { UnitId.Spike, new SpikeFactory() },
-        { UnitId.Hermit, new HermitFactory() },
         { UnitId.Snakelet, new SnakeletFactory() },
         { UnitId.Snake, new SnakeFactory() },
         { UnitId.SnakeNaga, new SnakeNagaFactory() },
         { UnitId.MosquitoBug, new MosquitoBugFactory() },
         { UnitId.MosquitoPester, new MosquitoPesterFactory() },
         { UnitId.MosquitoStinger, new MosquitoStingerFactory() },
+        { UnitId.Skeleton, new SkeletonFactory() },
+        { UnitId.SkeletonGiant, new SkeletonGiantFactory() },
+        { UnitId.SkeletonMage, new SkeletonMageFactory() }
     };
     
     private readonly Dictionary<ProjectileId, IProjectileFactory> _projectileDict = new()
     {
-        { ProjectileId.BasicProjectile, new BasicAttackFactory() },
+        { ProjectileId.BasicProjectile, new BasicProjectileFactory() },
         { ProjectileId.SmallFire, new SmallFireFactory() },
         { ProjectileId.BigFire, new BigFireFactory() },
-        { ProjectileId.PoisonProjectile, new PoisonAttackFactory() },
+        { ProjectileId.SmallPoison, new SmallPoisonFactory() },
         { ProjectileId.BigPoison, new BigPoisonFactory() },
-        { ProjectileId.SeedProjectile, new SeedFactory() },
+        { ProjectileId.SeedProjectile, new SeedProjectileFactory() },
         { ProjectileId.BlossomSeed, new BlossomSeedFactory() },
-        { ProjectileId.BlossomProjectile, new BlossomArrowFactory() },
-        { ProjectileId.HauntProjectile, new HauntArrowFactory() },
-        { ProjectileId.HauntFireProjectile, new HauntFireAttackFactory() },
-        { ProjectileId.SoulMageProjectile, new SoulMageAttackFactory() },
-        { ProjectileId.SunfloraPixieProjectile, new SunfloraPixieArrowFactory() },
+        { ProjectileId.BlossomProjectile, new BlossomProjectileFactory() },
+        { ProjectileId.HauntProjectile, new HauntProjectileFactory() },
+        { ProjectileId.HauntFireProjectile, new HauntFireProjectileFactory() },
+        { ProjectileId.SoulMageProjectile, new SoulMageProjectileFactory() },
+        { ProjectileId.SunfloraPixieProjectile, new SunfloraPixieProjectileFactory() },
         { ProjectileId.SunfloraPixieFire, new SunfloraPixieFireFactory() },
-        { ProjectileId.MothMoonAttack, new MothMoonAttackFactory()},
-        { ProjectileId.MothCelestialPoisonProjectile, new MothCelestialPoisonAttackFactory() },
-        { ProjectileId.MosquitoStingerProjectile, new MosquitoStingerAttackFactory() },
-        { ProjectileId.SpikeProjectile, new SpikeArrowFactory() },
-        { ProjectileId.HermitProjectile, new HermitArrowFactory() }
+        { ProjectileId.MothMoonProjectile, new MothMoonProjectileFactory()},
+        { ProjectileId.MothCelestialPoisonProjectile, new MothCelestialPoisonProjectileFactory() },
+        { ProjectileId.MosquitoStingerProjectile, new MosquitoStingerProjectileFactory() },
+        { ProjectileId.SpikeProjectile, new SpikeProjectileFactory() },
+        { ProjectileId.HermitProjectile, new HermitProjectileFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -139,6 +163,51 @@ public sealed partial class ObjectManager
         public Fence CreateFence() => new();
     }
     
+    public class BunnyFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Bunny();
+    }
+    
+    public class RabbitFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Rabbit();
+    }
+    
+    public class HareFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Hare();
+    }
+    
+    public class MushroomFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Mushroom();
+    }
+    
+    public class FungiFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Fungi();
+    }
+    
+    public class ToadstoolFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Toadstool();
+    }
+    
+    public class SeedFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Seed();
+    }
+    
+    public class SproutFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Sprout();
+    }
+    
+    public class FlowerPotFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new FlowerPot();
+    }
+    
     public class BudFactory : ITowerFactory
     {
         public Tower CreateTower() => new Bud();
@@ -167,6 +236,21 @@ public sealed partial class ObjectManager
     public class TrainingDummyFactory : ITowerFactory
     {
         public Tower CreateTower() => new TrainingDummy();
+    }
+    
+    public class ShellFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Shell();
+    }
+    
+    public class SpikeFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Spike();
+    }
+    
+    public class HermitFactory : ITowerFactory
+    {
+        public Tower CreateTower() => new Hermit();
     }
     
     public class SunBlossomFactory : ITowerFactory
@@ -219,6 +303,51 @@ public sealed partial class ObjectManager
         public Tower CreateTower() => new Pumpkin();
     }
     
+    public class DogPupFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new DogPup();
+    }
+    
+    public class DogBarkFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new DogBark();
+    }
+    
+    public class DogBowwowFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new DogBowwow();
+    }
+    
+    public class BurrowFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new Burrow();
+    }
+    
+    public class MoleRatFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new MoleRat();
+    }
+    
+    public class MoleRatKingFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new MoleRatKing();
+    }
+    
+    public class MosquitoBugFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new MosquitoBug();
+    }
+    
+    public class MosquitoPesterFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new MosquitoPester();
+    }
+    
+    public class MosquitoStingerFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new MosquitoStinger();
+    }
+    
     public class WolfPupFactory : IMonsterFactory
     {
         public Monster CreateMonster() => new WolfPup();
@@ -232,6 +361,36 @@ public sealed partial class ObjectManager
     public class WerewolfFactory : IMonsterFactory
     {
         public Monster CreateMonster() => new Werewolf();
+    }
+
+    public class BombFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new Bomb();
+    }
+    
+    public class SnowBombFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new SnowBomb();
+    }
+    
+    public class PoisonBombFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new PoisonBomb();
+    }
+    
+    public class CactiFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new Cacti();
+    }
+    
+    public class CactusFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new Cactus();
+    }
+    
+    public class CactusBossFactory : IMonsterFactory
+    {
+        public Monster CreateMonster() => new CactusBoss();
     }
     
     public class LurkerFactory : IMonsterFactory
@@ -264,37 +423,22 @@ public sealed partial class ObjectManager
         public Monster CreateMonster() => new SnakeNaga();
     }
     
-    public class ShellFactory : IMonsterFactory
+    public class SkeletonFactory : IMonsterFactory
     {
-        public Monster CreateMonster() => new Shell();
+        public Monster CreateMonster() => new Skeleton();
     }
     
-    public class SpikeFactory : IMonsterFactory
+    public class SkeletonGiantFactory : IMonsterFactory
     {
-        public Monster CreateMonster() => new Spike();
+        public Monster CreateMonster() => new SkeletonGiant();
     }
     
-    public class HermitFactory : IMonsterFactory
+    public class SkeletonMageFactory : IMonsterFactory
     {
-        public Monster CreateMonster() => new Hermit();
+        public Monster CreateMonster() => new SkeletonMage();
     }
     
-    public class MosquitoBugFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoBug();
-    }
-    
-    public class MosquitoPesterFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoPester();
-    }
-    
-    public class MosquitoStingerFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoStinger();
-    }
-    
-    public class BasicAttackFactory : IProjectileFactory
+    public class BasicProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new BasicAttack();
     }
@@ -309,7 +453,7 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new BigFire();
     }
     
-    public class PoisonAttackFactory : IProjectileFactory
+    public class SmallPoisonFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new PoisonAttack();
     }
@@ -319,9 +463,9 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new BigPoison();
     }
     
-    public class SeedFactory : IProjectileFactory
+    public class SeedProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new Seed();
+        public Projectile CreateProjectile() => new SeedProjectile();
     }
     
     public class BlossomSeedFactory : IProjectileFactory
@@ -329,27 +473,27 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new BlossomSeed();
     }
     
-    public class BlossomArrowFactory : IProjectileFactory
+    public class BlossomProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new BlossomArrow();
     }
     
-    public class HauntArrowFactory : IProjectileFactory
+    public class HauntProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new HauntArrow();
     }
     
-    public class HauntFireAttackFactory : IProjectileFactory
+    public class HauntFireProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new HauntFireAttack();
     }
     
-    public class SoulMageAttackFactory : IProjectileFactory
+    public class SoulMageProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new SoulMageAttack();
     }
     
-    public class SunfloraPixieArrowFactory : IProjectileFactory
+    public class SunfloraPixieProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new SunfloraPixieArrow();
     }
@@ -359,27 +503,27 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new SunfloraPixieFire();
     }
     
-    public class MothMoonAttackFactory : IProjectileFactory
+    public class MothMoonProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new MothMoonAttack();
     }
     
-    public class MothCelestialPoisonAttackFactory : IProjectileFactory
+    public class MothCelestialPoisonProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new MothCelestialPoisonAttack();
     }
     
-    public class MosquitoStingerAttackFactory : IProjectileFactory
+    public class MosquitoStingerProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new MosquitoStingerAttack();
     }
 
-    public class SpikeArrowFactory : IProjectileFactory
+    public class SpikeProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new SpikeArrow();
     }
 
-    public class HermitArrowFactory : IProjectileFactory
+    public class HermitProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new HermitArrow();
     }

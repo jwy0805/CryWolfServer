@@ -36,7 +36,7 @@ public class Soul : Tower
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
@@ -132,7 +132,7 @@ public class Soul : Tower
     public override void SetNormalAttackEffect(GameObject target)
     {
         if (!_drain) return;
-        Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
+        Hp += (int)((Attack - target.Defence) * DrainParam);
         Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
     }
 }

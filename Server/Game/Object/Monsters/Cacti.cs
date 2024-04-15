@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class Cacti
+public class Cacti : Monster
 {
     
 }

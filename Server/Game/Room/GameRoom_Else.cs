@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Util;
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 
 namespace Server.Game;
 
@@ -35,10 +36,10 @@ public partial class GameRoom
         StorageLevel = 1;
         foreach (var player in _players.Values)
         {
+            EnterSheepByServer(player);
+            EnterSheepByServer(player);
             if (player.Camp == Camp.Sheep)
             {
-                EnterSheepByServer(player);
-                EnterSheepByServer(player);
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
@@ -59,143 +60,115 @@ public partial class GameRoom
             }
         }
     }
-    
-    public GameObject? FindNearestTarget(GameObject gameObject, int attackType = 0)
-    {
-        // 어그로 끌린 상태면 리턴하는 코드
+
+    #region Summary
+    /// <summary>
+    /// Find a Nearest Target.
+    /// </summary>
+    /// <param name="gameObject"></param>
+    /// <param name="attackType"></param>
+    /// <returns>a Nearest Target GameObject</returns>
+    #endregion
+    public GameObject? FindClosestTarget(GameObject gameObject, int attackType = 0)
+    {   // 어그로 끌린 상태면 리턴
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
 
-        List<GameObjectType> targetType = new();
+        var targetTypeList = GetTargetType(gameObject);
+        var targetList = new List<GameObject>();
+        foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
+
+        return MeasureShortestDist(gameObject, targetList, attackType);
+    }
+    
+    public GameObject? FindClosestTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
+    {   // 어그로 끌린 상태면 리턴
+        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
+
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) targetList.AddRange(GetTargets(type));
+
+        return MeasureShortestDist(gameObject, targetList, attackType);
+    }
+
+    private List<GameObjectType> GetTargetType(GameObject gameObject)
+    {
+        List<GameObjectType> targetTypeList = new();
         switch (gameObject.ObjectType)
         {
             case GameObjectType.Monster:
                 if (ReachableInFence(gameObject))
                 {
-                    targetType = new List<GameObjectType>
-                        { GameObjectType.Fence, GameObjectType.Tower, GameObjectType.Sheep };
+                    targetTypeList = new List<GameObjectType> 
+                        { GameObjectType.Tower, GameObjectType.Sheep };
                 }
                 else
                 {
-                    targetType = new List<GameObjectType> { GameObjectType.Fence, GameObjectType.Tower };
+                    targetTypeList = new List<GameObjectType>
+                        { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
                 }
                 break;
             case GameObjectType.Tower:
-                targetType = new List<GameObjectType> { GameObjectType.Monster };
+                targetTypeList = new List<GameObjectType> { GameObjectType.Monster };
                 break;
         }
         
-        Dictionary<int, GameObject> targetDict = new();
+        return targetTypeList;
+    }
 
-        foreach (var t in targetType)
+    private bool ReachableInFence(GameObject go)
+    {
+        if (go.Way == SpawnWay.North)
         {
-            switch (t)
-            {
-                case GameObjectType.Monster:
-                    foreach (var (key, monster) in _monsters) targetDict.Add(key, monster);
-                    break;
-                case GameObjectType.Tower:
-                    foreach (var (key, tower) in _towers) targetDict.Add(key, tower);
-                    break;
-                case GameObjectType.Sheep:
-                    foreach (var (key, sheep) in _sheeps) targetDict.Add(key, sheep);
-                    break;
-                case GameObjectType.Fence:
-                    foreach (var (key, fence) in _fences) targetDict.Add(key, fence);
-                    break;
-            }
+            if (GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt) return true;
         }
-
-        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence(gameObject))
-        {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
-            List<int> keysToRemove = new List<int>();
-            if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
-            {
-                keysToRemove.AddRange(from pair in targetDict 
-                    where pair.Value.ObjectType == GameObjectType.Fence select pair.Key);
-                foreach (var key in keysToRemove) targetDict.Remove(key);
-            }
-        }
-        
-        if (targetDict.Count == 0) return null;
-        GameObject? target = null;
-        
-        float closestDist = 5000f;
-        foreach (var go in targetDict.Values)
+        else
         {
-            PositionInfo pos = go.PosInfo;
-            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            bool targetable = go.Stat.Targetable; 
-            float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable 
-                                   && go.Id != gameObject.Id 
-                                   && (go.UnitType == attackType 
-                                       || attackType == 2))
-            {
-                closestDist = dist;
-                target = go;
-            }
+            if (GameInfo.SouthFenceCnt < GameInfo.SouthMaxFenceCnt) return true;
         }
 
-        return target;
+        return false;
     }
     
-    public GameObject? FindNearestTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
+    private IEnumerable<GameObject> GetTargets(GameObjectType type)
     {
-        // 어그로 끌린 상태면 리턴하는 코드
-        if (BuffManager.Instance.Buffs.Select(b => b)
-            .Any(buff => buff.Id == BuffId.Aggro && buff.Master.Id == gameObject.Id)) 
-            return gameObject.Target;
-
-        Dictionary<int, GameObject> targetDict = new();
-
-        foreach (var t in typeList)
+        List<GameObject> targets = new();
+        switch (type)
         {
-            switch (t)
-            {
-                case GameObjectType.Monster:
-                    foreach (var (key, monster) in _monsters) targetDict.Add(key, monster);
-                    break;
-                case GameObjectType.Tower:
-                    foreach (var (key, tower) in _towers) targetDict.Add(key, tower);
-                    break;
-                case GameObjectType.Sheep:
-                    foreach (var (key, sheep) in _sheeps) targetDict.Add(key, sheep);
-                    break;
-                case GameObjectType.Fence:
-                    foreach (var (key, fence) in _fences) targetDict.Add(key, fence);
-                    break;
-            }
+            case GameObjectType.Monster:
+                targets = _monsters.Values.Cast<GameObject>().ToList();
+                break;
+            case GameObjectType.Tower:
+                targets = _towers.Values.Cast<GameObject>().ToList();
+                break;
+            case GameObjectType.Sheep:
+                targets = _sheeps.Values.Cast<GameObject>().ToList();
+                break;
+            case GameObjectType.Fence:
+                targets = _fences.Values.Cast<GameObject>().ToList();
+                break;
         }
 
-        if (gameObject.ObjectType == GameObjectType.Monster && ReachableInFence(gameObject))
-        {   // 울타리가 뚫렸을 때 타겟 우선순위 = 1. 양, 타워 -> 2. 울타리
-            List<int> keysToRemove = new List<int>();
-            if (targetDict.Values.Any(go => go.ObjectType != GameObjectType.Fence))
-            {
-                keysToRemove.AddRange(from pair in targetDict 
-                    where pair.Value.ObjectType == GameObjectType.Fence select pair.Key);
-                foreach (var key in keysToRemove) targetDict.Remove(key);
-            }
-        }
-        
-        if (targetDict.Count == 0) return null;
-        GameObject? target = null;
-        
-        float closestDist = 5000f;
-        foreach (var go in targetDict.Values)
+        return targets;    
+    }
+    
+    private GameObject? MeasureShortestDist(GameObject gameObject, List<GameObject> targets, int attackType)
+    {
+        GameObject? closest = null;
+        var closestDistSq = float.MaxValue;
+
+        foreach (var target in targets)
         {
-            PositionInfo pos = go.PosInfo;
-            Vector3 targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            bool targetable = go.Stat.Targetable; 
-            float dist = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (dist < closestDist && targetable && go.Id != gameObject.Id && (go.UnitType == attackType || attackType == 2))
-            {
-                closestDist = dist;
-                target = go;
-            }
+            if (target.Stat.Targetable == false || target.Id == gameObject.Id
+                || (target.UnitType != attackType && attackType != 2)) continue;
+            var pos = target.PosInfo;
+            var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            var distSq = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+            if (distSq < closestDistSq == false) continue;
+            closest = target;
+            closestDistSq = distSq;
         }
 
-        return target;
+        return closest;
     }
     
     public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height, int targetType)
@@ -317,20 +290,65 @@ public partial class GameRoom
         return target;
     }
 
-    public List<GameObject> FindTargets(GameObject gameObject, List<GameObjectType> typeList, float dist = 100, int targetType = 0)
+    #region Summary
+    /// <summary>
+    /// Find multiple targets in the range of dist from GameObject
+    /// </summary>
+    /// <param name="gameObject"></param>
+    /// <param name="typeList"></param>
+    /// <param name="dist"></param>
+    /// <param name="targetType"></param>
+    /// <returns>"plural targets in the range."</returns>
+    #endregion
+    public List<GameObject> FindTargets(GameObject gameObject, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
     {
-        Dictionary<int, GameObject> targetDict = new();
-        targetDict = typeList.Select(AddTargetType)
-            .Aggregate(targetDict, (current, dictionary) 
-                => current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
+        var targetList = typeList.SelectMany(GetTargets).ToList();
+        if (targetList.Count == 0) return new List<GameObject>();
         
-        if (targetDict.Count == 0) return new List<GameObject>();
-        
-        List<GameObject> objectsInDist = targetDict.Values
+        var objectsInDist = targetList
             .Where(obj => obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType)
             .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
             .ToList();
-        
+
+        return objectsInDist;
+    }
+
+    #region Summary
+
+    /// <summary>
+    /// Find multiple targets with specific unitIds or species in the range of dist from GameObject
+    /// </summary>
+    /// <param name="gameObject"></param>
+    /// <param name="type"></param>
+    /// <param name="unitIds"></param>
+    /// <param name="dist"></param>
+    /// <returns></returns>
+
+    #endregion
+    public List<GameObject> FindTargetsBySpecies(GameObject gameObject, GameObjectType type, IEnumerable<UnitId> unitIds, float dist = 100)
+    {
+        var targetList = GetTargets(type).ToList();
+        if (targetList.Count == 0) return new List<GameObject>();
+
+        var objectsInDist = new List<GameObject>();
+        switch (type)
+        {
+            case GameObjectType.Monster:
+                objectsInDist = targetList.OfType<Monster>()
+                    .Where(obj => unitIds.Contains(obj.UnitId))
+                    .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
+                    .Cast<GameObject>()
+                    .ToList();
+                break;
+            case GameObjectType.Tower:
+                objectsInDist = targetList.OfType<Tower>()
+                    .Where(obj => unitIds.Contains(obj.UnitId))
+                    .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
+                    .Cast<GameObject>()
+                    .ToList();
+                break;
+        }
+
         return objectsInDist;
     }
 
@@ -492,19 +510,5 @@ public partial class GameRoom
         bool insideZ = minZ <= cell.Z && maxZ >= cell.Z;
         
         return insideX && insideZ;
-    }
-
-    private bool ReachableInFence(GameObject go)
-    {
-        if (go.Way == SpawnWay.North)
-        {
-            if (GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt) return true;
-        }
-        else
-        {
-            if (GameInfo.SouthFenceCnt < GameInfo.SouthMaxFenceCnt) return true;
-        }
-
-        return false;
     }
 }

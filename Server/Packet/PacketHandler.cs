@@ -176,9 +176,9 @@ public class PacketHandler
         room?.Push(room.HandleLeave, player, leavePacket);
     }
 
-    public static void C_TowerSpawnPosHandler(PacketSession session, IMessage packet)
+    public static void C_UnitSpawnPosHandler(PacketSession session, IMessage packet)
     {
-        var spawnPacket = (C_TowerSpawnPos)packet;
+        var spawnPacket = (C_UnitSpawnPos)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
@@ -187,31 +187,15 @@ public class PacketHandler
         DestVector dest = spawnPacket.DestVector;
         Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
         Vector2Int cellPos = room.Map.Vector3To2(vector);
-
+        if (DataManager.UnitDict.TryGetValue(spawnPacket.UnitId, out var unitData) == false) return;
+        Enum.TryParse(unitData.camp, out Camp camp);
+        GameObjectType type = camp == Camp.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
+        
         int size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
         bool canSpawn = room.Map.CanSpawn(cellPos, size);
         
-        var towerSpawnPacket = new S_TowerSpawnPos { CanSpawn = canSpawn };
-        room.Broadcast(towerSpawnPacket);
-    }
-
-    public static void C_MonsterSpawnPosHandler(PacketSession session, IMessage packet)
-    {
-        var spawnPacket = (C_MonsterSpawnPos)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (room == null) return;
-        
-        DestVector dest = spawnPacket.DestVector;
-        Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
-        Vector2Int cellPos = room.Map.Vector3To2(vector);
-
-        int size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
-        bool canSpawn = room.Map.CanSpawn(cellPos, size);
-        
-        var monsterSpawnPacket = new S_MonsterSpawnPos { CanSpawn = canSpawn };
-        room.Broadcast(monsterSpawnPacket);
+        var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type};
+        room.Broadcast(unitSpawnPacket);
     }
     
     public static void C_SetTextUIHandler(PacketSession session, IMessage packet)

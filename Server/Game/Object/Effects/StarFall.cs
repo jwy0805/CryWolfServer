@@ -34,6 +34,6 @@ public class StarFall : Effect
         List<GameObjectType> typeList = new() { GameObjectType.Monster };
         List<GameObject> targets = Room.FindTargets(this, typeList, _starFallRad);
         if (!targets.Any()) return;
-        foreach (var t in targets) t.OnDamaged(this, _skillDamage);
+        foreach (var t in targets) t.OnDamaged(this, _skillDamage, Damage.Magical);
     }
 }

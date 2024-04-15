@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class Cactus
+public class Cactus : Cacti
 {
     
 }

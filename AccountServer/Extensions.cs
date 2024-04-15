@@ -1,5 +1,4 @@
 using AccountServer.DB;
-using SharedDB;
 
 namespace AccountServer;
 
@@ -14,20 +13,13 @@ public static class Extensions
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Error: {e.Message}");
             return false;
         }
     }
     
-    public static bool SaveChangesExtended(this SharedDbContext dbContext)
+    public static T ToEnum<T>(this string enumString) where T : Enum
     {
-        try
-        {
-            dbContext.SaveChanges();
-            return true;
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
+        return (T)Enum.Parse(typeof(T), enumString);
     }
-}
+} 

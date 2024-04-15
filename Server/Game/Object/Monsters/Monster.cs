@@ -17,19 +17,19 @@ public class Monster : Creature, ISkillObserver
 
     public override void Init()
     {
+
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
-        Console.WriteLine($"{Id}, {UnitId}");
         base.Init();
-        Hp = MaxHp;
 
+        StatInit();
         Player.SkillSubject.AddObserver(this);
         State = State.Idle;
     }
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
@@ -42,9 +42,9 @@ public class Monster : Creature, ISkillObserver
     }
 
     protected override void UpdateMoving()
-    {
+    {   
         // Targeting
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         if (Target != null)
         {
             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
@@ -93,8 +93,8 @@ public class Monster : Creature, ISkillObserver
 
     public virtual void OnSkillUpgrade(Skill skill)
     {
-        string skillName = skill.ToString();
-        string monsterName = UnitId.ToString();
+        var skillName = skill.ToString();
+        var monsterName = UnitId.ToString();
         if (skillName.Contains(monsterName))
         {
             NewSkill = skill;
@@ -104,13 +104,13 @@ public class Monster : Creature, ISkillObserver
 
     public override void SkillInit()
     {
-        List<Skill> skillUpgradedList = Player.SkillUpgradedList;
-        string monsterName = UnitId.ToString();
+        var skillUpgradedList = Player.SkillUpgradedList;
+        var monsterName = UnitId.ToString();
         if (skillUpgradedList.Count == 0) return;
         
         foreach (var skill in skillUpgradedList)
         {
-            string skillName = skill.ToString();
+            var skillName = skill.ToString();
             if (skillName.Contains(monsterName)) SkillList.Add(skill);
         }
 

@@ -17,10 +17,10 @@ public class Tower : Creature, ISkillObserver
 
     public override void Init()
     {
+        base.Init();
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
-        base.Init();
-        Hp = MaxHp;
+        StatInit();
         
         Player.SkillSubject.AddObserver(this);
         SearchTick = 250;
@@ -30,7 +30,7 @@ public class Tower : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
 
@@ -97,8 +97,8 @@ public class Tower : Creature, ISkillObserver
 
     public virtual void OnSkillUpgrade(Skill skill)
     {
-        string skillName = skill.ToString();
-        string towerName = UnitId.ToString();
+        var skillName = skill.ToString();
+        var towerName = UnitId.ToString();
         if (skillName.Contains(towerName))
         {
             NewSkill = skill;
@@ -108,8 +108,8 @@ public class Tower : Creature, ISkillObserver
     
     public override void SkillInit()
     {
-        List<Skill> skillUpgradedList = Player.SkillUpgradedList;
-        string towerName = UnitId.ToString();
+        var skillUpgradedList = Player.SkillUpgradedList;
+        var towerName = UnitId.ToString();
         if (skillUpgradedList.Count == 0) return;
         
         foreach (var skill in skillUpgradedList)

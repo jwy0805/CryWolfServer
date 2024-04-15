@@ -13,7 +13,7 @@ public class Meteor : Effect
         if (Room == null || Parent == null || IsHit) return;
         List<GameObjectType> typeList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
         List<GameObject> targets = Room.FindTargets(this, typeList, _meteorRad);
-        foreach (var t in targets) t.OnDamaged(Parent, Parent.Attack); 
+        foreach (var t in targets) t.OnDamaged(Parent, Parent.Attack, Damage.Fire); 
         
         base.SetEffectEffect();
     }

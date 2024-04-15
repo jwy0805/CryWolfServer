@@ -88,8 +88,6 @@ public partial class GameRoom
             return;
         }
 
-
-
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
         player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
@@ -205,13 +203,10 @@ public partial class GameRoom
 
     public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
     {
-        int skillId = packet.SkillId;
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
         if (skillData == null) return;
 
-        var skillInfo = skillId is >= 700 and < 900 
-            ? new SkillInfo {Explanation = skillData.explanation, Cost = CheckBaseSkillCost((Skill)skillId)} 
-            : new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
+        var skillInfo = new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player?.Session.Send(popupPacket);
     }

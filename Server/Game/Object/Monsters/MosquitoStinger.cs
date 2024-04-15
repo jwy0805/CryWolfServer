@@ -59,8 +59,8 @@ public class MosquitoStinger : MosquitoPester
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            Target = Room.FindNearestTarget(this, _typeList, AttackType) 
-                     ?? Room.FindNearestTarget(this, AttackType);
+            Target = Room.FindClosestTarget(this, _typeList, AttackType) 
+                     ?? Room.FindClosestTarget(this, AttackType);
             if (Target != null)
             {
                 DestPos = Room!.Map.GetClosestPoint(CellPos, Target);

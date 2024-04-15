@@ -17,7 +17,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _southMaxMonster = 6;
     private int _southMonster = 0;
     private int _sheepResource = 1000;
-    private int _wolfResource = 250;
+    private int _wolfResource = 500000;
     public int SheepYield { get; set; } = 80;
     public int NorthFenceCnt { get; set; } = 0;
     public int SouthFenceCnt { get; set; } = 0;

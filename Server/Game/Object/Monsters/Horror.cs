@@ -122,7 +122,7 @@ public class Horror : Creeper
             if (timeNow > LastSearch + SearchTick)
             {
                 LastSearch = timeNow;
-                GameObject? target = Room?.FindNearestTarget(this);
+                GameObject? target = Room?.FindClosestTarget(this);
                 if (Target?.Id != target?.Id)
                 {
                     Target = target;
@@ -178,7 +178,7 @@ public class Horror : Creeper
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room?.FindClosestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -212,7 +212,7 @@ public class Horror : Creeper
             if (distance <= Stat.SizeX * 0.25 + 0.75f)
             {
                 CellPos = position;
-                Target.OnDamaged(this, SkillDamage);
+                Target.OnDamaged(this, SkillDamage, Damage.Normal);
                 if (_rollPoison)
                 {
                     Effect effect = ObjectManager.Instance.CreateEffect(EffectId.HorrorRoll);

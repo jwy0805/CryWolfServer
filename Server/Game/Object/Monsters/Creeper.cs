@@ -6,10 +6,11 @@ namespace Server.Game;
 
 public class Creeper : Lurker
 {
+    private bool _roll = false;
+    
     protected double CrashTime;
     protected long RollCoolTime;
     protected bool Start = false;
-    private bool _roll = false;
     
     protected override Skill NewSkill
     {
@@ -58,7 +59,7 @@ public class Creeper : Lurker
             if (timeNow > LastSearch + SearchTick)
             {
                 LastSearch = timeNow;
-                GameObject? target = Room?.FindNearestTarget(this);
+                GameObject? target = Room?.FindClosestTarget(this);
                 if (Target?.Id != target?.Id)
                 {
                     Target = target;
@@ -112,7 +113,7 @@ public class Creeper : Lurker
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room?.FindClosestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -148,7 +149,7 @@ public class Creeper : Lurker
                 if (distance <= Stat.SizeX * 0.25 + 0.75f)
                 {
                     CellPos = position;
-                    Target.OnDamaged(this, SkillDamage);
+                    Target.OnDamaged(this, SkillDamage, Damage.Normal);
                     Mp += MpRecovery;
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);

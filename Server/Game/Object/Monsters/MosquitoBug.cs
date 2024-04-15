@@ -39,8 +39,8 @@ public class MosquitoBug : Monster
         GameObject? target;
         if (Target == null || Target.Targetable == false)
         {
-            target = Room.FindNearestTarget(this, _typeList, 2) 
-                     ?? Room.FindNearestTarget(this, 2);
+            target = Room.FindClosestTarget(this, _typeList, 2) 
+                     ?? Room.FindClosestTarget(this, 2);
             LastSearch = Room.Stopwatch.Elapsed.Milliseconds;
             if (target == null) return;
             Target = target;
@@ -62,8 +62,8 @@ public class MosquitoBug : Monster
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            Target = Room.FindNearestTarget(this, _typeList, AttackType) 
-                                 ?? Room.FindNearestTarget(this, AttackType);
+            Target = Room.FindClosestTarget(this, _typeList, AttackType) 
+                                 ?? Room.FindClosestTarget(this, AttackType);
             if (Target != null)
             {
                 DestPos = Room!.Map.GetClosestPoint(CellPos, Target);

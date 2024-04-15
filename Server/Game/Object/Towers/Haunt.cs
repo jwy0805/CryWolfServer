@@ -47,7 +47,7 @@ public class Haunt : Soul
     protected override void UpdateMoving()
     {
         // Targeting
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         if (Target != null)
         {
             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);

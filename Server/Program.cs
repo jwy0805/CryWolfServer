@@ -3,9 +3,7 @@ using System.Timers;
 using Server.Data;
 using Server.DB;
 using Server.Game;
-using Server.Util;
 using ServerCore;
-using SharedDB;
 using Timer = System.Timers.Timer;
 
 namespace Server;
@@ -43,27 +41,7 @@ public class Program
         t.AutoReset = true;
         t.Elapsed += new ElapsedEventHandler((s, e) =>
         {
-            using SharedDbContext shared = new SharedDbContext();
-            var serverDb = shared.Servers.FirstOrDefault(server => server.Name == Name);
-            if (serverDb != null)
-            {
-                serverDb.IpAddress = IpAddress;
-                serverDb.Port = Port;
-                serverDb.BusyScore = SessionManager.Instance.GetBusyScore();
-                shared.SaveChangesExtended();
-            }
-            else
-            {
-                serverDb = new ServerDb
-                {
-                    Name = Name,
-                    IpAddress = IpAddress,
-                    Port = Port,
-                    BusyScore = SessionManager.Instance.GetBusyScore()
-                };
-                shared.Servers.Add(serverDb);
-                shared.SaveChangesExtended();
-            }
+            // using SharedDbContext shared = new SharedDbContext();
         });
         t.Interval = 10 * 1000;
         t.Start();

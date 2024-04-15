@@ -1,13 +1,17 @@
+using AccountServer;
 using AccountServer.DB;
 using Microsoft.EntityFrameworkCore;
-using SharedDB;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<ConfigService>();
+
+var configService = new ConfigService();
+var appConfig = configService.LoadGoogleConfigs(
+    "/Users/jwy/Documents/dev/Config/CryWolfAccountConfig.json");
 
 // Add services to the container.
 // -- StartUp.cs
 var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var sharedConnectionString = builder.Configuration.GetConnectionString("SharedConnection");
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -18,15 +22,11 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Google:ClientId"] ?? string.Empty;
+        options.ClientId = appConfig?.GoogleClientId ?? string.Empty;
+        options.ClientSecret = appConfig?.GoogleClientSecret ?? string.Empty;
     });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseMySql(defaultConnectionString, new MariaDbServerVersion(new Version(10, 11, 2)));
-});
-
-builder.Services.AddDbContext<SharedDbContext>(options =>
 {
     options.UseMySql(defaultConnectionString, new MariaDbServerVersion(new Version(10, 11, 2)));
 });

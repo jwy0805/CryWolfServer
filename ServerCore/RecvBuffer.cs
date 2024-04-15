@@ -22,12 +22,11 @@ public class RecvBuffer
     {
         int dataSize = DataSize;
         if (dataSize == 0)
-        {
-            _readPos = _writePos = 0; // 남은 데이터가 없는 경우 복사하지 않고 커서 위치만 리셋
+        {   // 남은 데이터가 없는 경우 복사하지 않고 커서 위치만 리셋
+            _readPos = _writePos = 0; 
         }
         else
-        {
-            // 남은 데이터가 있다면 시작 위치로 복사
+        {   // 남은 데이터가 있다면 시작 위치로 복사
             Array.Copy(_buffer.Array, _buffer.Offset + _readPos, _buffer.Array, _buffer.Offset, dataSize);
             _readPos = 0;
             _writePos = dataSize;

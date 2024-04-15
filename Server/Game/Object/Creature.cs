@@ -11,6 +11,9 @@ public class Creature : GameObject
     protected Skill Skill;
     protected readonly List<Skill> SkillList = new();
     protected long DeltaTime;
+    protected float AttackSpeedReciprocal;
+    protected float SkillSpeedReciprocal;
+    protected float SkillSpeedReciprocal2;
     protected const long MpTime = 1000;
 
     public override void Update()
@@ -78,43 +81,43 @@ public class Creature : GameObject
     public virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
-    public virtual void SetNormalAttackEffect(GameObject master) { }
-    
+    public virtual void SetNormalAttackEffect(GameObject target) { }
+    public virtual void SetAdditionalAttackEffect(GameObject target) { }
+
     public virtual void SetNextState()
     {
         if (Room == null) return;
-
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
+            BroadcastMove();
+            return;
+        }
+
+        if (Target.Hp <= 0)
+        {
+            Target = null;
+            State = State.Idle;
+            BroadcastMove();
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+
+        if (distance > TotalAttackRange)
+        {
+            DestPos = targetPos;
+            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+            BroadcastDest();
+            State = State.Moving;
+            Room.Broadcast(new S_State { ObjectId = Id, State = State });
         }
         else
         {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = State.Attack;
-                    SetDirection();
-                }
-                else
-                {
-                    DestPos = targetPos;
-                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
-                    State = State.Moving;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
+            State = State.Attack;
+            SetDirection();
         }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
     
     protected virtual void SetDirection()

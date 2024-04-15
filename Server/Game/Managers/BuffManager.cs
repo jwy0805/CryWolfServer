@@ -29,7 +29,7 @@ public sealed partial class BuffManager
         { BuffId.Burn, new BurnFactory() },
         { BuffId.Fainted, new FaintedFactory() }
     };
-    public List<ABuff> Buffs = new();
+    public HashSet<ABuff> Buffs = new();
     public GameRoom? Room;
     
     private BuffManager()
@@ -38,18 +38,18 @@ public sealed partial class BuffManager
         _stopwatch.Start();
     }
     
-    public void AddBuff(BuffId buffId, GameObject master, Creature caster, float param, long duration = 10000)
+    public void AddBuff(BuffId buffId, GameObject master, Creature caster, float param, long duration = 10000, bool nested = false)
     {
         if (!_buffDict.TryGetValue(buffId, out var factory)) return;
         
         long addBuffTime = _stopwatch.ElapsedMilliseconds;
         ABuff buff = factory.CreateBuff();
-        buff.Init(master, caster, addBuffTime, duration, param);
+        buff.Init(master, caster, addBuffTime, duration, param, nested);
 
         if (master.Invincible && buff.Type == BuffType.Debuff) return;
         if (buff.Nested == false && master.Buffs.Contains(buff.Id))
         {
-            ABuff? b = Buffs.FirstOrDefault(b => b.Master == master && b.Id == buffId);
+            ABuff? b = Buffs.FirstOrDefault(b => b.Caster == caster && b.Id == buffId);
             b?.RenewBuff(addBuffTime);
         }
         else
@@ -134,14 +134,14 @@ public sealed partial class BuffManager
         private long _duration;
         public bool Nested;
 
-        public virtual void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public virtual void Init(GameObject master, Creature caster, long startTime, long duration, float param, bool nested)
         {
             Type = BuffType.NoBuffType;
             Master = master;
             Caster = caster;
             _duration = duration;
             EndTime = startTime + _duration;
-            Nested = false;
+            Nested = nested;
         }
         public virtual void CalculateFactor() { }
         public virtual void TriggerBuff() { }
@@ -180,9 +180,10 @@ public sealed partial class BuffManager
         private int _factor;
         private float _param;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.AttackIncrease; 
             Type = BuffType.Buff;
             _param = param;
@@ -197,13 +198,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalAttack += _factor;
+            Master.Attack += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalAttack -= _factor;
+            Master.Attack -= _factor;
         }
     }
 
@@ -212,9 +213,10 @@ public sealed partial class BuffManager
         private float _param;
         private float _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.AttackSpeedIncrease;
             Type = BuffType.Buff;
             _param = param;
@@ -229,13 +231,13 @@ public sealed partial class BuffManager
         
         public override void TriggerBuff()
         {
-            Master.TotalAttackSpeed += _factor;
+            Master.AttackSpeed += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalAttackSpeed -= _factor;
+            Master.AttackSpeed -= _factor;
         }
     }
 
@@ -244,9 +246,10 @@ public sealed partial class BuffManager
         private float _param;
         private int _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.HealthIncrease;
             Type = BuffType.Buff;
             _param = param;        
@@ -279,9 +282,10 @@ public sealed partial class BuffManager
         private int _param;
         private int _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.DefenceIncrease;
             Type = BuffType.Buff;
             _param = (int)param;        
@@ -295,13 +299,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalDefence += _factor;
+            Master.Defence += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalDefence -= _factor;
+            Master.Defence -= _factor;
         }
     }
 
@@ -309,9 +313,10 @@ public sealed partial class BuffManager
     {
         private readonly Effect _holyAura = ObjectManager.Instance.CreateEffect(EffectId.HolyAura);
         
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Invincible;
             Type = BuffType.Buff;        
         }
@@ -335,9 +340,10 @@ public sealed partial class BuffManager
         private float _param;
         private float _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.MoveSpeedIncrease;
             Type = BuffType.Buff;
             _param = param;
@@ -352,13 +358,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalMoveSpeed += _factor;
+            Master.MoveSpeed += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalMoveSpeed -= _factor;
+            Master.MoveSpeed -= _factor;
         }
     }
 
@@ -367,9 +373,10 @@ public sealed partial class BuffManager
         private float _param;
         private int _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.AttackDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -383,13 +390,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalAttack -= _factor;
+            Master.Attack -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalAttack += _factor;
+            Master.Attack += _factor;
         }
     }
 
@@ -398,9 +405,10 @@ public sealed partial class BuffManager
         private float _param;
         private float _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.AttackSpeedDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -414,13 +422,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalAttackSpeed -= _factor;
+            Master.AttackSpeed -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalAttackSpeed += _factor;
+            Master.AttackSpeed += _factor;
         }
     }
 
@@ -429,9 +437,10 @@ public sealed partial class BuffManager
         private float _param;
         private int _factor;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.DefenceDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -445,13 +454,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalDefence -= _factor;
+            Master.Defence -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalDefence += _factor;
+            Master.Defence += _factor;
         }
     }
 
@@ -461,9 +470,10 @@ public sealed partial class BuffManager
         private float _factor;
         private Effect? _stateSlow;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.MoveSpeedDecrease;
             Type = BuffType.Debuff;
             _param = param;
@@ -476,7 +486,7 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.TotalMoveSpeed -= _factor;
+            Master.MoveSpeed -= _factor;
             _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
             EffectSetting(_stateSlow, Master);
         }
@@ -484,7 +494,7 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.TotalMoveSpeed += _factor;
+            Master.MoveSpeed += _factor;
             if (_stateSlow != null) _stateSlow.PacketReceived = true;
         }
     }
@@ -493,9 +503,10 @@ public sealed partial class BuffManager
     {
         private Effect? _stateCurse;
         
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Curse;
             Type = BuffType.Debuff;
             Nested = true;
@@ -528,9 +539,10 @@ public sealed partial class BuffManager
         private double _dotTime = 0;
         private Effect? _statePoison;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             _param = 0.05f;
@@ -576,9 +588,10 @@ public sealed partial class BuffManager
         private double _dotTime = 0;
         private Effect? _statePoison;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             Nested = true;
@@ -622,9 +635,10 @@ public sealed partial class BuffManager
         private Creature? _caster;
         private Effect? _stateAggro;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Aggro;
             Type = BuffType.Debuff;
             Master = master;
@@ -653,9 +667,10 @@ public sealed partial class BuffManager
         private double _dotTime = 0;
         private Effect? _stateBurn;
 
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
             Master = master;
@@ -698,9 +713,10 @@ public sealed partial class BuffManager
     {
         private Effect? _stateFaint;
         
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param)
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
         {
-            base.Init(master, caster, startTime, duration, param);
+            base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Fainted;
             Type = BuffType.Debuff;
             Nested = false;

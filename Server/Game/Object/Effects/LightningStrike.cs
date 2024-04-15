@@ -21,7 +21,7 @@ public class LightningStrike : Effect
    {
       if (Parent?.Target == null) return;
       _isHit = true;
-      Parent.Target.OnDamaged(Parent, Parent.SkillDamage);
+      Parent.Target.OnDamaged(Parent, Parent.SkillDamage, Damage.Magical);
       base.SetEffectEffect();
    }
 

@@ -123,6 +123,7 @@ public partial class GameRoom
     private bool VerifySkillTree(Player player, Skill skill)
     {
         var skills = GameData.SkillTree[skill];
+        if (skills.Contains(Skill.NoSkill)) return false;
         return !skills.All(item => player.SkillUpgradedList.Contains(item));
     }
 

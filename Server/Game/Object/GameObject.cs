@@ -4,7 +4,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public class GameObject : IGameObject
+public partial class GameObject : IGameObject
 {
     public Player Player;
     
@@ -12,254 +12,28 @@ public class GameObject : IGameObject
     protected long Time;
     protected int SearchTick = 500;
     protected double LastSearch = 0;
+    protected Vector3 DestPos;
 
     public List<Vector3> Path = new();
     protected List<Vector3> Dest = new();
     protected List<double> Atan = new();
-    public readonly List<BuffId> Buffs = new();
-    public GameObject? Target;
-    public GameObject? Parent;
-    protected Vector3 DestPos;
-    public SpawnWay Way;
-    private float _totalAttackSpeed;
-
-    public bool Burn { get; set; }
-    public bool Invincible { get; set; }
     
-    public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     public int Id
     {
         get => Info.ObjectId;
         set => Info.ObjectId = value;
     }
-    
+    public List<BuffId> Buffs { get; set; } = new();
+    public GameObject? Target { get; set; }
+    public GameObject? Parent { get; set; }
+    public SpawnWay Way { get; set; }
+    public bool Burn { get; set; }
+    public bool Invincible { get; set; }
     public GameRoom? Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
     public PositionInfo PosInfo { get; set; } = new();
     public StatInfo Stat { get; private set; } = new();
-    public int TotalAttack;
-
-    public float TotalAttackSpeed
-    {
-        get => _totalAttackSpeed;
-        set
-        { 
-            _totalAttackSpeed = value;
-            Room?.Broadcast(new S_SetAnimSpeed()
-            {
-                ObjectId = Id,
-                Param = _totalAttackSpeed
-            });
-        }
-    }
-
-    public int TotalSkill;
-    public int TotalDefence;
-    public float TotalMoveSpeed;
-    public int TotalAccuracy;
-    public int TotalEvasion;
-    public int TotalFireResist;
-    public int TotalPoisonResist;
-
-    #region Stat
-    
-    public virtual int Hp
-    {
-        get => Stat.Hp;
-        set => Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
-    }
-
-    public int MaxHp
-    {
-        get => Stat.MaxHp;
-        set => Stat.MaxHp = value;
-    }
-
-    public int Mp
-    {
-        get => Stat.Mp;
-        set => Stat.Mp = Math.Clamp(value, 0, Stat.MaxMp);
-    }
-
-    public int MaxMp
-    {
-        get => Stat.MaxMp;
-        set => Stat.MaxMp = value;
-    }
-
-    public int MpRecovery
-    {
-        get => Stat.MpRecovery;
-        set => Stat.MpRecovery = value;
-    }
-
-    public int Attack
-    {
-        get => Stat.Attack;
-        protected set
-        {
-            TotalAttack -= Stat.Attack;
-            Stat.Attack = value;
-            TotalAttack += Stat.Attack;
-        }
-    }
-
-    public int SkillDamage
-    {
-        get => Stat.Skill;
-        set => Stat.Skill = value;
-    }
-
-    public int Defence
-    {
-        get => Stat.Defence;
-        protected set
-        {
-            TotalDefence -= Stat.Defence;
-            Stat.Defence = value;
-            TotalDefence += Stat.Defence;
-        }    
-    }
-
-    public int FireResist
-    {
-        get => Stat.FireResist;
-        protected set
-        {
-            TotalFireResist -= Stat.FireResist;
-            Stat.FireResist = value;
-            TotalFireResist += Stat.FireResist;
-        }
-    }
-
-    public int PoisonResist
-    {
-        get => Stat.PoisonResist;
-        protected set
-        {
-            TotalPoisonResist -= Stat.PoisonResist;
-            Stat.PoisonResist = value;
-            TotalPoisonResist += Stat.PoisonResist;
-        }
-    }
-
-    public float MoveSpeed
-    {
-        get => Stat.MoveSpeed;
-        protected set
-        {
-            TotalMoveSpeed -= Stat.MoveSpeed;
-            Stat.MoveSpeed = value;
-            TotalMoveSpeed += Stat.MoveSpeed;
-        }
-    }
-
-    public float AttackSpeed
-    {
-        get => Stat.AttackSpeed;
-        protected set
-        {
-            TotalAttackSpeed -= Stat.AttackSpeed;
-            Stat.AttackSpeed = value;
-            TotalAttackSpeed += Stat.AttackSpeed;
-        }
-    }
-
-    public float AttackRange
-    {
-        get => Stat.AttackRange;
-        set => Stat.AttackRange = value;
-    }
-
-    public float SkillRange
-    {
-        get => Stat.SkillRange;
-        set => Stat.SkillRange = value;
-    }
-    
-    public int CriticalChance
-    {
-        get => Stat.CriticalChance;
-        set => Stat.CriticalChance = value;
-    }
-
-    public float CriticalMultiplier
-    {
-        get => Stat.CriticalMultiplier;
-        set => Stat.CriticalMultiplier = value;
-    }
-
-    public int Accuracy
-    {
-        get => Stat.Accuracy;
-        protected set
-        {
-            TotalAccuracy -= Stat.Accuracy;
-            Stat.Accuracy = value;
-            TotalAccuracy += Stat.Accuracy;
-        }
-    }
-
-    public int Evasion
-    {
-        get => Stat.Evasion;
-        protected set
-        {
-            TotalEvasion -= Stat.Evasion;
-            Stat.Evasion = value;
-            TotalEvasion += Stat.Evasion;
-        }
-    }
-
-    public bool Targetable
-    {
-        get => Stat.Targetable;
-        set => Stat.Targetable = value;
-    }
-
-    public bool Aggro
-    {
-        get => Stat.Aggro;
-        set => Stat.Aggro = value;
-    }
-
-    public bool Reflection
-    {
-        get => Stat.Reflection;
-        set => Stat.Reflection = value;
-    }
-
-    public bool ReflectionSkill
-    {
-        get => Stat.ReflectionSkill;
-        set => Stat.ReflectionSkill = value;
-    }
-
-    public float ReflectionRate
-    {
-        get => Stat.ReflectionRate;
-        set => Stat.ReflectionRate = value;
-    }
-
-    public int UnitType
-    {
-        get => Stat.UnitType;
-        set => Stat.UnitType = value;
-    }
-
-    public int AttackType
-    {
-        get => Stat.AttackType;
-        set => Stat.AttackType = value;
-    }
-    
-    public int Resource
-    {
-        get => Stat.Resource;
-        set => Stat.Resource = value;
-    }
-    
-    #endregion
+    public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     
     public State State
     {
@@ -294,7 +68,6 @@ public class GameObject : IGameObject
     {
         if (Room == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;
-        StatInit();
     }
     
     protected IJob Job;
@@ -306,34 +79,27 @@ public class GameObject : IGameObject
     
     public void StatInit()
     {
-        TotalAttack = Attack;
-        TotalAttackSpeed = AttackSpeed;
-        TotalDefence = Defence;
-        TotalMoveSpeed = MoveSpeed;
-        TotalAccuracy = Accuracy;
-        TotalEvasion = Evasion;
-        TotalFireResist = FireResist;
-        TotalPoisonResist = PoisonResist;
+        Hp = MaxHp;
     }
     
-    public virtual void OnDamaged(GameObject attacker, int damage, bool reflected = false)
+    public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
         
-        damage = attacker.CriticalChance > 0 
+        int totalDamage = attacker.CriticalChance > 0 
             ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
             : Math.Max(damage - TotalDefence, 0);
         Hp = Math.Max(Stat.Hp - damage, 0);
         
         if (Reflection && reflected == false)
         {
-            int refParam = (int)(damage * ReflectionRate);
-            attacker.OnDamaged(this, refParam, true);
+            int refParam = (int)(totalDamage * ReflectionRate);
+            attacker.OnDamaged(this, refParam, damageType, true);
         }
 
-        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
-        Room.Broadcast(hpPacket);
+        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
     }
 
@@ -372,7 +138,7 @@ public class GameObject : IGameObject
     public virtual void BroadcastDest()
     {
         if (Dest.Count == 0 || Atan.Count == 0) return;
-        S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
+        S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = MoveSpeed };
         
         for (int i = 0; i < Dest.Count; i++)
         {

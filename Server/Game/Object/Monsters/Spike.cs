@@ -48,7 +48,7 @@ public class Spike : Shell
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room?.FindClosestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -85,7 +85,7 @@ public class Spike : Shell
                 {
                     CellPos = position;
                     CrashTime = Room.Stopwatch.ElapsedMilliseconds;
-                    Target.OnDamaged(this, SkillDamage);
+                    Target.OnDamaged(this, SkillDamage, Damage.Normal);
                     if (_lostHeal) Hp += (int)((MaxHp - Hp) * LostHealParam);
                     Mp += MpRecovery;
                     State = State.KnockBack;

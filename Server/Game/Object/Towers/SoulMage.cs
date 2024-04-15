@@ -112,7 +112,7 @@ public class SoulMage : Haunt
     protected override void UpdateMoving()
     {
         // Targeting
-        Target = Room?.FindNearestTarget(this);
+        Target = Room?.FindClosestTarget(this);
         if (Target != null)
         {
             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
@@ -153,12 +153,12 @@ public class SoulMage : Haunt
         }
     }
     
-    public override void OnDamaged(GameObject attacker, int damage, bool reflected = false)
+    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
         
-        damage = attacker.CriticalChance > 0 
+        int totalDamage = attacker.CriticalChance > 0 
             ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
             : Math.Max(damage - TotalDefence, 0);
         
@@ -180,17 +180,17 @@ public class SoulMage : Haunt
         }
         else
         {
-            Hp = Math.Max(Stat.Hp - damage, 0);
+            Hp = Math.Max(Stat.Hp - totalDamage, 0);
         }
         
         if (Reflection && reflected == false)
         {
             int refParam = (int)(damage * ReflectionRate);
-            attacker.OnDamaged(this, refParam, true);
+            attacker.OnDamaged(this, refParam, damageType, true);
         }
         
-        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
-        Room.Broadcast(hpPacket);
+        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
     }
 

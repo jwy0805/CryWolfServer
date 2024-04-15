@@ -1,152 +1,131 @@
 using AccountServer.DB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SharedDB;
 
-namespace AccountServer.Controllers
+namespace AccountServer.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class UserAccountController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserAccountController : ControllerBase
+    private readonly AppDbContext _context;
+    
+    public UserAccountController(AppDbContext context)
     {
-        private readonly AppDbContext _context;
-        private readonly SharedDbContext _shared;
-        
-        public UserAccountController(AppDbContext context, SharedDbContext shared)
+        _context = context;
+    }
+    
+    [HttpPost]
+    [Route("CreateAccount")]
+    public CreateUserAccountPacketResponse CreateAccount([FromBody] CreateUserAccountPacketRequired required)
+    {
+        CreateUserAccountPacketResponse res = new();
+        var account = _context.User
+            .AsNoTracking()
+            .FirstOrDefault(user => user.UserAccount == required.UserAccount);
+
+        if (account == null)
         {
-            _context = context;
-            _shared = shared;
+            var newUser = new User
+            {
+                UserAccount = required.UserAccount,
+                UserName = "",
+                Password = required.Password,
+                Role = UserRole.User,
+                State = UserState.Activate,
+                CreatedAt = DateTime.UtcNow,
+                RankPoint = 0,
+                Gold = 500,
+                Gem = 0
+            };
+            
+            _context.User.Add(newUser);
+            var success = _context.SaveChangesExtended(); // 이 때 UserId가 생성
+            newUser.UserName = $"Player{newUser.UserId}";
+            
+            res.CreateOk = success;
+        }
+        else
+        {
+            res.CreateOk = false;
         }
         
-        [HttpPost]
-        [Route("create")]
-        public CreateUserAccountPacketResponse CreateAccount([FromBody] CreateUserAccountPacketRequired required)
+        return res;
+    }
+
+    [HttpPost]
+    [Route("CreateInitDeck")]
+    public CreateInitDeckPacketResponse CreateInitDeck([FromBody] CreateInitDeckPacketRequired required)
+    {
+        CreateInitDeckPacketResponse res = new();
+        var account = _context.User
+            .AsNoTracking()
+            .FirstOrDefault(user => user.UserAccount == required.UserAccount);
+
+        if (account != null)
         {
-            CreateUserAccountPacketResponse res = new();
-            var account = _context.User
-                .AsNoTracking()
-                .FirstOrDefault(account => account.UserName == required.UserName);
-
-            if (account == null)
-            {
-                var newUser = new User
-                {
-                    UserName = required.UserName,
-                    Password = required.Password,
-                    Role = UserRole.User,
-                    State = UserState.Activate,
-                    CreatedAt = DateTime.UtcNow,
-                    RankPoint = 0,
-                    Gold = 500,
-                    Gem = 50
-                };
-                
-                _context.User.Add(newUser);
-                bool success = _context.SaveChangesExtended();
-
-                CreateFirstDecks(newUser.UserId);
-                
-                res.CreateOK = success;
-            }
-            else
-            {
-                res.CreateOK = false;
-            }
+            CreateInitDeckAndCollection(account.UserId, new [] {
+                UnitId.Hare, UnitId.Toadstool, UnitId.FlowerPot, 
+                UnitId.Blossom, UnitId.TrainingDummy, UnitId.SunfloraPixie
+            }, Camp.Sheep);
             
-            return res;
+            CreateInitDeckAndCollection(account.UserId, new [] {
+                UnitId.DogBowwow, UnitId.MoleRatKing, UnitId.MosquitoStinger, 
+                UnitId.Werewolf, UnitId.CactusBoss, UnitId.SnakeNaga
+            }, Camp.Wolf);
+            
+            res.CreateDeckOk = true;
+        }
+        else
+        {
+            res.CreateDeckOk = false;
         }
 
-        private void CreateFirstDecks(int userId)
+        return res;
+    }
+    
+    private void CreateInitDeckAndCollection(int userId, UnitId[] unitIds, Camp camp)
+    {
+        foreach (var unitId in unitIds)
         {
-            int[] sheepUnitIds = { 103, 106, 109, 112, 115, 124 };
-            int[] wolfUnitIds = { 503, 506, 509, 512, 515, 521 };
+            _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId, Count = 1});
+        }
 
-            foreach (var unitId in sheepUnitIds)
-            {
-                _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId });
-            }
-
-            foreach (var unitId in wolfUnitIds)
-            {
-                _context.UserUnit.Add(new UserUnit { UserId = userId, UnitId = unitId });
-            }
-            
-            var sheepDeck = new Deck { UserId = userId, Camp = Camp.Sheep };
-            var wolfDeck = new Deck { UserId = userId, Camp = Camp.Wolf };
-            _context.Deck.Add(sheepDeck);
-            _context.Deck.Add(wolfDeck);
+        for (int i = 0; i < 3; i++)
+        {
+            var deck = new Deck { UserId = userId, Camp = camp, DeckNumber = i + 1};
+            _context.Deck.Add(deck);
             _context.SaveChangesExtended();
-            
-            foreach (var unitId in sheepUnitIds)
+        
+            foreach (var unitId in unitIds)
             {
-                _context.DeckUnit.Add(new DeckUnit { DeckId = sheepDeck.DeckId, UnitId = unitId });
+                _context.DeckUnit.Add(new DeckUnit
+                { DeckId = deck.DeckId, UnitId = unitId });
             }
-            
-            foreach (var unitId in wolfUnitIds)
-            {
-                _context.DeckUnit.Add(new DeckUnit { DeckId = wolfDeck.DeckId, UnitId = unitId });
-            }
-            
             _context.SaveChangesExtended();
         }
+    }
 
-        [HttpPost]
-        [Route("login")]
-        public LoginUserAccountPacketResponse LoginAccount([FromBody] LoginUserAccountPacketRequired required)
+    [HttpPost]
+    [Route("Login")]
+    public LoginUserAccountPacketResponse LoginAccount([FromBody] LoginUserAccountPacketRequired required)
+    {
+        LoginUserAccountPacketResponse res = new();
+        var account = _context.User
+            .AsNoTracking()
+            .FirstOrDefault(user => user.UserAccount == required.UserAccount && user.Password == required.Password);
+
+        if (account == null)
         {
-            LoginUserAccountPacketResponse res = new();
-            var account = _context.User
-                .AsNoTracking()
-                .FirstOrDefault(account => account.UserName == required.UserName && account.Password == required.Password);
-
-            if (account == null)
-            {
-                res.LoginOK = false;
-            }
-            else
-            {
-                res.LoginOK = true;
-                
-                // 토큰 생성
-                var expired = DateTime.UtcNow;
-                var addSeconds = expired.AddSeconds(600);
-                
-                TokenDb? tokenDb = _shared.Tokens.FirstOrDefault(token => token != null && token.UserId == account.UserId);
-                if (tokenDb != null)
-                {
-                    tokenDb.Token = new Random().Next(int.MinValue, int.MaxValue);
-                    tokenDb.Expired = addSeconds;
-                    _shared.SaveChangesExtended();
-                }
-                else
-                {
-                    tokenDb = new TokenDb
-                    {
-                        UserId = account.UserId,
-                        Token = new Random().Next(int.MinValue, int.MaxValue),
-                        Expired = expired,
-                    };
-                    _shared.Add(tokenDb);
-                    _shared.SaveChangesExtended();
-                }
-
-                res.UserId = account.UserId;
-                res.Token = tokenDb.Token;
-                res.ServerList = new List<ServerInfo>();
-
-                foreach (var serverDb in _shared.Servers)
-                {
-                    res.ServerList.Add(new ServerInfo
-                    {
-                        Name = serverDb.Name,
-                        IP = serverDb.IpAddress,
-                        Port = serverDb.Port,
-                        BusyScore = serverDb.BusyScore
-                    });
-                }
-            }
-            
-            return res;
+            res.LoginOk = false;
         }
+        else
+        {
+            res.LoginOk = true;
+        }
+
+        if (account != null) res.UserId = account.UserId;
+
+        return res;
     }
 }

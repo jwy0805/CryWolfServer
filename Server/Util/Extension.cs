@@ -1,5 +1,5 @@
 using System.Numerics;
-using SharedDB;
+// using SharedDB;
 
 namespace Server.Util;
 
@@ -10,16 +10,16 @@ public static class Extension
         return v.X * v.X + v.Y * v.Y + v.Z * v.Z;
     }
     
-    public static bool SaveChangesExtended(this SharedDbContext dbContext)
-    {
-        try
-        {
-            dbContext.SaveChanges();
-            return true;
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-    }
+    // public static bool SaveChangesExtended(this SharedDbContext dbContext)
+    // {
+    //     try
+    //     {
+    //         dbContext.SaveChanges();
+    //         return true;
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         return false;
+    //     }
+    // }
 }

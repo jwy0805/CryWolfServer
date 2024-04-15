@@ -95,7 +95,7 @@ public class SnakeNaga : Snake
     
     public override void SetNormalAttackEffect(GameObject target)
     {
-        if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * _drainParam);
+        if (_drain) Hp += (int)((Attack - target.Defence) * _drainParam);
         BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
     }
 }

@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class SkeletonMage
+public class SkeletonMage : SkeletonGiant
 {
     
 }

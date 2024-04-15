@@ -78,7 +78,7 @@ public class MothLuna : Tower
             if (timeNow > LastSearch + SearchTick)
             {
                 LastSearch = timeNow;
-                GameObject? target = Room?.FindNearestTarget(this);
+                GameObject? target = Room?.FindClosestTarget(this);
                 Target ??= target;
                 if (Target != null)
                 {

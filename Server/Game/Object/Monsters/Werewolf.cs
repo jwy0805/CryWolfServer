@@ -19,26 +19,18 @@ public class Werewolf : Wolf
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.WerewolfThunder:
-            //         _thunder = true;
-            //         break;
-            //     case Skill.WerewolfDebuffResist:
-            //         _debuffResist = true;
-            //         break;
-            //     case Skill.WerewolfFaint:
-            //         _faint = true;
-            //         break;
-            //     case Skill.WerewolfHealth:
-            //         MaxHp += 250;
-            //         Hp += 250;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.WerewolfEnhance:
-            //         _enhance = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.WerewolfThunder:
+                    _thunder = true;
+                    break;
+                case Skill.WerewolfCriticalDamage:
+                    break;
+                case Skill.WerewolfCriticalRate:
+                    break;
+                case Skill.WerewolfBerserker:
+                    break;
+            }
         }
     }
 
@@ -50,16 +42,16 @@ public class Werewolf : Wolf
             Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
             if (_enhance)
             {
-                TotalAttack -= Attack * (int)_enhanceParam;
-                TotalSkill -= Stat.Skill * (int)_enhanceParam;
-                CriticalChance -= (int)_enhanceParam;
-                TotalAttackSpeed -= AttackSpeed * (float)_enhanceParam;
-
-                _enhanceParam = 0.5 * (MaxHp * 0.5 - Hp);
-                TotalAttack += Attack * (int)_enhanceParam;
-                TotalSkill += Stat.Skill * (int)_enhanceParam;
-                CriticalChance += (int)_enhanceParam;
-                TotalAttackSpeed += AttackSpeed * (float)_enhanceParam;
+                // TotalAttack -= Attack * (int)_enhanceParam;
+                // TotalSkill -= Stat.Skill * (int)_enhanceParam;
+                // CriticalChance -= (int)_enhanceParam;
+                // TotalAttackSpeed -= AttackSpeed * (float)_enhanceParam;
+                //
+                // _enhanceParam = 0.5 * (MaxHp * 0.5 - Hp);
+                // TotalAttack += Attack * (int)_enhanceParam;
+                // TotalSkill += Stat.Skill * (int)_enhanceParam;
+                // CriticalChance += (int)_enhanceParam;
+                // TotalAttackSpeed += AttackSpeed * (float)_enhanceParam;
             }
         }
     }
@@ -71,7 +63,7 @@ public class Werewolf : Wolf
         if (timeNow > LastSearch + SearchTick)
         {
             LastSearch = timeNow;
-            GameObject? target = Room?.FindNearestTarget(this);
+            GameObject? target = Room?.FindClosestTarget(this);
             if (Target?.Id != target?.Id)
             {
                 Target = target;
@@ -128,38 +120,43 @@ public class Werewolf : Wolf
 
     public override void SetNormalAttackEffect(GameObject target)
     {
-        Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
+        Hp += (int)((Attack - target.Defence) * DrainParam);
         if (_faint && Target != null) BuffManager.Instance.AddBuff(BuffId.Fainted, Target, this, 0, 1000);
     }
     
     public override void SetNextState()
     {
         if (Room == null) return;
-        
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
+            BroadcastMove();
+            return;
+        }
+
+        if (Target.Hp <= 0)
+        {
+            Target = null;
+            State = State.Idle;
+            BroadcastMove();
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        
+        if (distance > TotalAttackRange)
+        {
+            DestPos = targetPos;
+            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
+            BroadcastDest();
+            State = State.Moving;
+            Room.Broadcast(new S_State { ObjectId = Id, State = State });
         }
         else
         {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
-                    SetDirection();
-                }
-                else State = State.Moving;
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
+            State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
+            SetDirection();
         }
-
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

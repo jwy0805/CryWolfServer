@@ -18,7 +18,7 @@ public class PoisonBelt : Effect
         
         foreach (var t in targets)
         {
-            t.OnDamaged(Parent, Parent.Attack);
+            t.OnDamaged(Parent, Parent.Attack, Damage.Poison);
             BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, t, (Creature)Parent, 5f);
         }
         

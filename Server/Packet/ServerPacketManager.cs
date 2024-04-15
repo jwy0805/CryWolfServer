@@ -57,10 +57,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CChangeResource, PacketHandler.C_ChangeResourceHandler);		
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
 		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);		
-		_onRecv.Add((ushort)MessageId.CTowerSpawnPos, MakePacket<C_TowerSpawnPos>);
-		_handler.Add((ushort)MessageId.CTowerSpawnPos, PacketHandler.C_TowerSpawnPosHandler);		
-		_onRecv.Add((ushort)MessageId.CMonsterSpawnPos, MakePacket<C_MonsterSpawnPos>);
-		_handler.Add((ushort)MessageId.CMonsterSpawnPos, PacketHandler.C_MonsterSpawnPosHandler);		
+		_onRecv.Add((ushort)MessageId.CUnitSpawnPos, MakePacket<C_UnitSpawnPos>);
+		_handler.Add((ushort)MessageId.CUnitSpawnPos, PacketHandler.C_UnitSpawnPosHandler);		
 		_onRecv.Add((ushort)MessageId.CSetTextUI, MakePacket<C_SetTextUI>);
 		_handler.Add((ushort)MessageId.CSetTextUI, PacketHandler.C_SetTextUIHandler);		
 		_onRecv.Add((ushort)MessageId.CDeleteUnit, MakePacket<C_DeleteUnit>);

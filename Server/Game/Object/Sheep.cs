@@ -134,13 +134,13 @@ public class Sheep : Creature, ISkillObserver
     
     public override void SkillInit()
     {
-        List<Skill> skillUpgradedList = Player.SkillUpgradedList;
-        string sheepName = "Sheep";
+        var skillUpgradedList = Player.SkillUpgradedList;
+        var sheepName = "Sheep";
         if (skillUpgradedList.Count == 0) return;
         
         foreach (var skill in skillUpgradedList)
         {
-            string skillName = skill.ToString();
+            var skillName = skill.ToString();
             if (skillName.Contains(sheepName)) SkillList.Add(skill);
         }
 

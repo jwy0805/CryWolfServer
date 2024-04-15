@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class MoleRat
+public class MoleRat : Burrow
 {
     
 }

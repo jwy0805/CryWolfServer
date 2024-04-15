@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class Rabbit
+public class Rabbit : Tower
 {
     
 }

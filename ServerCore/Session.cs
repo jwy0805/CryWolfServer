@@ -24,7 +24,7 @@ public abstract class PacketSession : Session
             buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize);
         }
 
-        // if (packetCount > 1) Console.WriteLine($"패킷 모아보내기 : {packetCount}");
+        // if (packetCount > 1) Console.WriteLine($"Packets per time : {packetCount}");
         
         return processLen;
     }
@@ -80,15 +80,6 @@ public abstract class Session
             }
             if (_pendingList.Count == 0) RegisterSend();
         }
-    }
-
-    public void Send(ArraySegment<byte> sendBuffer)
-    {
-        lock (_lock)
-        {
-            _sendQueue.Enqueue(sendBuffer);
-            if (_pendingList.Count == 0) RegisterSend();
-        }    
     }
     
     public void Disconnect() 

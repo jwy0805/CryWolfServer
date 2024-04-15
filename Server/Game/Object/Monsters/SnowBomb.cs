@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class SnowBomb
+public class SnowBomb : Bomb
 {
     
 }

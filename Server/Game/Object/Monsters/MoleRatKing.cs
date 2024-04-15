@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class MoleRatKing
+public class MoleRatKing : MoleRat
 {
     
 }

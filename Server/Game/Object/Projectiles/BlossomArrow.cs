@@ -1,3 +1,5 @@
+using Google.Protobuf.Protocol;
+
 namespace Server.Game;
 
 public class BlossomArrow : Projectile
@@ -10,7 +12,7 @@ public class BlossomArrow : Projectile
         {
             Random random = new Random();
             int prob = random.Next(1, 100);
-            if (prob < blossom.DeathProb) creature.OnDamaged(Parent, 9999);
+            if (prob < blossom.DeathProb) creature.OnDamaged(Parent, 9999, Damage.True);
         }
     }
 }
