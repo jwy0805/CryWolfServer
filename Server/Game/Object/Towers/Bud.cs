@@ -58,7 +58,7 @@ public class Bud : Tower
             if (distance <= AttackRange)
             {
                 State = _seed ? State.Skill : State.Attack;
-                BroadcastMove();
+                BroadcastPos();
                 Room?.Broadcast(new S_State { ObjectId = Id, State = State });
             }
         }

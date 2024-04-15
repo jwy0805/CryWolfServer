@@ -36,7 +36,7 @@ public class DogBark : DogPup
     public override void Update()
     {
         base.Update();
-        FindOtherDogs();
+        if (_attackSpeedUp) FindOtherDogs();
     }
 
     private void FindOtherDogs()
@@ -72,7 +72,7 @@ public class DogBark : DogPup
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -80,7 +80,7 @@ public class DogBark : DogPup
         {
             Target = null;
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         
@@ -97,7 +97,7 @@ public class DogBark : DogPup
             return;
         }
 
-        if (_4hitCount == 3)
+        if (_4hit && _4hitCount == 3)
         {
             State = State.Skill;
             Room.Broadcast(new S_State { ObjectId = Id, State = State });

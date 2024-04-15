@@ -22,8 +22,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = appConfig?.GoogleClientId ?? string.Empty;
-        options.ClientSecret = appConfig?.GoogleClientSecret ?? string.Empty;
+        options.ClientId = appConfig.GoogleClientId;
+        options.ClientSecret = appConfig.GoogleClientSecret;
     });
 
 builder.Services.AddDbContext<AppDbContext>(options =>

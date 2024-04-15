@@ -113,7 +113,7 @@ public class Horror : Creeper
         {
             State = State.Rush;
             Start = true;
-            BroadcastMove();
+            BroadcastPos();
         }
         else
         {
@@ -138,7 +138,7 @@ public class Horror : Creeper
             if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
                 State = State.Idle;
-                BroadcastMove();
+                BroadcastPos();
                 return;
             }
 
@@ -159,13 +159,13 @@ public class Horror : Creeper
                     {
                         CellPos = position;
                         State = State.Attack;
-                        BroadcastMove();
+                        BroadcastPos();
                         return;
                     }
                 }
             }
 
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     
@@ -194,7 +194,7 @@ public class Horror : Creeper
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         
@@ -230,7 +230,7 @@ public class Horror : Creeper
                 Mp += MpRecovery;
                 State = State.KnockBack;
                 DestPos = CellPos + -Vector3.Normalize(Target.CellPos - CellPos) * 3;
-                BroadcastMove();
+                BroadcastPos();
                 Room.Broadcast(new S_SetKnockBack
                 {
                     ObjectId = Id, 
@@ -240,6 +240,6 @@ public class Horror : Creeper
             }
         }
 
-        BroadcastMove();
+        BroadcastPos();
     }
 }

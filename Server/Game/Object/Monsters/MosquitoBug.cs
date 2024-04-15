@@ -52,7 +52,7 @@ public class MosquitoBug : Monster
         BroadcastDest();
         
         State = State.Moving;
-        BroadcastMove();
+        BroadcastPos();
     }
 
     protected override void UpdateMoving()
@@ -75,7 +75,7 @@ public class MosquitoBug : Monster
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -97,12 +97,12 @@ public class MosquitoBug : Monster
                 {
                     CellPos = position;
                     State = State.Attack;
-                    BroadcastMove();
+                    BroadcastPos();
                     return;
                 }
             }
             
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     

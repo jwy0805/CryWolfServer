@@ -115,12 +115,12 @@ public partial class GameObject : IGameObject
                 {
                     attacker.Parent.Target = null;
                     attacker.State = State.Idle;
-                    BroadcastMove();
+                    BroadcastPos();
                 }
             }
             attacker.Target = null;
             attacker.State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
         }
         
         S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
@@ -129,7 +129,7 @@ public partial class GameObject : IGameObject
         // Room.LeaveGame(Id);
     }
     
-    public virtual void BroadcastMove()
+    public virtual void BroadcastPos()
     {
         S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
         Room?.Broadcast(movePacket);
@@ -138,11 +138,11 @@ public partial class GameObject : IGameObject
     public virtual void BroadcastDest()
     {
         if (Dest.Count == 0 || Atan.Count == 0) return;
-        S_SetDest destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = MoveSpeed };
+        var destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         
         for (int i = 0; i < Dest.Count; i++)
         {
-            DestVector destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
+            var destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
             destPacket.Dest.Add(destVector);
         }
 
@@ -167,6 +167,6 @@ public partial class GameObject : IGameObject
         if (Room == null) return;
         bool canGo = Room.Map.ApplyMap(this, posInfo);
         if (!canGo) State = State.Idle;
-        BroadcastMove();
+        BroadcastPos();
     }
 }

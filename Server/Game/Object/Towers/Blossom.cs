@@ -60,7 +60,7 @@ public class Blossom : Bloom
             if (distance <= AttackRange)
             {
                 State = State.Attack;
-                BroadcastMove();
+                BroadcastPos();
             }
         }
     }

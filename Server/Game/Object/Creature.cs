@@ -19,18 +19,16 @@ public class Creature : GameObject
     public override void Update()
     {
         base.Update();
-        if (Room == null) return;
-        // if (ObjectType == GameObjectType.Tower) Console.WriteLine(State.ToString());
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            Time = Room!.Stopwatch.ElapsedMilliseconds;
+            Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += Stat.MpRecovery;
         }
 
         if (MaxMp != 1 && Mp >= MaxMp)
         {
             State = State.Skill;
-            BroadcastMove();
+            BroadcastPos();
             UpdateSkill();
             Mp = 0;
         }
@@ -90,7 +88,7 @@ public class Creature : GameObject
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -98,7 +96,7 @@ public class Creature : GameObject
         {
             Target = null;
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         
@@ -115,9 +113,15 @@ public class Creature : GameObject
         }
         else
         {
-            State = State.Attack;
             SetDirection();
+            State = State.Attack;
+            Room.Broadcast(new S_State { ObjectId = Id, State = State });
         }
+    }
+
+    public virtual void SetNextState(State state)
+    {
+        
     }
     
     protected virtual void SetDirection()
@@ -126,30 +130,30 @@ public class Creature : GameObject
         if (Target == null)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
         if (Target.Stat.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        BroadcastMove();
+        BroadcastPos();
     }
     
     protected virtual Vector3 GetRandomDestInFence()
     {
         List<Vector3> sheepBound = GameData.SheepBounds;
-        float minX = sheepBound.Select(v => v.X).ToList().Min();
-        float maxX = sheepBound.Select(v => v.X).ToList().Max();
-        float minZ = sheepBound.Select(v => v.Z).ToList().Min();
-        float maxZ = sheepBound.Select(v => v.Z).ToList().Max();
+        float minX = sheepBound.Select(v => v.X).ToList().Min() + 1.0f;
+        float maxX = sheepBound.Select(v => v.X).ToList().Max() - 1.0f;
+        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1.0f;
+        float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - 1.0f;
 
         do
         {

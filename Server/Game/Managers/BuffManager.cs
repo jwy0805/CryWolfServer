@@ -725,7 +725,7 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.State = State.Faint;
-            Master.BroadcastMove();
+            Master.BroadcastPos();
             _stateFaint = ObjectManager.Instance.CreateEffect(EffectId.StateFaint);
             EffectSetting(_stateFaint, Master);
         }
@@ -734,7 +734,7 @@ public sealed partial class BuffManager
         {
             base.RemoveBuff();
             Master.State = State.Idle;
-            Master.BroadcastMove();
+            Master.BroadcastPos();
             if (_stateFaint != null) _stateFaint.PacketReceived = true;
         }
     }

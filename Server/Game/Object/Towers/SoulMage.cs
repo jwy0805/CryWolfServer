@@ -123,7 +123,7 @@ public class SoulMage : Haunt
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -144,12 +144,12 @@ public class SoulMage : Haunt
                 {
                     CellPos = position;
                     State = _tornado ? State.Skill : State.Attack;
-                    BroadcastMove();
+                    BroadcastPos();
                     return;
                 }
             }
             
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     

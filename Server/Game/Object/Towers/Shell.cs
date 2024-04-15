@@ -70,7 +70,7 @@ public class Shell : Tower
         {
             State = State.Rush;
             _start = true;
-            BroadcastMove();
+            BroadcastPos();
         }
         else
         {
@@ -95,7 +95,7 @@ public class Shell : Tower
             if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
                 State = State.Idle;
-                BroadcastMove();           
+                BroadcastPos();           
                 return;
             }
 
@@ -116,13 +116,13 @@ public class Shell : Tower
                     {
                         CellPos = position;
                         State = State.Idle;
-                        BroadcastMove();
+                        BroadcastPos();
                         return;
                     }
                 }
             }
             
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 
@@ -149,7 +149,7 @@ public class Shell : Tower
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -174,7 +174,7 @@ public class Shell : Tower
                     Mp += MpRecovery;
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-                    BroadcastMove();
+                    BroadcastPos();
                     Room.Broadcast(new S_SetKnockBack
                     {
                         ObjectId = Id, 
@@ -185,7 +185,7 @@ public class Shell : Tower
             }
         }
 
-        BroadcastMove();
+        BroadcastPos();
     }
 
     protected override void UpdateKnockBack()
@@ -197,7 +197,7 @@ public class Shell : Tower
     protected override void UpdateSkill()
     {
         State = State.Skill;
-        BroadcastMove();
+        BroadcastPos();
     }
 
     public override void RunSkill()

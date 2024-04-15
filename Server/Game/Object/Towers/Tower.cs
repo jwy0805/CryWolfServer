@@ -44,7 +44,7 @@ public class Tower : Creature, ISkillObserver
             if (distance <= AttackRange)
             {
                 State = State.Attack;
-                BroadcastMove();
+                BroadcastPos();
             }
         }
     }
@@ -54,7 +54,7 @@ public class Tower : Creature, ISkillObserver
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 

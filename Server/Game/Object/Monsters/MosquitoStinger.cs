@@ -72,7 +72,7 @@ public class MosquitoStinger : MosquitoPester
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -94,12 +94,12 @@ public class MosquitoStinger : MosquitoPester
                 {
                     CellPos = position;
                     State = _longAttack ? State.Skill : State.Attack;
-                    BroadcastMove();
+                    BroadcastPos();
                     return;
                 }
             }
             
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     

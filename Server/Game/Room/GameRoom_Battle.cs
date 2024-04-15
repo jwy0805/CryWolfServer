@@ -281,6 +281,13 @@ public partial class GameRoom
         }
     }
     
+    public void HandleMotion(Player? player, C_Motion motionPacket)
+    {
+        if (player == null) return;
+        if (FindGameObjectById(motionPacket.ObjectId) is not Creature go) return;
+        go.SetNextState(motionPacket.State);
+    }
+    
     public void HandleEffectAttack(Player? player, C_EffectAttack dirPacket)
     {
         if (player == null) return;

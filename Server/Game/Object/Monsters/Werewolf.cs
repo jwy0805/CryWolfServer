@@ -79,7 +79,7 @@ public class Werewolf : Wolf
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -99,12 +99,12 @@ public class Werewolf : Wolf
                 {
                     CellPos = position;
                     State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
-                    BroadcastMove();
+                    BroadcastPos();
                     return;
                 }
             }
             
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 
@@ -130,7 +130,7 @@ public class Werewolf : Wolf
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -138,7 +138,7 @@ public class Werewolf : Wolf
         {
             Target = null;
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         

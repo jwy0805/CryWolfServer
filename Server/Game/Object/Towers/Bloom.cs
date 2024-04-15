@@ -60,7 +60,7 @@ public class Bloom : Bud
             if (distance <= AttackRange)
             {
                 State = _combo ? State.Skill : State.Attack;
-                BroadcastMove();
+                BroadcastPos();
                 // Room?.Broadcast(new S_State { ObjectId = Id, State = State });
             }
         }

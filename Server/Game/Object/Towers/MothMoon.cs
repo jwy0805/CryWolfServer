@@ -59,7 +59,7 @@ public class MothMoon : MothLuna
             if (distance <= AttackRange)
             {
                 State = State.Attack;
-                BroadcastMove();
+                BroadcastPos();
             }
         }
     }
@@ -69,7 +69,7 @@ public class MothMoon : MothLuna
         if (Target == null || Target.Stat.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 

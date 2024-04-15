@@ -50,7 +50,7 @@ public class Creeper : Lurker
         {
             State = State.Rush;
             Start = true;
-            BroadcastMove();
+            BroadcastPos();
         }
         else
         {
@@ -75,7 +75,7 @@ public class Creeper : Lurker
             if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
                 State = State.Idle;
-                BroadcastMove();
+                BroadcastPos();
                 return;
             }
 
@@ -96,13 +96,13 @@ public class Creeper : Lurker
                     {
                         CellPos = position;
                         State = State.Attack;
-                        BroadcastMove();
+                        BroadcastPos();
                         return;
                     }
                 }
             }
 
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 
@@ -129,7 +129,7 @@ public class Creeper : Lurker
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         
@@ -153,7 +153,7 @@ public class Creeper : Lurker
                     Mp += MpRecovery;
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-                    BroadcastMove();
+                    BroadcastPos();
                     Room.Broadcast(new S_SetKnockBack
                     {
                         ObjectId = Id, 
@@ -164,7 +164,7 @@ public class Creeper : Lurker
             }
         }
 
-        BroadcastMove();
+        BroadcastPos();
     }
 
     protected override void UpdateKnockBack()

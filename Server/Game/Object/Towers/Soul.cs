@@ -45,7 +45,7 @@ public class Soul : Tower
         BroadcastDest();
         
         State = State.Moving;
-        BroadcastMove();
+        BroadcastPos();
     }
 
     // protected override void UpdateMoving()

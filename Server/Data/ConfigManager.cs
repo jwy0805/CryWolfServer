@@ -13,10 +13,9 @@ public class ConfigManager
 
     public static void LoadConfig()
     {
-        // string text = File.ReadAllText("config.json");
-        string homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        string text = File.ReadAllText(Path.Combine(homePath,
+        var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var text = File.ReadAllText(Path.Combine(homePath,
             "Documents/dev/CryWolf/Server/Server/bin/Debug/net6.0/config.json"));
-        Config = Newtonsoft.Json.JsonConvert.DeserializeObject<ServerConfig>(text)!;
+        Config = Newtonsoft.Json.JsonConvert.DeserializeObject<ServerConfig>(text);
     }
 }

@@ -54,7 +54,7 @@ public class SnakeNaga : Snake
         if (MaxMp != 1 && Mp >= MaxMp && _meteor)
         {
             State = State.Skill;
-            BroadcastMove();
+            BroadcastPos();
             Mp = 0;
         }
         else

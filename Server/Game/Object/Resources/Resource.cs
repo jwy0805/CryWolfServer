@@ -45,7 +45,7 @@ public class Resource : GameObject
         if ((float)dist < _dist)
         {
             State = State.Moving;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
 

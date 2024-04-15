@@ -7,7 +7,6 @@
 
 # Security
 appsettings.json
-Config.cs
 
 # User-specific files
 *.suo

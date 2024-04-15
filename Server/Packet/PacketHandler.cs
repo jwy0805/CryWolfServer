@@ -73,9 +73,20 @@ public class PacketHandler
         var player = clientSession.MyPlayer;
         var room = player?.Room;
         if (player?.Session.SessionId != 1) return;
+        
         room?.Push(room.HandleAttack, player, attackPacket);
     }
 
+    public static void C_MotionHandler(PacketSession session, IMessage packet)
+    {
+        var motionPacket = (C_Motion)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleMotion, player, motionPacket);
+    }
+    
     public static void C_EffectAttackHandler(PacketSession session, IMessage packet)
     {
         var dirPacket = (C_EffectAttack)packet;

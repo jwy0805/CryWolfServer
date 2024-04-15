@@ -45,7 +45,7 @@ public class MothLuna : Tower
             (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
             BroadcastDest();
             State = State.Moving;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     
@@ -66,7 +66,7 @@ public class MothLuna : Tower
                 {
                     CellPos = position;
                     State = State.Attack;
-                    BroadcastMove();
+                    BroadcastPos();
                     return;
                 }
             }
@@ -100,7 +100,7 @@ public class MothLuna : Tower
             if (distance <= 0.5f)
             {
                 State = State.Idle;
-                BroadcastMove();
+                BroadcastPos();
             }
         }
     }
@@ -165,7 +165,7 @@ public class MothLuna : Tower
         if (Target == null || Target.Stat.Targetable == false)
         {
             State = State.Moving;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     
@@ -177,7 +177,7 @@ public class MothLuna : Tower
             if (r.Next(99) < FaintProb)
             {
                 target.State = State.Faint;
-                BroadcastMove();
+                BroadcastPos();
             }
         }
     }

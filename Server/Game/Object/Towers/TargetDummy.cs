@@ -49,7 +49,7 @@ public class TargetDummy : PracticeDummy
         if (Mp >= MaxMp)
         {
             State = State.Skill;
-            BroadcastMove();
+            BroadcastPos();
             UpdateSkill();
             Mp = 0;
         }

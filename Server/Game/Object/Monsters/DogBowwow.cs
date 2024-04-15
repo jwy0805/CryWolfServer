@@ -34,7 +34,7 @@ public class DogBowwow : DogBark
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -42,7 +42,7 @@ public class DogBowwow : DogBark
         {
             Target = null;
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
         

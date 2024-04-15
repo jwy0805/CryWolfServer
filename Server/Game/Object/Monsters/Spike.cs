@@ -64,7 +64,7 @@ public class Spike : Shell
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
-            BroadcastMove();
+            BroadcastPos();
             return;
         }
 
@@ -90,7 +90,7 @@ public class Spike : Shell
                     Mp += MpRecovery;
                     State = State.KnockBack;
                     DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-                    BroadcastMove();
+                    BroadcastPos();
                     Room.Broadcast(new S_SetKnockBack
                     {
                         ObjectId = Id, 
@@ -101,7 +101,7 @@ public class Spike : Shell
             }
         }
 
-        BroadcastMove();
+        BroadcastPos();
     }
     
     public override void RunSkill()

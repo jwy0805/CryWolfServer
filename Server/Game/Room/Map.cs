@@ -23,7 +23,7 @@ public partial class Map
                 : CanGoAir(gameObject, v, true, gameObject.Stat.SizeX);
             if (canGo == false)
             {
-                gameObject.BroadcastMove();
+                gameObject.BroadcastPos();
                 return false;
             }
         }

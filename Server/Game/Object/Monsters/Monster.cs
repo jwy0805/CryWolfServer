@@ -38,50 +38,39 @@ public class Monster : Creature, ISkillObserver
         BroadcastDest();
         
         State = State.Moving;
-        BroadcastMove();
+        BroadcastPos();
     }
 
     protected override void UpdateMoving()
     {   
         // Targeting
-        Target = Room?.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this);
         if (Target != null)
-        {
-            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
+        {   
+            // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+            Vector3 position = CellPos;
+            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+            double deltaX = DestPos.X - CellPos.X;
+            double deltaZ = DestPos.Z - CellPos.Z;
+            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+            if (distance <= AttackRange)
+            {
+                CellPos = position;
+                State = State.Attack;
+                BroadcastPos();
+                return;
+            }
+            
+            // Target이 있으면 이동
+            DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
             BroadcastDest();
         }
         
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {
+        {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastMove();
-            return;
-        }
-
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            // Attack
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                if (distance <= AttackRange)
-                {
-                    CellPos = position;
-                    State = State.Attack;
-                    BroadcastMove();
-                    return;
-                }
-            }
-            
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     

@@ -147,7 +147,7 @@ public class GameData
         { UnitId.DogBowwow, new HashSet<Skill> 
             { Skill.DogBowwowSmash, Skill.DogBowwowSmashFaint } },
         { UnitId.Burrow, new HashSet<Skill> 
-            { Skill.BurrowBurrow, Skill.BurrowDefence, Skill.BurrowEvasion, Skill.BurrowHealth } },
+            { Skill.BurrowHalfBurrow, Skill.BurrowDefence, Skill.BurrowEvasion, Skill.BurrowHealth } },
         { UnitId.MoleRat, new HashSet<Skill> 
             { Skill.MoleRatBurrowEvasion, Skill.MoleRatBurrowSpeed, Skill.MoleRatDrain, Skill.MoleRatStealAttack } },
         { UnitId.MoleRatKing, new HashSet<Skill> 
@@ -284,7 +284,7 @@ public class GameData
         { Skill.BurrowHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BurrowDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BurrowEvasion, new HashSet<Skill> { Skill.BurrowHealth, Skill.BurrowDefence } },
-        { Skill.BurrowBurrow, new HashSet<Skill> { Skill.BurrowEvasion } },
+        { Skill.BurrowHalfBurrow, new HashSet<Skill> { Skill.BurrowEvasion } },
         { Skill.MoleRatBurrowSpeed, new HashSet<Skill>{ Skill.NoSkill } },
         { Skill.MoleRatBurrowEvasion, new HashSet<Skill>{ Skill.NoSkill } },
         { Skill.MoleRatDrain, new HashSet<Skill>{ Skill.MoleRatBurrowSpeed, Skill.MoleRatBurrowEvasion } },

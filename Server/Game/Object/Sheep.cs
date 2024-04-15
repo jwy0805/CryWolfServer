@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Game.Resources;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -72,20 +73,30 @@ public class Sheep : Creature, ISkillObserver
             (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
             State = State.Moving;
-            BroadcastMove();
+            BroadcastPos();
             _idle = false;
         }
     }
 
     protected override void UpdateMoving()
     {
-        if (!Infection) return;
+        if (Infection)
+        {   // 모기 공격 맞았을 때 독 감염시키는 메서드
+            var sheeps = Room.FindTargets(this,
+                new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
+            foreach (var sheep in sheeps.Select(s => s as Creature))
+            {
+                if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, this, 0.05f);
+            }
+        }
         
-        List<GameObject> sheeps = Room.FindTargets(this,
-            new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
-        foreach (var sheep in sheeps.Select(s => s as Creature))
+        Vector3 position = CellPos;
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos));
+        if (distance <= 0.5f)
         {
-            if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, this, 0.05f);
+            CellPos = position;
+            State = State.Idle;
+            BroadcastPos();
         }
     }
 

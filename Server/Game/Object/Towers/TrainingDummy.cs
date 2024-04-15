@@ -55,7 +55,7 @@ public class TrainingDummy : TargetDummy
         if (r.Next(99) < _faintProb)
         {
             target.State = State.Faint;
-            BroadcastMove();
+            BroadcastPos();
         }
     }
     
