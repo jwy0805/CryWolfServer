@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class SoulMageAttack : Projectile
+public class SoulMageProjectile : Projectile
 {
     public override void SetProjectileEffect(GameObject master)
     {

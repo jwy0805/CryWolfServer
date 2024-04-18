@@ -231,8 +231,6 @@ public partial class GameRoom
                 break;
             
             case AttackMethod.NormalAttack:
-                int damage = attacker.TotalAttack;
-                target.OnDamaged(attacker, damage, Damage.Normal);
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
                     Creature cAttacker = (Creature)attacker;
@@ -244,7 +242,9 @@ public partial class GameRoom
                 {
                     attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
                     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
-                    pAttacker?.SetProjectileEffect(target);
+                    if (pAttacker?.Parent is Creature parent) 
+                        parent.SetProjectileEffect(target, pAttacker.ProjectileId);
+                    // pAttacker?.SetProjectileEffect(target);
                 }
                 break;
             
@@ -253,7 +253,6 @@ public partial class GameRoom
                 {
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
-                    cAttacker.Mp += cAttacker.Stat.MpRecovery;
                     cAttacker.SetAdditionalAttackEffect(target);
                 }
                 break;

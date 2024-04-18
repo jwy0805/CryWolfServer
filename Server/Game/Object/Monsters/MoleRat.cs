@@ -76,6 +76,7 @@ public class MoleRat : Burrow
     
     public override void SetNormalAttackEffect(GameObject target)
     {
+        base.SetNormalAttackEffect(target);
         if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
         if (_stealAttack == false) return;
         if (StolenObjectId == target.Id) return;

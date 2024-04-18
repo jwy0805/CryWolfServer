@@ -171,7 +171,7 @@ public partial class GameObject
     }
     
     public int AttackParam { get; set; }
-    public int AttackSpeedParam { get; set; }
+    public float AttackSpeedParam { get; set; }
     public int SkillParam { get; set; }
     public int DefenceParam { get; set; }
     public int FireResistParam { get; set; }

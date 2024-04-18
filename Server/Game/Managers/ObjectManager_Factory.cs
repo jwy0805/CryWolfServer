@@ -80,15 +80,18 @@ public sealed partial class ObjectManager
         { ProjectileId.BlossomSeed, new BlossomSeedFactory() },
         { ProjectileId.BlossomProjectile, new BlossomProjectileFactory() },
         { ProjectileId.HauntProjectile, new HauntProjectileFactory() },
-        { ProjectileId.HauntFireProjectile, new HauntFireProjectileFactory() },
+        { ProjectileId.HauntFire, new HauntFireProjectileFactory() },
         { ProjectileId.SoulMageProjectile, new SoulMageProjectileFactory() },
         { ProjectileId.SunfloraPixieProjectile, new SunfloraPixieProjectileFactory() },
         { ProjectileId.SunfloraPixieFire, new SunfloraPixieFireFactory() },
         { ProjectileId.MothMoonProjectile, new MothMoonProjectileFactory()},
-        { ProjectileId.MothCelestialPoisonProjectile, new MothCelestialPoisonProjectileFactory() },
+        { ProjectileId.MothCelestialPoison, new MothCelestialPoisonProjectileFactory() },
         { ProjectileId.MosquitoStingerProjectile, new MosquitoStingerProjectileFactory() },
         { ProjectileId.SpikeProjectile, new SpikeProjectileFactory() },
-        { ProjectileId.HermitProjectile, new HermitProjectileFactory() }
+        { ProjectileId.HermitProjectile, new HermitProjectileFactory() },
+        { ProjectileId.MosquitoPesterProjectile, new MosquitoPesterProjectileFactory() },
+        { ProjectileId.BombProjectile, new BombProjectileFactory()},
+        { ProjectileId.BombSkill, new BombSkillFactory()}
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -440,7 +443,7 @@ public sealed partial class ObjectManager
     
     public class BasicProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new BasicAttack();
+        public Projectile CreateProjectile() => new BasicProjectile();
     }
     
     public class SmallFireFactory : IProjectileFactory
@@ -455,7 +458,7 @@ public sealed partial class ObjectManager
     
     public class SmallPoisonFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new PoisonAttack();
+        public Projectile CreateProjectile() => new SmallPoison();
     }
     
     public class BigPoisonFactory : IProjectileFactory
@@ -475,27 +478,27 @@ public sealed partial class ObjectManager
     
     public class BlossomProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new BlossomArrow();
+        public Projectile CreateProjectile() => new BlossomProjectile();
     }
     
     public class HauntProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new HauntArrow();
+        public Projectile CreateProjectile() => new HauntProjectile();
     }
     
     public class HauntFireProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new HauntFireAttack();
+        public Projectile CreateProjectile() => new HauntFire();
     }
     
     public class SoulMageProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new SoulMageAttack();
+        public Projectile CreateProjectile() => new SoulMageProjectile();
     }
     
     public class SunfloraPixieProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new SunfloraPixieArrow();
+        public Projectile CreateProjectile() => new SunfloraPixieProjectile();
     }
     
     public class SunfloraPixieFireFactory : IProjectileFactory
@@ -505,27 +508,42 @@ public sealed partial class ObjectManager
     
     public class MothMoonProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new MothMoonAttack();
+        public Projectile CreateProjectile() => new MothMoonProjectile();
     }
     
     public class MothCelestialPoisonProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new MothCelestialPoisonAttack();
+        public Projectile CreateProjectile() => new MothCelestialPoison();
     }
     
     public class MosquitoStingerProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new MosquitoStingerAttack();
+        public Projectile CreateProjectile() => new MosquitoStingerProjectile();
     }
 
     public class SpikeProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new SpikeArrow();
+        public Projectile CreateProjectile() => new SpikeProjectile();
     }
 
     public class HermitProjectileFactory : IProjectileFactory
     {
-        public Projectile CreateProjectile() => new HermitArrow();
+        public Projectile CreateProjectile() => new HermitProjectile();
+    }
+    
+    public class MosquitoPesterProjectileFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new MosquitoPesterProjectile();
+    }
+    
+    public class BombProjectileFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new BombProjectile();
+    }
+
+    public class BombSkillFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new BombSkill();
     }
     
     public class LightningStrikeFactory : IEffectFactory

@@ -563,12 +563,8 @@ public sealed partial class BuffManager
             if (deltaTime > _dotTime + _dot)
             {
                 _dotTime = deltaTime;
-                Master.Hp -= (int)(Master.MaxHp * _param * (100 - Master.PoisonResist) / 100);
-                Instance.Room?.Broadcast(new S_ChangeHp
-                {
-                    ObjectId = Master.Id,
-                    Hp = Master.Hp
-                });
+                int damage = (int)(Master.MaxHp * _param * (100 - Master.PoisonResist) / 100);
+                Master.OnDamaged(Caster, damage, Damage.Poison);
             }
 
             return false;
@@ -612,12 +608,8 @@ public sealed partial class BuffManager
             if (deltaTime > _dotTime + _dot)
             {
                 _dotTime = deltaTime;
-                Master.Hp -= (int)(Master.MaxHp * _param);
-                Instance.Room?.Broadcast(new S_ChangeHp
-                {
-                    ObjectId = Master.Id,
-                    Hp = Master.Hp
-                });
+                int damage = (int)(Master.MaxHp * _param * (100 - Master.PoisonResist) / 100);
+                Master.OnDamaged(Caster, damage, Damage.Poison);
             }
 
             return false;

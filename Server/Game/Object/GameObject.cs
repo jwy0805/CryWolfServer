@@ -86,18 +86,25 @@ public partial class GameObject : IGameObject
     {
         if (Room == null) return;
         if (Invincible) return;
-        
-        int totalDamage = attacker.CriticalChance > 0 
-            ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-            : Math.Max(damage - TotalDefence, 0);
-        Hp = Math.Max(Stat.Hp - damage, 0);
-        
-        if (Reflection && reflected == false)
-        {
-            int refParam = (int)(totalDamage * ReflectionRate);
-            attacker.OnDamaged(this, refParam, damageType, true);
-        }
 
+        int totalDamage;
+        if (damageType is Damage.Normal or Damage.Magical)
+        {
+            totalDamage = attacker.CriticalChance > 0 
+                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
+                : Math.Max(damage - TotalDefence, 0);
+            if (damageType is Damage.Normal && Reflection && reflected == false)
+            {
+                int refParam = (int)(totalDamage * ReflectionRate);
+                attacker.OnDamaged(this, refParam, damageType, true);
+            }
+        }
+        else
+        {
+            totalDamage = damage;
+        }
+        
+        Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);

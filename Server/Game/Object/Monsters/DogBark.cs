@@ -111,6 +111,7 @@ public class DogBark : DogPup
     
     public override void SetNormalAttackEffect(GameObject target)
     {
+        base.SetNormalAttackEffect(target);
         _4hitCount++;
     }
     

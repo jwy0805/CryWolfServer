@@ -4,52 +4,56 @@ namespace Server.Game;
 
 public class MosquitoPester : MosquitoBug
 {
-    private bool _woolProduceStop = false;
-    private int _woolProduceRate = 25;
-    private bool _woolStop = false;
+    private bool _poison = false;
+    private bool _woolDown = false;
+    
+    protected int WoolDownRate = 20;
+    
     protected override Skill NewSkill
     {
         get => Skill;
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.MosquitoPesterAttack:
-            //         Attack += 4;
-            //         break;
-            //     case Skill.MosquitoPesterHealth:
-            //         MaxHp += 25;
-            //         Hp += 25;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.MosquitoPesterWoolDown2:
-            //         WoolDownRate = 30;
-            //         break;
-            //     case Skill.MosquitoPesterWoolRate:
-            //         _woolProduceStop = true;
-            //         break;
-            //     case Skill.MosquitoPesterWoolStop:
-            //         _woolStop = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.MosquitoPesterPoison:
+                    _poison = true;
+                    Room?.Broadcast(new S_SkillUpdate
+                    {
+                        ObjectEnumId = (int)UnitId,
+                        ObjectType = GameObjectType.Monster,
+                        SkillType = SkillType.SkillProjectile
+                    });
+                    break;
+                case Skill.MosquitoPesterWoolRate:
+                    _woolDown = true;
+                    break;
+                case Skill.MosquitoPesterPoisonResist:
+                    PoisonResist += 20;
+                    break;
+                case Skill.MosquitoPesterEvasion:
+                    Evasion += 15;
+                    break;
+                case Skill.MosquitoPesterHealth:
+                    MaxHp += 30;
+                    Hp += 30;
+                    BroadcastHealth();
+                    break;
+            }
         }
     }
 
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
     {
-        if (target is Sheep sheep)
+        SetNormalAttackEffect(target);
+        if (_poison)
         {
-            sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
-            
-            if (_woolProduceStop)
-            {           
-                Random random = new Random();
-                if (random.Next(99) < _woolProduceRate) sheep.YieldStop = true;
-            }
-            
-            if (_woolStop) sheep.YieldStop = true;
-            
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
         }
+
+        if (target is not Sheep sheep) return;
+        if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
     }
 }

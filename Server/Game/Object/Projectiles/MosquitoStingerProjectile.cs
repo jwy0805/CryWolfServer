@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class BasicAttack : Projectile
+public class MosquitoStingerProjectile : Projectile
 {
     
 }

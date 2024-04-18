@@ -79,8 +79,13 @@ public class Creature : GameObject
     public virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
-    public virtual void SetNormalAttackEffect(GameObject target) { }
+    public virtual void SetNormalAttackEffect(GameObject target)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+    }
+    
     public virtual void SetAdditionalAttackEffect(GameObject target) { }
+    public virtual void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None) { }
 
     public virtual void SetNextState()
     {
@@ -103,18 +108,18 @@ public class Creature : GameObject
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
         float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
 
-        if (distance > TotalAttackRange)
+        if (distance <= TotalAttackRange)
+        {
+            SetDirection();
+            State = State.Attack;
+            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+        }
+        else
         {
             DestPos = targetPos;
             (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
             BroadcastDest();
             State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-        else
-        {
-            SetDirection();
-            State = State.Attack;
             Room.Broadcast(new S_State { ObjectId = Id, State = State });
         }
     }

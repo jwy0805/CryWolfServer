@@ -29,7 +29,7 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);

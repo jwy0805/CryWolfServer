@@ -167,7 +167,7 @@ public class GameData
             { Skill.WerewolfBerserker, Skill.WerewolfCriticalDamage,
                 Skill.WerewolfCriticalRate, Skill.WerewolfThunder } },
         { UnitId.Bomb, new HashSet<Skill> 
-            { Skill.BombAttack, Skill.BombBombAttack, Skill.BombHealth } },
+            { Skill.BombAttack, Skill.BombBomb, Skill.BombHealth } },
         { UnitId.SnowBomb, new HashSet<Skill> 
             { Skill.SnowBombAdjacentDamage, Skill.SnowBombAreaAttack, Skill.SnowBombBurn, Skill.SnowBombFireResist } },
         { UnitId.PoisonBomb, new HashSet<Skill> 
@@ -317,7 +317,7 @@ public class GameData
         { Skill.WerewolfBerserker, new HashSet<Skill> { Skill.WerewolfThunder, Skill.WerewolfCriticalDamage } },
         { Skill.BombHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BombAttack, new HashSet<Skill> { Skill.BombHealth } },
-        { Skill.BombBombAttack, new HashSet<Skill> { Skill.BombAttack } },
+        { Skill.BombBomb, new HashSet<Skill> { Skill.BombAttack } },
         { Skill.SnowBombFireResist, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnowBombAreaAttack, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnowBombBurn, new HashSet<Skill> { Skill.SnowBombFireResist, Skill.SnowBombAreaAttack } },

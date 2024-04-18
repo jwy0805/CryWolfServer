@@ -6,9 +6,7 @@ namespace Server.Game;
 
 public class Burrow : Monster
 {
-    private bool _burrow = false;
-
-    protected bool Start = false;
+    private bool _halfBurrow = false;
     
     protected override Skill NewSkill
     {
@@ -19,8 +17,9 @@ public class Burrow : Monster
             switch (Skill)
             {
                 case Skill.BurrowHealth:
-                    Hp += 30;
                     MaxHp += 30;
+                    Hp += 30;
+                    BroadcastHealth();
                     break;
                 case Skill.BurrowDefence:
                     Defence += 2;
@@ -29,7 +28,7 @@ public class Burrow : Monster
                     Evasion += 10;
                     break;
                 case Skill.BurrowHalfBurrow:
-                    _burrow = true;
+                    _halfBurrow = true;
                     break;
             }
         }
@@ -52,16 +51,15 @@ public class Burrow : Monster
         (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
         BroadcastDest();
         
-        State = _burrow ? State.IdleToRush : State.Moving;
+        State = _halfBurrow ? State.IdleToRush : State.Moving;
         BroadcastPos();
     }
     
     protected override void UpdateMoving()
     {
-        if (_burrow & Start == false)
+        if (_halfBurrow)
         {
             State = State.Rush;
-            Start = true;
             BroadcastPos();
             return;
         }

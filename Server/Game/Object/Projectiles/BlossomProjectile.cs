@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class BlossomArrow : Projectile
+public class BlossomProjectile : Projectile
 {
     public override void SetProjectileEffect(GameObject master)
     {
