@@ -32,12 +32,16 @@ public class MosquitoStinger : MosquitoPester
         }
     }
     
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
     {
-        BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
-
-        if (target is not Sheep sheep) return;
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        if (target is Creature _)
+        {
+            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
+        }
         
+        if (target is not Sheep sheep) return;
         Random random = new();
         if (_sheepDeath && random.Next(100) < _deathRate)
         {
@@ -48,6 +52,5 @@ public class MosquitoStinger : MosquitoPester
         if (_infection) sheep.Infection = true;
         if (_woolStop) sheep.YieldStop = true;
         else sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
-        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
     }
 }

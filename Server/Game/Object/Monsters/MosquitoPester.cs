@@ -19,12 +19,6 @@ public class MosquitoPester : MosquitoBug
             {
                 case Skill.MosquitoPesterPoison:
                     _poison = true;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)UnitId,
-                        ObjectType = GameObjectType.Monster,
-                        SkillType = SkillType.SkillProjectile
-                    });
                     break;
                 case Skill.MosquitoPesterWoolRate:
                     _woolDown = true;
@@ -46,10 +40,16 @@ public class MosquitoPester : MosquitoBug
 
     public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
     {
-        SetNormalAttackEffect(target);
-        if (_poison)
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+
+        if (target is Creature _)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
+
+            if (_poison)
+            {
+                BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
+            }
         }
 
         if (target is not Sheep sheep) return;

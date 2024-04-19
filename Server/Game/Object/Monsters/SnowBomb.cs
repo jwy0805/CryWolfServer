@@ -7,8 +7,10 @@ public class SnowBomb : Bomb
     private bool _areaAttack = false;
     private bool _burn = false;
     private bool _adjacentDamage = false;
-    private readonly float _area = 1.5f;
     private int _readyToExplode = 0;
+
+    protected readonly float Area = 1.5f;
+    protected GameObject Attacker;
     
     protected override Skill NewSkill
     {
@@ -34,23 +36,93 @@ public class SnowBomb : Bomb
         }
     }
     
-    public bool ExplosionBurn => _burn;
-
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void Update()
     {
-        base.SetNormalAttackEffect(target);
-        if (!_areaAttack) return;
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 15;
+        }
+
+        if (Mp >= MaxMp)
+        {
+            State = State.Skill;
+            BroadcastPos();
+            UpdateSkill();
+            Mp = 0;
+        }
+        else
+        {
+            switch (State)
+            {
+                case State.Die:
+                    UpdateDie();
+                    break;
+                case State.Moving:
+                    UpdateMoving();
+                    break;
+                case State.Idle:
+                    UpdateIdle();
+                    break;
+                case State.Attack:
+                    UpdateAttack();
+                    break;
+                case State.Skill:
+                    UpdateSkill();
+                    break;
+                case State.KnockBack:
+                    UpdateKnockBack();
+                    break;
+                case State.Faint:
+                    break;
+                case State.Standby:
+                    break;
+            }   
+        }
+    }
+    
+    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    {
+        if (pId == ProjectileId.BombProjectile)
+        {
+            target.OnDamaged(this, TotalAttack, Damage.Normal);
+        }
+        else
+        {
+            if (_areaAttack)
+            {
+                var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+                var gameObjects = Room.FindTargets(target, targetList, Area);
+                foreach (var gameObject in gameObjects)
+                {
+                    gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+                }
+            }
+            else
+            {
+                target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            }
+        }
+    }
+
+    public override void SetEffectEffect()
+    {
         var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        var gameObjects = Room.FindTargets(target, targetList, _area);
+        var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
         {
-            gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+            gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            if (!_burn) continue;
+            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5);
+            OnExplode(Attacker);
         }
     }
 
     public override void SetNextState(State state)
     {
-        if (state == State.GoingToExplode && _readyToExplode == 2)
+        if (state == State.GoingToExplode && _readyToExplode > 2)
         {
             State = State.Explode;
             BroadcastPos();
@@ -95,6 +167,7 @@ public class SnowBomb : Bomb
     {
         if (Room == null) return;
         Targetable = false;
+        Attacker = attacker;
         if (attacker.Target != null)
         {
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
@@ -110,8 +183,15 @@ public class SnowBomb : Bomb
             attacker.State = State.Idle;
             BroadcastPos();
         }
-        
-        var statePacket = new S_State { ObjectId = Id, State = State.GoingToExplode };
-        Room.Broadcast(statePacket);
+
+        State = State.GoingToExplode;
+        BroadcastPos();
+    }
+
+    public virtual void OnExplode(GameObject attacker)
+    {
+        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
+        Room.Broadcast(diePacket);
+        Room.DieAndLeave(Id);
     }
 }

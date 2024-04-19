@@ -7,7 +7,7 @@ public class StatePoison : Effect
     public override void Init()
     {
         if (Room == null) return;
-        EffectId = EffectId.PoisonBelt;
+        EffectId = EffectId.StatePoison;
     }
     
     protected override void SetEffectEffect()

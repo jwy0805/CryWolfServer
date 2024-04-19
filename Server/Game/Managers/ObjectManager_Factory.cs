@@ -91,7 +91,9 @@ public sealed partial class ObjectManager
         { ProjectileId.HermitProjectile, new HermitProjectileFactory() },
         { ProjectileId.MosquitoPesterProjectile, new MosquitoPesterProjectileFactory() },
         { ProjectileId.BombProjectile, new BombProjectileFactory()},
-        { ProjectileId.BombSkill, new BombSkillFactory()}
+        { ProjectileId.BombSkill, new BombSkillFactory()},
+        { ProjectileId.SnowBombSkill, new SnowBombSkillFactory() },
+        { ProjectileId.PoisonBombSkill, new PoisonBombSkillFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -544,6 +546,16 @@ public sealed partial class ObjectManager
     public class BombSkillFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new BombSkill();
+    }
+    
+    public class SnowBombSkillFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new SnowBombSkill();
+    }
+    
+    public class PoisonBombSkillFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new PoisonBombSkill();
     }
     
     public class LightningStrikeFactory : IEffectFactory

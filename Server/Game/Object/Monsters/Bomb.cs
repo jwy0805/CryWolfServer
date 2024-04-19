@@ -66,17 +66,11 @@ public class Bomb : Monster
                 case State.Idle:
                     UpdateIdle();
                     break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
                 case State.Attack:
                     UpdateAttack();
                     break;
                 case State.Skill:
                     UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
                     break;
                 case State.KnockBack:
                     UpdateKnockBack();

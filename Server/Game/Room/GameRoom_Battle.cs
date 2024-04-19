@@ -244,7 +244,6 @@ public partial class GameRoom
                     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
                     if (pAttacker?.Parent is Creature parent) 
                         parent.SetProjectileEffect(target, pAttacker.ProjectileId);
-                    // pAttacker?.SetProjectileEffect(target);
                 }
                 break;
             

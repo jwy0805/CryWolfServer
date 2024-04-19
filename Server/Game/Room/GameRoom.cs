@@ -234,7 +234,7 @@ public partial class GameRoom : JobSerializer
                 break;
         }
 
-        S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
+        var spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
         foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
         {
             player.Session.Send(spawnPacket);
