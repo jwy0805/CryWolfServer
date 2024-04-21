@@ -171,7 +171,7 @@ public class GameData
         { UnitId.SnowBomb, new HashSet<Skill> 
             { Skill.SnowBombAdjacentDamage, Skill.SnowBombAreaAttack, Skill.SnowBombBurn, Skill.SnowBombFireResist } },
         { UnitId.PoisonBomb, new HashSet<Skill> 
-            { Skill.PoisonBombAdjacentAddicted, Skill.PoisonBombAdjacentAttackSpeed, Skill.PoisonBombAdjacentRecoverMp } },
+            { Skill.PoisonBombPoison, Skill.PoisonBombDoubleBomb, Skill.PoisonBombAdjacentRecoverMp } },
         { UnitId.Cacti, new HashSet<Skill> 
             { Skill.CactiDefence, Skill.CactiDefence2, Skill.CactiHealth, Skill.CactiHealth2 } },
         { UnitId.Cactus, new HashSet<Skill> 
@@ -303,9 +303,9 @@ public class GameData
         { Skill.MosquitoStingerWoolStop, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.MosquitoStingerInfection, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.MosquitoStingerSheepDeath, new HashSet<Skill> { Skill.MosquitoStingerWoolStop, Skill.MosquitoStingerInfection } },
-        { Skill.WolfPupSpeed, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.WolfPupAttack, new HashSet<Skill> { Skill.WolfPupSpeed } },
-        { Skill.WolfPupDefence, new HashSet<Skill> { Skill.WolfPupSpeed } },
+        { Skill.WolfPupSpeed, new HashSet<Skill> { Skill.WolfPupDefence, Skill.WolfPupAttack } },
+        { Skill.WolfPupAttack, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.WolfPupDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfMoreDna, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfDrain, new HashSet<Skill> { Skill.WolfHealth } },
@@ -322,9 +322,9 @@ public class GameData
         { Skill.SnowBombAreaAttack, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnowBombBurn, new HashSet<Skill> { Skill.SnowBombFireResist, Skill.SnowBombAreaAttack } },
         { Skill.SnowBombAdjacentDamage, new HashSet<Skill> { Skill.SnowBombBurn } },
-        { Skill.PoisonBombAdjacentAddicted, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.PoisonBombAdjacentAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.PoisonBombAdjacentRecoverMp, new HashSet<Skill> { Skill.PoisonBombAdjacentAddicted, Skill.PoisonBombAdjacentAttackSpeed } },
+        { Skill.PoisonBombPoison, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.PoisonBombAdjacentRecoverMp, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.PoisonBombDoubleBomb, new HashSet<Skill> { Skill.PoisonBombPoison, Skill.PoisonBombAdjacentRecoverMp } },
         { Skill.CactiHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.CactiHealth2, new HashSet<Skill> { Skill.CactiHealth } },
         { Skill.CactiDefence, new HashSet<Skill> { Skill.NoSkill } },

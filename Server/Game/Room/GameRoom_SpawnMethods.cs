@@ -257,7 +257,7 @@ public partial class GameRoom
         monster.Init();
         return monster;
     }
-
+    
     private MonsterStatue EnterMonsterStatue(int unitId, PositionInfo posInfo, Player player)
     {
         var statue = ObjectManager.Instance.CreateMonsterStatue();

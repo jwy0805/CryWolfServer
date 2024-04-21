@@ -276,6 +276,14 @@ public partial class GameRoom
                     cAttacker.SetNextState();
                 }
                 break;
+            
+            case AttackMethod.AdditionalProjectileAttack:
+                if (type is GameObjectType.Monster or GameObjectType.Tower)
+                {
+                    Creature cAttacker = (Creature)attacker;
+                    cAttacker.SetAdditionalProjectileEffect(target);
+                }
+                break;
         }
     }
     

@@ -10,21 +10,25 @@ public class Snakelet : Monster
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.SnakeletAttack:
-            //         Attack += 6;
-            //         break;
-            //     case Skill.SnakeletRange:
-            //         AttackRange += 1.5f;
-            //         break;
-            //     case Skill.SnakeletSpeed:
-            //         AttackSpeed += 0.1f;
-            //         break;
-            //     case Skill.SnakeletAttackSpeed:
-            //         MoveSpeed += 2f;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.SnakeletAttackSpeed:
+                    AttackSpeed += AttackSpeed * 0.2f;
+                    break;
+                case Skill.SnakeletAttack:
+                    Attack += 6;
+                    break;
+                case Skill.SnakeletEvasion:
+                    Evasion += 15;
+                    break;
+            }
         }
+    }
+    
+    public override void Init()
+    {
+        base.Init();
+        AttackSpeedReciprocal = 5 / 6f;
+        AttackSpeed *= AttackSpeedReciprocal;
     }
 }

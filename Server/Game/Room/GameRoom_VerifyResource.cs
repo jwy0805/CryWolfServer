@@ -102,21 +102,14 @@ public partial class GameRoom
         return nowCapacity >= maxCapacity;
     }
     
-    private bool VerifyResourceForTowerSkill(Skill skill)
+    private bool VerifyResourceForSkill(Player player, Skill skill)
     {
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
-        int cost = skillData.cost;
-        if (GameInfo.SheepResource < cost) return true;
-        GameInfo.SheepResource -= cost;
-        return false;
-    }
-    
-    private bool VerifyResourceForMonsterSkill(Skill skill)
-    {
-        if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
-        int cost = skillData.cost;
-        if (GameInfo.WolfResource < cost) return true;
-        GameInfo.WolfResource -= cost;
+        var cost = skillData.cost;
+        var resource = player.Camp == Camp.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
+        if (resource < cost) return true;
+        if (player.Camp == Camp.Sheep) GameInfo.SheepResource -= cost;
+        else GameInfo.WolfResource -= cost;
         return false;
     }
 

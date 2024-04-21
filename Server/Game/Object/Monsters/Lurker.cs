@@ -10,25 +10,10 @@ public class Lurker : Monster
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.LurkerDefence:
-            //         Defence += 4;
-            //         break;
-            //     case Skill.LurkerHealth:
-            //         MaxHp += 25;
-            //         Hp += 25;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.LurkerHealth2:
-            //         MaxHp += 20;
-            //         Hp += 20;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.LurkerSpeed:
-            //         MoveSpeed += 0.5f;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                
+            }
         }
     }
 }

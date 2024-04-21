@@ -13,8 +13,6 @@ public class Projectile : GameObject
         if (room == null) return;
         if (Target == null || Target.Stat.Targetable == false) room.Push(room.LeaveGame, Id);
         DestPos = Target!.CellPos;
-        // Dir = (float)Math.Atan2(Target.CellPos.X - CellPos.X, Target.CellPos.Z - CellPos.Z);
-        // BroadcastDest();
     }
 
     protected Projectile()

@@ -87,6 +87,7 @@ public class Creature : GameObject
     public virtual void SetAdditionalAttackEffect(GameObject target) { }
     public virtual void SetEffectEffect() { }
     public virtual void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None) { }
+    public virtual void SetAdditionalProjectileEffect(GameObject target) { }
 
     public virtual void SetNextState()
     {

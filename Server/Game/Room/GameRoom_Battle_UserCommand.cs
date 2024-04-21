@@ -68,7 +68,7 @@ public partial class GameRoom
         
         // 실제 환경
         lackOfSkill = VerifySkillTree(player, skill);
-        lackOfCost = VerifyResourceForTowerSkill(skill);
+        lackOfCost = VerifyResourceForSkill(player, skill);
 
         if (player.SkillUpgradedList.Contains(skill))
         {

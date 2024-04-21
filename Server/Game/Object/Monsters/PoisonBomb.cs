@@ -6,8 +6,9 @@ public class PoisonBomb : SnowBomb
 {
     private bool _addicted;
     private bool _recoverMp;
-    private bool _attackSpeedBuff;
+    private bool _doubleBomb;
     private readonly int _recoverMpParam = 15;
+    private GameObject _subTarget;
     
     protected override Skill NewSkill
     {
@@ -17,19 +18,19 @@ public class PoisonBomb : SnowBomb
             Skill = value;
             switch (Skill)
             {
-                case Skill.PoisonBombAdjacentAddicted:
+                case Skill.PoisonBombPoison:
                     _addicted = true;
                     break;
                 case Skill.PoisonBombAdjacentRecoverMp:
                     _recoverMp = true;
                     break;
-                case Skill.PoisonBombAdjacentAttackSpeed:
-                    _attackSpeedBuff = true;
+                case Skill.PoisonBombDoubleBomb:
+                    _doubleBomb = true;
                     break;
             }
         }
     }
-
+    
     public override void SetEffectEffect()
     {
         var enemyList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
@@ -41,22 +42,12 @@ public class PoisonBomb : SnowBomb
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
             BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5);
-            if (_addicted)
-            {
-                BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5);
-            }
         }
 
         foreach (var gameObject in allyGameObjects)
         {
-            if (_recoverMp)
-            {
-                gameObject.Mp += _recoverMpParam;
-            }
-            if (_attackSpeedBuff)
-            {
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, gameObject, this, 15, 5);
-            }
+            if (_recoverMp == false) continue;
+            gameObject.Mp += _recoverMpParam;
         }
         OnExplode(Attacker);
     }
@@ -68,7 +59,26 @@ public class PoisonBomb : SnowBomb
         foreach (var gameObject in gameObjects)
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+            if (_addicted) BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5);
         }
+    }
+    
+    public override void SetAdditionalProjectileEffect(GameObject target)
+    {
+        if (_doubleBomb == false) return;
+        _subTarget = Room.FindRandomTarget(this, SkillRange, AttackType);
+        var projectile = ObjectManager.Instance.CreateProjectile(ProjectileId.SnowBombSkill);
+        projectile.Room = Room;
+        projectile.PosInfo = PosInfo;
+        // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;
+        projectile.Info.PosInfo = projectile.PosInfo;
+        projectile.Info.Name = ProjectileId.PoisonBombSkill.ToString();
+        projectile.Target = _subTarget;
+        projectile.Parent = this;
+        projectile.Attack = TotalAttack;
+        projectile.Init();
+        Room.Push(Room.EnterGame, projectile);
+        SetNextState();
     }
     
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)

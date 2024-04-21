@@ -90,6 +90,15 @@ public partial class GameRoom
         return MeasureShortestDist(gameObject, targetList, attackType);
     }
 
+    public GameObject? FindRandomTarget(GameObject gameObject, float dist, int attackType = 0)
+    {   
+        var targetTypeList = GetTargetType(gameObject);
+        var targetList = new List<GameObject>();
+        foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
+
+        return GetRandomTarget(gameObject, targetList, dist, attackType);
+    }
+    
     private List<GameObjectType> GetTargetType(GameObject gameObject)
     {
         List<GameObjectType> targetTypeList = new();
@@ -169,6 +178,22 @@ public partial class GameRoom
         }
 
         return closest;
+    }
+    
+    private GameObject? GetRandomTarget(GameObject gameObject, List<GameObject> targets, float dist, int attackType)
+    {
+        List<GameObject> targetList = new();
+        foreach (var target in targets)
+        {
+            if (target.Stat.Targetable == false || target.UnitType != attackType
+                || target.Id == gameObject.Id && attackType != 2) continue;
+            var pos = target.PosInfo;
+            var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
+            var distSq = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
+            if (distSq < dist * dist) targetList.Add(target);
+        }
+
+        return targetList.Count == 0 ? null : targetList[new Random().Next(targetList.Count)];
     }
     
     public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height, int targetType)
