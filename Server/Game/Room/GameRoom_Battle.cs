@@ -235,12 +235,12 @@ public partial class GameRoom
                 {
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
-                    cAttacker.Mp += cAttacker.Stat.MpRecovery;
+                    cAttacker.Mp += cAttacker.MpRecovery;
                     cAttacker.SetNormalAttackEffect(target);
                 }
                 else if (type is GameObjectType.Projectile)
                 {
-                    attacker.Parent!.Mp += attacker.Parent.Stat.MpRecovery;
+                    attacker.Parent!.Mp += attacker.Parent.MpRecovery;
                     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
                     if (pAttacker?.Parent is Creature parent) 
                         parent.SetProjectileEffect(target, pAttacker.ProjectileId);

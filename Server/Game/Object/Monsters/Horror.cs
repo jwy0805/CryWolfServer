@@ -6,8 +6,8 @@ namespace Server.Game;
 
 public class Horror : Creeper
 {
-    private bool _poisonStack = false;
-    private bool _rollPoison = true;
+    private bool _poisonImmunity = false;
+    private bool _rollPoison = false;
     private bool _poisonBelt = false;
     
     protected override Skill NewSkill
@@ -18,34 +18,15 @@ public class Horror : Creeper
             Skill = value;
             switch (Skill)
             {
-                // case Skill.HorrorRollPoison:
-                //     _rollPoison = true;
-                //     break;
-                // case Skill.HorrorPoisonStack:
-                //     _poisonStack = true;
-                //     Room?.Broadcast(new S_SkillUpdate
-                //     {
-                //         ObjectEnumId = (int)MonsterId,
-                //         ObjectType = GameObjectType.Monster,
-                //         SkillType = SkillType.SkillProjectile
-                //     });
-                //     break;
-                // case Skill.HorrorHealth:
-                //     MaxHp += 200;
-                //     Hp += 200;
-                //     BroadcastHealth();
-                //     break;
-                // case Skill.HorrorDefence:
-                //     Defence += 5;
-                //     TotalDefence += 5;
-                //     break;
-                // case Skill.HorrorPoisonResist:
-                //     PoisonResist += 15;
-                //     TotalPoisonResist += 15;
-                //     break;
-                // case Skill.HorrorPoisonBelt:
-                //     _poisonBelt = true;
-                //     break;
+                case Skill.HorrorPoisonBelt:
+                    _poisonBelt = true;
+                    break;
+                case Skill.HorrorPoisonImmunity:
+                    _poisonImmunity = true;
+                    break;
+                case Skill.HorrorRollPoison:
+                    _rollPoison = true;
+                    break;
             }
         }
     }
@@ -54,12 +35,6 @@ public class Horror : Creeper
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
 
         if (Mp >= MaxMp && _poisonBelt)
         {
@@ -94,9 +69,6 @@ public class Horror : Creeper
             case State.Skill:
                 UpdateSkill();
                 break;
-            case State.Skill2:
-                UpdateSkill2();
-                break;
             case State.KnockBack:
                 UpdateKnockBack();
                 break;
@@ -111,86 +83,26 @@ public class Horror : Creeper
     {
         if (Start == false)
         {
-            State = State.Rush;
             Start = true;
+            MoveSpeedParam += 2;
+            BroadcastDest();
+            State = State.Rush;
             BroadcastPos();
+            return;
         }
-        else
+        
+        if (Start && SpeedRestore == false)
         {
-            // Targeting
-            double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-            if (timeNow > LastSearch + SearchTick)
-            {
-                LastSearch = timeNow;
-                GameObject? target = Room?.FindClosestTarget(this);
-                if (Target?.Id != target?.Id)
-                {
-                    Target = target;
-                    if (Target != null)
-                    {
-                        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                        (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                        BroadcastDest();
-                    }
-                }
-            }
-
-            if (Target == null || Target.Targetable == false || Target.Room != Room)
-            {
-                State = State.Idle;
-                BroadcastPos();
-                return;
-            }
-
-            if (Room != null)
-            {
-                // 이동
-                // target이랑 너무 가까운 경우
-                // Attack
-                StatInfo targetStat = Target.Stat;
-                Vector3 position = CellPos;
-                if (targetStat.Targetable)
-                {
-                    float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                    double deltaX = DestPos.X - CellPos.X;
-                    double deltaZ = DestPos.Z - CellPos.Z;
-                    Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                    if (distance <= AttackRange)
-                    {
-                        CellPos = position;
-                        State = State.Attack;
-                        BroadcastPos();
-                        return;
-                    }
-                }
-            }
-
-            BroadcastPos();
+            MoveSpeedParam -= 2;
+            SpeedRestore = true;
+            BroadcastDest();
         }
+        
+        base.UpdateMoving();
     }
     
     protected override void UpdateRush()
     {
-        if (Room == null) return;
-        
-        // Targeting
-        double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-        if (timeNow > LastSearch + SearchTick)
-        {
-            LastSearch = timeNow;
-            GameObject? target = Room?.FindClosestTarget(this);
-            if (Target?.Id != target?.Id)
-            {
-                Target = target;
-                if (Target != null)
-                {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
-                }
-            }
-        }
-        
         if (Target == null || Target.Room != Room)
         {
             State = State.Idle;
@@ -214,18 +126,10 @@ public class Horror : Creeper
                 CellPos = position;
                 Target.OnDamaged(this, SkillDamage, Damage.Normal);
                 if (_rollPoison)
-                {
-                    Effect effect = ObjectManager.Instance.CreateEffect(EffectId.HorrorRoll);
-                    effect.Room = Room;
-                    effect.Parent = this;
-                    effect.Target = Target;
-                    effect.PosInfo = PosInfo;
-                    effect.Info.PosInfo = effect.PosInfo;
-                    effect.Info.Name = EffectId.HorrorRoll.ToString();
-                    effect.Init();
-                    Room.EnterGameParent(effect, effect.Parent);
-                    BuffManager.Instance.AddBuff(_poisonStack ? BuffId.DeadlyAddicted : BuffId.Addicted,
-                        Target, this, Attack);
+                {   // RollPoison Effect
+                    var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
+                    Room.EnterGameParent(effect, effect.Parent!);
+                    BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5);
                 }
                 Mp += MpRecovery;
                 State = State.KnockBack;
@@ -241,5 +145,34 @@ public class Horror : Creeper
         }
 
         BroadcastPos();
+    }
+
+    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    {
+        if (Room == null) return;
+        if (Invincible) return;
+        if (damageType is Damage.Poison && _poisonImmunity) return;
+
+        int totalDamage;
+        if (damageType is Damage.Normal or Damage.Magical)
+        {
+            totalDamage = attacker.CriticalChance > 0 
+                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
+                : Math.Max(damage - TotalDefence, 0);
+            if (damageType is Damage.Normal && Reflection && reflected == false)
+            {
+                int refParam = (int)(totalDamage * ReflectionRate);
+                attacker.OnDamaged(this, refParam, damageType, true);
+            }
+        }
+        else
+        {
+            totalDamage = damage;
+        }
+        
+        Hp = Math.Max(Hp - totalDamage, 0);
+        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        Room.Broadcast(damagePacket);
+        if (Hp <= 0) OnDead(attacker);
     }
 }

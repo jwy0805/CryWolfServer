@@ -41,12 +41,6 @@ public class MoleRatKing : MoleRat
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
 
         if (MaxMp != 1 && Mp >= MaxMp)
         {

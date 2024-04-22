@@ -40,11 +40,6 @@ public class TargetDummy : PracticeDummy
     {
         if (Room != null) Job = Room.PushAfter(CallCycle, Update);
         if (Room == null) return;
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room!.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
 
         if (Mp >= MaxMp)
         {

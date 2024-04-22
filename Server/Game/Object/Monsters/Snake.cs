@@ -4,6 +4,7 @@ namespace Server.Game;
 
 public class Snake : Snakelet
 {
+    private bool _fire = false;
     protected override Skill NewSkill
     {
         get => Skill;
@@ -13,6 +14,7 @@ public class Snake : Snakelet
             switch (Skill)
             {
                 case Skill.SnakeFire:
+                    _fire = true;
                     Room?.Broadcast(new S_SkillUpdate { 
                         ObjectEnumId = (int)UnitId, 
                         ObjectType = GameObjectType.Monster, 
@@ -31,9 +33,11 @@ public class Snake : Snakelet
             }
         }
     }
-    
-    public override void SetNormalAttackEffect(GameObject target)
+
+    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
     {
+        base.SetProjectileEffect(target, ProjectileId.SmallFire);
+        if (_fire == false) return;
         BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
     }
 }

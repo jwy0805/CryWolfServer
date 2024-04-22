@@ -31,4 +31,9 @@ public class Snakelet : Monster
         AttackSpeedReciprocal = 5 / 6f;
         AttackSpeed *= AttackSpeedReciprocal;
     }
+    
+    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+    }
 }

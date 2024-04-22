@@ -18,13 +18,9 @@ public class Creature : GameObject
 
     public override void Update()
     {
-        base.Update();
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
-
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        
         if (MaxMp != 1 && Mp >= MaxMp)
         {
             State = State.Skill;
@@ -86,7 +82,11 @@ public class Creature : GameObject
     
     public virtual void SetAdditionalAttackEffect(GameObject target) { }
     public virtual void SetEffectEffect() { }
-    public virtual void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None) { }
+
+    public virtual void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+    }
     public virtual void SetAdditionalProjectileEffect(GameObject target) { }
 
     public virtual void SetNextState()

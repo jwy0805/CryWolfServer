@@ -62,6 +62,7 @@ public class MoleRat : Burrow
             
             if (_burrowSpeed) MoveSpeedParam += 2;
             if (_burrowEvasion) EvasionParam += 30;
+            
         }
 
         if (state == State.RushToIdle)

@@ -4,10 +4,7 @@ using Google.Protobuf.Protocol;
 namespace Server.Data;
 
 public class GameData
-{
-    // Game 초기 설정
-    
-    // 불변
+{ // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
     public static readonly float GroundHeight = 6.0f;
     public static readonly float AirHeight = 9.0f;
     public static Vector3 Center = new(0.0f, 6.0f, 0.0f); // Center of the Map
@@ -185,6 +182,20 @@ public class GameData
         { UnitId.SnakeNaga, new HashSet<Skill> 
             { Skill.SnakeNagaCritical, Skill.SnakeNagaDrain, Skill.SnakeNagaMeteor, 
                 Skill.SnakeNagaBigFire, Skill.SnakeNagaSuperAccuracy } },
+        { UnitId.Lurker, new HashSet<Skill>
+            { Skill.LurkerSpeed, Skill.LurkerDefence, Skill.LurkerPoisonResist } },
+        { UnitId.Creeper, new HashSet<Skill>
+            { Skill.CreeperPoison, Skill.CreeperRoll, Skill.CreeperNestedPoison, Skill.CreeperRollDamageUp } },
+        { UnitId.Horror, new HashSet<Skill> 
+            { Skill.HorrorPoisonBelt, Skill.HorrorPoisonImmunity, Skill.HorrorRollPoison } },
+        { UnitId.Skeleton, new HashSet<Skill> 
+            { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff, } },
+        { UnitId.SkeletonGiant, new HashSet<Skill> 
+            { Skill.SkeletonGiantAttackSteal, Skill.SkeletonGiantRevive,
+                Skill.SkeletonGiantMpDown, Skill.SkeletonGiantDefenceDebuff } },
+        { UnitId.SkeletonMage, new HashSet<Skill> 
+            { Skill.SkeletonMageAdjacentRevive, Skill.SkeletonMageKillRecoverMp,
+                Skill.SkeletonMageReviveHealthUp, Skill.SkeletonMageCurse } }
     };
     
     public static readonly Dictionary<Skill, HashSet<Skill>> SkillTree = new()

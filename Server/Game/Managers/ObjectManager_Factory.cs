@@ -116,7 +116,8 @@ public sealed partial class ObjectManager
         { EffectId.PurpleBeam, new PurpleBeamFactory() },
         { EffectId.StarFall, new StarFallFactory() },
         { EffectId.HorrorRoll, new HorrorRollFactory()},
-        { EffectId.Upgrade, new EffectFactory() }
+        { EffectId.Upgrade, new EffectFactory() },
+        { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory()}
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -651,6 +652,11 @@ public sealed partial class ObjectManager
     public class EffectFactory : IEffectFactory
     {
         public Effect CreateEffect() => new Upgrade();
+    }
+    
+    public class SkeletonGiantEffectFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new SkeletonGiantEffect();
     }
 
     public class CoinStarSilverFactory : IResourceFactory

@@ -2,18 +2,20 @@ namespace Server.Game;
 
 public partial class GameObject
 {
-    public int TotalAttack => Attack + AttackParam;
-    public float TotalAttackSpeed => AttackSpeed + AttackSpeedParam;
-    public int TotalSkillDamage => SkillDamage + SkillParam;
-    public int TotalDefence => Defence + DefenceParam;
+    public int TotalAttack => Math.Max(Attack + AttackParam, 0);
+    public float TotalAttackSpeed => Math.Max(AttackSpeed + AttackSpeedParam, 0);
+    public int TotalSkillDamage => Math.Max(SkillDamage + SkillParam, 0);
+    public int TotalDefence => Math.Max(Defence + DefenceParam, 0);
     public int TotalFireResist => FireResist + FireResistParam;
     public int TotalPoisonResist => PoisonResist + PoisonResistParam;
-    public float TotalMoveSpeed => MoveSpeed + MoveSpeedParam;
+    public float TotalMoveSpeed => Math.Max(MoveSpeed + MoveSpeedParam, 0);
     public float TotalAttackRange => AttackRange + AttackRangeParam;
     public float TotalSkillRange => SkillRange + SkillRangeParam;
     public int TotalAccuracy => Accuracy + AccuracyParam;
     public int TotalEvasion => Evasion + EvasionParam;
     
+    public int MpRecovery { get; set; } = 10;
+
     public virtual int Hp
     {
         get => Stat.Hp;
@@ -37,13 +39,7 @@ public partial class GameObject
         get => Stat.MaxMp;
         set => Stat.MaxMp = value;
     }
-
-    public int MpRecovery
-    {
-        get => Stat.MpRecovery;
-        set => Stat.MpRecovery = value;
-    }
-
+    
     public int Attack
     {
         get => Stat.Attack;

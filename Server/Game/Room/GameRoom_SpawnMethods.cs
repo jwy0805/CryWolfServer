@@ -271,6 +271,19 @@ public partial class GameRoom
         statue.Init();
         return statue;
     }
+    
+    public Effect EnterEffect(EffectId effectId, GameObject parent)
+    {
+        var effect = ObjectManager.Instance.CreateEffect(effectId);
+        effect.PosInfo = parent.PosInfo;
+        effect.Info.PosInfo = effect.PosInfo;
+        effect.Info.Name = effectId.ToString();
+        effect.Parent = parent;
+        effect.Target = parent.Target;
+        effect.Room = this;
+        effect.Init();
+        return effect;
+    }
 
     private Sheep EnterSheep(Player player)
     {

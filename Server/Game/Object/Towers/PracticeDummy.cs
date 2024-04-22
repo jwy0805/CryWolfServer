@@ -42,11 +42,6 @@ public class PracticeDummy : Tower
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         Console.WriteLine(State.ToString());
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room!.Stopwatch.ElapsedMilliseconds;
-            Mp += Stat.MpRecovery;
-        }
 
         switch (State)
         {

@@ -11,6 +11,7 @@ public class CactusBoss : Cactus
     private bool _smashHeal = false;
     private bool _smashAggro = false;
     private bool _start = false;
+    private bool _speedRestore = false;
     private bool _firstAttack = false;
     private readonly int _healParam = 100;
     private readonly int _smashDamage = 70;
@@ -70,6 +71,13 @@ public class CactusBoss : Cactus
             State = State.Rush;
             BroadcastPos();
             return;
+        }
+        
+        if (_rush && _start && _speedRestore == false)
+        {
+            MoveSpeedParam -= 2;
+            _speedRestore = true;
+            BroadcastDest();
         }
         
         base.UpdateMoving();

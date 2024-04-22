@@ -9,7 +9,7 @@ public class Projectile : GameObject
     public override void Init()
     {
         GameRoom? room = Room;
-        MoveSpeed = 4f;
+        MoveSpeed = 10f;
         if (room == null) return;
         if (Target == null || Target.Stat.Targetable == false) room.Push(room.LeaveGame, Id);
         DestPos = Target!.CellPos;
