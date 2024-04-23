@@ -128,7 +128,7 @@ public class Horror : Creeper
                 if (_rollPoison)
                 {   // RollPoison Effect
                     var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
-                    Room.EnterGameParent(effect, effect.Parent!);
+                    Room.EnterGameParent(effect, effect.Parent ?? this);
                     BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5);
                 }
                 Mp += MpRecovery;

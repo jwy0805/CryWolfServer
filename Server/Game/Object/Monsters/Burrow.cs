@@ -102,6 +102,8 @@ public class Burrow : Monster
 
     public override void SetNextState(State state)
     {
+        base.SetNextState(state);
+        
         if (state == State.IdleToRush)
         {
             State = State.Rush;

@@ -25,7 +25,7 @@ public class LightningStrike : Effect
       base.SetEffectEffect();
    }
 
-   public override PositionInfo SetEffectPos(GameObject parent)
+   public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
    {
       if (parent.Target == null) return new PositionInfo { PosX = -100, PosY = -100, PosZ = -100 };
       return parent.Target.PosInfo;

@@ -93,7 +93,8 @@ public sealed partial class ObjectManager
         { ProjectileId.BombProjectile, new BombProjectileFactory()},
         { ProjectileId.BombSkill, new BombSkillFactory()},
         { ProjectileId.SnowBombSkill, new SnowBombSkillFactory() },
-        { ProjectileId.PoisonBombSkill, new PoisonBombSkillFactory() }
+        { ProjectileId.PoisonBombSkill, new PoisonBombSkillFactory() },
+        { ProjectileId.SkeletonMageProjectile, new SkeletonMageProjectileFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -117,7 +118,9 @@ public sealed partial class ObjectManager
         { EffectId.StarFall, new StarFallFactory() },
         { EffectId.HorrorRoll, new HorrorRollFactory()},
         { EffectId.Upgrade, new EffectFactory() },
-        { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory()}
+        { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory()},
+        { EffectId.SkeletonGiantSkill, new SkeletonGiantSkill() },
+        { EffectId.SkeletonGiantRevive, new SkeletonGiantRevive() }
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -559,6 +562,11 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new PoisonBombSkill();
     }
     
+    public class SkeletonMageProjectileFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new SkeletonMageProjectile();
+    }
+    
     public class LightningStrikeFactory : IEffectFactory
     {
         public Effect CreateEffect() => new LightningStrike();
@@ -657,6 +665,16 @@ public sealed partial class ObjectManager
     public class SkeletonGiantEffectFactory : IEffectFactory
     {
         public Effect CreateEffect() => new SkeletonGiantEffect();
+    }
+
+    public class SkeletonGiantSkill : IEffectFactory
+    {
+        public Effect CreateEffect() => new Game.SkeletonGiantSkill();
+    }
+
+    public class SkeletonGiantRevive : IEffectFactory
+    {
+        public Effect CreateEffect() => new Game.SkeletonGiantRevive();
     }
 
     public class CoinStarSilverFactory : IResourceFactory

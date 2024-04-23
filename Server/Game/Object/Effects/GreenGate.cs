@@ -48,7 +48,7 @@ public class GreenGate : Effect
         Room.EnterGameTarget(effect, effect.Parent, effect.Target);
     }
     
-    public override PositionInfo SetEffectPos(GameObject master)
+    public override PositionInfo SetEffectPos(GameObject master, PositionInfo? effectPos = null)
     {
         return master.PosInfo;
     }

@@ -87,14 +87,14 @@ public class PacketHandler
         room?.Push(room.HandleMotion, player, motionPacket);
     }
     
-    public static void C_EffectAttackHandler(PacketSession session, IMessage packet)
+    public static void C_EffectActivateHandler(PacketSession session, IMessage packet)
     {
-        var dirPacket = (C_EffectAttack)packet;
+        var dirPacket = (C_EffectActivate)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
         
-        room?.Push(room.HandleEffectAttack, player, dirPacket);
+        room?.Push(room.HandleEffectActivate, player, dirPacket);
     }
     
     public static void C_StatInitHandler(PacketSession session, IMessage packet)

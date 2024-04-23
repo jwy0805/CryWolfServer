@@ -13,7 +13,7 @@ public class HorrorRoll : Effect
         base.SetEffectEffect();
     }
     
-    public override PositionInfo SetEffectPos(GameObject parent)
+    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
     {
         return parent.PosInfo;
     }

@@ -122,6 +122,8 @@ public class SnowBomb : Bomb
 
     public override void SetNextState(State state)
     {
+        base.SetNextState(state);
+        
         if (state == State.GoingToExplode && _readyToExplode > 2)
         {
             State = State.Explode;

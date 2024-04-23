@@ -6,23 +6,27 @@ namespace Server.Game;
 
 public partial class GameObject : IGameObject
 {
-    public Player Player;
-    
     protected const int CallCycle = 200;
     protected long Time;
     protected int SearchTick = 500;
     protected double LastSearch = 0;
     protected Vector3 DestPos;
-
-    public List<Vector3> Path = new();
     protected List<Vector3> Dest = new();
     protected List<double> Atan = new();
+
+    public bool WillRevive { get; set; } = false;
+    public bool AlreadyRevived { get; set; } = false;
+    public float ReviveHpRate { get; set; } = 0.3f;
+    public List<Vector3> Path = new();
+    
+    public virtual int KillLog { get; set; }
     
     public int Id
     {
         get => Info.ObjectId;
         set => Info.ObjectId = value;
     }
+    public Player Player { get; set; }
     public List<BuffId> Buffs { get; set; } = new();
     public GameObject? Target { get; set; }
     public GameObject? Parent { get; set; }
@@ -113,6 +117,7 @@ public partial class GameObject : IGameObject
     public virtual void OnDead(GameObject attacker)
     {
         if (Room == null) return;
+        attacker.KillLog = Id;
         Targetable = false;
         if (attacker.Target != null)
         {
@@ -122,18 +127,24 @@ public partial class GameObject : IGameObject
                 {
                     attacker.Parent.Target = null;
                     attacker.State = State.Idle;
-                    BroadcastPos();
+                    // BroadcastPos();
                 }
             }
             attacker.Target = null;
             attacker.State = State.Idle;
-            BroadcastPos();
+            // BroadcastPos();
         }
         
+        if (AlreadyRevived == false && WillRevive)
+        {
+            S_Die dieAndRevivePacket = new() { ObjectId = Id, AttackerId = attacker.Id, Revive = true};
+            Room.Broadcast(dieAndRevivePacket);
+            return;
+        }
+
         S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
-        // Room.LeaveGame(Id);
     }
     
     public virtual void BroadcastPos()

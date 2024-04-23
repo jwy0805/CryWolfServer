@@ -55,6 +55,8 @@ public class MoleRat : Burrow
 
     public override void SetNextState(State state)
     {
+        base.SetNextState(state);
+        
         if (state == State.IdleToRush)
         {
             State = State.Rush;

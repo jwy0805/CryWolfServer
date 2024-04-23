@@ -272,11 +272,11 @@ public partial class GameRoom
         return statue;
     }
     
-    public Effect EnterEffect(EffectId effectId, GameObject parent)
+    public Effect EnterEffect(EffectId effectId, GameObject parent, PositionInfo? effectPos = null)
     {
         var effect = ObjectManager.Instance.CreateEffect(effectId);
         effect.PosInfo = parent.PosInfo;
-        effect.Info.PosInfo = effect.PosInfo;
+        effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
         effect.Info.Name = effectId.ToString();
         effect.Parent = parent;
         effect.Target = parent.Target;
@@ -309,19 +309,5 @@ public partial class GameRoom
         sheep.CellPos = Map.FindSpawnPos(sheep);
         EnterGame(sheep);
         GameInfo.SheepCount++;
-    }
-    
-    private Tusk EnterTusk(int unitId, PositionInfo posInfo, Player player)
-    {
-        var tusk = ObjectManager.Instance.CreateTusk();
-        tusk.PosInfo = posInfo;
-        tusk.Info.PosInfo = tusk.PosInfo;
-        tusk.Player = player;
-        tusk.UnitId = (UnitId)unitId;
-        tusk.Room = this;
-        tusk.Way = tusk.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-        tusk.Dir = tusk.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
-        tusk.Init();
-        return tusk;
     }
 }

@@ -201,15 +201,8 @@ public partial class GameRoom
 
         if (attackPacket.AttackMethod == AttackMethod.EffectAttack)
         {
-            Effect effect = ObjectManager.Instance.CreateEffect(attackPacket.Effect);
-            effect.Room = this;
-            effect.Parent = attacker;
-            effect.Info.Name = attackPacket.Effect.ToString();
-            effect.EffectId = attackPacket.Effect;
-            effect.PosInfo = effect.SetEffectPos(attacker);
-            effect.Info.PosInfo = effect.PosInfo;
-            effect.Init();
-            Push(EnterGameParent, effect, effect.Parent);
+            var effect = EnterEffect(attackPacket.Effect, attacker);
+            if (effect.Parent != null) Push(EnterGameParent, effect, effect.Parent);
         }
 
         if (target == null || target.Targetable == false)
@@ -294,8 +287,8 @@ public partial class GameRoom
         go.SetNextState(motionPacket.State);
     }
     
-    public void HandleEffectAttack(Player? player, C_EffectAttack dirPacket)
-    {
+    public void HandleEffectActivate(Player? player, C_EffectActivate dirPacket)
+    {   // Effect 자체에 공격 등 효과가 있는 경우 Effect Controller에서 패킷 전송
         if (player == null) return;
         GameObject? go = FindGameObjectById(dirPacket.ObjectId);
         if (go == null) return;
@@ -320,7 +313,7 @@ public partial class GameRoom
     }
     
     public void HandleSkill(Player? player, C_Skill skillPacket)
-    {
+    {   // 공격이 아닌 버프, 디버프 스킬 등
         if (player == null) return;
         
         Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;

@@ -14,7 +14,7 @@ public class Effect : GameObject
     }
 
     public override void Update()
-    {
+    {   // Update Cycle 중 Effect 효과는 원하는 시점에서 한 번만 발동되도록 설정, 원하는 시점은 Client의 Controller에서 설정
         base.Update();
         if (IsHit == false && PacketReceived) SetEffectEffect();
     }
@@ -25,9 +25,10 @@ public class Effect : GameObject
         Room?.LeaveGame(Id);
     }
 
-    public virtual PositionInfo SetEffectPos(GameObject parent)
+    public virtual PositionInfo SetEffectPos(GameObject parent, PositionInfo? posInfo = null)
     {
         Target = parent.Target;
-        return Target != null ? Target.PosInfo : parent.PosInfo;
+        if (posInfo == null) return Target != null ? Target.PosInfo : parent.PosInfo;
+        return posInfo;
     }
 }

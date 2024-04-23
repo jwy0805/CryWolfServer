@@ -16,6 +16,8 @@ public class Creature : GameObject
     protected float SkillSpeedReciprocal2;
     protected const long MpTime = 1000;
 
+
+
     public override void Update()
     {
         if (Room == null) return;
@@ -128,7 +130,15 @@ public class Creature : GameObject
 
     public virtual void SetNextState(State state)
     {
-        
+        if (state == State.Die && WillRevive)
+        {
+            State = State.Idle;
+            Hp = (int)(MaxHp * ReviveHpRate);
+            if (Targetable == false) Targetable = true;
+            BroadcastHealth();
+            BroadcastPos();
+            // 부활 Effect 추가
+        }
     }
     
     protected virtual void SetDirection()

@@ -18,7 +18,7 @@ public class Meteor : Effect
         base.SetEffectEffect();
     }
     
-    public override PositionInfo SetEffectPos(GameObject parent)
+    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
     {
         if (Room == null) return parent.PosInfo;
         List<GameObjectType> typeList = new() { GameObjectType.Tower };
