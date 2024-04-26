@@ -168,7 +168,7 @@ public class SkeletonGiant : Skeleton
     {
         if (state == State.Die)
         {
-            if (AlreadyRevived == false && _reviveSelf)
+            if (AlreadyRevived == false && _reviveSelf || WillRevive)
             {
                 AlreadyRevived = true;
                 State = State.Revive;
@@ -233,8 +233,8 @@ public class SkeletonGiant : Skeleton
         if (_attackSteal == false) return;
         foreach (var target in targets)
         {
-            BuffManager.Instance.AddBuff(BuffId.AttackDecrease, target, this, 2, 5, true);
-            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, this, this, 2, 5, true);
+            BuffManager.Instance.AddBuff(BuffId.AttackDecrease, target, this, 2, 5000, true);
+            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, this, this, 2, 5000, true);
         }
     }
 }

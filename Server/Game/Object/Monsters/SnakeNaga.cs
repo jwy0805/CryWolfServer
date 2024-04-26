@@ -85,6 +85,7 @@ public class SnakeNaga : Snake
     
     public override void SetNormalAttackEffect(GameObject target)
     {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * _drainParam);
         BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
     }

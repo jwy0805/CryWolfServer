@@ -44,16 +44,16 @@ public class MosquitoPester : MosquitoBug
 
         if (target is Creature _)
         {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
 
             if (_poison)
             {
-                BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5);
+                BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
             }
         }
 
         if (target is not Sheep sheep) return;
         if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
-        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
+        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
     }
 }

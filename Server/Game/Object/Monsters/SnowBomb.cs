@@ -115,7 +115,7 @@ public class SnowBomb : Bomb
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
             if (!_burn) continue;
-            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5);
+            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5000);
             OnExplode(Attacker);
         }
     }

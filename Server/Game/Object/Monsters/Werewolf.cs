@@ -88,6 +88,7 @@ public class Werewolf : Wolf
 
     public override void SetNormalAttackEffect(GameObject target)
     {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)((Attack - target.Defence) * DrainParam);
         BroadcastHealth();
     }

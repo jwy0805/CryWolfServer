@@ -41,7 +41,7 @@ public class PoisonBomb : SnowBomb
         foreach (var gameObject in enemyGameObjects)
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5);
+            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5000);
         }
 
         foreach (var gameObject in allyGameObjects)
@@ -59,7 +59,7 @@ public class PoisonBomb : SnowBomb
         foreach (var gameObject in gameObjects)
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
-            if (_addicted) BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5);
+            if (_addicted) BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5000);
         }
     }
     

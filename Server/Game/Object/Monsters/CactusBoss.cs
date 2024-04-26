@@ -170,7 +170,7 @@ public class CactusBoss : Cactus
                 attacker.OnDamaged(this, refParam, damageType, true);
                 var random = new Random();
                 if (random.Next(99) >= ReflectionFaintRate) return;
-                BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1);
+                BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
             }
         }
         else
@@ -204,7 +204,7 @@ public class CactusBoss : Cactus
                var towers = Room.FindTargets(this, new List<GameObjectType> { GameObjectType.Tower }, SkillRange);
                foreach (var tower in towers)
                {
-                   BuffManager.Instance.AddBuff(BuffId.Aggro, tower, this, 0, 2);
+                   BuffManager.Instance.AddBuff(BuffId.Aggro, tower, this, 0, 2000);
                } 
            }
        }

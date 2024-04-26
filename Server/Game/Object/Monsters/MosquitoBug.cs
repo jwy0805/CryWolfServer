@@ -95,7 +95,7 @@ public class MosquitoBug : Monster
         base.SetNormalAttackEffect(target);
         if (target is Sheep _ && _faint)
         {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
         }
     }
 }

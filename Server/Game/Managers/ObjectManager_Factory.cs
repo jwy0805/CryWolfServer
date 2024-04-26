@@ -94,7 +94,10 @@ public sealed partial class ObjectManager
         { ProjectileId.BombSkill, new BombSkillFactory()},
         { ProjectileId.SnowBombSkill, new SnowBombSkillFactory() },
         { ProjectileId.PoisonBombSkill, new PoisonBombSkillFactory() },
-        { ProjectileId.SkeletonMageProjectile, new SkeletonMageProjectileFactory() }
+        { ProjectileId.SkeletonMageProjectile, new SkeletonMageProjectileFactory() },
+        { ProjectileId.BasicProjectile2, new BasicProjectile2Factory() },
+        { ProjectileId.HarePunch, new HarePunchFactory() },
+        { ProjectileId.RabbitAggro, new RabbitAggroFactory() }
     };
 
     private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
@@ -565,6 +568,21 @@ public sealed partial class ObjectManager
     public class SkeletonMageProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new SkeletonMageProjectile();
+    }
+    
+    public class BasicProjectile2Factory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new BasicProjectile2();
+    }
+    
+    public class HarePunchFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new HarePunch();
+    }
+    
+    public class RabbitAggroFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new RabbitAggro();
     }
     
     public class LightningStrikeFactory : IEffectFactory

@@ -34,19 +34,16 @@ public class Tower : Creature, ISkillObserver
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
 
-        StatInfo targetStat = Target.Stat;
-        if (targetStat.Targetable)
-        {
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-            double deltaX = Target.CellPos.X - CellPos.X;
-            double deltaZ = Target.CellPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {
-                State = State.Attack;
-                BroadcastPos();
-            }
-        }
+        var targetStat = Target.Stat;
+        if (targetStat.Targetable == false) return;
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
+        if (distance > AttackRange) return;
+        State = State.Attack;
+        BroadcastPos();
     }
 
     protected override void UpdateAttack()
@@ -61,32 +58,26 @@ public class Tower : Creature, ISkillObserver
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
+            BroadcastPos();
+            return;
         }
-        else
+
+        if (Target.Hp <= 0)
         {
-            if (Target.Hp > 0 && Target != null)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = State.Attack;
-                    SetDirection();
-                }
-                else
-                {
-                    State = State.Idle;
-                }
-            }
-            else
-            {
-                State = State.Idle;
-            }
+            Target = null;
+            State = State.Idle;
+            BroadcastPos();
+            return;
         }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+
+        var distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
+        if (distance > TotalAttackRange) return;
+        SetDirection();
+        State = State.Attack;
+        BroadcastPos();
     }
 
     public override void OnDead(GameObject attacker)

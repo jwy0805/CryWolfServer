@@ -27,6 +27,7 @@ public class SkeletonMage : SkeletonGiant
                     break;
                 case Skill.SkeletonMageReviveHealthUp:
                     _reviveHealthUp = true;
+                    ReviveHpRate = 0.6f;
                     break;
                 case Skill.SkeletonMageCurse:
                     _curse = true;
@@ -103,7 +104,7 @@ public class SkeletonMage : SkeletonGiant
     {
         if (state == State.Die)
         {
-            if (AlreadyRevived == false)
+            if (AlreadyRevived == false || WillRevive)
             {
                 AlreadyRevived = true;
                 State = State.Revive;
@@ -177,7 +178,8 @@ public class SkeletonMage : SkeletonGiant
             {
                 foreach (var creature in reviveTargets.OrderBy(_ => Guid.NewGuid()).Take(1))
                 {
-                    
+                    creature.WillRevive = true;
+                    if (_reviveHealthUp) creature.ReviveHpRate = 0.6f;
                 }
             }
         }
