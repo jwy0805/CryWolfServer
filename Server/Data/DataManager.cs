@@ -20,9 +20,11 @@ public class DataManager
         SkillDict = LoadJson<SkillLoader, int, SkillData>("SkillData")!.MakeDict();
     }
 
-    private static TLoader? LoadJson<TLoader, TKey, TValue>(string path) where TLoader : ILoader<TKey, TValue>
+    private static TLoader? LoadJson<TLoader, TKey, TValue>(string data) where TLoader : ILoader<TKey, TValue>
     {
-        string text = File.ReadAllText($"{ConfigManager.Config?.dataPath}/{path}.json");
+        var path = Environment.GetEnvironmentVariable("DATA_PATH") ??
+                   "/Users/jwy/Documents/Dev/CryWolf/Common";
+        var text = File.ReadAllText($"{path}/{data}.json");
         return Newtonsoft.Json.JsonConvert.DeserializeObject<TLoader>(text);
     }
 }

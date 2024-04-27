@@ -322,8 +322,10 @@ public partial class Map
         return (path, destList, atanList);
     }
 
-    public void LoadMap(int mapId = 1, string pathPrefix = "/Users/jwy/Documents/dev/CryWolf/Common/MapData")
+    public void LoadMap(int mapId = 1)
     {
+        var pathPrefix = Environment.GetEnvironmentVariable("MAP_DATA_PATH") ??
+                            "/Users/jwy/Documents/Dev/CryWolf/Common/MapData";
         MinX = -100;
         MaxX = 100;
         MinZ = -240;

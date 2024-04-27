@@ -62,7 +62,6 @@ public class Program
     
     private static void Main(string[] args)
     {
-        ConfigManager.LoadConfig();
         DataManager.LoadData();
         // GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
         

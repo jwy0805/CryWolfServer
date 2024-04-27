@@ -6,8 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<ConfigService>();
 
 var configService = new ConfigService();
-var appConfig = configService.LoadGoogleConfigs(
-    "/Users/jwy/Documents/dev/Config/CryWolfAccountConfig.json");
+var path = Environment.GetEnvironmentVariable("CONFIG_PATH") ??
+           "/Users/jwy/Documents/Dev/CryWolf/Config/CryWolfAccountConfig.json";
+var appConfig = configService.LoadGoogleConfigs(path);
 
 // Add services to the container.
 // -- StartUp.cs
