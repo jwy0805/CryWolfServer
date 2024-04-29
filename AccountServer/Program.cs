@@ -12,7 +12,8 @@ var appConfig = configService.LoadGoogleConfigs(path);
 
 // Add services to the container.
 // -- StartUp.cs
-var defaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var defaultConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING") ??
+                              builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
