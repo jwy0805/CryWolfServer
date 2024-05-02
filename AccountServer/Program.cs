@@ -1,8 +1,10 @@
 using AccountServer;
 using AccountServer.DB;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddSingleton<ConfigService>();
 
 var configService = new ConfigService();
