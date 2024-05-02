@@ -1,6 +1,5 @@
 using AccountServer;
 using AccountServer.DB;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,15 +36,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // -- StartUp.cs - Configure
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Check DB Connection
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger(); 
-    app.UseSwaggerUI();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        dbContext.Database.OpenConnection();
+        dbContext.Database.CloseConnection();
+        Console.WriteLine("DB Connection Success");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"DB Connection failed: {e.Message}");
+    }
 }
 
 app.UseHttpsRedirection();
