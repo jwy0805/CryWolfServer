@@ -4,6 +4,21 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var isLocal = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Local";
+if (isLocal == false)
+{   // Kestrel Server
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(443, listenOptions =>
+        {
+            var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
+            var certPwd = Environment.GetEnvironmentVariable("CERT_PASSWORD");
+            if (certPath != null && certPwd != null) listenOptions.UseHttps(certPath, certPwd);
+            else throw new Exception("Certification path or password is null");
+        });
+    });
+}
+
 builder.Services.AddSingleton<ConfigService>();
 
 var configService = new ConfigService();
