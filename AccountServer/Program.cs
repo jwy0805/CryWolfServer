@@ -67,7 +67,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception e)
     {
-        Console.WriteLine($"DB Connection failed: {e.Message}");
+        throw new Exception($"DB Connection failed: {e.Message}");
     }
 }
 
