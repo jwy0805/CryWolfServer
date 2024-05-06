@@ -1,19 +1,19 @@
+using System.Security.Cryptography.X509Certificates;
 using AccountServer;
-using AccountServer.DB;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+Console.WriteLine("test");
 
 var isLocal = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Local";
+var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
+var certPwd = Environment.GetEnvironmentVariable("CERT_PASSWORD");
 if (isLocal == false)
 {   // Kestrel Server
     builder.WebHost.ConfigureKestrel(options =>
     {
         options.ListenAnyIP(443, listenOptions =>
         {
-            var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
-            var certPwd = Environment.GetEnvironmentVariable("CERT_PASSWORD");
             if (certPath != null && certPwd != null) listenOptions.UseHttps(certPath, certPwd);
             else throw new Exception("Certification path or password is null");
         });
@@ -52,11 +52,12 @@ builder.Services.AddAuthentication()
 // -- StartUp.cs - Configure
 if (isLocal == false)
 {
-#pragma warning disable CA1416
-    builder.Services.AddDataProtection()
-        .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
-        .ProtectKeysWithDpapiNG();
-#pragma warning restore CA1416
+    if (certPath != null && certPwd != null)
+    #pragma warning disable CA1416
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+            .ProtectKeysWithCertificate(new X509Certificate2(certPath, certPwd));
+    #pragma warning restore CA1416
 }
 
 builder.Services.AddEndpointsApiExplorer();
@@ -78,8 +79,6 @@ var app = builder.Build();
 //         throw new Exception($"DB Connection failed: {e.Message}");
 //     }
 // }
-
-Console.WriteLine("test");
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
