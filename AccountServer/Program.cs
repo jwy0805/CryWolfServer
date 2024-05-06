@@ -8,17 +8,17 @@ Console.WriteLine("test");
 var isLocal = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Local";
 var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
 var certPwd = Environment.GetEnvironmentVariable("CERT_PASSWORD");
-if (isLocal == false)
-{   // Kestrel Server
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(443, listenOptions =>
-        {
-            if (certPath != null && certPwd != null) listenOptions.UseHttps(certPath, certPwd);
-            else throw new Exception("Certification path or password is null");
-        });
-    });
-}
+// if (isLocal == false)
+// {   // Kestrel Server
+//     builder.WebHost.ConfigureKestrel(options =>
+//     {
+//         options.ListenAnyIP(443, listenOptions =>
+//         {
+//             if (certPath != null && certPwd != null) listenOptions.UseHttps(certPath, certPwd);
+//             else throw new Exception("Certification path or password is null");
+//         });
+//     });
+// }
 
 builder.Services.AddSingleton<ConfigService>();
 
@@ -50,6 +50,7 @@ builder.Services.AddAuthentication()
 // });
 
 // -- StartUp.cs - Configure
+Console.WriteLine("CEX");
 if (isLocal == false)
 {
     if (certPath != null && certPwd != null)
