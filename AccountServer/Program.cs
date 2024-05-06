@@ -1,5 +1,6 @@
 using AccountServer;
 using AccountServer.DB;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +50,15 @@ builder.Services.AddAuthentication()
 // });
 
 // -- StartUp.cs - Configure
+if (isLocal == false)
+{
+#pragma warning disable CA1416
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+        .ProtectKeysWithDpapiNG();
+#pragma warning restore CA1416
+}
+
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
