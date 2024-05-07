@@ -24,7 +24,7 @@ public class GameLogic : JobSerializer
         gameRoom.RoomId = _roomId;
         _rooms.Add(_roomId, gameRoom);
         _roomId++;
-
+        
         return gameRoom;
     }
 
@@ -35,6 +35,6 @@ public class GameLogic : JobSerializer
 
     public GameRoom? Find(int roomId)
     {
-        return _rooms.TryGetValue(roomId, out var room) ? room : null;
+        return _rooms.GetValueOrDefault(roomId);
     }
 }

@@ -23,10 +23,10 @@ public class Werewolf : Wolf
                     _thunder = true;
                     break;
                 case Skill.WerewolfCriticalDamage:
-                    CriticalMultiplier += 33;
+                    CriticalMultiplier += 0.33f;
                     break;
                 case Skill.WerewolfCriticalRate:
-                    CriticalChance += 13;
+                    CriticalChance += 33;
                     break;
                 case Skill.WerewolfBerserker:
                     _berserker = true;

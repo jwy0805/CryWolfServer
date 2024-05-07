@@ -7,40 +7,32 @@ namespace Server.Game;
 public class Bloom : Bud
 {
     private bool _combo = false;
+    
     protected override Skill NewSkill
     {
         get => Skill;
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.BloomAttack:
-            //         Attack += 10;
-            //         break;
-            //     case Skill.BloomRange:
-            //         AttackRange += 2;
-            //         break;
-            //     case Skill.BloomAttackSpeed:
-            //         AttackSpeed += 0.15f;
-            //         break;
-            //     case Skill.BloomAttackSpeed2:
-            //         AttackSpeed += 0.2f;
-            //         break;
-            //     case Skill.Bloom3Combo:
-            //         _combo = true;
-            //         Attack -= 16;
-            //         Room?.Broadcast(new S_SkillUpdate
-            //         {
-            //             ObjectEnumId = (int)TowerId,
-            //             ObjectType = GameObjectType.Tower,
-            //             SkillType = SkillType.SkillProjectile
-            //         });
-            //         break;
-            //     case Skill.BloomAirAttack:
-            //         AttackType = 2;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.Bloom3Combo:
+                    _combo = true;
+                    Attack -= 16;
+                    Room?.Broadcast(new S_SkillUpdate
+                    {
+                        ObjectEnumId = (int)UnitId,
+                        ObjectType = GameObjectType.Tower,
+                        SkillType = SkillType.SkillProjectile
+                    });
+                    break;
+                case Skill.BloomCritical:
+                    CriticalChance += 20;
+                    break;
+                case Skill.BloomCriticalDamage:
+                    CriticalMultiplier += 0.25f;
+                    break;
+            }
         }
     }
 

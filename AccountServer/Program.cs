@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-Console.WriteLine("test");
 
 var isLocal = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Local";
 var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
@@ -48,11 +47,10 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseMySql(defaultConnectionString, new MariaDbServerVersion(new Version(10, 11, 2)));
+    options.UseMySql(defaultConnectionString, new MariaDbServerVersion(new Version(11, 3, 2)));
 });
 
 // -- StartUp.cs - Configure
-Console.WriteLine("CEX");
 if (isLocal == false)
 {
     if (certPath != null && certPwd != null)

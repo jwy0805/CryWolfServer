@@ -63,16 +63,14 @@ public class Program
     private static void Main(string[] args)
     {
         DataManager.LoadData();
-        // GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
+        GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
         
-        // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
-        string host = Dns.GetHostName();
-        IPHostEntry ipHost = Dns.GetHostEntry(host);
-        // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address}");
-        // IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
-        IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+        // DNS
+        var host = Dns.GetHostName();
+        var ipHost = Dns.GetHostEntry(host);
+        var ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
         Console.WriteLine(ipAddress);
-        // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+        
         if (ipAddress != null)
         {
             IPEndPoint endPoint = new IPEndPoint(ipAddress, Port);
@@ -80,14 +78,43 @@ public class Program
             Console.WriteLine($"Listening... {endPoint}");
         }
         
-        // StartServerInfoTask();
-        
-        Task gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
+        var gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
         gameLogicTask.Start();
         
-        Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
+        var networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
         networkTask.Start();
         
         DbTask();
-    }
+    }  
+    
+    // private static void Main(string[] args)
+    // {
+    //     DataManager.LoadData();
+    //     // GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
+    //     
+    //     // DNS (Domain Name System) ex) www.naver.com -> 123.123.124.12
+    //     string host = Dns.GetHostName();
+    //     IPHostEntry ipHost = Dns.GetHostEntry(host);
+    //     // foreach (var address in ipHost.AddressList) Console.WriteLine($"{address}");
+    //     // IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
+    //     IPAddress? ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+    //     Console.WriteLine(ipAddress);
+    //     // IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
+    //     if (ipAddress != null)
+    //     {
+    //         IPEndPoint endPoint = new IPEndPoint(ipAddress, Port);
+    //         _listener.Init(endPoint, () => SessionManager.Instance.Generate());
+    //         Console.WriteLine($"Listening... {endPoint}");
+    //     }
+    //     
+    //     // StartServerInfoTask();
+    //     
+    //     Task gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
+    //     gameLogicTask.Start();
+    //     
+    //     Task networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
+    //     networkTask.Start();
+    //     
+    //     DbTask();
+    // }
 }
