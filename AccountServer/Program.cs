@@ -9,17 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 var isLocal = Environment.GetEnvironmentVariable("ENVIRONMENT") == "Local";
 var certPath = Environment.GetEnvironmentVariable("CERT_PATH");
 var certPwd = Environment.GetEnvironmentVariable("CERT_PASSWORD");
-if (isLocal == false)
-{   // Kestrel Server
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(443, listenOptions =>
-        {
-            if (certPath != null && certPwd != null) listenOptions.UseHttps(certPath, certPwd);
-            else throw new Exception("Certification path or password is null");
-        });
-    });
-}
 
 builder.Services.AddSingleton<ConfigService>();
 
@@ -51,8 +40,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // -- StartUp.cs - Configure
+
 if (isLocal == false)
-{
+{   //Data Protection
     if (certPath != null && certPwd != null)
     #pragma warning disable CA1416
         builder.Services.AddDataProtection()
@@ -65,9 +55,8 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-// Check DB Connection
 using (var scope = app.Services.CreateScope())
-{
+{   // Check DB Connection
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
