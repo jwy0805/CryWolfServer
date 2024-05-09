@@ -11,7 +11,55 @@ namespace Server;
 public class Program
 {
     private static Listener _listener = new Listener();
-
+    private static int _environment = 1; // 0: local, 1: local docker, 2: server docker
+    public static string Name { get; set; } = "Server1";
+    public static int Port { get; set; } = 7777;
+    public static string IpAddress { get; set; }
+    
+    private static void Main(string[] args)
+    {
+        DataManager.LoadData();
+        GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
+        
+        // DNS
+        var host = Dns.GetHostName();
+        var ipHost = Dns.GetHostEntry(host);
+        IPAddress? ipAddress;
+        switch (_environment)
+        {
+            case 0:
+                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+                break;
+            case 1:
+                var ipStr = Environment.GetEnvironmentVariable("SERVER_IP");
+                if (ipStr != null && IPAddress.TryParse(ipStr, out var ipAdr)) ipAddress = ipAdr;
+                else ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+                break;
+            case 2:
+                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+                break;
+            default:
+                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+                break;
+        }
+        Console.WriteLine(ipAddress);
+        
+        if (ipAddress != null)
+        {
+            IPEndPoint endPoint = new IPEndPoint(ipAddress, Port);
+            _listener.Init(endPoint, () => SessionManager.Instance.Generate());
+            Console.WriteLine($"Listening... {endPoint}");
+        }
+        
+        var gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
+        gameLogicTask.Start();
+        
+        var networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
+        networkTask.Start();
+        
+        DbTask();
+    }  
+    
     private static void GameLogicTask()
     {
         while (true)
@@ -55,37 +103,6 @@ public class Program
             Thread.Sleep(10);
         }
     }
-    
-    public static string Name { get; set; } = "Server1";
-    public static int Port { get; set; } = 7777;
-    public static string IpAddress { get; set; }
-    
-    private static void Main(string[] args)
-    {
-        DataManager.LoadData();
-        GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1);});
-        
-        // DNS
-        var host = Dns.GetHostName();
-        var ipHost = Dns.GetHostEntry(host);
-        var ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
-        Console.WriteLine(ipAddress);
-        
-        if (ipAddress != null)
-        {
-            IPEndPoint endPoint = new IPEndPoint(ipAddress, Port);
-            _listener.Init(endPoint, () => SessionManager.Instance.Generate());
-            Console.WriteLine($"Listening... {endPoint}");
-        }
-        
-        var gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
-        gameLogicTask.Start();
-        
-        var networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
-        networkTask.Start();
-        
-        DbTask();
-    }  
     
     // private static void Main(string[] args)
     // {
