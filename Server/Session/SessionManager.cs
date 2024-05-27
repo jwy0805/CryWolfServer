@@ -39,8 +39,8 @@ public class SessionManager
     {
         lock (_lock)
         {
-            int sessionId = ++_sessionId;
-            ClientSession session = new ClientSession { SessionId = sessionId };
+            var sessionId = ++_sessionId;
+            var session = new ClientSession { SessionId = sessionId };
             _sessions.Add(sessionId, session);
 
             Console.WriteLine($"Connected : {sessionId}");

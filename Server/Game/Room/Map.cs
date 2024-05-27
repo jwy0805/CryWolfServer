@@ -337,12 +337,12 @@ public partial class Map
         _objectsAir = new GameObject[zCount, xCount];
         
         // Collision 관련 파일
-        string mapName = "Map_" + mapId.ToString("000");
-        string txt = File.ReadAllText($"{pathPrefix}/{mapName}.txt");
-        StringReader reader = new StringReader(txt);
+        var mapName = "Map_" + mapId.ToString("000");
+        var txt = File.ReadAllText($"{pathPrefix}/{mapName}.txt");
+        var reader = new StringReader(txt);
         for (int z = 0; z < zCount; z++)
         {
-            string? line = reader.ReadLine();
+            var line = reader.ReadLine();
             for (int x = 0; x < xCount; x++)
             {
                 if (line != null)

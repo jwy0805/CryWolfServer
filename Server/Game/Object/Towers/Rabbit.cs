@@ -65,4 +65,11 @@ public class Rabbit : Tower
             }   
         }
     }
+
+    public override void RunSkill()
+    {
+        if (Room == null) return;
+        if (Target is not Creature) return;
+        BuffManager.Instance.AddBuff(BuffId.Aggro, Target, this, 0, 2000);
+    }
 }

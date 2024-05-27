@@ -64,7 +64,8 @@ public class ClientSession : PacketSession
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
         GameLogic.Instance.Push(() =>
         {
-            GameRoom? room = GameLogic.Instance.Find(1);
+            // GameRoom? room = GameLogic.Instance.Find(1);
+            var room = GameLogic.Instance.Add(1);
             room?.Push(room.EnterGame, MyPlayer);
         });
     }
