@@ -83,7 +83,7 @@ public class SnakeNaga : Snake
         }
     }
     
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void ApplyNormalAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * _drainParam);

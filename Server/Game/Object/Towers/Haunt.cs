@@ -51,8 +51,6 @@ public class Haunt : Soul
         if (Target != null)
         {
             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
         }
         
         if (Target == null || Target.Room != Room)

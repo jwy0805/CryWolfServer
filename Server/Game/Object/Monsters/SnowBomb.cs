@@ -83,31 +83,31 @@ public class SnowBomb : Bomb
         }
     }
     
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        if (pId == ProjectileId.BombProjectile)
-        {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
-        }
-        else
-        {
-            if (_areaAttack)
-            {
-                var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-                var gameObjects = Room.FindTargets(target, targetList, Area);
-                foreach (var gameObject in gameObjects)
-                {
-                    gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
-                }
-            }
-            else
-            {
-                target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            }
-        }
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     if (pId == ProjectileId.BombProjectile)
+    //     {
+    //         target.OnDamaged(this, TotalAttack, Damage.Normal);
+    //     }
+    //     else
+    //     {
+    //         if (_areaAttack)
+    //         {
+    //             var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+    //             var gameObjects = Room.FindTargets(target, targetList, Area);
+    //             foreach (var gameObject in gameObjects)
+    //             {
+    //                 gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+    //             }
+    //         }
+    //         else
+    //         {
+    //             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+    //         }
+    //     }
+    // }
 
-    public override void SetEffectEffect()
+    public override void ApplyEffectEffect()
     {
         var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);

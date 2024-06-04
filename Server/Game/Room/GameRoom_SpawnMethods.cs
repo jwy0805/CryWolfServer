@@ -285,6 +285,37 @@ public partial class GameRoom
         return effect;
     }
 
+    public void SpawnEffect(EffectId effectId, GameObject parent, PositionInfo? effectPos = null)
+    {
+        if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
+        var effect = ObjectManager.Instance.CreateEffect(effectId);
+        effect.Room = this;
+        effect.PosInfo = parent.PosInfo;
+        effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
+        effect.Info.Name = effectId.ToString();
+        effect.EffectId = effectId;
+        effect.Target = parent.Target;
+        effect.Parent = parent;
+        effect.Init();
+        EnterGame(effect);
+    }
+    
+    public void SpawnProjectile(ProjectileId projectileId, GameObject parent)
+    {
+        if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return;
+        var projectile = ObjectManager.Instance.CreateProjectile(projectileId);
+        projectile.Room = this;
+        projectile.PosInfo = parent.PosInfo;
+        projectile.Info.PosInfo = projectile.PosInfo;
+        projectile.Info.Name = projectileId.ToString();
+        projectile.ProjectileId = projectileId;
+        projectile.Target = parent.Target;
+        projectile.Parent = parent;
+        projectile.Attack = parent.TotalAttack;
+        projectile.Init();
+        EnterGame(projectile);
+    }
+    
     private Sheep EnterSheep(Player player)
     {
         Sheep sheep = ObjectManager.Instance.Add<Sheep>();

@@ -58,14 +58,19 @@ public class PacketHandler
     
     public static void C_SetDestHandler(PacketSession session, IMessage packet)
     {
-        var destPacket = (C_SetDest)packet;
+        
+    }
+
+    public static void C_SetProjectilePathHandler(PacketSession session, IMessage packet)
+    {
+        var pathPacket = (C_SetProjectilePath)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
-
-        room?.Push(room.HandleSetDest, player, destPacket);
+        
+        room?.HandleSetProjectilePath(player, pathPacket);
     }
-
+    
     public static void C_AttackHandler(PacketSession session, IMessage packet)
     {
         var attackPacket = (C_Attack)packet;

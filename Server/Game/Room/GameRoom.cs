@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -11,7 +12,7 @@ public partial class GameRoom : JobSerializer
     private Player _npc = new();
 
     public GameInfo GameInfo;
-    public List<UnitSize> UnitSizeList = new();
+    public List<Game.GameRoom.UnitSize> UnitSizeList = new();
 
     private readonly object _lock = new();
 
@@ -64,7 +65,7 @@ public partial class GameRoom : JobSerializer
             DataManager.UnitDict.TryGetValue(unitId, out var unitData);
             StatInfo stat = new StatInfo();
             stat.MergeFrom(unitData?.stat);
-            UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
+            UnitSizeList.Add(new Game.GameRoom.UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
     
@@ -101,29 +102,25 @@ public partial class GameRoom : JobSerializer
         switch (type)
         {
             case GameObjectType.Player:
-                Player player = (Player)gameObject;
+                var player = (Player)gameObject;
                 _players.Add(gameObject.Id, player);
                 player.Room = this;
                 player.Init();
-
                 // 본인에게 정보 전송
-            {
-                S_EnterGame enterPacket = new S_EnterGame { Player = player.Info };
+                var enterPacket = new S_EnterGame { Player = player.Info };
                 player.Session.Send(enterPacket);
-
-                S_Spawn spawnPacket = new S_Spawn();
-                foreach (var p in _players.Values)
                 {
-                    if (player != p) spawnPacket.Objects.Add(p.Info);
+                    var spawnPacket = new S_Spawn();
+                    foreach (var p in _players.Values.Where(p => player != p)) 
+                        spawnPacket.Objects.Add(p.Info);
+                    // 게임 플레이 중간에 player가 접속했을 때 이미 존재하는 objects spawn
+                    foreach (var f in _fences.Values) spawnPacket.Objects.Add(f.Info);
+                    foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
+                    foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
+                    foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
+                    foreach (var r in _portals.Values) spawnPacket.Objects.Add(r.Info);
+                    player.Session.Send(spawnPacket);
                 }
-                foreach (var f in _fences.Values) spawnPacket.Objects.Add(f.Info);
-                foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
-                foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
-                foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
-                foreach (var r in _portals.Values) spawnPacket.Objects.Add(r.Info);
-                
-                player.Session.Send(spawnPacket);
-            }
                 break;
             
             case GameObjectType.Tower:
@@ -210,7 +207,7 @@ public partial class GameRoom : JobSerializer
         }
         // 타인에게 정보 전송
         {
-            S_Spawn spawnPacket = new S_Spawn();
+            var spawnPacket = new S_Spawn();
             spawnPacket.Objects.Add(gameObject.Info);
             foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
             {
@@ -358,6 +355,19 @@ public partial class GameRoom : JobSerializer
         foreach (var player in _players.Values)
         {
             if (player.Id != objectId) player.Session.Send(despawnPacket);
+        }
+    }
+
+    public void LeaveGameOnlyServer(int objectId)
+    {
+        GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
+
+        switch (type)   
+        {
+            case GameObjectType.Projectile:
+                if (_projectiles.Remove(objectId, out var projectile) == false) return;
+                projectile.Room = null;
+                break;
         }
     }
 

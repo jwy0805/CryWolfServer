@@ -55,8 +55,6 @@ public class Spike : Shell
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
                 }
             }
         }

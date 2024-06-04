@@ -35,7 +35,5 @@ public class Cacti : Monster
     public override void Init()
     {
         base.Init();
-        AttackSpeedReciprocal = 5 / 6f;
-        AttackSpeed *= AttackSpeedReciprocal;
     }
 }

@@ -6,7 +6,7 @@ public class SnowBombExplosion : Effect
 {
     protected override void SetEffectEffect()
     {
-        if (Parent is SnowBomb snowBomb) snowBomb.SetEffectEffect();
+        if (Parent is SnowBomb snowBomb) snowBomb.ApplyEffectEffect();
         base.SetEffectEffect();
     }
 }

@@ -6,18 +6,17 @@ namespace Server.Game;
 
 public partial class GameObject : IGameObject
 {
-    protected const int CallCycle = 200;
     protected long Time;
     protected int SearchTick = 500;
     protected double LastSearch = 0;
-    protected Vector3 DestPos;
-    protected List<Vector3> Dest = new();
+    protected List<Vector3> Path = new();
     protected List<double> Atan = new();
 
+    public int CallCycle => 200;
+    public int DistRemainder { get; set; } = 0;
     public bool WillRevive { get; set; } = false;
     public bool AlreadyRevived { get; set; } = false;
     public float ReviveHpRate { get; set; } = 0.3f;
-    public List<Vector3> Path = new();
     
     public virtual int KillLog { get; set; }
     
@@ -36,10 +35,11 @@ public partial class GameObject : IGameObject
     public GameRoom? Room { get; set; }
     public ObjectInfo Info { get; set; } = new();
     public PositionInfo PosInfo { get; set; } = new();
+    public Vector3 DestPos { get; set; }
     public StatInfo Stat { get; private set; } = new();
     public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
     
-    public State State
+    public virtual State State
     {
         get => PosInfo.State;
         set => PosInfo.State = value;
@@ -59,7 +59,7 @@ public partial class GameObject : IGameObject
     
     public Vector3 CellPos
     {
-        get => new Vector3(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ);
+        get => new(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ);
         set
         {
             PosInfo.PosX = value.X;
@@ -153,25 +153,38 @@ public partial class GameObject : IGameObject
         Room?.Broadcast(movePacket);
     }
 
-    public virtual void BroadcastDest()
+    public virtual void BroadcastState()
     {
-        if (Dest.Count == 0 || Atan.Count == 0) return;
-        var destPacket = new S_SetDest { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
-        
-        for (int i = 0; i < Dest.Count; i++)
-        {
-            var destVector = new DestVector { X = Dest[i].X, Y = Dest[i].Y, Z = Dest[i].Z };
-            destPacket.Dest.Add(destVector);
-        }
-
-        for (int i = 0; i < Atan.Count; i++)
-        {
-            if (Atan.Count != 0) destPacket.Dir.Add(Atan[i]);
-        }
-        
-        Room?.Broadcast(destPacket);
+        Room?.Broadcast(new S_State { ObjectId = Id, State = State});
     }
 
+    protected virtual void BroadcastPath()
+    {
+        if (Path.Count == 0 || Path.Count != Atan.Count) return;
+        
+        var pathPacket = new S_SetPath { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
+        for (var i = 0; i < Path.Count; i++)
+        {
+            pathPacket.Path.Add(new DestVector { X = Path[i].X, Y = Path[i].Y, Z = Path[i].Z });
+            pathPacket.Dir.Add(Atan[i]);
+        }
+        
+        Room?.Broadcast(pathPacket);
+    }
+
+    protected virtual void BroadcastProjectilePath()
+    {   // TODO: Unit Size에 맞춰서 Y 조정
+        if (Path.Count == 0) return;
+        
+        var pathPacket = new S_SetProjectilePath { ObjectId = Id, MoveSpeed = MoveSpeed, Dir = Dir };
+        for (var i = 0; i < Path.Count; i++)
+        {
+            pathPacket.Path.Add(new DestVector { X = Path[i].X, Y = Path[i].Y + 1, Z = Path[i].Z });
+        }
+        
+        Room?.Broadcast(pathPacket);
+    }
+    
     public virtual void BroadcastHealth()
     {
         S_ChangeMaxHp maxHpPacket = new S_ChangeMaxHp { ObjectId = Id, MaxHp = MaxHp };
@@ -179,7 +192,7 @@ public partial class GameObject : IGameObject
         Room?.Broadcast(maxHpPacket);
         Room?.Broadcast(hpPacket);
     }
-
+    
     public virtual void ApplyMap(Vector3 posInfo)
     {
         if (Room == null) return;

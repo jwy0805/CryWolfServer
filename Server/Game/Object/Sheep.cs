@@ -70,8 +70,6 @@ public class Sheep : Creature, ISkillObserver
         if (Room?.Stopwatch.ElapsedMilliseconds > _idleTime + new Random().Next(1000, 2500))
         {
             DestPos = GetRandomDestInFence();
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
             State = State.Moving;
             BroadcastPos();
             _idle = false;
@@ -89,7 +87,7 @@ public class Sheep : Creature, ISkillObserver
                 if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, this, 0.05f);
             }
         }
-        
+        // 이동
         Vector3 position = CellPos;
         float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos));
         if (distance <= 0.5f)
@@ -98,6 +96,9 @@ public class Sheep : Creature, ISkillObserver
             State = State.Idle;
             BroadcastPos();
         }
+        
+        (Path, Atan) = Room!.Map.Move(this);
+        BroadcastPath();
     }
 
     public void OnSkillUpgrade(Skill skill)

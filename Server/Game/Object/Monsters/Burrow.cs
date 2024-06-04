@@ -6,6 +6,8 @@ namespace Server.Game;
 
 public class Burrow : Monster
 {
+    private long _idleToRushAnimTime;
+    private long _rushToIdleAnimTime;
     private bool _halfBurrow = false;
     
     protected override Skill NewSkill
@@ -37,8 +39,68 @@ public class Burrow : Monster
     public override void Init()
     {
         base.Init();
-        AttackSpeedReciprocal = 2 / 3f;
-        AttackSpeed *= AttackSpeedReciprocal;
+        _idleToRushAnimTime = StdAnimTime * 2 / 3;
+        _rushToIdleAnimTime = StdAnimTime * 5 / 6;
+        Player.SkillSubject.SkillUpgraded(Skill.BurrowHalfBurrow);
+        Player.SkillUpgradedList.Add(Skill.BurrowHalfBurrow);
+    }
+
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        
+        if (MaxMp != 1 && Mp >= MaxMp)
+        {
+            State = State.Skill;
+            BroadcastPos();
+            UpdateSkill();
+            Mp = 0;
+        }
+        else
+        {
+            switch (State)
+            {
+                case State.Die:
+                    UpdateDie();
+                    break;
+                case State.Moving:
+                    UpdateMoving();
+                    break;
+                case State.Idle:
+                    UpdateIdle();
+                    break;
+                case State.Rush:
+                    UpdateRush();
+                    break;
+                case State.Attack:
+                    UpdateAttack();
+                    break;
+                case State.Attack2:
+                    UpdateAttack2();
+                    break;
+                case State.Skill:
+                    UpdateSkill();
+                    break;
+                case State.IdleToRush:
+                    UpdateIdleToRush();
+                    break;
+                case State.RushToIdle:
+                    UpdateRushToIdle();
+                    break;
+                case State.IdleToUnderground:
+                    UpdateIdleToUnderground();
+                    break;
+                case State.UndergroundToIdle:
+                    UpdateUndergroundToIdle();
+                    break;
+                case State.Underground:
+                    UpdateUnderground();
+                    break;
+                case State.Faint:
+                    break;
+            }   
+        }
     }
 
     protected override void UpdateIdle()
@@ -46,74 +108,59 @@ public class Burrow : Monster
         Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
-        
         State = _halfBurrow ? State.IdleToRush : State.Moving;
-        BroadcastPos();
-    }
-    
-    protected override void UpdateMoving()
-    {
-        if (_halfBurrow)
-        {
-            State = State.Rush;
-            BroadcastPos();
-            return;
-        }
-        
-        base.UpdateMoving();
     }
 
     protected override void UpdateRush()
-    {
-        // Targeting
+    {   // Targeting
         Target = Room.FindClosestTarget(this);
-        if (Target != null)
-        {   
-            // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-            Vector3 position = CellPos;
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-            double deltaX = DestPos.X - CellPos.X;
-            double deltaZ = DestPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {
-                CellPos = position;
-                State = State.RushToIdle;
-                BroadcastPos();
-                return;
-            }
-            
-            // Target이 있으면 이동
-            DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
-        }
-        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {
             State = State.Idle;
-            BroadcastPos();
+            return;
         }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = Vector3.Distance(DestPos, CellPos);
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (distance <= TotalAttackRange)
+        {
+            State = State.RushToIdle;
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
+    }
+
+    protected virtual void UpdateIdleToRush()
+    {
+        MotionChangeEvents(_idleToRushAnimTime);
+    }
+    
+    protected virtual void UpdateRushToIdle()
+    {
+        MotionChangeEvents(_rushToIdleAnimTime);   
+    }
+    
+    protected virtual void UpdateIdleToUnderground() { }
+    protected virtual void UpdateUndergroundToIdle() { }
+    protected virtual void UpdateUnderground() { }
+
+    protected override async void MotionChangeEvents(long animTime)
+    {
+        await Scheduler.ScheduleEvent(animTime, () => SetNextState(State));
     }
 
     public override void SetNextState(State state)
     {
         base.SetNextState(state);
-        
-        if (state == State.IdleToRush)
-        {
-            State = State.Rush;
-            BroadcastPos();
-        }
-
+        if (state == State.IdleToRush) State = State.Rush;
         if (state == State.RushToIdle)
         {
             State = State.Attack;
-            BroadcastPos();
         }
     }
 }

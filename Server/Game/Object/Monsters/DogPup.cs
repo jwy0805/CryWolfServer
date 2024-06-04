@@ -24,11 +24,4 @@ public class DogPup : Monster
             }
         }
     }
-
-    public override void Init()
-    {
-        base.Init();
-        AttackSpeedReciprocal = 5 / 6f;
-        AttackSpeed *= AttackSpeedReciprocal;
-    }
 }

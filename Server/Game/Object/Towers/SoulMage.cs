@@ -116,8 +116,6 @@ public class SoulMage : Haunt
         if (Target != null)
         {
             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
         }
         
         if (Target == null || Target.Room != Room)
@@ -194,7 +192,7 @@ public class SoulMage : Haunt
         if (Hp <= 0) OnDead(attacker);
     }
 
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void ApplyNormalAttackEffect(GameObject target)
     {
         if (_debuffResist == false || !Buffs.Any()) return;
         BuffId buffId = Buffs.OrderBy(_ => Guid.NewGuid()).ToList().First();

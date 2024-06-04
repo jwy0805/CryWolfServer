@@ -32,8 +32,6 @@ public class Bomb : Monster
     public override void Init()
     {
         base.Init();
-        AttackSpeedReciprocal = 5 / 6f;
-        AttackSpeed *= AttackSpeedReciprocal;
     }
     
     public override void Update()
@@ -83,9 +81,9 @@ public class Bomb : Monster
         }
     }
 
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        if (pId != ProjectileId.BombSkill) return;
-        target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     if (pId != ProjectileId.BombSkill) return;
+    //     target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+    // }
 }

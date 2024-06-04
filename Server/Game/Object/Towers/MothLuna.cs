@@ -42,8 +42,6 @@ public class MothLuna : Tower
         if (Target is { Targetable: true })
         {
             DestPos = Target.CellPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
             State = State.Moving;
             BroadcastPos();
         }
@@ -83,15 +81,11 @@ public class MothLuna : Tower
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
                     return;
                 }
             }
 
             DestPos = StartCell;
-            (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(
                 DestPos with { Y = 0 } - CellPos with { Y = 0 })); // 거리의 제곱
             double deltaX = DestPos.X - CellPos.X;
@@ -169,7 +163,7 @@ public class MothLuna : Tower
         }
     }
     
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void ApplyNormalAttackEffect(GameObject target)
     {
         if (_faint)
         {
@@ -204,8 +198,6 @@ public class MothLuna : Tower
                 else
                 {
                     DestPos = Target.CellPos;
-                    (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
                     State = State.Moving;
                 }
             }

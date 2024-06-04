@@ -44,11 +44,6 @@ public class MoleRat : Burrow
         Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
-
         State = State.IdleToRush;
         BroadcastPos();
     }
@@ -77,9 +72,9 @@ public class MoleRat : Burrow
         }
     }
     
-    public override void SetNormalAttackEffect(GameObject target)
+    public override void ApplyNormalAttackEffect(GameObject target)
     {
-        base.SetNormalAttackEffect(target);
+        base.ApplyNormalAttackEffect(target);
         if (_drain) Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
         if (_stealAttack == false) return;
         if (StolenObjectId == target.Id) return;

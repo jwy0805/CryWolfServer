@@ -1,5 +1,4 @@
 using System.Numerics;
-using Google.Protobuf.Protocol;
 using Server.Data;
 using ServerCore;
 
@@ -236,16 +235,14 @@ public partial class Map
     {
         foreach (var region in _regionGraph)
         {
-            int maxZ = region.ZCoordinates.Max();
-            int minZ = region.ZCoordinates.Min();
-            if (vector.Z <= maxZ && vector.Z >= minZ) return region.Id;
+            if (vector.Z < region.ZCoordinates.Max() && vector.Z >= region.ZCoordinates.Min()) return region.Id;
         }
 
         return int.MaxValue;
     }
 
-    private Vector2Int GetCenter(int regionId, Vector2Int start, Vector2Int dest)
-    {
+    private Vector2Int GetCenter(int regionId, GameObject go, Vector2Int start, Vector2Int dest)
+    {   
         var region = _regionGraph.FirstOrDefault(region => region.Id == regionId);
         if (region.ZCoordinates == null) return new Vector2Int();
         
@@ -256,19 +253,23 @@ public partial class Map
         double x1 = (n1 - b) / m;
         double x2 = (n2 - b) / m;
         int x = (int)((x1 + x2) / 2);
-            
-        return new Vector2Int(x, (int)((n1 + n2) / 2));
+        
+        var center = new Vector2Int(x, (int)((n1 + n2) / 2));
+        if (CanGo(go, center, true)) return center;
+
+        var centerAdjusted = go.Target != null 
+            ? Vector3To2(GetClosestPoint(Vector2To3(center), go.Target)) : center;
+        
+        return centerAdjusted;
     }
     
     public Pos Cell2Pos(Vector2Int cell)
-    {
-        // CellPos -> ArrayPos
+    {   // CellPos -> ArrayPos
         return new Pos(MaxZ - cell.Z, cell.X - MinX);
     }
 
     public Vector2Int Pos2Cell(Pos pos)
-    {
-        // ArrayPos -> CellPos
+    {   // ArrayPos -> CellPos
         return new Vector2Int(pos.X + MinX, MaxZ - pos.Z);
     }
 

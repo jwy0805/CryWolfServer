@@ -17,7 +17,6 @@ public class Monster : Creature, ISkillObserver
 
     public override void Init()
     {
-
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
         base.Init();
@@ -25,6 +24,7 @@ public class Monster : Creature, ISkillObserver
         StatInit();
         Player.SkillSubject.AddObserver(this);
         State = State.Idle;
+        BroadcastPos();
     }
 
     protected override void UpdateIdle()
@@ -32,46 +32,57 @@ public class Monster : Creature, ISkillObserver
         Target = Room.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
-        
         State = State.Moving;
-        BroadcastPos();
     }
 
     protected override void UpdateMoving()
-    {   
-        // Targeting
+    {   // Targeting
         Target = Room.FindClosestTarget(this);
-        if (Target != null)
-        {   
-            // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-            Vector3 position = CellPos;
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-            double deltaX = DestPos.X - CellPos.X;
-            double deltaZ = DestPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {
-                CellPos = position;
-                State = State.Attack;
-                BroadcastPos();
-                return;
-            }
-            
-            // Target이 있으면 이동
-            DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
-        }
-        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastPos();
+            return;
         }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = Vector3.Distance(DestPos, CellPos);
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (distance <= TotalAttackRange)
+        {
+            State = State.Attack;
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
+    }
+
+    protected override void UpdateAttack()
+    {
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            IsAttacking = false;
+            return;
+        }
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactTime);
+        long animTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long nextAnimEndTime = StateChanged ? animTime : LastAttackTime - timeNow + animTime;
+        long nextImpactTime = StateChanged ? impactTime : LastAttackTime - timeNow + impactTime;
+        AttackImpactEvents(nextImpactTime);
+        EndEvents(nextAnimEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        IsAttacking = true;
     }
     
     public override void OnDead(GameObject attacker)
@@ -84,11 +95,9 @@ public class Monster : Creature, ISkillObserver
     {
         var skillName = skill.ToString();
         var monsterName = UnitId.ToString();
-        if (skillName.Contains(monsterName))
-        {
-            NewSkill = skill;
-            SkillList.Add(NewSkill);
-        }
+        if (skillName.Contains(monsterName) == false) return;
+        NewSkill = skill;
+        SkillList.Add(NewSkill);
     }
 
     public override void SkillInit()
@@ -103,9 +112,7 @@ public class Monster : Creature, ISkillObserver
             if (skillName.Contains(monsterName)) SkillList.Add(skill);
         }
 
-        if (SkillList.Count != 0)
-        {
-            foreach (var skill in SkillList) NewSkill = skill;
-        }
+        if (SkillList.Count == 0) return;
+        foreach (var skill in SkillList) NewSkill = skill;
     }
 }

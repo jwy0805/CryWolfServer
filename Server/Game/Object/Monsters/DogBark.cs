@@ -7,10 +7,9 @@ namespace Server.Game;
 public class DogBark : DogPup
 {
     private bool _attackSpeedUp = false;
-    private bool _4hit = false;
-    private HashSet<int> _preSet = new();
+    private bool _4Hit = false;
     private HashSet<int> _currentSet = new();
-    protected short _4hitCount = 0;
+    protected short HitCount = 0;
     
     protected override Skill NewSkill
     {
@@ -27,43 +26,61 @@ public class DogBark : DogPup
                     FireResist += 15;
                     break;
                 case Skill.DogBarkFourthAttack:
-                    _4hit = true;
+                    _4Hit = true;
                     break;
             }
         }
     }
-
+    
     public override void Update()
     {
         base.Update();
         if (_attackSpeedUp) FindOtherDogs();
     }
 
-    private void FindOtherDogs()
+    protected override void UpdateSkill()
+    {
+        UpdateAttack();
+    }
+    
+    protected void FindOtherDogs()
     {
         var unitIds = new List<UnitId> { UnitId.DogPup, UnitId.DogBark, UnitId.DogBowwow };
         var otherDogs = Room?
             .FindTargetsBySpecies(this, GameObjectType.Monster, unitIds, SkillRange);
-        if (otherDogs == null || otherDogs.Count == 0) return;
+        if (otherDogs == null) return;
 
-        foreach (var dog in _currentSet) _preSet.Add(dog);
-        foreach (var dog in otherDogs.Where(dog => dog.Id != Id)) _currentSet.Add(dog.Id);   
-        
-        var diffSetC = new HashSet<int>(_currentSet);
-        diffSetC.ExceptWith(_preSet);
-        foreach (var dogId in diffSetC)
+        var newSet = new HashSet<int>(otherDogs
+            .Where(dog => dog.Id != Id)
+            .Select(dog => dog.Id));
+        // 추가된 유닛에 버프 적용
+        foreach (var dogId in newSet.Where(dogId => _currentSet.Contains(dogId) == false))
         {
-            if (Room?.FindGameObjectById(dogId) is not Creature creature) continue;
-            creature.AttackParam += 3;
+            if (Room?.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam += 0.05f;
+        }
+        // 제거된 유닛에서 버프 제거
+        foreach (var dogId in _currentSet.Where(dogId => newSet.Contains(dogId) == false))
+        {
+            if (Room?.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam -= 0.05f;
+        }
+        // 현재 상태를 새로운 상태로 업데이트
+        _currentSet = newSet;
+    }
+   
+    public override void ApplyNormalAttackEffect(GameObject target)
+    {
+        if (_4Hit)
+        {
+            HitCount++;
+            if (HitCount == 4)
+            {
+                HitCount = 0;
+                target.OnDamaged(this, TotalSkillDamage, Damage.True);
+                return;
+            }
         }
         
-        var diffSetP = new HashSet<int>(_preSet);
-        diffSetP.ExceptWith(_currentSet);
-        foreach (var dogId in diffSetP)
-        {
-            if (Room?.FindGameObjectById(dogId) is not Creature creature) continue;
-            creature.AttackParam -= 3;
-        }
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     
     public override void SetNextState()
@@ -72,7 +89,6 @@ public class DogBark : DogPup
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastPos();
             return;
         }
 
@@ -80,7 +96,6 @@ public class DogBark : DogPup
         {
             Target = null;
             State = State.Idle;
-            BroadcastPos();
             return;
         }
         
@@ -89,35 +104,11 @@ public class DogBark : DogPup
 
         if (distance > TotalAttackRange)
         {
-            DestPos = targetPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
             State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
             return;
         }
 
-        if (_4hit && _4hitCount == 3)
-        {
-            State = State.Skill;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-        else
-        {
-            State = State.Attack;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-    }
-    
-    public override void SetNormalAttackEffect(GameObject target)
-    {
-        base.SetNormalAttackEffect(target);
-        _4hitCount++;
-    }
-    
-    public override void SetAdditionalAttackEffect(GameObject target)
-    {
-        _4hitCount = 0;
-        target.OnDamaged(this, TotalSkillDamage, Damage.True);
+        if (_4Hit && HitCount == 3) State = State.Skill;
+        else State = State.Attack;
     }
 }

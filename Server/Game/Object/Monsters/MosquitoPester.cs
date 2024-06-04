@@ -38,22 +38,22 @@ public class MosquitoPester : MosquitoBug
         }
     }
 
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-
-        if (target is Creature _)
-        {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
-
-            if (_poison)
-            {
-                BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
-            }
-        }
-
-        if (target is not Sheep sheep) return;
-        if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
-        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     target.OnDamaged(this, TotalAttack, Damage.Normal);
+    //
+    //     if (target is Creature _)
+    //     {
+    //         BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
+    //
+    //         if (_poison)
+    //         {
+    //             BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+    //         }
+    //     }
+    //
+    //     if (target is not Sheep sheep) return;
+    //     if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+    //     BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
+    // }
 }

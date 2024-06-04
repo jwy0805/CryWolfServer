@@ -6,9 +6,8 @@ namespace Server.Game;
 
 public class DogBowwow : DogBark
 {
-    private Random _rnd = new();
-    private bool _smash = false;
-    private bool _smashFaint = false;
+    private bool _smash;
+    private bool _smashFaint;
     
     protected override Skill NewSkill
     {
@@ -20,11 +19,76 @@ public class DogBowwow : DogBark
             {
                 case Skill.DogBowwowSmash:
                     _smash = true;
+                    SkillDamage += 20;
                     break;
                 case Skill.DogBowwowSmashFaint:
-                    _smash = false;
+                    _smashFaint = true;
                     break;
             }
+        }
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        FindOtherDogs();
+    }
+
+    protected override void UpdateMoving()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this);
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {   // Target이 없거나 타겟팅이 불가능한 경우
+            State = State.Idle;
+            return;
+        }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (distance <= TotalAttackRange)
+        {
+            if (_smash) State = HitCount == 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
+            else State = HitCount == 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
+    }
+    
+    protected override void UpdateAttack2()
+    {
+        UpdateAttack();
+    }
+    
+    protected override void UpdateSkill()
+    {
+        UpdateAttack();
+    }
+
+    protected override void UpdateSkill2()
+    {
+        UpdateAttack();
+    }
+    
+    public override void ApplyNormalAttackEffect(GameObject target)
+    {
+        HitCount++;
+        if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
+        {
+            HitCount = 0;
+            target.OnDamaged(this, TotalSkillDamage, Damage.True);
+            if (_smash == false || _smashFaint == false) return;
+            var randomInt = new Random().Next(100);
+            if (randomInt > 15) return;
+            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
+        }
+        else
+        {
+            target.OnDamaged(this, TotalAttack, Damage.Normal);
         }
     }
     
@@ -34,7 +98,6 @@ public class DogBowwow : DogBark
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastPos();
             return;
         }
 
@@ -51,46 +114,11 @@ public class DogBowwow : DogBark
 
         if (distance > TotalAttackRange)
         {
-            DestPos = targetPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
             State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
             return;
         }
 
-        if (_4hitCount == 3)
-        {
-            State = _smash ? State.Skill2 : State.Skill;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-        else
-        {
-            State = _rnd.Next(2) == 0 ? State.Attack : State.Attack2;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-    }
-
-    public override void SetNormalAttackEffect(GameObject target)
-    {
-        _4hitCount++;
-    }
-
-    public override void SetAdditionalAttackEffect(GameObject target)
-    {
-        _4hitCount = 0;
-        
-        if (_smash)
-        {
-            target.OnDamaged(this, TotalSkillDamage, Damage.True);
-            if (_smashFaint)
-            {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
-            }
-        }
-        else
-        {
-            target.OnDamaged(this, 50, Damage.True);
-        }
+        if (_smash) State = HitCount == 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
+        else State = HitCount == 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
     }
 }

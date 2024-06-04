@@ -55,7 +55,6 @@ public sealed partial class ObjectManager : IFactory
         if (!_projectileDict.TryGetValue(projectileId, out var factory)) throw new InvalidDataException();
         GameObject gameObject = factory.CreateProjectile();
         lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
         return gameObject as Projectile ?? throw new InvalidCastException();
     }
 

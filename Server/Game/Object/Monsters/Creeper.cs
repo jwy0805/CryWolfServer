@@ -50,7 +50,6 @@ public class Creeper : Lurker
         {
             Start = true;
             MoveSpeedParam += 2;
-            BroadcastDest();
             State = State.Rush;
             BroadcastPos();
             return;
@@ -60,7 +59,6 @@ public class Creeper : Lurker
         {
             MoveSpeedParam -= 2;
             SpeedRestore = true;
-            BroadcastDest();
         }
         
         base.UpdateMoving();
@@ -68,45 +66,38 @@ public class Creeper : Lurker
 
     protected override void UpdateRush()
     {
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
-            State = State.Idle;
+            Target = Room.FindClosestTarget(this);
+            if (Target == null) return;
+        }
+        // target이랑 가까운 경우
+        Vector3 position = CellPos;
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        // Roll 충돌 처리
+        if (distance <= Stat.SizeX * 0.25 + 0.75f)
+        {
+            CellPos = position;
+            SetRollEffect(Target);
+            Mp += MpRecovery;
+            State = State.KnockBack;
+            DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
             BroadcastPos();
+            Room.Broadcast(new S_SetKnockBack
+            {
+                ObjectId = Id, 
+                Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
+            });
             return;
         }
-        
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                // Roll 충돌 처리
-                if (distance <= Stat.SizeX * 0.25 + 0.75f)
-                {
-                    CellPos = position;
-                    SetRollEffect(Target);
-                    Mp += MpRecovery;
-                    State = State.KnockBack;
-                    DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-                    BroadcastPos();
-                    Room.Broadcast(new S_SetKnockBack
-                    {
-                        ObjectId = Id, 
-                        Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
-                    });
-                    return;
-                }
-            }
-        }
-
-        BroadcastPos();
+        // Target이 있으면 이동
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        (Path, Atan) = Room.Map.Move(this);
+        // Path 전파
+        BroadcastPath();
     }
 
     protected virtual void SetRollEffect(GameObject target)
@@ -123,21 +114,22 @@ public class Creeper : Lurker
 
     protected override void UpdateKnockBack()
     {
-        // 넉백중 충돌하면 Idle
-        //
+        double dir = Atan.Count > 0 ? Atan[^1] : 0;
+        (Path, Atan) = Room.Map.KnockBack(this, dir);
+        BroadcastPath();
     }
 
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-        if (_poison)
-        {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
-        }
-        else if (_nestedPoison)
-        {
-            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, target, this, 0, 5000);
-
-        }
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     target.OnDamaged(this, TotalAttack, Damage.Normal);
+    //     if (_poison)
+    //     {
+    //         BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+    //     }
+    //     else if (_nestedPoison)
+    //     {
+    //         BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, target, this, 0, 5000);
+    //
+    //     }
+    // }
 }

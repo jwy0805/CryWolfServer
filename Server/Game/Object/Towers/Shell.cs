@@ -59,8 +59,6 @@ public class Shell : Tower
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
         State = State.Moving;
     }
     
@@ -86,8 +84,6 @@ public class Shell : Tower
                     if (Target != null)
                     {
                         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                        (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                        BroadcastDest();
                     }
                 }
             }
@@ -140,8 +136,6 @@ public class Shell : Tower
                 if (Target != null)
                 {
                     DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos);
-                    BroadcastDest();
                 }
             }
         }

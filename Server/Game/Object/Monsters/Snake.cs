@@ -34,10 +34,10 @@ public class Snake : Snakelet
         }
     }
 
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        base.SetProjectileEffect(target, ProjectileId.SmallFire);
-        if (_fire == false) return;
-        BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     base.SetProjectileEffect(target, ProjectileId.SmallFire);
+    //     if (_fire == false) return;
+    //     BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
+    // }
 }

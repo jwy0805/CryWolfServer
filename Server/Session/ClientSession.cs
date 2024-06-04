@@ -4,6 +4,7 @@ using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Game;
 using ServerCore;
+using GameRoom = Server.Game.GameRoom;
 
 namespace Server;
 

@@ -1,6 +1,7 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Util;
+using Random = System.Random;
 
 namespace Server.Game;
 
@@ -45,10 +46,6 @@ public class CactusBoss : Cactus
         Target = Room?.FindClosestTarget(this);
         LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        
-        (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-        BroadcastDest();
         
         if (_rush && _start == false)
         {
@@ -59,6 +56,7 @@ public class CactusBoss : Cactus
         {
             State = State.Moving;
         }
+        
         BroadcastPos();
     }
 
@@ -77,7 +75,6 @@ public class CactusBoss : Cactus
         {
             MoveSpeedParam -= 2;
             _speedRestore = true;
-            BroadcastDest();
         }
         
         base.UpdateMoving();
@@ -85,37 +82,31 @@ public class CactusBoss : Cactus
 
     protected override void UpdateRush()
     {
-        // Targeting
         Target = Room.FindClosestTarget(this);
-        if (Target != null)
-        {   
-            // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-            Vector3 position = CellPos;
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-            double deltaX = DestPos.X - CellPos.X;
-            double deltaZ = DestPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {   // Attack3 = SMASH Animation
-                MoveSpeedParam -= 2;
-                CellPos = position;
-                State = State.Attack3;    
-                BroadcastPos();
-                return;
-            }
-            
-            // Target이 있으면 이동
-            DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos, false);
-            BroadcastDest();
-        }
-        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             MoveSpeedParam -= 2;
             State = State.Idle;
             BroadcastPos();
         }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 position = CellPos;
+        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (distance <= AttackRange)
+        {   // Attack3 = SMASH Animation
+            MoveSpeedParam -= 2;
+            CellPos = position;
+            State = State.Attack3;   
+            BroadcastPos();
+            return;
+        }
+        // Target이 있으면 이동
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
     }
     
     public override void SetNextState()
@@ -138,19 +129,10 @@ public class CactusBoss : Cactus
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
         float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-
-        if (distance > TotalAttackRange)
-        {
-            DestPos = targetPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
-            State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-            return;
-        }
-
-        State = new Random().Next(2) == 0 ? State.Attack : State.Attack2;
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+        if (distance > TotalAttackRange) State = State.Moving;
+        else State = new Random().Next(2) == 0 ? State.Attack : State.Attack2;
+        
+        BroadcastState();
     }
     
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
@@ -184,7 +166,7 @@ public class CactusBoss : Cactus
         if (Hp <= 0) OnDead(attacker);
     }
     
-    public override void SetAdditionalAttackEffect(GameObject target)
+    public override void ApplyAdditionalAttackEffect(GameObject target)
     {
        if (_firstAttack == false)
        {

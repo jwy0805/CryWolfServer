@@ -31,7 +31,7 @@ public class PoisonBomb : SnowBomb
         }
     }
     
-    public override void SetEffectEffect()
+    public override void ApplyEffectEffect()
     {
         var enemyList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         var allyList = new[] { GameObjectType.Monster };
@@ -52,18 +52,18 @@ public class PoisonBomb : SnowBomb
         OnExplode(Attacker);
     }
 
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    {
-        var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        var gameObjects = Room.FindTargets(target, targetList, Area);
-        foreach (var gameObject in gameObjects)
-        {
-            gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
-            if (_addicted) BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5000);
-        }
-    }
+    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    // {
+    //     var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+    //     var gameObjects = Room.FindTargets(target, targetList, Area);
+    //     foreach (var gameObject in gameObjects)
+    //     {
+    //         gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+    //         if (_addicted) BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0, 5000);
+    //     }
+    // }
     
-    public override void SetAdditionalProjectileEffect(GameObject target)
+    public override void ApplyAdditionalProjectileEffect(GameObject target)
     {
         if (_doubleBomb == false) return;
         _subTarget = Room.FindRandomTarget(this, SkillRange, AttackType);

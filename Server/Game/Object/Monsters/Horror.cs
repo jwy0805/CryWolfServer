@@ -85,7 +85,6 @@ public class Horror : Creeper
         {
             Start = true;
             MoveSpeedParam += 2;
-            BroadcastDest();
             State = State.Rush;
             BroadcastPos();
             return;
@@ -95,56 +94,20 @@ public class Horror : Creeper
         {
             MoveSpeedParam -= 2;
             SpeedRestore = true;
-            BroadcastDest();
         }
         
         base.UpdateMoving();
     }
-    
-    protected override void UpdateRush()
-    {
-        if (Target == null || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-        
-        // 이동
-        // target이랑 너무 가까운 경우
-        StatInfo targetStat = Target.Stat;
-        Vector3 position = CellPos;
-        if (targetStat.Targetable)
-        {
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-            double deltaX = DestPos.X - CellPos.X;
-            double deltaZ = DestPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            // Roll 충돌 처리
-            if (distance <= Stat.SizeX * 0.25 + 0.75f)
-            {
-                CellPos = position;
-                Target.OnDamaged(this, SkillDamage, Damage.Normal);
-                if (_rollPoison)
-                {   // RollPoison Effect
-                    var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
-                    Room.EnterGameParent(effect, effect.Parent ?? this);
-                    BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5000);
-                }
-                Mp += MpRecovery;
-                State = State.KnockBack;
-                DestPos = CellPos + -Vector3.Normalize(Target.CellPos - CellPos) * 3;
-                BroadcastPos();
-                Room.Broadcast(new S_SetKnockBack
-                {
-                    ObjectId = Id, 
-                    Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
-                });
-                return;
-            }
-        }
 
-        BroadcastPos();
+    protected override void SetRollEffect(GameObject target)
+    {
+        target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+        
+        if (!_rollPoison) return; 
+        // RollPoison Effect
+        var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
+        Room.EnterGameParent(effect, effect.Parent ?? this);
+        BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5000);
     }
 
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)

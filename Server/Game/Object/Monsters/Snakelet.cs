@@ -24,16 +24,22 @@ public class Snakelet : Monster
             }
         }
     }
-    
+
     public override void Init()
     {
         base.Init();
-        AttackSpeedReciprocal = 5 / 6f;
-        AttackSpeed *= AttackSpeedReciprocal;
+        AttackImpactTime = 0.25f;
+        CurrentProjectile = ProjectileId.BasicProjectile;
+    }
+
+    protected override async void AttackImpactEvents(long impactTime)
+    {
+        if (Target == null) return;
+        await Scheduler.ScheduleEvent(impactTime, () => Room.SpawnProjectile(CurrentProjectile, this));
     }
     
-    public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    public override void ApplyProjectileEffect(GameObject? target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        target?.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 }

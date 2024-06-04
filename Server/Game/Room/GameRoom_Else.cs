@@ -37,7 +37,7 @@ public partial class GameRoom
         foreach (var player in _players.Values)
         {
             EnterSheepByServer(player);
-            EnterSheepByServer(player);
+            // EnterSheepByServer(player);
             if (player.Camp == Camp.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});

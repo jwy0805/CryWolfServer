@@ -7,7 +7,6 @@ namespace Server.Game;
 public partial class GameRoom
 {
     public readonly Stopwatch Stopwatch = new();
-    
     public int StorageLevel
     {
         get => _storageLevel;
@@ -87,22 +86,6 @@ public partial class GameRoom
         else go.ApplyMap(cellPos);
     }
     
-    public void HandleSetDest(Player? player, C_SetDest destPacket)
-    {
-        if (player == null) return;
-        GameObjectType type = ObjectManager.GetObjectTypeById(destPacket.ObjectId);
-        if (type == GameObjectType.Projectile)
-        {
-            Projectile? p = FindGameObjectById(destPacket.ObjectId) as Projectile;
-            p?.BroadcastDest();
-        }
-        else
-        {
-            GameObject? go = FindGameObjectById(destPacket.ObjectId);
-            go?.BroadcastDest();
-        }
-    }
-    
     public void HandleSpawn(Player? player, C_Spawn spawnPacket) // 클라이언트의 요청으로 Spawn되는 경우
     {
         if (player == null) return;
@@ -179,6 +162,13 @@ public partial class GameRoom
         go.State = statePacket.State;
     }
 
+    public void HandleSetProjectilePath(Player? player, C_SetProjectilePath pathPacket)
+    {
+        if (player == null) return;
+        if (FindGameObjectById(pathPacket.ObjectId) is not Projectile projectile) return;
+        projectile.ClientResponse = pathPacket.Received; // true
+    }
+
     #region Summary
 
     /// <summary>
@@ -219,7 +209,7 @@ public partial class GameRoom
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
                     Creature cAttacker = (Creature)attacker;
-                    cAttacker.SetNormalAttackEffect(target);
+                    cAttacker.ApplyNormalAttackEffect(target);
                 }
                 break;
             
@@ -229,15 +219,15 @@ public partial class GameRoom
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.MpRecovery;
-                    cAttacker.SetNormalAttackEffect(target);
+                    cAttacker.ApplyNormalAttackEffect(target);
                 }
-                else if (type is GameObjectType.Projectile)
-                {
-                    attacker.Parent!.Mp += attacker.Parent.MpRecovery;
-                    Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
-                    if (pAttacker?.Parent is Creature parent) 
-                        parent.SetProjectileEffect(target, pAttacker.ProjectileId);
-                }
+                // else if (type is GameObjectType.Projectile)
+                // {
+                //     attacker.Parent!.Mp += attacker.Parent.MpRecovery;
+                //     Projectile? pAttacker = FindGameObjectById(attackerId) as Projectile;
+                //     if (pAttacker?.Parent is Creature parent) 
+                //         parent.SetProjectileEffect(target, pAttacker.ProjectileId);
+                // }
                 break;
             
             case AttackMethod.AdditionalAttack:
@@ -245,7 +235,7 @@ public partial class GameRoom
                 {
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
-                    cAttacker.SetAdditionalAttackEffect(target);
+                    cAttacker.ApplyAdditionalAttackEffect(target);
                 }
                 break;
             
@@ -274,7 +264,7 @@ public partial class GameRoom
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
                     Creature cAttacker = (Creature)attacker;
-                    cAttacker.SetAdditionalProjectileEffect(target);
+                    cAttacker.ApplyAdditionalProjectileEffect(target);
                 }
                 break;
         }

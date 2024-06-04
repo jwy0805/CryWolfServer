@@ -9,14 +9,30 @@ public class Creature : GameObject
 {
     protected virtual Skill NewSkill { get; set; }
     protected Skill Skill;
+    protected readonly Scheduler Scheduler = new();
     protected readonly List<Skill> SkillList = new();
-    protected long DeltaTime;
-    protected float AttackSpeedReciprocal;
-    protected float SkillSpeedReciprocal;
-    protected float SkillSpeedReciprocal2;
+    protected ProjectileId CurrentProjectile = ProjectileId.BasicProjectile;
+    protected bool StateChanged;
+    protected bool IsAttacking;
+    protected long LastAttackTime;
+    protected float AttackImpactTime = 0.5f;
+    protected float SkillImpactTime = 0.5f;
+    protected float SkillImpactTime2 = 0.5f;
     protected const long MpTime = 1000;
+    protected const long StdAnimTime = 1000;
 
-
+    public override State State
+    {
+        get => PosInfo.State;
+        set
+        {
+            var preState = PosInfo.State;
+            PosInfo.State = value;
+            var attackStates = new List<State> { State.Attack, State.Skill, State.Skill2 };
+            BroadcastState();
+            StateChanged = !attackStates.Contains(preState);
+        }
+    }
 
     public override void Update()
     {
@@ -49,6 +65,9 @@ public class Creature : GameObject
                 case State.Attack:
                     UpdateAttack();
                     break;
+                case State.Attack2:
+                    UpdateAttack2();
+                    break;
                 case State.Skill:
                     UpdateSkill();
                     break;
@@ -69,6 +88,7 @@ public class Creature : GameObject
     protected virtual void UpdateIdle() { }
     protected virtual void UpdateMoving() { }
     protected virtual void UpdateAttack() { }
+    protected virtual void UpdateAttack2() { }
     protected virtual void UpdateSkill() { }
     protected virtual void UpdateSkill2() { }
     protected virtual void UpdateKnockBack() { }
@@ -77,19 +97,39 @@ public class Creature : GameObject
     public virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
-    public virtual void SetNormalAttackEffect(GameObject target)
+    protected virtual async void AttackImpactEvents(long impactTime)
+    {
+        if (Target == null) return;
+        await Scheduler.ScheduleEvent(impactTime, () => ApplyNormalAttackEffect(Target));
+    }
+
+    protected virtual async void SkillImpactEvents(long impactTime) { }
+
+    protected virtual async void MotionChangeEvents(long time) { }
+
+    protected virtual async void EndEvents(long animEndTime)
+    {
+        await Scheduler.ScheduleEvent(animEndTime, () =>
+        {
+            IsAttacking = false;
+            LastAttackTime = Room.Stopwatch.ElapsedMilliseconds;
+            SetNextState();
+        });
+    }
+    
+    public virtual void ApplyNormalAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     
-    public virtual void SetAdditionalAttackEffect(GameObject target) { }
-    public virtual void SetEffectEffect() { }
+    public virtual void ApplyAdditionalAttackEffect(GameObject target) { }
+    public virtual void ApplyEffectEffect() { }
 
-    public virtual void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
+    public virtual void ApplyProjectileEffect(GameObject? target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        target?.OnDamaged(this, TotalAttack, Damage.Normal);
     }
-    public virtual void SetAdditionalProjectileEffect(GameObject target) { }
+    public virtual void ApplyAdditionalProjectileEffect(GameObject target) { }
 
     public virtual void SetNextState()
     {
@@ -97,7 +137,6 @@ public class Creature : GameObject
         if (Target == null || Target.Targetable == false)
         {
             State = State.Idle;
-            BroadcastPos();
             return;
         }
 
@@ -105,26 +144,20 @@ public class Creature : GameObject
         {
             Target = null;
             State = State.Idle;
-            BroadcastPos();
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        float distance = Vector3.Distance(targetPos, CellPos);
 
-        if (distance <= TotalAttackRange)
+        if (distance > TotalAttackRange)
         {
-            SetDirection();
-            State = State.Attack;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            State = State.Idle;
         }
         else
         {
-            DestPos = targetPos;
-            (Path, Dest, Atan) = Room.Map.Move(this, CellPos, DestPos);
-            BroadcastDest();
-            State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            State = State.Attack;
+            IsAttacking = false;
         }
     }
 
@@ -163,6 +196,11 @@ public class Creature : GameObject
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         BroadcastPos();
     }
+
+    protected virtual State GetRandomState(State state1, State state2)
+    {
+        return new Random().Next(2) == 0 ? state1 : state2;
+    }
     
     protected virtual Vector3 GetRandomDestInFence()
     {
@@ -180,7 +218,8 @@ public class Creature : GameObject
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
             bool canGo = map.CanGo(this, map.Vector3To2(dest));
-            if (canGo) return dest;
+            float dist = Vector3.Distance(CellPos, dest);
+            if (canGo && dist > 3f) return dest;
         } while (true);
     }
 }
