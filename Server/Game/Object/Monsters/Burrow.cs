@@ -6,9 +6,10 @@ namespace Server.Game;
 
 public class Burrow : Monster
 {
-    private long _idleToRushAnimTime;
-    private long _rushToIdleAnimTime;
     private bool _halfBurrow = false;
+    
+    protected long IdleToRushAnimTime;
+    protected long RushToIdleAnimTime;
     
     protected override Skill NewSkill
     {
@@ -36,13 +37,24 @@ public class Burrow : Monster
         }
     }
 
+    public override State State
+    {
+        get => PosInfo.State;
+        set
+        {
+            var preState = PosInfo.State;
+            PosInfo.State = value;
+            BroadcastState();
+            StateChanged = preState != PosInfo.State;
+        }
+    }
+    
     public override void Init()
     {
         base.Init();
-        _idleToRushAnimTime = StdAnimTime * 2 / 3;
-        _rushToIdleAnimTime = StdAnimTime * 5 / 6;
+        IdleToRushAnimTime = StdAnimTime * 2 / 3;
+        RushToIdleAnimTime = StdAnimTime * 5 / 6;
         Player.SkillSubject.SkillUpgraded(Skill.BurrowHalfBurrow);
-        Player.SkillUpgradedList.Add(Skill.BurrowHalfBurrow);
     }
 
     public override void Update()
@@ -105,8 +117,7 @@ public class Burrow : Monster
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
+        Target = Room?.FindClosestTarget(this); 
         if (Target == null) return;
         State = _halfBurrow ? State.IdleToRush : State.Moving;
     }
@@ -135,19 +146,20 @@ public class Burrow : Monster
         BroadcastPath();
     }
 
+    protected virtual void UpdateUnderground() { }
+
     protected virtual void UpdateIdleToRush()
     {
-        MotionChangeEvents(_idleToRushAnimTime);
+        MotionChangeEvents(IdleToRushAnimTime);
     }
     
     protected virtual void UpdateRushToIdle()
     {
-        MotionChangeEvents(_rushToIdleAnimTime);   
+        MotionChangeEvents(RushToIdleAnimTime);   
     }
     
     protected virtual void UpdateIdleToUnderground() { }
     protected virtual void UpdateUndergroundToIdle() { }
-    protected virtual void UpdateUnderground() { }
 
     protected override async void MotionChangeEvents(long animTime)
     {
@@ -156,11 +168,26 @@ public class Burrow : Monster
 
     public override void SetNextState(State state)
     {
-        base.SetNextState(state);
-        if (state == State.IdleToRush) State = State.Rush;
+        if (state == State.Die && WillRevive)
+        {
+            State = State.Idle;
+            Hp = (int)(MaxHp * ReviveHpRate);
+            if (Targetable == false) Targetable = true;
+            BroadcastHealth();
+            // 부활 Effect 추가
+        }
+        
+        if (state == State.IdleToRush)
+        {
+            State = State.Rush;
+            if (StateChanged) EvasionParam += 20;
+        }
+        
         if (state == State.RushToIdle)
         {
             State = State.Attack;
+            SetDirection();
+            if (StateChanged) EvasionParam -= 20;
         }
     }
 }

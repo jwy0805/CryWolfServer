@@ -161,6 +161,7 @@ public class Werewolf : Wolf
         if (distance <= TotalAttackRange)
         {
             State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
+            SetDirection();
             IsAttacking = false;
         }
         else

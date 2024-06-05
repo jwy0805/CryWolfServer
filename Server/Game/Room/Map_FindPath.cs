@@ -105,7 +105,7 @@ public partial class Map
     public int SizeZ => MaxZ - MinZ + 1;
     
     private bool[,] _collision;
-    public GameObject?[,] Objects;
+    private GameObject?[,] _objects;
     private GameObject?[,] _objectsAir;
     private ushort[,] _objectPlayer;
 
@@ -325,16 +325,10 @@ public partial class Map
 				Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 
 				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
-				{                                                                                                        // 벽으로 막혀서 갈 수 없으면 스킵
-                    if (gameObject.UnitType == 0)
-                    {
-                        if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue; // CellPos
-                    }
-                    else
-                    {
-                        if (CanGoAir(gameObject, Pos2Cell(next), checkObjects) == false) continue;
-                    }
-				}
+                {
+                    // 벽으로 막혀서 갈 수 없으면 스킵
+                    if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue; // CellPos
+                }
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
 				int g = pqNode.G + _cost[i];                                                                             // 비용 계산 : node.G + _cost[i];
@@ -392,7 +386,7 @@ public partial class Map
                     {
                         for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
                         {
-                            if (Objects[k, l] != null) cnt++;
+                            if (_objects[k, l] != null) cnt++;
                         }
                     }
                     if (cnt == 0) return Pos2Cell(pos);

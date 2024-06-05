@@ -56,7 +56,6 @@ public class Shell : Tower
         
         GameObject? target = Room?.FindClosestTarget(this);
         if (target == null || Room == null || Target?.Id == target.Id) return;
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         Target = target;
         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
         State = State.Moving;
@@ -74,19 +73,19 @@ public class Shell : Tower
         {
             // Targeting
             double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-            if (timeNow > LastSearch + SearchTick)
-            {
-                LastSearch = timeNow;
-                GameObject? target = Room?.FindClosestTarget(this);
-                if (Target?.Id != target?.Id)
-                {
-                    Target = target;
-                    if (Target != null)
-                    {
-                        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    }
-                }
-            }
+            // if (timeNow > LastSearch + SearchTick)
+            // {
+            //     LastSearch = timeNow;
+            //     GameObject? target = Room?.FindClosestTarget(this);
+            //     if (Target?.Id != target?.Id)
+            //     {
+            //         Target = target;
+            //         if (Target != null)
+            //         {
+            //             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+            //         }
+            //     }
+            // }
         
             if (Target == null || Target.Targetable == false || Target.Room != Room)
             {
@@ -126,19 +125,19 @@ public class Shell : Tower
     {
         // Targeting
         double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-        if (timeNow > LastSearch + SearchTick)
-        {
-            LastSearch = timeNow;
-            GameObject? target = Room?.FindClosestTarget(this);
-            if (Target?.Id != target?.Id)
-            {
-                Target = target;
-                if (Target != null)
-                {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                }
-            }
-        }
+        // if (timeNow > LastSearch + SearchTick)
+        // {
+        //     LastSearch = timeNow;
+        //     GameObject? target = Room?.FindClosestTarget(this);
+        //     if (Target?.Id != target?.Id)
+        //     {
+        //         Target = target;
+        //         if (Target != null)
+        //         {
+        //             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+        //         }
+        //     }
+        // }
         
         if (Target == null || Target.Room != Room)
         {

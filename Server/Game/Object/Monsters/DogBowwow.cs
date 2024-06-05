@@ -120,5 +120,6 @@ public class DogBowwow : DogBark
 
         if (_smash) State = HitCount == 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
         else State = HitCount == 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
+        SetDirection();
     }
 }

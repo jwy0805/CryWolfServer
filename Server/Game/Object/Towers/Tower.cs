@@ -17,67 +17,52 @@ public class Tower : Creature, ISkillObserver
 
     public override void Init()
     {
-        base.Init();
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
-        StatInit();
+        base.Init();
         
+        StatInit();
         Player.SkillSubject.AddObserver(this);
-        SearchTick = 250;
-        LastSearch = 0;
         State = State.Idle;
     }
 
     protected override void UpdateIdle()
-    {
-        Target = Room?.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
-        if (Target == null) return;
-
-        var targetStat = Target.Stat;
-        if (targetStat.Targetable == false) return;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
+    {   // Targeting
+        Target = Room.FindClosestTarget(this);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        float distance = Vector3.Distance(Target.CellPos, CellPos);
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        
         if (distance > AttackRange) return;
         State = State.Attack;
-        BroadcastPos();
     }
 
     protected override void UpdateAttack()
     {
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            BroadcastPos();
-        }
-    }
-
-    public override void SetNextState()
-    {
-        if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
-        {
-            State = State.Idle;
-            BroadcastPos();
+            IsAttacking = false;
             return;
         }
-
-        if (Target.Hp <= 0)
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        var packet = new S_SetAnimSpeed
         {
-            Target = null;
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-
-        var distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-        if (distance > TotalAttackRange) return;
-        SetDirection();
-        State = State.Attack;
-        BroadcastPos();
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactTime);
+        long animTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long nextAnimEndTime = StateChanged ? animTime : LastAttackTime - timeNow + animTime;
+        long nextImpactTime = StateChanged ? impactTime : LastAttackTime - timeNow + impactTime;
+        AttackImpactEvents(nextImpactTime);
+        EndEvents(nextAnimEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        IsAttacking = true;
     }
 
     public override void OnDead(GameObject attacker)

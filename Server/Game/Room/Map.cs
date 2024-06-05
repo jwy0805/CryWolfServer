@@ -18,8 +18,7 @@ public partial class Map
         
         if (gameObject.ObjectType != GameObjectType.Fence)
         {
-            bool canGo = gameObject.UnitType == 0 ? CanGo(gameObject, v, true, gameObject.Stat.SizeX) 
-                : CanGoAir(gameObject, v, true, gameObject.Stat.SizeX);
+            bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
             if (canGo == false)
             {
                 gameObject.BroadcastPos();
@@ -36,13 +35,13 @@ public partial class Map
         
         List<(int, int)> coordinates = CalculateCoordinates(gameObject.PosInfo, stat);
 
-        switch (stat.UnitType)
+        switch (gameObject.UnitType)
         {
             case 0: // 0 -> ground
-                UpdateObjects(coordinates, Objects, gameObject);
+                UpdateObjects(coordinates, _objects, gameObject);
                 break;
             case 1: // 1 -> air
-                UpdateObjects(coordinates, Objects, gameObject);
+                UpdateObjects(coordinates, _objectsAir, gameObject);
                 break;
             case 2: // 2 -> player
                 foreach (var tuple in coordinates) _objectPlayer[tuple.Item1, tuple.Item2] = 1;
@@ -64,7 +63,7 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                ClearObjects(coordinates, Objects);
+                ClearObjects(coordinates, _objects);
                 break;
             case 1: // 1 -> air
                 ClearObjects(coordinates, _objectsAir);
@@ -147,7 +146,7 @@ public partial class Map
 
         int x = (int)((cellPos.X - MinX) * _cellCnt);
         int z = (int)((MaxZ - cellPos.Z) * _cellCnt);
-        return Objects[z, x];
+        return _objects[z, x];
     }
 
     public bool CanSpawn(Vector2Int cellPos, int size)
@@ -164,7 +163,7 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (Objects[j, i] != null || _collision[j, i]) cnt++;
+                if (_objects[j, i] != null || _collision[j, i]) cnt++;
             }
         }
 
@@ -176,6 +175,7 @@ public partial class Map
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
 
+        GameObject?[,] objects = go.UnitType == 0 ? _objects : _objectsAir;
         Pos pos = Cell2Pos(cellPos);
         int x = pos.X;
         int z = pos.Z;
@@ -185,54 +185,13 @@ public partial class Map
         {
             for (int j = z - (size - 1); j <= z + (size - 1); j++)
             {
-                if (!_collision[j, i] && Objects[j, i] == null) continue;
-                if (Objects[j, i]?.Id != go.Id && Objects[j, i]?.Id != go.Target?.Id) cnt++;
+                if (!_collision[j, i] && objects[j, i] == null) continue;
+                if (objects[j, i]?.Id != go.Id && objects[j, i]?.Id != go.Target?.Id) cnt++;
             }
         }
         
         return cnt == 0 || !checkObjects;
     } 
-    
-    public bool CanGoAir(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
-    {
-        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
-
-        int x = cellPos.X - MinX;
-        int z = MaxZ - cellPos.Z;
-        
-        int cnt = 0;
-        for (int i = x - (size - 1); i <= x + (size - 1); i++)
-        {
-            for (int j = z - (size - 1); j <= z + (size - 1); j++)
-            {
-                if (_collision[j, i]) cnt++;
-            }
-        }
-        
-        return cnt == 0 || !checkObjects;
-    }
-    
-    // public bool CanGoAir(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
-    // {
-    //     if (cellPos.X < MinX || cellPos.X > MaxX) return false;
-    //     if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
-    //
-    //     int x = cellPos.X - MinX;
-    //     int z = MaxZ - cellPos.Z;
-    //     
-    //     int cnt = 0;
-    //     for (int i = x - (size - 1); i <= x + (size - 1); i++)
-    //     {
-    //         for (int j = z - (size - 1); j <= z + (size - 1); j++)
-    //         {
-    //             if (!_collision[j, i] && _objectsAir[j, i] == null) continue;
-    //             if (_objectsAir[j, i]?.Id != go.Id && _objectsAir[j, i]?.Id != go.Target?.Id) cnt++;
-    //         }
-    //     }
-    //     
-    //     return cnt == 0 || !checkObjects;
-    // }
 
     public (List<Vector3>, List<double>) Move(GameObject go, bool checkObjects = true)
     {
@@ -263,7 +222,7 @@ public partial class Map
         }
         if (arctan.Count > 0) arctan.Add(arctan[^1]);
 
-        int moveTick = (int)(go.MoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
+        int moveTick = (int)(go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
         int index = 0;
         while (moveTick >= 100 && index < path.Count - 1)
         {
@@ -370,7 +329,7 @@ public partial class Map
         int xCount = MaxX - MinX + 1;
         int zCount = MaxZ - MinZ + 1;
         _collision = new bool[zCount, xCount];
-        Objects = new GameObject[zCount, xCount];
+        _objects = new GameObject[zCount, xCount];
         _objectsAir = new GameObject[zCount, xCount];
         
         // Collision 관련 파일

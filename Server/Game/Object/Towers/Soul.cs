@@ -37,7 +37,6 @@ public class Soul : Tower
     protected override void UpdateIdle()
     {
         Target = Room?.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         State = State.Moving;
         BroadcastPos();

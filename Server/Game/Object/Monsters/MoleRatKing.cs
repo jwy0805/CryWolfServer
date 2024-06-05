@@ -10,7 +10,7 @@ public class MoleRatKing : MoleRat
     private List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
     private bool _burrow = false;
     private bool _stealWool = false;
-    private float _stealWoolParam = 0.1f;
+    private readonly float _stealWoolParam = 0.1f;
     
     protected override Skill NewSkill
     {
@@ -33,66 +33,15 @@ public class MoleRatKing : MoleRat
     public override void Init()
     {
         base.Init();
-    }
-
-    public override void Update()
-    {
-        if (Room == null) return;
-        Job = Room.PushAfter(CallCycle, Update);
-
-        if (MaxMp != 1 && Mp >= MaxMp)
-        {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
-            Mp = 0;
-        }
-        else
-        {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-                case State.Underground:
-                    UpdateUnderground();
-                    break;
-            }   
-        }
+        IdleToRushAnimTime = StdAnimTime * 2 / 3;
+        RushToIdleAnimTime = StdAnimTime * 5 / 6;
     }
     
     protected override void UpdateIdle()
     {
         Target = Room?.FindClosestTarget(this, _typeList);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         State = _burrow ? State.IdleToUnderground : State.IdleToRush;
-        BroadcastPos();
     }
 
     protected override void UpdateRush()
@@ -101,64 +50,150 @@ public class MoleRatKing : MoleRat
         base.UpdateRush();
     }
 
-    private void UpdateUnderground()
-    {   // Targeting
-        Target = Room.FindClosestTarget(this);
+    protected override void UpdateAttack2()
+    {
+        UpdateAttack();
+    }
+
+    protected override void UpdateUnderground()
+    {   // Targeting 우선순위 - Sheep
+        var targetTypeList = new List<GameObjectType> { GameObjectType.Sheep };
+        Target = Room.FindClosestTarget(this, targetTypeList);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastPos();
             return;
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        Vector3 position = CellPos;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = Vector3.Distance(DestPos, CellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         if (distance <= AttackRange)
         {
-            CellPos = position;
             State = State.UndergroundToIdle;
-            BroadcastPos();
             return;
         }
         // Target이 있으면 이동
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        (Path, Atan) = Room.Map.Move(this);
+        (Path, Atan) = Room.Map.Move(this, false);
         BroadcastPath();
+    }
+    
+    protected override void UpdateIdleToUnderground()
+    {
+        MotionChangeEvents(IdleToRushAnimTime);
+    }
+    
+    protected override void UpdateUndergroundToIdle()
+    {
+        MotionChangeEvents(RushToIdleAnimTime);
+    }
+    
+    public override void SetNextState()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false)
+        {
+            State = State.Idle;
+            return;
+        }
+
+        if (Target.Hp <= 0)
+        {
+            Target = null;
+            State = State.Idle;
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        float distance = Vector3.Distance(targetPos, CellPos);
+
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+        }
+        else
+        {
+            State = GetRandomState(State.Attack, State.Attack2);
+            SetDirection();
+            IsAttacking = false;
+        }
     }
     
     public override void SetNextState(State state)
     {
-        base.SetNextState(state);
+        if (state == State.Die && WillRevive)
+        {
+            State = State.Idle;
+            Hp = (int)(MaxHp * ReviveHpRate);
+            if (Targetable == false) Targetable = true;
+            BroadcastHealth();
+            // 부활 Effect 추가
+        }
         
         if (state == State.IdleToRush)
         {
             State = State.Rush;
-            BroadcastPos();
-            MoveSpeedParam += 2;
-            EvasionParam += 30;
+            if (StateChanged)
+            {
+                MoveSpeedParam += 2;
+                EvasionParam += 30; 
+            }
         }
         
         if (state == State.IdleToUnderground)
         {
             State = State.Underground;
-            BroadcastPos();
+            if (StateChanged)
+            {
+                MoveSpeedParam += 2;
+                EvasionParam += 40;
+            }
         }
 
-        if (state is State.RushToIdle or State.UndergroundToIdle)
+        if (state == State.RushToIdle)
         {
-            State = State.Attack;
-            BroadcastPos();
+            State = GetRandomState(State.Attack, State.Attack2);
+            SetDirection();
             MoveSpeedParam -= 2;
             EvasionParam -= 30;
+        }
+
+        if (state == State.UndergroundToIdle)
+        {
+            State = GetRandomState(State.Attack, State.Attack2);
+            SetDirection();
+            MoveSpeedParam -= 2;
+            EvasionParam -= 40;
         }
     }
     
     public override void ApplyNormalAttackEffect(GameObject target)
     {
-        base.ApplyNormalAttackEffect(target);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);
+        // Steal Attack 처리
+        if (StolenObjectId == 0)
+        {
+            StolenDamage = (int)(target.TotalAttack * StealAttackParam);
+            AttackParam += StolenDamage;
+            target.AttackParam -= AttackParam;
+            StolenObjectId = target.Id;
+            return;
+        }
+        
+        if (StolenObjectId == target.Id) return;
+        
+        var stolenTarget = Room?.FindGameObjectById(StolenObjectId);
+        if (stolenTarget == null) return;
+        stolenTarget.AttackParam += StolenDamage;
+        
+        StolenDamage = (int)(target.TotalAttack * StealAttackParam);
+        target.AttackParam -= StolenDamage;
+        
+        StolenObjectId = target.Id;
+        // Steal Wool 처리
         if (_stealWool == false) return;
         if (target is not Sheep sheep) return;
         int stealWool = (int)(Room.GameInfo.SheepYield * _stealWoolParam);

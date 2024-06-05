@@ -7,8 +7,6 @@ namespace Server.Game;
 public partial class GameObject : IGameObject
 {
     protected long Time;
-    protected int SearchTick = 500;
-    protected double LastSearch = 0;
     protected List<Vector3> Path = new();
     protected List<double> Atan = new();
 

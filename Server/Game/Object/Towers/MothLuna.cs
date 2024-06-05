@@ -73,17 +73,17 @@ public class MothLuna : Tower
         {
             // Targeting
             double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-            if (timeNow > LastSearch + SearchTick)
-            {
-                LastSearch = timeNow;
-                GameObject? target = Room?.FindClosestTarget(this);
-                Target ??= target;
-                if (Target != null)
-                {
-                    DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-                    return;
-                }
-            }
+            // if (timeNow > LastSearch + SearchTick)
+            // {
+            //     LastSearch = timeNow;
+            //     GameObject? target = Room?.FindClosestTarget(this);
+            //     Target ??= target;
+            //     if (Target != null)
+            //     {
+            //         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
+            //         return;
+            //     }
+            // }
 
             DestPos = StartCell;
             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(

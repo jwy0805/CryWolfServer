@@ -24,13 +24,11 @@ public class Monster : Creature, ISkillObserver
         StatInit();
         Player.SkillSubject.AddObserver(this);
         State = State.Idle;
-        BroadcastPos();
     }
 
     protected override void UpdateIdle()
     {
         Target = Room.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         State = State.Moving;
     }
@@ -111,7 +109,7 @@ public class Monster : Creature, ISkillObserver
             var skillName = skill.ToString();
             if (skillName.Contains(monsterName)) SkillList.Add(skill);
         }
-
+        
         if (SkillList.Count == 0) return;
         foreach (var skill in SkillList) NewSkill = skill;
     }

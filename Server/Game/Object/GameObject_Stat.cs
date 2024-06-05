@@ -6,13 +6,13 @@ public partial class GameObject
     public float TotalAttackSpeed => Math.Max(AttackSpeed + AttackSpeedParam, 0);
     public int TotalSkillDamage => Math.Max(SkillDamage + SkillParam, 0);
     public int TotalDefence => Math.Max(Defence + DefenceParam, 0);
-    public int TotalFireResist => FireResist + FireResistParam;
-    public int TotalPoisonResist => PoisonResist + PoisonResistParam;
+    public int TotalFireResist => Math.Max(FireResist + FireResistParam, 0);
+    public int TotalPoisonResist => Math.Max(PoisonResist + PoisonResistParam, 0);
     public float TotalMoveSpeed => Math.Max(MoveSpeed + MoveSpeedParam, 0);
-    public float TotalAttackRange => AttackRange + AttackRangeParam;
-    public float TotalSkillRange => SkillRange + SkillRangeParam;
-    public int TotalAccuracy => Accuracy + AccuracyParam;
-    public int TotalEvasion => Evasion + EvasionParam;
+    public float TotalAttackRange => Math.Max(AttackRange + AttackRangeParam, 0);
+    public float TotalSkillRange => Math.Max(SkillRange + SkillRangeParam, 0);
+    public int TotalAccuracy => Math.Max(Accuracy + AccuracyParam, 0);
+    public int TotalEvasion => Math.Max(Evasion + EvasionParam, 0);
     
     public int MpRecovery { get; set; } = 10;
 

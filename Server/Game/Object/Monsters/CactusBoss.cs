@@ -44,7 +44,6 @@ public class CactusBoss : Cactus
     protected override void UpdateIdle()
     {
         Target = Room?.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
         
         if (_rush && _start == false)

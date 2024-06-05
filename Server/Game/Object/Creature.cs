@@ -20,7 +20,7 @@ public class Creature : GameObject
     protected float SkillImpactTime2 = 0.5f;
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
-
+    
     public override State State
     {
         get => PosInfo.State;
@@ -111,6 +111,7 @@ public class Creature : GameObject
     {
         await Scheduler.ScheduleEvent(animEndTime, () =>
         {
+            if (Room == null) return;
             IsAttacking = false;
             LastAttackTime = Room.Stopwatch.ElapsedMilliseconds;
             SetNextState();
@@ -119,6 +120,7 @@ public class Creature : GameObject
     
     public virtual void ApplyNormalAttackEffect(GameObject target)
     {
+        if (Room == null) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     
@@ -157,6 +159,7 @@ public class Creature : GameObject
         else
         {
             State = State.Attack;
+            SetDirection();
             IsAttacking = false;
         }
     }
@@ -176,21 +179,7 @@ public class Creature : GameObject
     
     protected virtual void SetDirection()
     {
-        if (Room == null) return;
-        if (Target == null)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-
-        if (Target.Stat.Targetable == false || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-        
+        if (Room == null || Target == null) return;
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);

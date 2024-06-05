@@ -29,7 +29,6 @@ public class Bud : Tower
     protected override void UpdateIdle()
     {
         Target = Room?.FindClosestTarget(this);
-        LastSearch = Room!.Stopwatch.Elapsed.Milliseconds;
         if (Target == null) return;
 
         StatInfo targetStat = Target.Stat;

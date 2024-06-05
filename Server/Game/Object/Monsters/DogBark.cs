@@ -110,5 +110,6 @@ public class DogBark : DogPup
 
         if (_4Hit && HitCount == 3) State = State.Skill;
         else State = State.Attack;
+        SetDirection();
     }
 }
