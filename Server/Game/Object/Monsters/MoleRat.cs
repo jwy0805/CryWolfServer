@@ -80,7 +80,7 @@ public class MoleRat : Burrow
         }
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         if (_drain) Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);

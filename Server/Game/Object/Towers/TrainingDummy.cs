@@ -48,7 +48,7 @@ public class TrainingDummy : TargetDummy
         }
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         if (!_faint) return;
         Random r = new Random();

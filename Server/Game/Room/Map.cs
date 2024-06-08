@@ -212,6 +212,7 @@ public partial class Map
         List<double> arctan = new List<double>();
         Vector2Int destCellVec = regionPath.Count <= 1 ? destCell : center[1];
         List<Vector3> path = FindPath(go, startCell, destCellVec, checkObjects).Distinct().ToList();
+        // if (path.Count == 0) return (new List<Vector3>(), new List<double>());
         // Dir(유닛이 어느 방향을 쳐다보는지) 추출
         for (int i = 0; i < path.Count - 1; i++)
         {
@@ -278,6 +279,7 @@ public partial class Map
         Vector2Int startCell = Vector3To2(p.CellPos);
         Vector2Int destCell = Vector3To2(p.DestPos);
         List<Vector3> path = FindPath(p, startCell, destCell).Distinct().ToList();
+        if (path.Count == 0) Console.WriteLine($"Cell: {p.CellPos}, Dest: {p.DestPos}");
         return path;
     }
     

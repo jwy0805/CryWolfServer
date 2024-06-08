@@ -28,14 +28,17 @@ public class Snakelet : Monster
     public override void Init()
     {
         base.Init();
-        AttackImpactTime = 0.25f;
+        AttackImpactMoment = 0.25f;
         CurrentProjectile = ProjectileId.BasicProjectile;
     }
 
     protected override async void AttackImpactEvents(long impactTime)
     {
-        if (Target == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () => Room.SpawnProjectile(CurrentProjectile, this));
+        if (Target == null || Room == null) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            Room.SpawnProjectile(CurrentProjectile, this, 5f);
+        });
     }
     
     public override void ApplyProjectileEffect(GameObject? target)

@@ -93,7 +93,7 @@ public class SkeletonMage : SkeletonGiant
         }
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target) { }
+    public override void ApplyAttackEffect(GameObject target) { }
 
     // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
     // {

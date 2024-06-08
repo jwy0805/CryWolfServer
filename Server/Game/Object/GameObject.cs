@@ -169,21 +169,8 @@ public partial class GameObject : IGameObject
         
         Room?.Broadcast(pathPacket);
     }
-
-    protected virtual void BroadcastProjectilePath()
-    {   // TODO: Unit Size에 맞춰서 Y 조정
-        if (Path.Count == 0) return;
-        
-        var pathPacket = new S_SetProjectilePath { ObjectId = Id, MoveSpeed = MoveSpeed, Dir = Dir };
-        for (var i = 0; i < Path.Count; i++)
-        {
-            pathPacket.Path.Add(new DestVector { X = Path[i].X, Y = Path[i].Y + 1, Z = Path[i].Z });
-        }
-        
-        Room?.Broadcast(pathPacket);
-    }
     
-    public virtual void BroadcastHealth()
+    public virtual void BroadcastHealth() 
     {
         S_ChangeMaxHp maxHpPacket = new S_ChangeMaxHp { ObjectId = Id, MaxHp = MaxHp };
         S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };

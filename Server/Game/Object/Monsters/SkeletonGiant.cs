@@ -114,7 +114,7 @@ public class SkeletonGiant : Skeleton
         
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         target.DefenceParam -= DefenceDebuffParam;

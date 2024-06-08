@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -181,13 +182,6 @@ public partial class GameRoom : JobSerializer
                 effect.Update();
                 break;
             
-            case GameObjectType.Projectile:
-                Projectile projectile = (Projectile)gameObject;
-                _projectiles.Add(projectile.Id, projectile);
-                projectile.Room = this;
-                projectile.Update();
-                break;
-            
             case GameObjectType.Resource:
                 Resource resource = (Resource)gameObject;
                 resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
@@ -216,6 +210,16 @@ public partial class GameRoom : JobSerializer
         }
     }
 
+    public void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed)
+    {
+        var projectile = (Projectile)gameObject;
+        _projectiles.Add(projectile.Id, projectile);
+        projectile.Room = this;
+        var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y, Z = targetPos.Z };
+        var spawnPacket = new S_SpawnProjectile { Object = gameObject.Info, DestPos = destVector, MoveSpeed = speed };
+        Broadcast(spawnPacket);
+    }
+
     public void EnterGameParent(GameObject gameObject, GameObject parent)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
@@ -232,10 +236,7 @@ public partial class GameRoom : JobSerializer
         }
 
         var spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
-        foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
-        {
-            player.Session.Send(spawnPacket);
-        }
+        Broadcast(spawnPacket);
     }
 
     public void EnterGameTarget(GameObject gameObject, GameObject parent, GameObject target)

@@ -163,7 +163,7 @@ public class MothLuna : Tower
         }
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         if (_faint)
         {

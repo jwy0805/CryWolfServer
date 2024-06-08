@@ -34,18 +34,11 @@ public class MosquitoBug : Monster
         }
     }
 
-    public override void Init()
-    {
-        base.Init();
-    }
-
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this, _typeList, 2) 
-                 ?? Room.FindClosestTarget(this, 2);
-        if (Target == null) return;
+        Target = Room.FindClosestTarget(this, _typeList, 2);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
-        BroadcastPos();
     }
 
     protected override void UpdateMoving()
@@ -74,7 +67,7 @@ public class MosquitoBug : Monster
         BroadcastPath();
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         if (Room == null) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);       

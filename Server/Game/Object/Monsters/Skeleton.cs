@@ -62,7 +62,7 @@ public class Skeleton : Monster
         BroadcastPath();
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         

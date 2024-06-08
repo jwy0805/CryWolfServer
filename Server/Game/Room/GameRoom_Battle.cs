@@ -162,13 +162,6 @@ public partial class GameRoom
         go.State = statePacket.State;
     }
 
-    public void HandleSetProjectilePath(Player? player, C_SetProjectilePath pathPacket)
-    {
-        if (player == null) return;
-        if (FindGameObjectById(pathPacket.ObjectId) is not Projectile projectile) return;
-        projectile.ClientResponse = pathPacket.Received; // true
-    }
-
     #region Summary
 
     /// <summary>
@@ -209,7 +202,7 @@ public partial class GameRoom
                 if (type is GameObjectType.Monster or GameObjectType.Tower)
                 {
                     Creature cAttacker = (Creature)attacker;
-                    cAttacker.ApplyNormalAttackEffect(target);
+                    cAttacker.ApplyAttackEffect(target);
                 }
                 break;
             
@@ -219,7 +212,7 @@ public partial class GameRoom
                     Creature cAttacker = (Creature)attacker;
                     cAttacker.SetNextState();
                     cAttacker.Mp += cAttacker.MpRecovery;
-                    cAttacker.ApplyNormalAttackEffect(target);
+                    cAttacker.ApplyAttackEffect(target);
                 }
                 // else if (type is GameObjectType.Projectile)
                 // {

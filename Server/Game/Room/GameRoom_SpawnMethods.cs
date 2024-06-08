@@ -300,20 +300,35 @@ public partial class GameRoom
         EnterGame(effect);
     }
     
-    public void SpawnProjectile(ProjectileId projectileId, GameObject parent)
+    public void SpawnProjectile(ProjectileId projectileId, GameObject parent, float speed)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return;
+        if (parent.Target == null) return;
+        
         var projectile = ObjectManager.Instance.CreateProjectile(projectileId);
+        var position = new PositionInfo
+        {   
+            Dir = parent.PosInfo.Dir, 
+            PosX = parent.PosInfo.PosX, 
+            PosY = parent.PosInfo.PosY + parent.Stat.SizeY, 
+            PosZ = parent.PosInfo.PosZ
+        };
+        var targetCopied = FindGameObjectById(parent.Target.Id);
+        var parentCopied = FindGameObjectById(parent.Id);
+        if (targetCopied == null || parentCopied == null) return;
+        
         projectile.Room = this;
-        projectile.PosInfo = parent.PosInfo;
+        projectile.PosInfo = position;
         projectile.Info.PosInfo = projectile.PosInfo;
         projectile.Info.Name = projectileId.ToString();
         projectile.ProjectileId = projectileId;
-        projectile.Target = parent.Target;
-        projectile.Parent = parent;
-        projectile.Attack = parent.TotalAttack;
+        projectile.Target = targetCopied;
+        projectile.Parent = parentCopied;
+        projectile.DestPos = targetCopied.CellPos;
+        projectile.Attack = parentCopied.TotalAttack;
+        projectile.MoveSpeed = speed;
         projectile.Init();
-        EnterGame(projectile);
+        EnterGameProjectile(projectile, projectile.DestPos, speed);
     }
     
     private Sheep EnterSheep(Player player)

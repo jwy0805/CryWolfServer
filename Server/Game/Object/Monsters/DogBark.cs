@@ -67,7 +67,7 @@ public class DogBark : DogPup
         _currentSet = newSet;
     }
    
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         if (_4Hit)
         {
@@ -86,25 +86,22 @@ public class DogBark : DogPup
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
         if (distance > TotalAttackRange)
         {
-            State = State.Moving;
+            State = State.Idle;
+            AttackEnded = true;
             return;
         }
 

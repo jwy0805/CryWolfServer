@@ -35,8 +35,6 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CState, PacketHandler.C_StateHandler);		
 		_onRecv.Add((ushort)MessageId.CSetDest, MakePacket<C_SetDest>);
 		_handler.Add((ushort)MessageId.CSetDest, PacketHandler.C_SetDestHandler);		
-		_onRecv.Add((ushort)MessageId.CSetProjectilePath, MakePacket<C_SetProjectilePath>);
-		_handler.Add((ushort)MessageId.CSetProjectilePath, PacketHandler.C_SetProjectilePathHandler);		
 		_onRecv.Add((ushort)MessageId.CAttack, MakePacket<C_Attack>);
 		_handler.Add((ushort)MessageId.CAttack, PacketHandler.C_AttackHandler);		
 		_onRecv.Add((ushort)MessageId.CMotion, MakePacket<C_Motion>);

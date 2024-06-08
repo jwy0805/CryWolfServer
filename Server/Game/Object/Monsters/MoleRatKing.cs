@@ -93,31 +93,27 @@ public class MoleRatKing : MoleRat
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = Vector3.Distance(targetPos, CellPos);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
             State = GetRandomState(State.Attack, State.Attack2);
             SetDirection();
-            IsAttacking = false;
         }
     }
     
@@ -169,7 +165,7 @@ public class MoleRatKing : MoleRat
         }
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);

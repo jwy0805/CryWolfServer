@@ -56,7 +56,7 @@ public class Werewolf : Wolf
     public override void Init()
     {
         base.Init();
-        AttackImpactTime = 0.5f;
+        AttackImpactMoment = 0.5f;
         SkillImpactTime = 0.3f;
     }
 
@@ -111,10 +111,12 @@ public class Werewolf : Wolf
         };
         Room.Broadcast(packet);
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactTime);
+        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
         long animTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long nextAnimEndTime = StateChanged ? animTime : LastAttackTime - timeNow + animTime;
-        long nextImpactTime = StateChanged ? impactTime : LastAttackTime - timeNow + impactTime;
+        long nextAnim = LastAnimEndTime - timeNow + animTime;
+        long nextImpact = LastAnimEndTime - timeNow + impactTime;
+        long nextAnimEndTime = nextAnim > 0 ? Math.Min(nextAnim, animTime) : animTime;
+        long nextImpactTime = nextImpact > 0 ? Math.Min(nextImpact, impactTime) : impactTime;
         SkillImpactEvents(nextImpactTime);
         EndEvents(nextAnimEndTime);
         IsAttacking = true;
@@ -132,7 +134,7 @@ public class Werewolf : Wolf
             Room.SpawnEffect(EffectId.LightningStrike, this, PosInfo));
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)((Attack - target.Defence) * DrainParam);
@@ -142,31 +144,27 @@ public class Werewolf : Wolf
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
 
-        if (distance <= TotalAttackRange)
+        if (distance > TotalAttackRange)
         {
-            State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
-            SetDirection();
-            IsAttacking = false;
+            State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
-            State = State.Moving;
+            State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
+            SetDirection();
         }
     }
 }

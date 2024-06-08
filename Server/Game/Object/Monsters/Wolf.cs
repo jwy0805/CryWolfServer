@@ -34,9 +34,9 @@ public class Wolf : WolfPup
         }
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
-        base.ApplyNormalAttackEffect(target);
+        base.ApplyAttackEffect(target);
         if (_drain)
         {
             Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);

@@ -56,10 +56,10 @@ public class Tower : Creature, ISkillObserver
         };
         Room.Broadcast(packet);
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactTime);
+        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
         long animTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long nextAnimEndTime = StateChanged ? animTime : LastAttackTime - timeNow + animTime;
-        long nextImpactTime = StateChanged ? impactTime : LastAttackTime - timeNow + impactTime;
+        long nextAnimEndTime = StateChanged ? animTime : LastAnimEndTime - timeNow + animTime;
+        long nextImpactTime = StateChanged ? impactTime : LastAnimEndTime - timeNow + impactTime;
         AttackImpactEvents(nextImpactTime);
         EndEvents(nextAnimEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
         IsAttacking = true;

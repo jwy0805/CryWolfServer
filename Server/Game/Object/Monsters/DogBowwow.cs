@@ -74,7 +74,7 @@ public class DogBowwow : DogBark
         UpdateAttack();
     }
     
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         HitCount++;
         if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
@@ -95,26 +95,22 @@ public class DogBowwow : DogBark
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
-            BroadcastPos();
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
         if (distance > TotalAttackRange)
         {
-            State = State.Moving;
+            State = State.Idle;
+            AttackEnded = true;
             return;
         }
 

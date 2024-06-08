@@ -192,7 +192,7 @@ public class SoulMage : Haunt
         if (Hp <= 0) OnDead(attacker);
     }
 
-    public override void ApplyNormalAttackEffect(GameObject target)
+    public override void ApplyAttackEffect(GameObject target)
     {
         if (_debuffResist == false || !Buffs.Any()) return;
         BuffId buffId = Buffs.OrderBy(_ => Guid.NewGuid()).ToList().First();

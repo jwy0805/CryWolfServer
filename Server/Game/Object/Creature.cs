@@ -14,8 +14,9 @@ public class Creature : GameObject
     protected ProjectileId CurrentProjectile = ProjectileId.BasicProjectile;
     protected bool StateChanged;
     protected bool IsAttacking;
-    protected long LastAttackTime;
-    protected float AttackImpactTime = 0.5f;
+    protected bool AttackEnded = true;
+    protected long LastAnimEndTime;
+    protected float AttackImpactMoment = 0.5f;
     protected float SkillImpactTime = 0.5f;
     protected float SkillImpactTime2 = 0.5f;
     protected const long MpTime = 1000;
@@ -26,11 +27,8 @@ public class Creature : GameObject
         get => PosInfo.State;
         set
         {
-            var preState = PosInfo.State;
             PosInfo.State = value;
-            var attackStates = new List<State> { State.Attack, State.Skill, State.Skill2 };
             BroadcastState();
-            StateChanged = !attackStates.Contains(preState);
         }
     }
 
@@ -38,7 +36,7 @@ public class Creature : GameObject
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
+        Console.WriteLine($"{Room.Stopwatch.ElapsedMilliseconds} / {State}");
         if (MaxMp != 1 && Mp >= MaxMp)
         {
             State = State.Skill;
@@ -100,7 +98,10 @@ public class Creature : GameObject
     protected virtual async void AttackImpactEvents(long impactTime)
     {
         if (Target == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () => ApplyNormalAttackEffect(Target));
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            ApplyAttackEffect(Target);
+        });
     }
 
     protected virtual async void SkillImpactEvents(long impactTime) { }
@@ -112,13 +113,13 @@ public class Creature : GameObject
         await Scheduler.ScheduleEvent(animEndTime, () =>
         {
             if (Room == null) return;
+            LastAnimEndTime = Room.Stopwatch.ElapsedMilliseconds;
             IsAttacking = false;
-            LastAttackTime = Room.Stopwatch.ElapsedMilliseconds;
             SetNextState();
         });
     }
     
-    public virtual void ApplyNormalAttackEffect(GameObject target)
+    public virtual void ApplyAttackEffect(GameObject target)
     {
         if (Room == null) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
@@ -136,31 +137,27 @@ public class Creature : GameObject
     public virtual void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = Vector3.Distance(targetPos, CellPos);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
             State = State.Attack;
             SetDirection();
-            IsAttacking = false;
         }
     }
 
@@ -172,7 +169,6 @@ public class Creature : GameObject
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
             BroadcastHealth();
-            BroadcastPos();
             // 부활 Effect 추가
         }
     }
