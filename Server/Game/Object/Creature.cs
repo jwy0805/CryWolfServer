@@ -17,7 +17,7 @@ public class Creature : GameObject
     protected bool AttackEnded = true;
     protected long LastAnimEndTime;
     protected float AttackImpactMoment = 0.5f;
-    protected float SkillImpactTime = 0.5f;
+    protected float SkillImpactMoment = 0.5f;
     protected float SkillImpactTime2 = 0.5f;
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
@@ -36,7 +36,6 @@ public class Creature : GameObject
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        Console.WriteLine($"{Room.Stopwatch.ElapsedMilliseconds} / {State}");
         if (MaxMp != 1 && Mp >= MaxMp)
         {
             State = State.Skill;
@@ -85,7 +84,35 @@ public class Creature : GameObject
     
     protected virtual void UpdateIdle() { }
     protected virtual void UpdateMoving() { }
-    protected virtual void UpdateAttack() { }
+    
+    protected virtual void UpdateAttack()
+    {
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            return;
+        }
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
+        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
+        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
+        AttackImpactEvents(impactTime);
+        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        AttackEnded = false;
+        IsAttacking = true;
+    }   
+    
     protected virtual void UpdateAttack2() { }
     protected virtual void UpdateSkill() { }
     protected virtual void UpdateSkill2() { }
@@ -179,6 +206,7 @@ public class Creature : GameObject
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (ObjectType is GameObjectType.Tower) Console.WriteLine(Dir);
         BroadcastPos();
     }
 

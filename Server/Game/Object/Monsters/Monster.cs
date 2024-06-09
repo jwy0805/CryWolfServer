@@ -28,14 +28,14 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
 
     protected override void UpdateMoving()
     {   // Targeting
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
@@ -43,7 +43,9 @@ public class Monster : Creature, ISkillObserver
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = Vector3.Distance(DestPos, CellPos);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
@@ -60,33 +62,7 @@ public class Monster : Creature, ISkillObserver
         BroadcastPath();
     }
 
-    protected override void UpdateAttack()
-    {
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            return;
-        }
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        AttackImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
-    }
+
     
     public override void OnDead(GameObject attacker)
     {

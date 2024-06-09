@@ -36,14 +36,14 @@ public class MosquitoBug : Monster
 
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this, _typeList, 2);
+        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
 
     protected override void UpdateMoving()
     { // Targeting
-        Target = Room.FindClosestTarget(this, _typeList, 2); 
+        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;

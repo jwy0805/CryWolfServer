@@ -28,41 +28,19 @@ public class Tower : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {   // Targeting
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        float distance = Vector3.Distance(Target.CellPos, CellPos);
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
         if (distance > AttackRange) return;
         State = State.Attack;
-    }
-
-    protected override void UpdateAttack()
-    {
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            IsAttacking = false;
-            return;
-        }
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
-        long animTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long nextAnimEndTime = StateChanged ? animTime : LastAnimEndTime - timeNow + animTime;
-        long nextImpactTime = StateChanged ? impactTime : LastAnimEndTime - timeNow + impactTime;
-        AttackImpactEvents(nextImpactTime);
-        EndEvents(nextAnimEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        IsAttacking = true;
     }
 
     public override void OnDead(GameObject attacker)

@@ -57,9 +57,9 @@ public class Werewolf : Wolf
     {
         base.Init();
         AttackImpactMoment = 0.5f;
-        SkillImpactTime = 0.3f;
+        SkillImpactMoment = 0.3f;
     }
-
+    
     protected override void UpdateMoving()
     {   // Targeting
         Target = Room.FindClosestTarget(this);
@@ -71,7 +71,9 @@ public class Werewolf : Wolf
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);        
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
