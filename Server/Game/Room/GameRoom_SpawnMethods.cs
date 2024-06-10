@@ -285,25 +285,36 @@ public partial class GameRoom
         return effect;
     }
 
-    public void SpawnEffect(EffectId effectId, GameObject parent, PositionInfo? effectPos = null)
+    public void SpawnEffect(EffectId effectId, GameObject? parent, PositionInfo effectPos)
     {
         if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
+        if (parent == null) return;
+        
         var effect = ObjectManager.Instance.CreateEffect(effectId);
+        var position = new PositionInfo
+        {   
+            Dir = effectPos.Dir, 
+            PosX = effectPos.PosX, 
+            PosY = effectPos.PosY, 
+            PosZ = effectPos.PosZ
+        };
+        var parentCopied = FindGameObjectById(parent.Id);
+        if (parentCopied == null) return;
+        
         effect.Room = this;
-        effect.PosInfo = parent.PosInfo;
-        effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
+        effect.PosInfo = position;
+        effect.Info.PosInfo = effect.PosInfo;
         effect.Info.Name = effectId.ToString();
         effect.EffectId = effectId;
-        effect.Target = parent.Target;
-        effect.Parent = parent;
+        effect.Parent = parentCopied;
         effect.Init();
         EnterGame(effect);
     }
     
-    public void SpawnProjectile(ProjectileId projectileId, GameObject parent, float speed)
+    public void SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return;
-        if (parent.Target == null) return;
+        if (parent?.Target == null) return;
         
         var projectile = ObjectManager.Instance.CreateProjectile(projectileId);
         var position = new PositionInfo

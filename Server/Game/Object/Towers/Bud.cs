@@ -35,11 +35,12 @@ public class Bud : Tower
         if (Target == null || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
+            if (Target == null || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
         });
     }
 
-    public override void ApplyProjectileEffect(GameObject? target)
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
         target?.OnDamaged(this, TotalAttack, Damage.Normal);
     }

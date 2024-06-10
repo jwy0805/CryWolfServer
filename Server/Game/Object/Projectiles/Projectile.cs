@@ -38,7 +38,7 @@ public class Projectile : GameObject
         if (Target == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
-            if (Parent is Creature creature) creature.ApplyProjectileEffect(Target);
+            if (Parent is Creature creature) creature.ApplyProjectileEffect(Target, ProjectileId);
             Room?.Push(Room.LeaveGameOnlyServer, Id);
         });
     }

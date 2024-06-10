@@ -50,10 +50,13 @@ public class DogBowwow : DogBark
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
         if (distance <= TotalAttackRange)
         {
-            if (_smash) State = HitCount == 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
-            else State = HitCount == 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
+            State = State.Attack;
+            SetDirection();
             return;
         }
         // Target이 있으면 이동
@@ -78,6 +81,7 @@ public class DogBowwow : DogBark
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null || Hp <= 0) return;
         HitCount++;
         if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
         {

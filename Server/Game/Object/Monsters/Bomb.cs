@@ -1,3 +1,4 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
@@ -32,6 +33,7 @@ public class Bomb : Monster
     public override void Init()
     {
         base.Init();
+        Player.SkillUpgradedList.Add(Skill.BombBomb);
     }
     
     public override void Update()
@@ -44,46 +46,150 @@ public class Bomb : Monster
             Mp += 5;
         }
 
-        if (_bombSkill && Mp >= MaxMp)
+        switch (State)
         {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
-            Mp = 0;
-        }
-        else
-        {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
         }
     }
 
-    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    // {
-    //     if (pId != ProjectileId.BombSkill) return;
-    //     target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-    // }
+    protected override void UpdateMoving()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {   // Target이 없거나 타겟팅이 불가능한 경우
+            State = State.Idle;
+            return;
+        }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        if (distance <= TotalAttackRange)
+        {
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
+            State = _bombSkill && Mp >= MaxMp ? State.Skill : State.Attack;
+            if (State == State.Skill) Mp = 0;
+            SetDirection();
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
+    }
+    
+    protected override void UpdateSkill()
+    {
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            return;
+        }
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
+        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
+        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
+        SkillImpactEvents(impactTime);
+        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        AttackEnded = false;
+        IsAttacking = true;
+    }
+
+    protected override async void AttackImpactEvents(long impactTime)
+    {
+        if (Target == null || Room == null || Hp <= 0) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Target == null || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BombProjectile, this, 5f);
+        });
+    }
+
+    protected override async void SkillImpactEvents(long impactTime)
+    {
+        if (Target == null || Room == null || Hp <= 0) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Target == null || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BombSkill, this, 5f);
+        });
+    }
+    
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    {
+        if (Room == null || Hp <= 0) return;
+        if (pid == ProjectileId.BombProjectile)
+        {
+            target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        }
+        else
+        {
+            target?.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+        }
+    }
+    
+    public override void SetNextState()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+        
+        State = _bombSkill && Mp >= MaxMp ? State.Skill : State.Attack;
+        if (State == State.Skill) Mp = 0;
+        SetDirection();
+    }
 }

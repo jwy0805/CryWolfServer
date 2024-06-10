@@ -41,7 +41,6 @@ public class PracticeDummy : Tower
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        Console.WriteLine(State.ToString());
 
         switch (State)
         {

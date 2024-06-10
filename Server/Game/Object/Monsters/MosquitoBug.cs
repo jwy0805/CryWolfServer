@@ -57,9 +57,13 @@ public class MosquitoBug : Monster
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        if (distance <= AttackRange)
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        if (distance <= TotalAttackRange)
         {
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = State.Attack;
+            SetDirection();
             return;
         }
         // Target이 있으면 이동
@@ -69,7 +73,7 @@ public class MosquitoBug : Monster
 
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null) return;
+        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);       
         if (target is Sheep _ && _faint)
         {

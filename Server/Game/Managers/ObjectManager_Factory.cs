@@ -77,8 +77,8 @@ public sealed partial class ObjectManager
         { ProjectileId.SmallPoison, new SmallPoisonFactory() },
         { ProjectileId.BigPoison, new BigPoisonFactory() },
         { ProjectileId.SeedProjectile, new SeedProjectileFactory() },
-        { ProjectileId.BlossomSeed, new BlossomSeedFactory() },
         { ProjectileId.BlossomProjectile, new BlossomProjectileFactory() },
+        { ProjectileId.BlossomDeathProjectile, new BlossomDeathProjectileFactory() },
         { ProjectileId.HauntProjectile, new HauntProjectileFactory() },
         { ProjectileId.HauntFire, new HauntFireProjectileFactory() },
         { ProjectileId.SoulMageProjectile, new SoulMageProjectileFactory() },
@@ -480,16 +480,16 @@ public sealed partial class ObjectManager
         public Projectile CreateProjectile() => new SeedProjectile();
     }
     
-    public class BlossomSeedFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BlossomSeed();
-    }
-    
     public class BlossomProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new BlossomProjectile();
     }
     
+    public class BlossomDeathProjectileFactory : IProjectileFactory
+    {
+        public Projectile CreateProjectile() => new BlossomDeathProjectile();
+    }
+
     public class HauntProjectileFactory : IProjectileFactory
     {
         public Projectile CreateProjectile() => new HauntProjectile();

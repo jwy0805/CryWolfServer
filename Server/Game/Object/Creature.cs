@@ -22,6 +22,8 @@ public class Creature : GameObject
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
     
+    public UnitId UnitId { get; set; }
+
     public override State State
     {
         get => PosInfo.State;
@@ -119,14 +121,14 @@ public class Creature : GameObject
     protected virtual void UpdateKnockBack() { }
     protected virtual void UpdateRush() { }
     protected virtual void UpdateDie() { }
-    public virtual void SkillInit() { }
     public virtual void RunSkill() { }
 
     protected virtual async void AttackImpactEvents(long impactTime)
     {
-        if (Target == null) return;
+        if (Target == null || Room == null || Hp <= 0) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
+            if (Target == null || Room == null || Hp <= 0) return;
             ApplyAttackEffect(Target);
         });
     }
@@ -140,22 +142,22 @@ public class Creature : GameObject
         await Scheduler.ScheduleEvent(animEndTime, () =>
         {
             if (Room == null) return;
+            SetNextState();
             LastAnimEndTime = Room.Stopwatch.ElapsedMilliseconds;
             IsAttacking = false;
-            SetNextState();
         });
     }
     
     public virtual void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null) return;
+        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     
     public virtual void ApplyAdditionalAttackEffect(GameObject target) { }
     public virtual void ApplyEffectEffect() { }
 
-    public virtual void ApplyProjectileEffect(GameObject? target)
+    public virtual void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
         target?.OnDamaged(this, TotalAttack, Damage.Normal);
     }
@@ -206,10 +208,34 @@ public class Creature : GameObject
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        if (ObjectType is GameObjectType.Tower) Console.WriteLine(Dir);
         BroadcastPos();
     }
 
+    public virtual void OnSkillUpgrade(Skill skill)
+    {
+        var skillName = skill.ToString();
+        var name = UnitId.ToString();
+        if (skillName.Contains(name) == false) return;
+        NewSkill = skill;
+        SkillList.Add(NewSkill);
+    }
+
+    public virtual void SkillInit()
+    {
+        var skillUpgradedList = Player.SkillUpgradedList;
+        var name = UnitId.ToString();
+        if (skillUpgradedList.Count == 0) return;
+        
+        foreach (var skill in skillUpgradedList)
+        {
+            var skillName = skill.ToString();
+            if (skillName.Contains(name)) SkillList.Add(skill);
+        }
+        
+        if (SkillList.Count == 0) return;
+        foreach (var skill in SkillList) NewSkill = skill;
+    }
+    
     protected virtual State GetRandomState(State state1, State state2)
     {
         return new Random().Next(2) == 0 ? state1 : state2;

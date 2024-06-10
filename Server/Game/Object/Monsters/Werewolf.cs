@@ -6,7 +6,6 @@ namespace Server.Game;
 
 public class Werewolf : Wolf
 {
-    private readonly Random _rnd = new();
     private bool _thunder = false;
     private bool _berserker = false;
     private double _berserkerParam = 0;
@@ -41,7 +40,7 @@ public class Werewolf : Wolf
         set
         {
             Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
-            if (!_berserker) return;
+            if (_berserker == false) return;
             AttackParam -= Attack * (int)_berserkerParam;
             SkillParam -= Stat.Skill * (int)_berserkerParam;
             AttackSpeedParam -= AttackSpeed * (float)_berserkerParam;
@@ -77,10 +76,13 @@ public class Werewolf : Wolf
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
         if (distance <= TotalAttackRange)
         {
-            State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
-            BroadcastPos();
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
+            State = _thunder ? GetRandomState(State.Skill, State.Skill2) : State.Attack;
+            SetDirection();
             return;
         }
         // Target이 있으면 이동
@@ -131,13 +133,17 @@ public class Werewolf : Wolf
     
     protected override async void SkillImpactEvents(long impactTime)
     {
-        if (Target == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () => 
-            Room.SpawnEffect(EffectId.LightningStrike, this, PosInfo));
+        if (Room == null || Hp <= 0 || Target == null) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Room == null || Hp <= 0 || Target == null) return;
+            Room.SpawnEffect(EffectId.LightningStrike, this, PosInfo);
+        });
     }
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)((Attack - target.Defence) * DrainParam);
         BroadcastHealth();
@@ -165,7 +171,7 @@ public class Werewolf : Wolf
         }
         else
         {
-            State = _thunder ? (_rnd.Next(2) == 0 ? State.Skill : State.Skill2) : State.Attack;
+            State = _thunder ? GetRandomState(State.Skill, State.Skill2) : State.Attack;
             SetDirection();
         }
     }

@@ -92,9 +92,7 @@ public partial class GameObject : IGameObject
         int totalDamage;
         if (damageType is Damage.Normal or Damage.Magical)
         {
-            totalDamage = attacker.CriticalChance > 0 
-                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-                : Math.Max(damage - TotalDefence, 0);
+            totalDamage = Math.Max(damage - TotalDefence, 0);
             if (damageType is Damage.Normal && Reflection && reflected == false)
             {
                 int refParam = (int)(totalDamage * ReflectionRate);

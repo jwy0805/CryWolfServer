@@ -331,8 +331,31 @@ public partial class GameRoom
         if (targetList.Count == 0) return new List<GameObject>();
         
         var objectsInDist = targetList
-            .Where(obj => obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType)
-            .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
+            .Where(obj => obj.Stat.Targetable && (targetType == 2 || obj.UnitType == targetType))
+            .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) < dist)
+            .ToList();
+
+        return objectsInDist;
+    }
+
+    #region Summary
+    /// <summary>
+    /// Find multiple targets in the range of dist from specific CellPos
+    /// </summary>
+    /// <param name="cellPos"></param>
+    /// <param name="typeList"></param>
+    /// <param name="dist"></param>
+    /// <param name="targetType"></param>
+    /// <returns>"plural targets in the range."</returns>
+    #endregion
+    public List<GameObject> FindTargets(Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
+    {
+        var targetList = typeList.SelectMany(GetTargets).ToList();
+        if (targetList.Count == 0) return new List<GameObject>();
+        
+        var objectsInDist = targetList
+            .Where(obj => obj.Stat.Targetable && (targetType == 2 || obj.UnitType == targetType))
+            .Where(obj => Vector3.Distance(obj.CellPos, cellPos) < dist)
             .ToList();
 
         return objectsInDist;

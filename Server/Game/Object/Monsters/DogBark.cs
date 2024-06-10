@@ -69,6 +69,8 @@ public class DogBark : DogPup
    
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null || Hp <= 0) return;
+
         if (_4Hit)
         {
             HitCount++;

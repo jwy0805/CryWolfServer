@@ -7,7 +7,6 @@ namespace Server.Game;
 
 public class Monster : Creature, ISkillObserver
 {
-    public UnitId UnitId { get; set; }
     public int StatueId { get; set; }
 
     protected Monster()
@@ -52,46 +51,21 @@ public class Monster : Creature, ISkillObserver
         // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        if (distance <= TotalAttackRange && timeNow < LastAnimEndTime + animPlayTime)
+        if (distance <= TotalAttackRange)
         {
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = State.Attack;
+            SetDirection();
             return;
         }
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
-
-
     
     public override void OnDead(GameObject attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
         base.OnDead(attacker);
-    }
-
-    public virtual void OnSkillUpgrade(Skill skill)
-    {
-        var skillName = skill.ToString();
-        var monsterName = UnitId.ToString();
-        if (skillName.Contains(monsterName) == false) return;
-        NewSkill = skill;
-        SkillList.Add(NewSkill);
-    }
-
-    public override void SkillInit()
-    {
-        var skillUpgradedList = Player.SkillUpgradedList;
-        var monsterName = UnitId.ToString();
-        if (skillUpgradedList.Count == 0) return;
-        
-        foreach (var skill in skillUpgradedList)
-        {
-            var skillName = skill.ToString();
-            if (skillName.Contains(monsterName)) SkillList.Add(skill);
-        }
-        
-        if (SkillList.Count == 0) return;
-        foreach (var skill in SkillList) NewSkill = skill;
     }
 }

@@ -34,15 +34,17 @@ public class Snakelet : Monster
 
     protected override async void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null) return;
+        if (Target == null || Room == null || Hp <= 0) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
+            if (Target == null || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(CurrentProjectile, this, 5f);
         });
     }
     
-    public override void ApplyProjectileEffect(GameObject? target)
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
+        if (Room == null || Hp <= 0) return;
         target?.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 }

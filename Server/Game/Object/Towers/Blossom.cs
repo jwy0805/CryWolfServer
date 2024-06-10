@@ -6,8 +6,8 @@ namespace Server.Game;
 
 public class Blossom : Bloom
 {
-    public bool BlossomDeath = false;
-    public readonly int DeathProb = 3;
+    private bool _blossomDeath = false;
+    private readonly int _deathProb = 3;
     
     protected override Skill NewSkill
     {
@@ -17,30 +17,89 @@ public class Blossom : Bloom
             Skill = value;
             switch (Skill)
             {
-                
+                case Skill.BlossomAttack:
+                    Attack += 10;
+                    break;
+                case Skill.BlossomDeath:
+                    _blossomDeath = true;
+                    break;
             }
         }
     }
-
+    
     protected override void UpdateIdle()
-    {
-        Target = Room?.FindClosestTarget(this);
-        if (Target == null) return;
-
-        StatInfo targetStat = Target.Stat;
-        if (targetStat.Targetable)
-        {
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-            double deltaX = Target.CellPos.X - CellPos.X;
-            double deltaZ = Target.CellPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {
-                State = State.Attack;
-                BroadcastPos();
-            }
-        }
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
+        if (distance > AttackRange) return;
+        State =  State.Attack;
     }
     
+    public override void SetNextState()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+        }
+        else
+        {
+            State = State.Attack;
+            SetDirection();
+        }
+    }
+
+    protected override async void AttackImpactEvents(long impactTime)
+    {
+        if (Target == null || Room == null || Hp <= 0) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Target == null || Room == null || Hp <= 0) return;
+            if (_blossomDeath == false)
+            {
+                Room.SpawnProjectile(ProjectileId.BlossomProjectile, this, 5f);
+            }
+            else
+            {
+                int rndInt = new Random().Next(100);
+                Room.SpawnProjectile(
+                    rndInt < _deathProb ? ProjectileId.BlossomDeathProjectile : ProjectileId.BlossomProjectile,
+                    this, 5f);
+            }
+        });
+    }
     
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    {
+        if (pid == ProjectileId.BlossomProjectile)
+        {
+            target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        }       
+        else
+        {
+            target?.OnDamaged(this, 9999, Damage.True);
+        }
+    }
 }
