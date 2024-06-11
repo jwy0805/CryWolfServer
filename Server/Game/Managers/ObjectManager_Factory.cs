@@ -120,8 +120,12 @@ public sealed partial class ObjectManager
         { EffectId.PurpleBeam, new PurpleBeamFactory() },
         { EffectId.StarFall, new StarFallFactory() },
         { EffectId.HorrorRoll, new HorrorRollFactory()},
-        { EffectId.Upgrade, new EffectFactory() },
-        { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory()},
+        { EffectId.Upgrade, new UpgradeEffectFactory() },
+        { EffectId.SnowBombExplosion, new SnowBombExplosionFactory() },
+        { EffectId.PoisonBombExplosion, new PoisonBombExplosionFactory() },
+        { EffectId.BombSkillExplosion, new BombSkillExplosionFactory() },
+        { EffectId.PoisonBombSkillExplosion, new PoisonBombSkillExplosionFactory() },
+        { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory() },
         { EffectId.SkeletonGiantSkill, new SkeletonGiantSkill() },
         { EffectId.SkeletonGiantRevive, new SkeletonGiantRevive() }
     };
@@ -675,9 +679,29 @@ public sealed partial class ObjectManager
         public Effect CreateEffect() => new HorrorRoll();
     }
     
-    public class EffectFactory : IEffectFactory
+    public class UpgradeEffectFactory : IEffectFactory
     {
-        public Effect CreateEffect() => new Upgrade();
+        public Effect CreateEffect() => new UpgradeEffect();
+    }
+    
+    public class SnowBombExplosionFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new SnowBombExplosion();
+    }
+    
+    public class PoisonBombExplosionFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new PoisonBombExplosion();
+    }
+    
+    public class BombSkillExplosionFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new BombSkillExplosion();
+    }
+
+    public class PoisonBombSkillExplosionFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new PoisonBombSkillExplosion();
     }
     
     public class SkeletonGiantEffectFactory : IEffectFactory

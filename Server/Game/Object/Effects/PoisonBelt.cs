@@ -24,9 +24,4 @@ public class PoisonBelt : Effect
         
         base.SetEffectEffect();
     }
-    
-    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
-    {
-        return parent.PosInfo;
-    }
 }

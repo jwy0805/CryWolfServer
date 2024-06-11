@@ -166,9 +166,9 @@ public class GameData
         { UnitId.Bomb, new HashSet<Skill> 
             { Skill.BombAttack, Skill.BombBomb, Skill.BombHealth } },
         { UnitId.SnowBomb, new HashSet<Skill> 
-            { Skill.SnowBombAdjacentDamage, Skill.SnowBombAreaAttack, Skill.SnowBombBurn, Skill.SnowBombFireResist } },
+            { Skill.SnowBombFrostbite, Skill.SnowBombAreaAttack, Skill.SnowBombFrostArmor, Skill.SnowBombFireResist } },
         { UnitId.PoisonBomb, new HashSet<Skill> 
-            { Skill.PoisonBombPoison, Skill.PoisonBombDoubleBomb, Skill.PoisonBombAdjacentRecoverMp } },
+            { Skill.PoisonBombBombRange, Skill.PoisonBombSelfDestruct, Skill.PoisonBombExplosionMpDown, Skill.PoisonBombPoisonPowerUp } },
         { UnitId.Cacti, new HashSet<Skill> 
             { Skill.CactiDefence, Skill.CactiDefence2, Skill.CactiHealth, Skill.CactiHealth2 } },
         { UnitId.Cactus, new HashSet<Skill> 
@@ -331,11 +331,12 @@ public class GameData
         { Skill.BombBomb, new HashSet<Skill> { Skill.BombAttack } },
         { Skill.SnowBombFireResist, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnowBombAreaAttack, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.SnowBombBurn, new HashSet<Skill> { Skill.SnowBombFireResist, Skill.SnowBombAreaAttack } },
-        { Skill.SnowBombAdjacentDamage, new HashSet<Skill> { Skill.SnowBombBurn } },
-        { Skill.PoisonBombPoison, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.PoisonBombAdjacentRecoverMp, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.PoisonBombDoubleBomb, new HashSet<Skill> { Skill.PoisonBombPoison, Skill.PoisonBombAdjacentRecoverMp } },
+        { Skill.SnowBombFrostbite, new HashSet<Skill> { Skill.SnowBombFireResist, Skill.SnowBombAreaAttack } },
+        { Skill.SnowBombFrostArmor, new HashSet<Skill> { Skill.SnowBombFrostbite } },
+        { Skill.PoisonBombBombRange, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.PoisonBombSelfDestruct, new HashSet<Skill> { Skill.PoisonBombBombRange } },
+        { Skill.PoisonBombPoisonPowerUp, new HashSet<Skill> { Skill.PoisonBombSelfDestruct } },
+        { Skill.PoisonBombExplosionMpDown, new HashSet<Skill> { Skill.PoisonBombPoisonPowerUp } },
         { Skill.CactiHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.CactiHealth2, new HashSet<Skill> { Skill.CactiHealth } },
         { Skill.CactiDefence, new HashSet<Skill> { Skill.NoSkill } },

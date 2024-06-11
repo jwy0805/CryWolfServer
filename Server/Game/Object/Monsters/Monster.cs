@@ -62,8 +62,8 @@ public class Monster : Creature, ISkillObserver
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
-    
-    public override void OnDead(GameObject attacker)
+
+    protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
         base.OnDead(attacker);

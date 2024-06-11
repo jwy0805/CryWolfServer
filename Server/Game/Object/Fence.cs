@@ -20,7 +20,7 @@ public class Fence : GameObject
         Stat.Hp = fenceData.stat.MaxHp;
     }
 
-    public override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject attacker)
     {
         if (Room == null) return;
         Targetable = false;
@@ -38,7 +38,7 @@ public class Fence : GameObject
             attacker.Target = null;
         }
         
-        S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new S_Die { ObjectId = Id };
         Room.Broadcast(diePacket);
 
         GameRoom room = Room;

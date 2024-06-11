@@ -18,7 +18,7 @@ public class Wolf : WolfPup
                 case Skill.WolfHealth:
                     MaxHp += 80;
                     Hp += 80;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.WolfMoreDna:
                     break;
@@ -42,7 +42,7 @@ public class Wolf : WolfPup
         if (_drain)
         {
             Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
-            BroadcastHealth();
+            BroadcastHp();
         }
         
         // TODO : DNA

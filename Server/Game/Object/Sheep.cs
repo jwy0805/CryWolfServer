@@ -161,8 +161,8 @@ public class Sheep : Creature, ISkillObserver
             foreach (var skill in SkillList) NewSkill = skill;
         }
     }
-    
-    public override void OnDead(GameObject attacker)
+
+    protected override void OnDead(GameObject attacker)
     {
         Room!.GameInfo.SheepCount--;
         base.OnDead(attacker);

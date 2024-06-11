@@ -118,12 +118,12 @@ public class SkeletonMage : SkeletonGiant
             State = State.Idle;
             Hp += (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             BroadcastPos();
         }
     }
-    
-    public override void OnDead(GameObject attacker)
+
+    protected override void OnDead(GameObject attacker)
     {
         if (Room == null) return;
         attacker.KillLog = Id;
@@ -146,7 +146,7 @@ public class SkeletonMage : SkeletonGiant
         }
         
         if (AlreadyRevived == false) return;
-        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new() { ObjectId = Id};
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
     }

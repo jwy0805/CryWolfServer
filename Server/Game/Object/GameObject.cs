@@ -84,7 +84,7 @@ public partial class GameObject : IGameObject
         Hp = MaxHp;
     }
     
-    public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    public virtual void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
@@ -95,8 +95,11 @@ public partial class GameObject : IGameObject
             totalDamage = Math.Max(damage - TotalDefence, 0);
             if (damageType is Damage.Normal && Reflection && reflected == false)
             {
-                int refParam = (int)(totalDamage * ReflectionRate);
-                attacker.OnDamaged(this, refParam, damageType, true);
+                if (attacker != null)
+                {
+                    int refParam = (int)(totalDamage * ReflectionRate);
+                    attacker.OnDamaged(this, refParam, damageType, true);
+                }
             }
         }
         else
@@ -110,35 +113,32 @@ public partial class GameObject : IGameObject
         if (Hp <= 0) OnDead(attacker);
     }
 
-    public virtual void OnDead(GameObject attacker)
+    protected virtual void OnDead(GameObject? attacker)
     {
         if (Room == null) return;
-        attacker.KillLog = Id;
+        
         Targetable = false;
-        if (attacker.Target != null)
+        if (attacker != null)
         {
-            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
             {
-                if (attacker.Parent != null)
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
                 {
-                    attacker.Parent.Target = null;
-                    attacker.State = State.Idle;
-                    // BroadcastPos();
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
                 }
+                attacker.Target = null;
             }
-            attacker.Target = null;
-            attacker.State = State.Idle;
-            // BroadcastPos();
         }
         
         if (AlreadyRevived == false && WillRevive)
         {
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, AttackerId = attacker.Id, Revive = true};
+            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true};
             Room.Broadcast(dieAndRevivePacket);
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new() { ObjectId = Id };
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
     }
@@ -149,38 +149,32 @@ public partial class GameObject : IGameObject
         Room?.Broadcast(movePacket);
     }
 
-    public virtual void BroadcastState()
+    protected virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State});
     }
 
     protected virtual void BroadcastPath()
     {
-        if (Path.Count == 0 || Path.Count != Atan.Count) return;
-        
+        if (Path.Count == 0) return;
         var pathPacket = new S_SetPath { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         for (var i = 0; i < Path.Count; i++)
         {
             pathPacket.Path.Add(new DestVector { X = Path[i].X, Y = Path[i].Y, Z = Path[i].Z });
-            pathPacket.Dir.Add(Atan[i]);
+            pathPacket.Dir.Add(Path.Count == Atan.Count ? Atan[i] : Dir);
         }
         
         Room?.Broadcast(pathPacket);
-    }
+    }   
     
-    public virtual void BroadcastHealth() 
+    public virtual void BroadcastHp() 
     {
-        S_ChangeMaxHp maxHpPacket = new S_ChangeMaxHp { ObjectId = Id, MaxHp = MaxHp };
-        S_ChangeHp hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp };
-        Room?.Broadcast(maxHpPacket);
+        var hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp};
         Room?.Broadcast(hpPacket);
     }
-    
-    public virtual void ApplyMap(Vector3 posInfo)
+
+    public virtual void BroadcastMp()
     {
-        if (Room == null) return;
-        bool canGo = Room.Map.ApplyMap(this, posInfo);
-        if (!canGo) State = State.Idle;
-        BroadcastPos();
+        var mpPacket = new S_ChangeMp { ObjectId = Id, Mp = Mp, MaxMp = MaxMp};
     }
 }

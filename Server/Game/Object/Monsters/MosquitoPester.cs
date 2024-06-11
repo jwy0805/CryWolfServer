@@ -33,7 +33,7 @@ public class MosquitoPester : MosquitoBug
                 case Skill.MosquitoPesterHealth:
                     MaxHp += 30;
                     Hp += 30;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
             }
         }
@@ -55,10 +55,9 @@ public class MosquitoPester : MosquitoBug
         });
     }
 
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        if (Room == null || Hp <= 0) return;
-        target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (CurrentProjectile == ProjectileId.MosquitoPesterProjectile)
         {

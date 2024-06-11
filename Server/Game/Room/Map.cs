@@ -7,7 +7,7 @@ namespace Server.Game;
 public partial class Map
 {
     private readonly short _cellCnt = 4;
-    public bool ApplyMap(GameObject gameObject, Vector3 pos = new())
+    public bool ApplyMap(GameObject gameObject, Vector3 pos = new(), bool checkObjects = true)
     {
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
@@ -18,7 +18,7 @@ public partial class Map
         
         if (gameObject.ObjectType != GameObjectType.Fence)
         {
-            bool canGo = CanGo(gameObject, v, true, gameObject.Stat.SizeX);
+            bool canGo = CanGo(gameObject, v, checkObjects, gameObject.Stat.SizeX);
             if (canGo == false)
             {
                 gameObject.BroadcastPos();
@@ -210,8 +210,8 @@ public partial class Map
         List<Vector2Int> center = new List<Vector2Int>();
         foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
         List<double> arctan = new List<double>();
-        Vector2Int destCellVec = regionPath.Count <= 1 ? destCell : center[1];
-        List<Vector3> path = FindPath(go, startCell, destCellVec, checkObjects).Distinct().ToList();
+        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
+        List<Vector3> path = FindPath(go, startCell, destCellVector, checkObjects).Distinct().ToList();
         // if (path.Count == 0) return (new List<Vector3>(), new List<double>());
         // Dir(유닛이 어느 방향을 쳐다보는지) 추출
         for (int i = 0; i < path.Count - 1; i++)
@@ -247,6 +247,50 @@ public partial class Map
         List<Vector3> pathRes = path.GetRange(0, indexRes);
         List<double> arcRes = arctan.GetRange(0, indexRes);
         return (pathRes, arcRes);
+    }
+
+    public List<Vector3> MoveIgnoreCollision(GameObject go)
+    {
+        Vector2Int startCell = Vector3To2(go.CellPos);
+        Vector2Int destCell = Vector3To2(go.DestPos);
+        if (CanGo(go, destCell, false) == false)
+        {
+            Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
+            destCell = newDestCell;
+        }
+        
+        int startRegionId = GetRegionByVector(startCell);
+        int destRegionId = GetRegionByVector(destCell);
+        List<int> regionPath = RegionPath(startRegionId, destRegionId);
+        // Path 추출
+        List<Vector2Int> center = new List<Vector2Int>();
+        foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
+        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
+        List<Vector3> path = FindPath(go, startCell, destCellVector, false).Distinct().ToList();
+        
+        int moveTick = (int)(go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
+        int index = 0;
+        while (moveTick >= 100 && index < path.Count - 1)
+        {
+            double xDiff = path[index + 1].X - path[index].X;
+            double zDiff = path[index + 1].Z - path[index].Z;
+            int cost = (xDiff == 0 || zDiff == 0) ? 100 : 140;
+
+            if (moveTick >= cost)
+            {
+                moveTick -= cost;
+                index++;
+            }
+            else break;
+        }
+
+        go.DistRemainder = moveTick;
+        index = Math.Min(index, path.Count - 1);
+        ApplyMap(go, path[index]);
+
+        int indexRes = Math.Min(index * 8, path.Count);
+        List<Vector3> pathRes = path.GetRange(0, indexRes);
+        return pathRes;
     }
 
     public List<Vector3> ProjectileMove(Projectile p)

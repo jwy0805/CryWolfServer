@@ -15,12 +15,12 @@ public class Cacti : Monster
                 case Skill.CactiHealth:
                     MaxHp += 30;
                     Hp += 30;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.CactiHealth2:
                     Hp += 50;
                     MaxHp += 50;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.CactiDefence:
                     Defence += 2;

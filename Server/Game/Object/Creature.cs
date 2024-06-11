@@ -18,7 +18,7 @@ public class Creature : GameObject
     protected long LastAnimEndTime;
     protected float AttackImpactMoment = 0.5f;
     protected float SkillImpactMoment = 0.5f;
-    protected float SkillImpactTime2 = 0.5f;
+    protected float SkillImpactMoment2 = 0.5f;
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
     
@@ -141,7 +141,7 @@ public class Creature : GameObject
     {
         await Scheduler.ScheduleEvent(animEndTime, () =>
         {
-            if (Room == null) return;
+            if (Room == null || Hp <= 0) return;
             SetNextState();
             LastAnimEndTime = Room.Stopwatch.ElapsedMilliseconds;
             IsAttacking = false;
@@ -157,9 +157,9 @@ public class Creature : GameObject
     public virtual void ApplyAdditionalAttackEffect(GameObject target) { }
     public virtual void ApplyEffectEffect() { }
 
-    public virtual void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public virtual void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     public virtual void ApplyAdditionalProjectileEffect(GameObject target) { }
 
@@ -197,7 +197,7 @@ public class Creature : GameObject
             State = State.Idle;
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             // 부활 Effect 추가
         }
     }

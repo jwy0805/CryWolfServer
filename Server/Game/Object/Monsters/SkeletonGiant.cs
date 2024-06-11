@@ -175,12 +175,12 @@ public class SkeletonGiant : Skeleton
             State = State.Idle;
             Hp += (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             BroadcastPos();
         }
     }
 
-    public override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject attacker)
     {
         if (Room == null) return;
         attacker.KillLog = Id;
@@ -204,12 +204,12 @@ public class SkeletonGiant : Skeleton
         
         if (AlreadyRevived == false && _reviveSelf)
         {
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, AttackerId = attacker.Id, Revive = true};
+            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true};
             Room.Broadcast(dieAndRevivePacket);
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new() { ObjectId = Id};
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
     }

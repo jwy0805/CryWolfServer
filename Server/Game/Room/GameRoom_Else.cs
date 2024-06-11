@@ -73,7 +73,7 @@ public partial class GameRoom
     {   // 어그로 끌린 상태면 리턴
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
 
-        var targetTypeList = GetTargetType(gameObject);
+        var targetTypeList = GetTargetType(gameObject, ReachableInFence(gameObject));
         var targetList = new List<GameObject>();
         foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
 
@@ -90,22 +90,23 @@ public partial class GameRoom
         return MeasureShortestDist(gameObject, targetList, attackType);
     }
 
-    public GameObject? FindRandomTarget(GameObject gameObject, float dist, int attackType = 0)
+    public GameObject? FindRandomTarget(GameObject gameObject, float dist, int attackType = 0, bool? reachableInFence = null)
     {   
-        var targetTypeList = GetTargetType(gameObject);
+        var targetTypeList = GetTargetType(gameObject, reachableInFence);
         var targetList = new List<GameObject>();
         foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
 
         return GetRandomTarget(gameObject, targetList, dist, attackType);
     }
     
-    private List<GameObjectType> GetTargetType(GameObject gameObject)
+    private List<GameObjectType> GetTargetType(GameObject gameObject, bool? reachableInFence = null)
     {
         List<GameObjectType> targetTypeList = new();
+        reachableInFence ??= ReachableInFence(gameObject);
         switch (gameObject.ObjectType)
         {
             case GameObjectType.Monster:
-                if (ReachableInFence(gameObject))
+                if ((bool)reachableInFence)
                 {
                     targetTypeList = new List<GameObjectType> 
                         { GameObjectType.Tower, GameObjectType.Sheep };
@@ -167,7 +168,7 @@ public partial class GameRoom
 
         foreach (var target in targets)
         {
-            if (target.Stat.Targetable == false || target.Id == gameObject.Id
+            if (target.Targetable == false || target.Id == gameObject.Id
                 || (target.UnitType != attackType && attackType != 2)) continue;
             var pos = target.PosInfo;
             var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
@@ -185,7 +186,7 @@ public partial class GameRoom
         List<GameObject> targetList = new();
         foreach (var target in targets)
         {
-            if (target.Stat.Targetable == false || target.UnitType != attackType
+            if (target.Targetable == false || target.UnitType != attackType
                 || target.Id == gameObject.Id && attackType != 2) continue;
             var pos = target.PosInfo;
             var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);

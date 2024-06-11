@@ -124,7 +124,7 @@ public class MoleRatKing : MoleRat
             State = State.Idle;
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             // 부활 Effect 추가
         }
         

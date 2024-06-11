@@ -18,15 +18,15 @@ public class Meteor : Effect
         base.SetEffectEffect();
     }
     
-    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
-    {
-        if (Room == null) return parent.PosInfo;
-        List<GameObjectType> typeList = new() { GameObjectType.Tower };
-        List<GameObjectType> targetList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
-        GameObject? target = Room.FindTargetWithManyFriends(typeList, targetList, this, _meteorRad);
-
-        if (target != null) return target.PosInfo;
-        Vector3 v = GameData.Center;
-        return new PositionInfo { PosX = v.X, PosY = v.Y, PosZ = v.Z };
-    }
+    // public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
+    // {
+    //     if (Room == null) return parent.PosInfo;
+    //     List<GameObjectType> typeList = new() { GameObjectType.Tower };
+    //     List<GameObjectType> targetList = new() { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
+    //     GameObject? target = Room.FindTargetWithManyFriends(typeList, targetList, this, _meteorRad);
+    //
+    //     if (target != null) return target.PosInfo;
+    //     Vector3 v = GameData.Center;
+    //     return new PositionInfo { PosX = v.X, PosY = v.Y, PosZ = v.Z };
+    // }
 }

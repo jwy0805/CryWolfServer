@@ -5,14 +5,13 @@ namespace Server.Game;
 
 public class SnowBomb : Bomb
 {
-    private bool _areaAttack = false;
-    private bool _burn = false;
-    private bool _adjacentDamage = false;
-    private int _readyToExplode = 0;
+    private bool _areaAttack;
+    private bool _frostbite;
+    private bool _frostArmor;
 
-    protected float ExplosionAnimTime;
-    protected readonly float ExplosionRange = 1.5f;
-    protected GameObject Attacker;
+    protected float ExplosionRange = 1.5f;
+    protected float AttackDecreaseParam = 0.1f;
+    protected GameObject? Attacker;
     
     protected override Skill NewSkill
     {
@@ -28,11 +27,11 @@ public class SnowBomb : Bomb
                 case Skill.SnowBombAreaAttack:
                     _areaAttack = true;
                     break;
-                case Skill.SnowBombBurn:
-                    _burn = true;
+                case Skill.SnowBombFrostbite:
+                    _frostbite = true;
                     break;
-                case Skill.SnowBombAdjacentDamage:
-                    _adjacentDamage = true;
+                case Skill.SnowBombFrostArmor:
+                    _frostArmor = true;
                     break;
             }
         }
@@ -41,47 +40,9 @@ public class SnowBomb : Bomb
     public override void Init()
     {
         base.Init();
+        SkillImpactMoment2 = 1.0f;
         Player.SkillUpgradedList.Add(Skill.SnowBombAreaAttack);
-    }
-
-    public override void Update()
-    {
-        if (Room == null) return;
-        Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
-        {
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Mp += 15;
-        }
-
-        switch (State)
-        {
-            case State.Die:
-                UpdateDie();
-                break;
-            case State.Moving:
-                UpdateMoving();
-                break;
-            case State.Idle:
-                UpdateIdle();
-                break;
-            case State.Attack:
-                UpdateAttack();
-                break;
-            case State.Skill:
-                UpdateSkill();
-                break;
-            case State.KnockBack:
-                UpdateKnockBack();
-                break;
-            case State.Explode:
-                UpdateExplode();
-                break;
-            case State.Faint:
-                break;
-            case State.Standby:
-                break;
-        }
+        Player.SkillUpgradedList.Add(Skill.SnowBombFrostArmor);
     }
 
     protected override void UpdateMoving()
@@ -116,12 +77,6 @@ public class SnowBomb : Bomb
         BroadcastPath();
     }
 
-    
-    protected virtual void UpdateExplode()
-    {
-        
-    }
-
     protected override async void SkillImpactEvents(long impactTime)
     {
         if (Target == null || Room == null || Hp <= 0) return;
@@ -132,20 +87,29 @@ public class SnowBomb : Bomb
         });
     }
 
+    protected virtual async void ExplodeEvents(long impactTime)
+    {
+        if (Room == null) return;
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            ApplyEffectEffect();
+            OnDead(Attacker);
+        });
+    }
+
     public override void ApplyEffectEffect()
     {
-        var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+        Room.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
+        var targetList = new[] { GameObjectType.Monster };
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
         {
-            gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            if (!_burn) continue;
-            BuffManager.Instance.AddBuff(BuffId.Burn, gameObject, this, 0, 5000);
-            OnExplode(Attacker);
+            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, gameObject, this, 3, 5000);
         }
     }
 
-    public virtual void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
     {
         if (Room == null || Hp <= 0) return;
         if (pid == ProjectileId.BombProjectile)
@@ -162,7 +126,10 @@ public class SnowBomb : Bomb
                 var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);
                 foreach (var gameObject in gameObjects)
                 {
-                    gameObject.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+                    gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+                    if (_frostbite == false) continue;
+                    BuffManager.Instance.AddBuff(
+                        BuffId.AttackSpeedDecrease, gameObject, this, AttackDecreaseParam, 5000);
                 }
             }
             else
@@ -199,22 +166,7 @@ public class SnowBomb : Bomb
         SetDirection();
     }
 
-    public override void SetNextState(State state)
-    {
-        base.SetNextState(state);
-        
-        if (state == State.GoingToExplode && _readyToExplode > 2)
-        {
-            State = State.Explode;
-            BroadcastPos();
-        }
-        else
-        {
-            _readyToExplode++;
-        }
-    }
-
-    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
@@ -222,13 +174,14 @@ public class SnowBomb : Bomb
         int totalDamage;
         if (damageType is Damage.Normal or Damage.Magical)
         {
-            totalDamage = attacker.CriticalChance > 0 
-                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-                : Math.Max(damage - TotalDefence, 0);
+            totalDamage = Math.Max(damage - TotalDefence, 0);
             if (damageType is Damage.Normal && Reflection && reflected == false)
             {
-                int refParam = (int)(totalDamage * ReflectionRate);
-                attacker.OnDamaged(this, refParam, damageType, true);
+                if (attacker != null)
+                {
+                    int refParam = (int)(totalDamage * ReflectionRate);
+                    attacker.OnDamaged(this, refParam, damageType, true);
+                }
             }
         }
         else
@@ -240,39 +193,13 @@ public class SnowBomb : Bomb
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         if (Hp > 0) return;
-        if (_adjacentDamage) OnGoingToExplode(attacker);
-        else OnDead(attacker);
-    }
-
-    protected virtual void OnGoingToExplode(GameObject attacker)
-    {
-        if (Room == null) return;
-        Targetable = false;
-        Attacker = attacker;
-        if (attacker.Target != null)
+        if (_frostArmor)
         {
-            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-            {
-                if (attacker.Parent != null)
-                {
-                    attacker.Parent.Target = null;
-                    attacker.State = State.Idle;
-                    BroadcastPos();
-                }
-            }
-            attacker.Target = null;
-            attacker.State = State.Idle;
-            BroadcastPos();
+            Targetable = false;
+            State = State.Explode;
+            Attacker = attacker;
+            ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
         }
-
-        State = State.GoingToExplode;
-        BroadcastPos();
-    }
-
-    public virtual void OnExplode(GameObject attacker)
-    {
-        S_Die diePacket = new() { ObjectId = Id, AttackerId = attacker.Id };
-        Room.Broadcast(diePacket);
-        Room.DieAndLeave(Id);
+        else OnDead(attacker);
     }
 }

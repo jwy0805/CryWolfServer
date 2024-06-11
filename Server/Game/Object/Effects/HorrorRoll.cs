@@ -12,9 +12,4 @@ public class HorrorRoll : Effect
         foreach (var t in targets) t.OnDamaged(Parent, Parent.SkillDamage, Damage.Poison);
         base.SetEffectEffect();
     }
-    
-    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
-    {
-        return parent.PosInfo;
-    }
 }

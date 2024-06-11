@@ -76,14 +76,14 @@ public partial class GameRoom
     
     public void HandleMove(Player? player, C_Move movePacket)
     {
-        if (player == null) return;
-        GameObject? go = FindGameObjectById(movePacket.ObjectId);
-        if (go == null) return;
-        
-        Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
-        Vector3 cellPos = Util.Util.NearestCell(v);
-        if (go.ObjectType == GameObjectType.Player) go.CellPos = cellPos;
-        else go.ApplyMap(cellPos);
+        // if (player == null) return;
+        // GameObject? go = FindGameObjectById(movePacket.ObjectId);
+        // if (go == null) return;
+        //
+        // Vector3 v = new Vector3(movePacket.PosX, movePacket.PosY, movePacket.PosZ);
+        // Vector3 cellPos = Util.Util.NearestCell(v);
+        // if (go.ObjectType == GameObjectType.Player) go.CellPos = cellPos;
+        // else go.ApplyMap(cellPos);
     }
     
     public void HandleSpawn(Player? player, C_Spawn spawnPacket) // 클라이언트의 요청으로 Spawn되는 경우

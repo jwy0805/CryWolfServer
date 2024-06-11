@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class Upgrade : Effect
+public class UpgradeEffect : Effect
 {
     public override void Init()
     {

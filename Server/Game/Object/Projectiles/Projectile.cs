@@ -17,7 +17,7 @@ public class Projectile : GameObject
     public override void Init()
     {
         if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false)
         {
             Room.Push(Room.LeaveGame, Id);
             return;
@@ -35,9 +35,10 @@ public class Projectile : GameObject
 
     protected virtual async void AttackImpactTime(long impactTime)
     {
-        if (Target == null) return;
+        if (Target == null || Target.Targetable == false || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
+            if (Target == null || Target.Targetable == false || Room == null) return;
             if (Parent is Creature creature) creature.ApplyProjectileEffect(Target, ProjectileId);
             Room?.Push(Room.LeaveGameOnlyServer, Id);
         });

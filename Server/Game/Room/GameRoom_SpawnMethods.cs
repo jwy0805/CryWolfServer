@@ -276,7 +276,7 @@ public partial class GameRoom
     {
         var effect = ObjectManager.Instance.CreateEffect(effectId);
         effect.PosInfo = parent.PosInfo;
-        effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
+        // effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
         effect.Info.Name = effectId.ToString();
         effect.Parent = parent;
         effect.Target = parent.Target;

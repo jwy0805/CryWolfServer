@@ -42,9 +42,8 @@ public class Snakelet : Monster
         });
     }
     
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        if (Room == null || Hp <= 0) return;
-        target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 }

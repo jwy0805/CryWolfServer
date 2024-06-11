@@ -93,10 +93,9 @@ public class MosquitoStinger : MosquitoPester
         sheep.OnDamaged(this, 9999, Damage.True);
     }
     
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        if (Room == null || Hp <= 0) return;
-        target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (target is Creature _)
         {

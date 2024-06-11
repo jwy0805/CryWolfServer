@@ -146,7 +146,7 @@ public class Werewolf : Wolf
         if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)((Attack - target.Defence) * DrainParam);
-        BroadcastHealth();
+        BroadcastHp();
     }
     
     public override void SetNextState()

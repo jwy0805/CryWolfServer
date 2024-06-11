@@ -15,7 +15,7 @@ public class Bunny : Tower
                 case Skill.BunnyHealth:
                     MaxHp += 20;
                     Hp += 20;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.BunnyEvasion:
                     Evasion += 5;

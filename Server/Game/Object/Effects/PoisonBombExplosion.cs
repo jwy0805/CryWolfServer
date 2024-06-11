@@ -4,9 +4,5 @@ namespace Server.Game;
 
 public class PoisonBombExplosion : Effect
 {
-    protected override void SetEffectEffect()
-    {
-        if (Parent is SnowBomb snowBomb) snowBomb.ApplyEffectEffect();
-        base.SetEffectEffect();
-    }
+    
 }

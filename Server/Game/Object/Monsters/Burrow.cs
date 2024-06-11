@@ -22,7 +22,7 @@ public class Burrow : Monster
                 case Skill.BurrowHealth:
                     MaxHp += 30;
                     Hp += 30;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.BurrowDefence:
                     Defence += 2;
@@ -173,7 +173,7 @@ public class Burrow : Monster
             State = State.Idle;
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             // 부활 Effect 추가
         }
         

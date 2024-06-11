@@ -15,8 +15,8 @@ public class Pumpkin : Tower
         Time = Room.Stopwatch.ElapsedMilliseconds;
         Hp = MaxHp;
     }
-    
-    public override void OnDead(GameObject attacker)
+
+    protected override void OnDead(GameObject attacker)
     {
         if (Room == null) return;
         Targetable = false;
@@ -30,7 +30,7 @@ public class Pumpkin : Tower
             attacker.Target = null;
         }
         
-        S_Die diePacket = new S_Die { ObjectId = Id, AttackerId = attacker.Id };
+        S_Die diePacket = new S_Die { ObjectId = Id };
         Room.Broadcast(diePacket);
 
         GameRoom room = Room;

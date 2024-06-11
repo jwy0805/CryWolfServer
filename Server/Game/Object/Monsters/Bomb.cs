@@ -18,7 +18,7 @@ public class Bomb : Monster
                 case Skill.BombHealth:
                     MaxHp += 25;
                     Hp += 25;
-                    BroadcastHealth();
+                    BroadcastHp();
                     break;
                 case Skill.BombAttack:
                     Attack += 4;
@@ -65,6 +65,9 @@ public class Bomb : Monster
                 break;
             case State.KnockBack:
                 UpdateKnockBack();
+                break;
+            case State.Rush:
+                UpdateRush();
                 break;
             case State.Faint:
                 break;
@@ -153,7 +156,7 @@ public class Bomb : Monster
         });
     }
     
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public virtual void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
     {
         if (Room == null || Hp <= 0) return;
         if (pid == ProjectileId.BombProjectile)
@@ -162,6 +165,7 @@ public class Bomb : Monster
         }
         else
         {
+            Room.SpawnEffect(EffectId.BombSkillExplosion, this, posInfo);
             target?.OnDamaged(this, TotalSkillDamage, Damage.Magical);
         }
     }

@@ -40,8 +40,8 @@ public class Bud : Tower
         });
     }
 
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target?.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 }

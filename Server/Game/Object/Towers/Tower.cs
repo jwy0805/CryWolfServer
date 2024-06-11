@@ -43,7 +43,7 @@ public class Tower : Creature, ISkillObserver
         SetDirection();
     }
 
-    public override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
         base.OnDead(attacker);

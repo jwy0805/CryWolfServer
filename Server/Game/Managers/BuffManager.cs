@@ -198,13 +198,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.Attack += _factor;
+            Master.AttackParam += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.Attack -= _factor;
+            Master.AttackParam -= _factor;
         }
     }
 
@@ -231,13 +231,13 @@ public sealed partial class BuffManager
         
         public override void TriggerBuff()
         {
-            Master.AttackSpeed += _factor;
+            Master.AttackSpeedParam += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.AttackSpeed -= _factor;
+            Master.AttackSpeedParam -= _factor;
         }
     }
 
@@ -265,14 +265,14 @@ public sealed partial class BuffManager
         {
             Master.MaxHp += _factor;
             Master.Hp += _factor;
-            Master.BroadcastHealth();
+            Master.BroadcastHp();
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.MaxHp -= _factor;
-            Master.BroadcastHealth();
+            Master.BroadcastHp();
             if (Master.Hp > Master.MaxHp) Master.Hp = Master.MaxHp;
         }
     }
@@ -299,13 +299,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.Defence += _factor;
+            Master.DefenceParam += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.Defence -= _factor;
+            Master.DefenceParam -= _factor;
         }
     }
 
@@ -358,13 +358,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.MoveSpeed += _factor;
+            Master.MoveSpeedParam += _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.MoveSpeed -= _factor;
+            Master.MoveSpeedParam -= _factor;
         }
     }
 
@@ -390,13 +390,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.Attack -= _factor;
+            Master.AttackParam -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.Attack += _factor;
+            Master.AttackParam += _factor;
         }
     }
 
@@ -422,13 +422,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.AttackSpeed -= _factor;
+            Master.AttackSpeedParam -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.AttackSpeed += _factor;
+            Master.AttackSpeedParam += _factor;
         }
     }
 
@@ -454,13 +454,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.Defence -= _factor;
+            Master.DefenceParam -= _factor;
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.Defence += _factor;
+            Master.DefenceParam += _factor;
         }
     }
 
@@ -486,7 +486,7 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            Master.MoveSpeed -= _factor;
+            Master.MoveSpeedParam -= _factor;
             _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
             EffectSetting(_stateSlow, Master);
         }
@@ -494,7 +494,7 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            Master.MoveSpeed += _factor;
+            Master.MoveSpeedParam += _factor;
             if (_stateSlow != null) _stateSlow.PacketReceived = true;
         }
     }
@@ -536,7 +536,7 @@ public sealed partial class BuffManager
     {
         private float _param;
         private readonly double _dot = 1000;
-        private double _dotTime = 0;
+        private double _dotTime;
         private Effect? _statePoison;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
@@ -581,7 +581,7 @@ public sealed partial class BuffManager
     {
         private float _param;
         private readonly double _dot = 1000;
-        private double _dotTime = 0;
+        private double _dotTime;
         private Effect? _statePoison;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
@@ -656,7 +656,7 @@ public sealed partial class BuffManager
     {
         private float _param;
         private readonly double _dot = 1000;
-        private double _dotTime = 0;
+        private double _dotTime;
         private Effect? _stateBurn;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,

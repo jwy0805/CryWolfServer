@@ -59,7 +59,7 @@ public class MoleRat : Burrow
             State = State.Idle;
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
-            BroadcastHealth();
+            BroadcastHp();
             BroadcastPos();
             // 부활 Effect 추가
         }

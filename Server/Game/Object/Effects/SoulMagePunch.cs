@@ -12,9 +12,4 @@ public class SoulMagePunch : Effect
         foreach (var t in targets) t.OnDamaged(Parent, Parent.SkillDamage, Damage.Magical);
         base.SetEffectEffect();
     }
-    
-    public override PositionInfo SetEffectPos(GameObject parent, PositionInfo? effectPos = null)
-    {
-        return parent.PosInfo;
-    }
 }

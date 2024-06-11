@@ -40,7 +40,7 @@ public class Blossom : Bloom
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (distance > AttackRange) return;
+        if (distance > TotalAttackRange) return;
         State =  State.Attack;
     }
     
@@ -91,15 +91,15 @@ public class Blossom : Bloom
         });
     }
     
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         if (pid == ProjectileId.BlossomProjectile)
         {
-            target?.OnDamaged(this, TotalAttack, Damage.Normal);
+            target.OnDamaged(this, TotalAttack, Damage.Normal);
         }       
         else
         {
-            target?.OnDamaged(this, 9999, Damage.True);
+            target.OnDamaged(this, 9999, Damage.True);
         }
     }
 }

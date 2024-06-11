@@ -48,12 +48,12 @@ public class Bloom : Bud
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatTargetPos, flatCellPos);
-        
+
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (distance > AttackRange) return;
+        if (distance > TotalAttackRange) return;
         State = _combo ? State.Skill : State.Attack;
     }
 
@@ -87,12 +87,12 @@ public class Bloom : Bud
         IsAttacking = true;
     }
 
-    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         int damage = TotalAttack;
         int rndInt = new Random().Next(100);
         if (_critical && rndInt < CriticalChance) damage = (int)(TotalAttack * CriticalMultiplier);
-        target?.OnDamaged(this, damage, Damage.Normal);
+        target.OnDamaged(this, damage, Damage.Normal);
     }
 
     public override void SetNextState()
