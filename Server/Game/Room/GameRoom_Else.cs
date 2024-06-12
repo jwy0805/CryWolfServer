@@ -197,7 +197,8 @@ public partial class GameRoom
         return targetList.Count == 0 ? null : targetList[new Random().Next(targetList.Count)];
     }
     
-    public List<GameObject> FindTargetsInRectangle(List<GameObjectType> typeList, GameObject gameObject, double width, double height, int targetType)
+    public List<GameObject> FindTargetsInRectangle(IEnumerable<GameObjectType> typeList,
+        GameObject gameObject, double width, double height, int attackType = 0)
     {
         Map map = Map;
         Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
@@ -219,40 +220,41 @@ public partial class GameRoom
         Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
 
         return (from obj in gameObjects 
-            where obj.Stat.Targetable && targetType == 2 || obj.UnitType == targetType
+            where obj.Targetable && attackType == 2 || obj.UnitType == attackType
             let objPos = map.Cell2Pos(map.Vector3To2(obj.CellPos)) 
             let point = new Vector2(objPos.X, objPos.Z) 
             where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
     }
 
-    public List<GameObject> FindTargetsInCone( List<GameObjectType> typeList, GameObject gameObject, float angle, float dist = 100, int targetType = 0)
-    {
-        Dictionary<int, GameObject> targetDict = new();
-        targetDict = typeList.Select(AddTargetType)
-            .Aggregate(targetDict, (current, dictionary) 
-                => current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
-        
-        if (targetDict.Count == 0) return new List<GameObject>();
-        
-        Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
-        Vector2Int upVector = new Vector2Int(0, 1);
-
-        var targets = targetDict.Values.Select(obj => new 
-            { 
-                Object = obj, 
-                Position = Map.Vector3To2(obj.CellPos),
-                Direction = Map.Vector3To2(obj.CellPos) - currentPos
-            });
-
-        var targetsInDist = targets
-            .Where(t => t.Object.Stat.Targetable && targetType == 2 || t.Object.UnitType == targetType)
-            .Where(t => t.Direction.Magnitude < dist)
-            .Where(t => Math.Abs(Vector2Int.SignedAngle(upVector, t.Direction, gameObject.Dir)) <= angle / 2)
-            .Select(t => t.Object)
-            .ToList();
-
-        return targetsInDist;
-    }
+    // public List<GameObject> FindTargetsInCone(
+    //     IEnumerable<GameObjectType> typeList, GameObject gameObject, float angle, float dist = 100, int attackType = 0)
+    // {
+    //     Dictionary<int, GameObject> targetDict = new();
+    //     targetDict = typeList.Select(AddTargetType)
+    //         .Aggregate(targetDict, (current, dictionary) => 
+    //             current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
+    //     
+    //     if (targetDict.Count == 0) return new List<GameObject>();
+    //     
+    //     Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
+    //     Vector2Int upVector = new Vector2Int(0, 1);
+    //
+    //     var targets = targetDict.Values.Select(obj => new 
+    //         { 
+    //             Object = obj, 
+    //             Position = Map.Vector3To2(obj.CellPos),
+    //             Direction = Map.Vector3To2(obj.CellPos) - currentPos
+    //         });
+    //
+    //     var targetsInDist = targets
+    //         .Where(t => t.Object.Targetable && (attackType == 2 || t.Object.UnitType == attackType))
+    //         .Where(t => t.Direction.Magnitude < dist)
+    //         .Where(t => Math.Abs(Vector2Int.SignedAngle(currentPos, t.Direction, gameObject.Dir)) <= angle / 2)
+    //         .Select(t => t.Object)
+    //         .ToList();
+    //
+    //     return targetsInDist;
+    // }
     
     public GameObject? FindTargetWithManyFriends(List<GameObjectType> type, List<GameObjectType> typeList, 
         GameObject gameObject, float skillRange = 5, int targetType = 2)
@@ -323,16 +325,17 @@ public partial class GameRoom
     /// <param name="gameObject"></param>
     /// <param name="typeList"></param>
     /// <param name="dist"></param>
-    /// <param name="targetType"></param>
+    /// <param name="attackType"></param>
     /// <returns>"plural targets in the range."</returns>
     #endregion
-    public List<GameObject> FindTargets(GameObject gameObject, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
+    public List<GameObject> FindTargets(
+        GameObject gameObject, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
         
         var objectsInDist = targetList
-            .Where(obj => obj.Stat.Targetable && (targetType == 2 || obj.UnitType == targetType))
+            .Where(obj => obj.Stat.Targetable && (attackType == 2 || obj.UnitType == attackType))
             .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) < dist)
             .ToList();
 
@@ -349,7 +352,8 @@ public partial class GameRoom
     /// <param name="targetType"></param>
     /// <returns>"plural targets in the range."</returns>
     #endregion
-    public List<GameObject> FindTargets(Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
+    public List<GameObject> FindTargets(
+        Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
     {
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
@@ -360,6 +364,40 @@ public partial class GameRoom
             .ToList();
 
         return objectsInDist;
+    }
+    
+    #region Summary
+    /// <summary>
+    /// Find multiple targets within a certain angle range from the GameObject
+    /// </summary>
+    /// <param name="gameObject">The GameObject from which the angle is measured</param>
+    /// <param name="typeList">The types of GameObjects to search for</param>
+    /// <param name="dist">The distance within which to search for targets</param>
+    /// <param name="angle">The half-angle range (in degrees) to search for targets</param>
+    /// <param name="attackType">The specific target type to search for</param>
+    /// <returns>List of GameObjects within the angle range</returns>
+    #endregion
+    public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, 
+        IEnumerable<GameObjectType> typeList, float dist = 100, float angle = 30, int attackType = 0)
+    {
+        var targetList = typeList.SelectMany(GetTargets).ToList();
+        if (targetList.Count == 0) return new List<GameObject>();
+        
+        Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
+        double radians = gameObject.Dir * (Math.PI / 180);
+        Vector2Int forward = new Vector2Int((int)Math.Round(Math.Sin(radians)), (int)Math.Round(Math.Cos(radians)));
+        
+        var objectsInAngleRange = targetList
+            .Where(obj => obj.Targetable && (attackType == 2 || obj.UnitType == attackType))
+            .Where(obj =>
+            {
+                Vector2Int targetPos = Map.Vector3To2(obj.CellPos);
+                Vector2Int directionToTarget = targetPos - currentPos;
+                return directionToTarget.SqrMagnitude < dist * dist &&
+                       Vector2Int.SignedAngle(forward, directionToTarget) <= angle / 2;
+            }).Select(obj => obj).ToList();
+
+        return objectsInAngleRange;
     }
 
     #region Summary
@@ -374,7 +412,8 @@ public partial class GameRoom
     /// <returns></returns>
 
     #endregion
-    public List<GameObject> FindTargetsBySpecies(GameObject gameObject, GameObjectType type, IEnumerable<UnitId> unitIds, float dist = 100)
+    public List<GameObject> FindTargetsBySpecies(GameObject gameObject, 
+        GameObjectType type, IEnumerable<UnitId> unitIds, float dist = 100)
     {
         var targetList = GetTargets(type).ToList();
         if (targetList.Count == 0) return new List<GameObject>();

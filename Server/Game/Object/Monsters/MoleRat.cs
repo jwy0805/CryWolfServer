@@ -82,7 +82,6 @@ public class MoleRat : Burrow
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         if (_drain) Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);
         if (_stealAttack == false) return;

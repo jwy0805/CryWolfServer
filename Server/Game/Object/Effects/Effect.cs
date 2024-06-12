@@ -5,11 +5,11 @@ namespace Server.Game;
 public class Effect : GameObject
 {
     public EffectId EffectId { get; set; }
+    public long Duration { get; set; } = 2000;
     public bool PacketReceived { get; set; } = false;
     protected bool IsHit = false;
     
     protected readonly Scheduler Scheduler = new();
-    protected long DestroyTime = 2000;
 
     protected Effect()
     {
@@ -19,7 +19,7 @@ public class Effect : GameObject
     public override void Init()
     {
         base.Init();
-        DestroyEffect(DestroyTime);
+        DestroyEffect(Duration);
     }
 
     private async void DestroyEffect(long destroyTime)

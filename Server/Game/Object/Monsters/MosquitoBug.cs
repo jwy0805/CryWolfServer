@@ -73,7 +73,6 @@ public class MosquitoBug : Monster
 
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);       
         if (target is Sheep _ && _faint)
         {

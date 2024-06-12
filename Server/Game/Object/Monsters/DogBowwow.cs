@@ -81,7 +81,6 @@ public class DogBowwow : DogBark
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         HitCount++;
         if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
         {

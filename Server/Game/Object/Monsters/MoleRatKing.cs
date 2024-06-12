@@ -167,7 +167,6 @@ public class MoleRatKing : MoleRat
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);
         // Steal Attack 처리

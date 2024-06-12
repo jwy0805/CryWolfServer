@@ -174,7 +174,7 @@ public class GameData
         { UnitId.Cactus, new HashSet<Skill> 
             { Skill.CactusPoisonResist, Skill.CactusReflection, Skill.CactusSpeed } },
         { UnitId.CactusBoss, new HashSet<Skill> 
-            { Skill.CactusBossRush, Skill.CactusBossSmash, Skill.CactusBossSmashAggro, Skill.CactusBossSmashHeal } },
+            { Skill.CactusBossRush, Skill.CactusBossBreath, Skill.CactusBossHeal, Skill.CactusBossAggro } },
         { UnitId.Snakelet, new HashSet<Skill> 
             { Skill.SnakeletAttack, Skill.SnakeletEvasion, Skill.SnakeletAttackSpeed } },
         { UnitId.Snake, new HashSet<Skill> 
@@ -346,9 +346,9 @@ public class GameData
         { Skill.CactusReflection, new HashSet<Skill> { Skill.CactusSpeed, Skill.CactusPoisonResist } },
         { Skill.CactusReflectionFaint, new HashSet<Skill> { Skill.CactusReflection } },
         { Skill.CactusBossRush, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.CactusBossSmash, new HashSet<Skill> { Skill.CactusBossRush } },
-        { Skill.CactusBossSmashAggro, new HashSet<Skill> { Skill.CactusBossSmash } },
-        { Skill.CactusBossSmashHeal, new HashSet<Skill> { Skill.CactusBossSmash } },
+        { Skill.CactusBossBreath, new HashSet<Skill> { Skill.CactusBossRush } },
+        { Skill.CactusBossAggro, new HashSet<Skill> { Skill.CactusBossBreath } },
+        { Skill.CactusBossHeal, new HashSet<Skill> { Skill.CactusBossBreath } },
         { Skill.SnakeletAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnakeletAttack, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SnakeletEvasion, new HashSet<Skill> { Skill.SnakeletAttackSpeed, Skill.SnakeletAttack } },

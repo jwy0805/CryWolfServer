@@ -45,12 +45,11 @@ public class MosquitoPester : MosquitoBug
         CurrentProjectile = ProjectileId.BasicProjectile2;
     }
 
-    protected override async void AttackImpactEvents(long impactTime)
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(CurrentProjectile, this, 5f);
         });
     }

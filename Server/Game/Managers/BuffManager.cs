@@ -131,7 +131,7 @@ public sealed partial class BuffManager
         public GameObject Master;
         public Creature Caster;
         protected long EndTime;
-        private long _duration;
+        protected long Duration;
         public bool Nested;
 
         public virtual void Init(GameObject master, Creature caster, long startTime, long duration, float param, bool nested)
@@ -139,8 +139,8 @@ public sealed partial class BuffManager
             Type = BuffType.NoBuffType;
             Master = master;
             Caster = caster;
-            _duration = duration;
-            EndTime = startTime + _duration;
+            Duration = duration;
+            EndTime = startTime + Duration;
             Nested = nested;
         }
         public virtual void CalculateFactor() { }
@@ -151,8 +151,8 @@ public sealed partial class BuffManager
         }
         public virtual void RenewBuff(long newStartTime, long duration = 10000)
         {
-            _duration = duration;
-            EndTime = newStartTime + _duration;
+            Duration = duration;
+            EndTime = newStartTime + Duration;
             RemoveBuff();
             CalculateFactor();
             TriggerBuff();
@@ -162,16 +162,6 @@ public sealed partial class BuffManager
             Master.Buffs.Remove(Id);
             ABuff? buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
             if (buff != null) Instance.Buffs.Remove(buff);
-        }
-        protected virtual void EffectSetting(Effect effect, GameObject master)
-        {
-            effect.Room = Instance.Room;
-            effect.Target = master;
-            effect.PosInfo = master.PosInfo;
-            effect.Info.PosInfo = master.Info.PosInfo;
-            effect.Init();
-            effect.Info.Name = effect.EffectId.ToString();
-            Instance.Room?.EnterGameParent(effect, master);
         }
     }
     
@@ -324,7 +314,13 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.Invincible = true;
-            EffectSetting(_holyAura, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.HolyAura, Master, effectPos, true, (int)Duration);
         }
 
         public override void RemoveBuff()
@@ -487,8 +483,13 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.MoveSpeedParam -= _factor;
-            _stateSlow = ObjectManager.Instance.CreateEffect(EffectId.StateSlow);
-            EffectSetting(_stateSlow, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateSlow, Master, effectPos, true, (int)Duration);
         }
 
         public override void RemoveBuff()
@@ -514,8 +515,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            _stateCurse = ObjectManager.Instance.CreateEffect(EffectId.StateCurse);
-            EffectSetting(_stateCurse, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateCurse, Master, effectPos, true, (int)Duration);
         }
         
         public override void RemoveBuff()
@@ -551,8 +557,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
-            EffectSetting(_statePoison, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StatePoison, Master, effectPos, true, (int)Duration);
         }
         
         public override bool UpdateBuff(long deltaTime)
@@ -596,8 +607,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
-            _statePoison = ObjectManager.Instance.CreateEffect(EffectId.StatePoison);
-            EffectSetting(_statePoison, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StatePoison, Master, effectPos, true, (int)Duration);
         }
         
         public override bool UpdateBuff(long deltaTime)
@@ -641,8 +657,13 @@ public sealed partial class BuffManager
         {
             if (Master.Invincible) return; 
             Master.Target = _caster;
-            _stateAggro = ObjectManager.Instance.CreateEffect(EffectId.StateAggro);
-            EffectSetting(_stateAggro, Master);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateAggro, Master, effectPos, true, (int)Duration);
         }
         
         public override void RemoveBuff()
@@ -703,8 +724,6 @@ public sealed partial class BuffManager
     
     private class Fainted : ABuff
     {
-        private Effect? _stateFaint;
-        
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
             bool nested)
         {
@@ -716,18 +735,21 @@ public sealed partial class BuffManager
         
         public override void TriggerBuff()
         {
-            Master.State = State.Faint;
-            Master.BroadcastPos();
-            _stateFaint = ObjectManager.Instance.CreateEffect(EffectId.StateFaint);
-            EffectSetting(_stateFaint, Master);
+            if (Master is not Creature creature) return;
+            creature.OnFaint();
+            var effectPos = new PositionInfo
+            {
+                PosX = creature.PosInfo.PosX,
+                PosY = creature.PosInfo.PosY + creature.Stat.SizeY,
+                PosZ = creature.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateFaint, creature, effectPos, true, (int)Duration);
         }
         
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.State = State.Idle;
-            Master.BroadcastPos();
-            if (_stateFaint != null) _stateFaint.PacketReceived = true;
         }
     }
     

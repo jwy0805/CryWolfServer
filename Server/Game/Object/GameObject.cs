@@ -15,7 +15,6 @@ public partial class GameObject : IGameObject
     public bool WillRevive { get; set; } = false;
     public bool AlreadyRevived { get; set; } = false;
     public float ReviveHpRate { get; set; } = 0.3f;
-    
     public virtual int KillLog { get; set; }
     
     public int Id
@@ -89,22 +88,12 @@ public partial class GameObject : IGameObject
         if (Room == null) return;
         if (Invincible) return;
 
-        int totalDamage;
-        if (damageType is Damage.Normal or Damage.Magical)
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        if (damageType is Damage.Normal && Reflection && reflected == false)
         {
-            totalDamage = Math.Max(damage - TotalDefence, 0);
-            if (damageType is Damage.Normal && Reflection && reflected == false)
-            {
-                if (attacker != null)
-                {
-                    int refParam = (int)(totalDamage * ReflectionRate);
-                    attacker.OnDamaged(this, refParam, damageType, true);
-                }
-            }
-        }
-        else
-        {
-            totalDamage = damage;
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
@@ -112,7 +101,7 @@ public partial class GameObject : IGameObject
         Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
     }
-
+    
     protected virtual void OnDead(GameObject? attacker)
     {
         if (Room == null) return;

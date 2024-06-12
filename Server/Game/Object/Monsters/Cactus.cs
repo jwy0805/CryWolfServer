@@ -5,8 +5,7 @@ namespace Server.Game;
 public class Cactus : Cacti
 {
     private bool _reflectionFaint = false;
-    
-    protected readonly int ReflectionFaintRate = 3;
+    protected readonly int ReflectionFaintRate = 5;
     
     protected override Skill NewSkill
     {
@@ -24,7 +23,7 @@ public class Cactus : Cacti
                     break;
                 case Skill.CactusReflection:
                     Reflection = true;
-                    ReflectionRate = 15;
+                    ReflectionRate = 10;
                     break;
                 case Skill.CactusReflectionFaint:
                     _reflectionFaint = true;
@@ -33,41 +32,31 @@ public class Cactus : Cacti
         }
     }
 
-    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    public override void Init()
     {
-        if (_reflectionFaint)
-        {
-            if (Room == null) return;
-            if (Invincible) return;
+        base.Init();
+    }
 
-            int totalDamage;
-            if (damageType is Damage.Normal or Damage.Magical)
-            {
-                totalDamage = attacker.CriticalChance > 0 
-                    ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-                    : Math.Max(damage - TotalDefence, 0);
-                if (damageType is Damage.Normal && Reflection && reflected == false)
-                {
-                    int refParam = (int)(totalDamage * ReflectionRate / 100);
-                    attacker.OnDamaged(this, refParam, damageType, true);
-                    var random = new Random();
-                    if (random.Next(99) >= ReflectionFaintRate) return;
-                    BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
-                }
-            }
-            else
-            {
-                totalDamage = damage;
-            }
-        
-            Hp = Math.Max(Hp - totalDamage, 0);
-            var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
-            Room.Broadcast(damagePacket);
-            if (Hp <= 0) OnDead(attacker);
-        }
-        else
+    public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
+    {
+        if (Room == null) return;
+        if (Invincible) return;
+
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        if (damageType is Damage.Normal && Reflection && reflected == false)
         {
-            base.OnDamaged(attacker, damage, damageType, reflected);
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
+            if (_reflectionFaint && new Random().Next(99) < ReflectionFaintRate && attacker != null)
+            {
+                BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
+            }
         }
+        
+        Hp = Math.Max(Hp - totalDamage, 0);
+        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        Room.Broadcast(damagePacket);
+        if (Hp <= 0) OnDead(attacker);
     }
 }

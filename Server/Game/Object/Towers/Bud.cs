@@ -30,12 +30,11 @@ public class Bud : Tower
         AttackImpactMoment = 0.3f;
     }
     
-    protected override async void AttackImpactEvents(long impactTime)
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
         });
     }

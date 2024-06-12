@@ -10,7 +10,8 @@ public class SnowBomb : Bomb
     private bool _frostArmor;
 
     protected float ExplosionRange = 1.5f;
-    protected float AttackDecreaseParam = 0.1f;
+    protected float SelfExplosionRange = 2.5f;
+    protected readonly float AttackDecreaseParam = 0.1f;
     protected GameObject? Attacker;
     
     protected override Skill NewSkill
@@ -68,7 +69,6 @@ public class SnowBomb : Bomb
         {
             if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = Mp >= MaxMp ? State.Skill : State.Attack;
-            if (State == State.Skill) Mp = 0;
             SetDirection();
             return;
         }
@@ -77,13 +77,13 @@ public class SnowBomb : Bomb
         BroadcastPath();
     }
 
-    protected override async void SkillImpactEvents(long impactTime)
+    protected override void SkillImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.SnowBombSkill, this, 5f);
+            Mp = 0;
         });
     }
 
@@ -162,7 +162,6 @@ public class SnowBomb : Bomb
         }
         
         State =  Mp >= MaxMp ? State.Skill : State.Attack;
-        if (State == State.Skill) Mp = 0;
         SetDirection();
     }
 
@@ -171,28 +170,19 @@ public class SnowBomb : Bomb
         if (Room == null) return;
         if (Invincible) return;
 
-        int totalDamage;
-        if (damageType is Damage.Normal or Damage.Magical)
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        if (damageType is Damage.Normal && Reflection && reflected == false)
         {
-            totalDamage = Math.Max(damage - TotalDefence, 0);
-            if (damageType is Damage.Normal && Reflection && reflected == false)
-            {
-                if (attacker != null)
-                {
-                    int refParam = (int)(totalDamage * ReflectionRate);
-                    attacker.OnDamaged(this, refParam, damageType, true);
-                }
-            }
-        }
-        else
-        {
-            totalDamage = damage;
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         if (Hp > 0) return;
+        
         if (_frostArmor)
         {
             Targetable = false;
@@ -200,6 +190,9 @@ public class SnowBomb : Bomb
             Attacker = attacker;
             ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
         }
-        else OnDead(attacker);
+        else
+        {
+            OnDead(attacker);
+        }
     }
 }

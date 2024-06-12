@@ -99,7 +99,6 @@ public class Bomb : Monster
         {
             if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = _bombSkill && Mp >= MaxMp ? State.Skill : State.Attack;
-            if (State == State.Skill) Mp = 0;
             SetDirection();
             return;
         }
@@ -136,23 +135,22 @@ public class Bomb : Monster
         IsAttacking = true;
     }
 
-    protected override async void AttackImpactEvents(long impactTime)
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.BombProjectile, this, 5f);
         });
     }
 
-    protected override async void SkillImpactEvents(long impactTime)
+    protected override void SkillImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.BombSkill, this, 5f);
+            Mp = 0;
         });
     }
     
@@ -193,7 +191,6 @@ public class Bomb : Monster
         }
         
         State = _bombSkill && Mp >= MaxMp ? State.Skill : State.Attack;
-        if (State == State.Skill) Mp = 0;
         SetDirection();
     }
 }

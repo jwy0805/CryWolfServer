@@ -52,7 +52,7 @@ public class Program
 
         DbTask();
     }
-
+        
     private static void GameLogicTask()
     {
         while (true)

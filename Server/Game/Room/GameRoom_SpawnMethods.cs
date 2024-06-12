@@ -285,12 +285,14 @@ public partial class GameRoom
         return effect;
     }
 
-    public void SpawnEffect(EffectId effectId, GameObject? parent, PositionInfo effectPos)
+    public void SpawnEffect(EffectId effectId, GameObject? parent, 
+        PositionInfo? effectPos = null, bool trailing = false, int duration = 2000)
     {
         if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
         if (parent == null) return;
         
         var effect = ObjectManager.Instance.CreateEffect(effectId);
+        effectPos ??= parent.PosInfo;
         var position = new PositionInfo
         {   
             Dir = effectPos.Dir, 
@@ -307,8 +309,9 @@ public partial class GameRoom
         effect.Info.Name = effectId.ToString();
         effect.EffectId = effectId;
         effect.Parent = parentCopied;
+        effect.Duration = duration;
         effect.Init();
-        EnterGame(effect);
+        EnterGameEffect(effect, parentCopied.Id, trailing, duration);
     }
     
     public void SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)

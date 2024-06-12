@@ -161,9 +161,9 @@ public class Burrow : Monster
     protected virtual void UpdateIdleToUnderground() { }
     protected virtual void UpdateUndergroundToIdle() { }
 
-    protected override async void MotionChangeEvents(long animTime)
+    protected override void MotionChangeEvents(long animTime)
     {
-        await Scheduler.ScheduleEvent(animTime, () => SetNextState(State));
+        EndTaskId = Scheduler.ScheduleCancellableEvent(animTime, () => SetNextState(State));
     }
 
     public override void SetNextState(State state)

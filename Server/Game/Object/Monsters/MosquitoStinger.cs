@@ -67,12 +67,11 @@ public class MosquitoStinger : MosquitoPester
         IsAttacking = true;
     }
 
-    protected override async void AttackImpactEvents(long impactTime)
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.MosquitoStingerProjectile, this, 5f);
         });
     }
@@ -88,7 +87,6 @@ public class MosquitoStinger : MosquitoPester
 
     public override void ApplyAttackEffect(GameObject? target)
     {
-        if (Room == null || Hp <= 0) return;
         if (target is not Sheep sheep) return;
         sheep.OnDamaged(this, 9999, Damage.True);
     }

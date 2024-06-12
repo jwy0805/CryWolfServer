@@ -19,6 +19,8 @@ public class Creature : GameObject
     protected float AttackImpactMoment = 0.5f;
     protected float SkillImpactMoment = 0.5f;
     protected float SkillImpactMoment2 = 0.5f;
+    protected Guid AttackTaskId;
+    protected Guid EndTaskId;
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
     
@@ -38,50 +40,44 @@ public class Creature : GameObject
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (MaxMp != 1 && Mp >= MaxMp)
+        
+        switch (State)
         {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
-            Mp = 0;
-        }
-        else
-        {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Attack2:
-                    UpdateAttack2();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
-        }
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Attack2:
+                UpdateAttack2();
+                break;
+            case State.Attack3:
+                UpdateAttack3();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.Skill2:
+                UpdateSkill2();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
     }
     
     protected virtual void UpdateIdle() { }
@@ -116,6 +112,7 @@ public class Creature : GameObject
     }   
     
     protected virtual void UpdateAttack2() { }
+    protected virtual void UpdateAttack3() { }
     protected virtual void UpdateSkill() { }
     protected virtual void UpdateSkill2() { }
     protected virtual void UpdateKnockBack() { }
@@ -123,23 +120,32 @@ public class Creature : GameObject
     protected virtual void UpdateDie() { }
     public virtual void RunSkill() { }
 
-    protected virtual async void AttackImpactEvents(long impactTime)
+    public virtual void OnFaint()
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        State = State.Faint;
+        IsAttacking = false;
+        AttackEnded = true;
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
+    }
+
+    
+    protected virtual void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             ApplyAttackEffect(Target);
         });
     }
 
-    protected virtual async void SkillImpactEvents(long impactTime) { }
+    protected virtual void SkillImpactEvents(long impactTime) { }
 
-    protected virtual async void MotionChangeEvents(long time) { }
+    protected virtual void MotionChangeEvents(long time) { }
 
-    protected virtual async void EndEvents(long animEndTime)
+    protected virtual void EndEvents(long animEndTime)
     {
-        await Scheduler.ScheduleEvent(animEndTime, () =>
+        EndTaskId = Scheduler.ScheduleCancellableEvent(animEndTime, () =>
         {
             if (Room == null || Hp <= 0) return;
             SetNextState();
@@ -150,7 +156,6 @@ public class Creature : GameObject
     
     public virtual void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     

@@ -127,7 +127,9 @@ public sealed partial class ObjectManager
         { EffectId.PoisonBombSkillExplosion, new PoisonBombSkillExplosionFactory() },
         { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory() },
         { EffectId.SkeletonGiantSkill, new SkeletonGiantSkill() },
-        { EffectId.SkeletonGiantRevive, new SkeletonGiantRevive() }
+        { EffectId.SkeletonGiantRevive, new SkeletonGiantRevive() },
+        { EffectId.CactusBossBreathEffect, new CactusBossBreathEffectFactory() },
+        { EffectId.CactusBossSmashEffect, new CactusBossSmashEffectFactory() },
     };
 
     private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
@@ -717,6 +719,16 @@ public sealed partial class ObjectManager
     public class SkeletonGiantRevive : IEffectFactory
     {
         public Effect CreateEffect() => new Game.SkeletonGiantRevive();
+    }
+    
+    public class CactusBossBreathEffectFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new CactusBossBreathEffect();
+    }
+    
+    public class CactusBossSmashEffectFactory : IEffectFactory
+    {
+        public Effect CreateEffect() => new CactusBossSmashEffect();
     }
 
     public class CoinStarSilverFactory : IResourceFactory

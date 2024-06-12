@@ -143,7 +143,6 @@ public class Werewolf : Wolf
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)((Attack - target.Defence) * DrainParam);
         BroadcastHp();

@@ -36,7 +36,6 @@ public class Wolf : WolfPup
 
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null || Hp <= 0) return;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (_drain)

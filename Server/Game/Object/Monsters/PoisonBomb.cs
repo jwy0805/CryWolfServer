@@ -37,6 +37,7 @@ public class PoisonBomb : SnowBomb
     public override void Init()
     {
         base.Init();
+        SelfExplosionRange = 3.5f;
         Player.SkillUpgradedList.Add(Skill.PoisonBombSelfDestruct);
     }
 
@@ -57,26 +58,24 @@ public class PoisonBomb : SnowBomb
         BroadcastPath();
     }
 
-    protected override async void AttackImpactEvents(long impactTime)
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             ApplyAttackEffect(Target);
         });
     }
     
     protected override async void SkillImpactEvents(long impactTime)
     {
-        if (Target == null || Room == null || Hp <= 0) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
             if (Target == null || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.PoisonBombSkill, this, 5f);
         });
     }
-
+    
     public override void ApplyEffectEffect()
     {
         Room.SpawnEffect(EffectId.PoisonBombExplosion, this, PosInfo);
@@ -84,7 +83,7 @@ public class PoisonBomb : SnowBomb
         if (_selfDestruct)
         {
             var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-            var gameObjects = Room.FindTargets(this, targetList, SkillRange);
+            var gameObjects = Room.FindTargets(this, targetList, SelfExplosionRange);
 
             foreach (var gameObject in gameObjects)
             {
@@ -160,7 +159,7 @@ public class PoisonBomb : SnowBomb
             DestPos = target == null 
                 ? new Vector3(CellPos.X, CellPos.Y, CellPos.Z) 
                 : new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
-            MoveSpeed = 12;
+            MoveSpeed = 16;
             State = State.Rush;
         }
         else

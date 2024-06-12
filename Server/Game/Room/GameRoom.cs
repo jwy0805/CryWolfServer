@@ -210,13 +210,25 @@ public partial class GameRoom : JobSerializer
         }
     }
 
-    public void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed)
+    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed)
     {
         var projectile = (Projectile)gameObject;
         _projectiles.Add(projectile.Id, projectile);
         projectile.Room = this;
         var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y, Z = targetPos.Z };
         var spawnPacket = new S_SpawnProjectile { Object = gameObject.Info, DestPos = destVector, MoveSpeed = speed };
+        Broadcast(spawnPacket);
+    }
+
+    private void EnterGameEffect(GameObject gameObject, int parentId, bool trailingParent, int duration = 2000)
+    {
+        var effect = (Effect)gameObject;
+        _effects.Add(gameObject.Id, effect);
+        effect.Room = this;
+        var spawnPacket = new S_SpawnEffect
+        {
+            Object = gameObject.Info, ParentId = parentId, TrailingParent = trailingParent, Duration = duration
+        };
         Broadcast(spawnPacket);
     }
 
@@ -235,8 +247,8 @@ public partial class GameRoom : JobSerializer
                 break;
         }
 
-        var spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
-        Broadcast(spawnPacket);
+        // var spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
+        // Broadcast(spawnPacket);
     }
 
     public void EnterGameTarget(GameObject gameObject, GameObject parent, GameObject target)
@@ -255,11 +267,11 @@ public partial class GameRoom : JobSerializer
                 break;
         }
 
-        S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = target.Id };
-        foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
-        {
-            player.Session.Send(spawnPacket);
-        }
+        // S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = target.Id };
+        // foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
+        // {
+        //     player.Session.Send(spawnPacket);
+        // }
     }
 
     public void DieAndLeave(int objectId)
