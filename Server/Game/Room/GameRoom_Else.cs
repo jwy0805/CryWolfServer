@@ -225,36 +225,6 @@ public partial class GameRoom
             let point = new Vector2(objPos.X, objPos.Z) 
             where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
     }
-
-    // public List<GameObject> FindTargetsInCone(
-    //     IEnumerable<GameObjectType> typeList, GameObject gameObject, float angle, float dist = 100, int attackType = 0)
-    // {
-    //     Dictionary<int, GameObject> targetDict = new();
-    //     targetDict = typeList.Select(AddTargetType)
-    //         .Aggregate(targetDict, (current, dictionary) => 
-    //             current.Concat(dictionary).ToDictionary(pair => pair.Key, pair => pair.Value));
-    //     
-    //     if (targetDict.Count == 0) return new List<GameObject>();
-    //     
-    //     Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
-    //     Vector2Int upVector = new Vector2Int(0, 1);
-    //
-    //     var targets = targetDict.Values.Select(obj => new 
-    //         { 
-    //             Object = obj, 
-    //             Position = Map.Vector3To2(obj.CellPos),
-    //             Direction = Map.Vector3To2(obj.CellPos) - currentPos
-    //         });
-    //
-    //     var targetsInDist = targets
-    //         .Where(t => t.Object.Targetable && (attackType == 2 || t.Object.UnitType == attackType))
-    //         .Where(t => t.Direction.Magnitude < dist)
-    //         .Where(t => Math.Abs(Vector2Int.SignedAngle(currentPos, t.Direction, gameObject.Dir)) <= angle / 2)
-    //         .Select(t => t.Object)
-    //         .ToList();
-    //
-    //     return targetsInDist;
-    // }
     
     public GameObject? FindTargetWithManyFriends(List<GameObjectType> type, List<GameObjectType> typeList, 
         GameObject gameObject, float skillRange = 5, int targetType = 2)
@@ -379,23 +349,34 @@ public partial class GameRoom
     #endregion
     public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, 
         IEnumerable<GameObjectType> typeList, float dist = 100, float angle = 30, int attackType = 0)
-    {
+    {   // 1. 타겟 리스트 생성
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
-        
+    
+        // 2. 현재 위치와 전방 벡터 계산
         Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
         double radians = gameObject.Dir * (Math.PI / 180);
         Vector2Int forward = new Vector2Int((int)Math.Round(Math.Sin(radians)), (int)Math.Round(Math.Cos(radians)));
-        
-        var objectsInAngleRange = targetList
-            .Where(obj => obj.Targetable && (attackType == 2 || obj.UnitType == attackType))
-            .Where(obj =>
-            {
-                Vector2Int targetPos = Map.Vector3To2(obj.CellPos);
-                Vector2Int directionToTarget = targetPos - currentPos;
-                return directionToTarget.SqrMagnitude < dist * dist &&
-                       Vector2Int.SignedAngle(forward, directionToTarget) <= angle / 2;
-            }).Select(obj => obj).ToList();
+
+        // 3. 필터링할 목표물 리스트 초기화
+        var objectsInAngleRange = new List<GameObject>();
+
+        // 4. 각 목표물에 대해 조건 검사
+        foreach (var obj in targetList)
+        {   // 4.1 타겟팅 가능한지와 공격 타입이 맞는지 확인
+            if (!obj.Targetable || (attackType != 2 && obj.UnitType != attackType)) continue;
+            // 4.2 거리와 각도를 계산
+            Vector2Int targetPos = Map.Vector3To2(obj.CellPos);
+            Vector2Int directionToTarget = targetPos - currentPos;
+            float distanceSquared = directionToTarget.SqrMagnitude;
+            double angleToTarget = Vector2Int.SignedAngle(forward, directionToTarget);
+            if (angleToTarget > 180) angleToTarget -= 360;
+            // 4.3 조건에 맞는지 확인
+            if (distanceSquared < dist * dist && Math.Abs(angleToTarget) <= angle / 2)
+            {   // 조건에 맞으면 리스트에 추가
+                objectsInAngleRange.Add(obj);
+            }
+        }
 
         return objectsInAngleRange;
     }

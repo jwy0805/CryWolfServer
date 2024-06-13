@@ -282,9 +282,9 @@ public partial class Map
     private static int[] _deltaX = { 0, -1, -1, -1, 0, 1, 1, 1 };
     private static int[] _cost = { 10, 14, 10, 14, 10, 14, 10, 14 };
 
-	public List<Vector3> FindPath(GameObject gameObject, Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
-    {
-		// 점수 매기기
+	public List<Vector3> FindPath(
+        GameObject gameObject, Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
+    {   // 점수 매기기
 		// F = G + H
 		// F = 최종 점수 (작을 수록 좋음, 경로에 따라 달라짐)
 		// G = 시작점에서 해당 좌표까지 이동하는데 드는 비용 (작을 수록 좋음, 경로에 따라 달라짐)
@@ -307,7 +307,7 @@ public partial class Map
 
 		while (pq.Count > 0)
 		{
-            if (pq.Count > 1000) return new List<Vector3>();                                                             // 길찾기 실패 (경로가 존재하지 않음)
+            if (pq.Count > 250) return new List<Vector3>();                                                             // 길찾기 실패 (경로가 존재하지 않음)
             
 			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
 			Pos node = new Pos(pqNode.Z, pqNode.X);
@@ -320,8 +320,7 @@ public partial class Map
 				Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 
 				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
-                {
-                    // 벽으로 막혀서 갈 수 없으면 스킵
+                {   // 벽으로 막혀서 갈 수 없으면 스킵
                     if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue; // CellPos
                 }
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
@@ -338,14 +337,12 @@ public partial class Map
 		}
 
         return gameObject.UnitType == 0 
-            ? CalcCellPathFromParent(parent, dest) 
-            : CalcCellPathFromParent(parent, dest, 9.0f);
+            ? CalcCellPathFromParent(parent, dest) : CalcCellPathFromParent(parent, dest, 9.0f);
     }
 	
     private List<Vector3> CalcCellPathFromParent(Dictionary<Pos, Pos> parent, Pos dest, float height = 6.0f)
     {
         List<Vector3> cells = new();
-        
         Pos pos = dest;
         if (!parent.TryGetValue(pos, out var p)) return cells;
         while (parent[pos] != pos)
@@ -401,11 +398,11 @@ public partial class Map
         double sizeX = 0.25 * (target.Stat.SizeX - 1);
         double sizeZ = 0.25 * (target.Stat.SizeZ - 1);
         
-        double deltaX = cellPos.X - targetCellPos.X; // P2 cellPos , P1 targetCellPos
-        double deltaZ = cellPos.Z - targetCellPos.Z;
+        double deltaX = targetCellPos.X - cellPos.X; // P2 cellPos , P1 targetCellPos
+        double deltaZ = targetCellPos.Z - cellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
         double x;
-        double y = target.Stat.UnitType == 0 ? GameData.GroundHeight : GameData.AirHeight;
+        double y = target.UnitType == 0 ? GameData.GroundHeight : GameData.AirHeight;
         double z;
 
         if (deltaX != 0)
@@ -415,24 +412,24 @@ public partial class Map
 
             switch (theta)
             {
-                case >= 45 and <= 135:          // up
-                    z = targetCellPos.Z + sizeZ;
+                case >= 45 and <= 135:          // up (target is upper than object)
+                    z = targetCellPos.Z - sizeZ;
                     x = (z - zIntercept) / slope;
-                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z)); // 0.27 이런좌표를 0.25로 변환 
+                    destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));            // 0.27 이런좌표를 0.25로 변환 
                     break;
                 case <= -45 and >= -135:        // down
-                    z = targetCellPos.Z - sizeZ;
+                    z = targetCellPos.Z + sizeZ;
                     x = (z - zIntercept) / slope;
                     destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
                 case > -45 and < 45:            // right
-                    x = targetCellPos.X + sizeX;
-                    z = slope * x - zIntercept;
+                    x = targetCellPos.X - sizeX;
+                    z = slope * x + zIntercept;
                     destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
                 default:                        // left
-                    x = targetCellPos.X - sizeX;
-                    z = slope * x - zIntercept;
+                    x = targetCellPos.X + sizeX;
+                    z = slope * x + zIntercept;
                     destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));
                     break;
             }

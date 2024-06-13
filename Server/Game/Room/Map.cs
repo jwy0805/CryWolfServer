@@ -241,6 +241,7 @@ public partial class Map
 
         go.DistRemainder = moveTick;
         index = Math.Min(index, path.Count - 1);
+        if (index < 0 || index >= path.Count) return (new List<Vector3>(), new List<double>());
         ApplyMap(go, path[index]);
 
         int indexRes = Math.Min(index * 8, path.Count);

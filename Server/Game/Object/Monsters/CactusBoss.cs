@@ -13,9 +13,8 @@ public class CactusBoss : Cactus
     private bool _breathAggro = false;
     private bool _start = false;
     private bool _speedRestore = false;
-    private bool _firstAttack = false;
     private readonly int _rushSpeed = 4;
-    private int HealParam => 100 + SkillParam;
+    private int HealParam => 60 + SkillParam;
     private int SmashDamage => 150 + SkillParam;
     
     protected override Skill NewSkill
@@ -45,6 +44,7 @@ public class CactusBoss : Cactus
     public override void Init()
     {
         base.Init();
+        ReflectionRate = 10;
         Player.SkillUpgradedList.Add(Skill.CactusBossRush);
         Player.SkillUpgradedList.Add(Skill.CactusBossBreath);
         Player.SkillUpgradedList.Add(Skill.CactusBossHeal);
@@ -58,7 +58,7 @@ public class CactusBoss : Cactus
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
-            Mp += 20;
+            Mp += 5;
         }
         
         switch (State)
@@ -102,7 +102,7 @@ public class CactusBoss : Cactus
     
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
         if (_rush && _start == false)
@@ -141,6 +141,7 @@ public class CactusBoss : Cactus
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Console.WriteLine(DestPos);
         Vector3 flatDestPos = DestPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
@@ -153,7 +154,7 @@ public class CactusBoss : Cactus
         if (distance <= TotalAttackRange)
         {
             if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
-            State = Mp >= MaxMp ? State.Skill : State.Attack;
+            State = Mp >= MaxMp && _breath ? State.Skill : State.Attack;
             SetDirection();
             return;
         }
@@ -164,7 +165,7 @@ public class CactusBoss : Cactus
 
     protected override void UpdateRush()
     {
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
@@ -172,6 +173,7 @@ public class CactusBoss : Cactus
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Console.WriteLine(DestPos);
         Vector3 flatDestPos = DestPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
@@ -196,13 +198,13 @@ public class CactusBoss : Cactus
     
     protected override void UpdateAttack3()
     {
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             return;
         }
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -224,13 +226,14 @@ public class CactusBoss : Cactus
     
     protected override void UpdateSkill()
     {
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
+            IsAttacking = false;
             return;
         }
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -256,7 +259,7 @@ public class CactusBoss : Cactus
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnEffect(EffectId.CactusBossSmashEffect, Target, Target.PosInfo);
-            ApplySmashEffect(Target);
+            Target.OnDamaged(this, SmashDamage, Damage.Normal);
         });
     }
     
@@ -271,22 +274,17 @@ public class CactusBoss : Cactus
         });
     }
 
-    private void ApplySmashEffect(GameObject? target)
-    {
-        target?.OnDamaged(this, SmashDamage, Damage.Normal);
-    }
-
     private void ApplyBreathEffect(GameObject? target)
     {
-        var types = new HashSet<GameObjectType> { GameObjectType.Tower, GameObjectType.Sheep };
-        var targetList = Room.FindTargetsInAngleRange(this, types, 80, 45);
-        Console.WriteLine(targetList.Count);
+        var types = new List<GameObjectType> { GameObjectType.Tower, GameObjectType.Sheep };
+        var targetList = Room.FindTargetsInAngleRange(this, types, 80, 90);
         foreach (var gameObject in targetList)
         {
             target?.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            if (_breathHeal) Hp += HealParam;
             if (_breathAggro) BuffManager.Instance.AddBuff(BuffId.Aggro, gameObject, this, 0, 2000);
         }
+        if (_breathHeal) BuffManager.Instance.AddBuff(BuffId.Heal, 
+            this, this, HealParam * targetList.Count, 1000, true);
     }
     
     public override void SetNextState()
@@ -311,67 +309,30 @@ public class CactusBoss : Cactus
             return;
         }
 
-        State =  Mp >= MaxMp ? State.Skill : GetRandomState(State.Attack, State.Attack2);
+        State =  Mp >= MaxMp && _breath ? State.Skill : GetRandomState(State.Attack, State.Attack2);
         SetDirection();
     }
     
-    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
 
-        int totalDamage;
-        if (damageType is Damage.Normal or Damage.Magical)
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        if (damageType is Damage.Normal && Reflection && reflected == false)
         {
-            totalDamage = attacker.CriticalChance > 0 
-                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-                : Math.Max(damage - TotalDefence, 0);
-            if (damageType is Damage.Normal && Reflection && reflected == false)
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
+            if (new Random().Next(99) < ReflectionFaintRate && attacker != null)
             {
-                int refParam = (int)(totalDamage * ReflectionRate);
-                attacker.OnDamaged(this, refParam, damageType, true);
-                var random = new Random();
-                if (random.Next(99) >= ReflectionFaintRate) return;
                 BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
             }
-        }
-        else
-        {
-            totalDamage = damage;
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
-    }
-    
-    public override void ApplyAdditionalAttackEffect(GameObject target)
-    {
-       if (_firstAttack == false)
-       {
-           _firstAttack = true;
-           target.OnDamaged(this, SmashDamage, Damage.Normal);
-       }
-       else
-       {
-           target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-           if (_breathHeal)
-           {
-               Hp += HealParam;
-               Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-           }
-           if (_breathAggro)
-           {
-               var towers = Room.FindTargets(
-                   this, new List<GameObjectType> { GameObjectType.Tower }, SkillRange);
-               foreach (var tower in towers)
-               {
-                   BuffManager.Instance.AddBuff(BuffId.Aggro, tower, this, 0, 2000);
-               } 
-           }
-       }
-
-       Mp += 5;
     }
 }

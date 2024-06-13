@@ -14,6 +14,7 @@ public sealed partial class BuffManager
     {
         { BuffId.AttackIncrease, new AttackBuffFactory() },
         { BuffId.AttackSpeedIncrease, new AttackSpeedBuffFactory() },
+        { BuffId.Heal, new HealBuffFactory() },
         { BuffId.HealthIncrease, new HealthBuffFactory() },
         { BuffId.DefenceIncrease, new DefenceBuffFactory() },
         { BuffId.MoveSpeedIncrease, new MoveSpeedBuffFactory() },
@@ -231,6 +232,40 @@ public sealed partial class BuffManager
         }
     }
 
+    private class HealBuff : ABuff
+    {
+        private float _param;
+        private int _factor;
+        
+        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
+            bool nested)
+        {
+            base.Init(master, caster, startTime, duration, param, nested);
+            Id = BuffId.HealthIncrease;
+            Type = BuffType.Buff;
+            _param = param;        
+        }
+
+        public sealed override void CalculateFactor()
+        {
+            if (Master.Burn) _factor = (int)(Master.Hp * _param * Master.FireResist * 0.01f);
+            else _factor = (int)_param;
+        }
+
+        public override void TriggerBuff()
+        {
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, effectPos, true, 1);
+            Master.Hp += _factor;
+            Master.BroadcastHp();
+        }
+    }
+
     private class HealthBuff : ABuff
     {
         private float _param;
@@ -253,6 +288,13 @@ public sealed partial class BuffManager
 
         public override void TriggerBuff()
         {
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, effectPos, true, 1);
             Master.MaxHp += _factor;
             Master.Hp += _factor;
             Master.BroadcastHp();

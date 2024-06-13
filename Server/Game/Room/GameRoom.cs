@@ -139,6 +139,7 @@ public partial class GameRoom : JobSerializer
                 Monster monster = (Monster)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(UnitId), monster.UnitId.ToString()).ToString();
                 gameObject.PosInfo.State = State.Idle;
+                gameObject.PosInfo.Dir = 180;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
                 _monsters.Add(gameObject.Id, monster);

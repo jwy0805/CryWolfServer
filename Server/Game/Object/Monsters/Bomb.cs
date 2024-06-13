@@ -109,13 +109,13 @@ public class Bomb : Monster
     
     protected override void UpdateSkill()
     {
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             return;
         }
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,

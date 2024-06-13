@@ -57,6 +57,7 @@ public class Werewolf : Wolf
         base.Init();
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
+        Player.SkillUpgradedList.Add(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
@@ -92,22 +93,13 @@ public class Werewolf : Wolf
     
     protected override void UpdateSkill()
     {
+        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
             return;
         }
-        
-        float dist = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-        if (dist > TotalAttackRange + 0.4f)
-        {
-            State = State.Idle;
-            IsAttacking = false;
-            return;
-        }
-
-        if (IsAttacking) return;
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -133,11 +125,11 @@ public class Werewolf : Wolf
     
     protected override async void SkillImpactEvents(long impactTime)
     {
-        if (Room == null || Hp <= 0 || Target == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
-            if (Room == null || Hp <= 0 || Target == null) return;
-            Room.SpawnEffect(EffectId.LightningStrike, this, PosInfo);
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnEffect(EffectId.LightningStrike, this, Target.PosInfo);
+            Target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
         });
     }
     

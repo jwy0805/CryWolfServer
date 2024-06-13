@@ -19,6 +19,11 @@ public sealed partial class BuffManager
         public ABuff CreateBuff() => new AttackSpeedBuff();
     }
 
+    public class HealBuffFactory : IBuffFactory
+    {
+        public ABuff CreateBuff() => new HealBuff();
+    }
+    
     public class HealthBuffFactory : IBuffFactory
     {
         public ABuff CreateBuff() => new HealthBuff();
