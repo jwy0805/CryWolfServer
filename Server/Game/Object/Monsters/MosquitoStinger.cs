@@ -9,7 +9,7 @@ public class MosquitoStinger : MosquitoPester
     private bool _woolStop = false;
     private bool _sheepDeath = false;
     private bool _infection = false;
-    private readonly float _deathRate = 50;
+    private readonly float _deathRate = 5;
 
     protected override Skill NewSkill
     {
@@ -39,34 +39,36 @@ public class MosquitoStinger : MosquitoPester
         Player.SkillSubject.SkillUpgraded(Skill.MosquitoStingerSheepDeath);
     }
 
-    protected override void UpdateSkill()
-    {
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
+    protected override void UpdateMoving()
+    { // Targeting
+        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);     
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        StingEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
+        if (distance <= TotalAttackRange)
+        {
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
+            State = _sheepDeath && new Random().Next(100) < _deathRate ? State.Skill : State.Attack;
+            SetDirection();
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
     }
-
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
@@ -76,16 +78,17 @@ public class MosquitoStinger : MosquitoPester
         });
     }
     
-    private async void StingEvents(long impactTime)
+    protected override void SkillImpactEvents(long impactTime)
     {
         if (Target == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            ApplyAttackEffect(Target);
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            StingEffect(Target);
         });
     }
 
-    public override void ApplyAttackEffect(GameObject? target)
+    private void StingEffect(GameObject? target)
     {
         if (target is not Sheep sheep) return;
         sheep.OnDamaged(this, 9999, Damage.True);
@@ -93,24 +96,20 @@ public class MosquitoStinger : MosquitoPester
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-        
         if (target is Creature _)
         {
             BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
             BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
         }
-        
-        if (target is not Sheep sheep) return;
-        if (_sheepDeath && new Random().Next(100) < _deathRate)
+
+        if (target is Sheep sheep)
         {
-            sheep.OnDamaged(this, 9999, Damage.True);
-            return;
+            if (_infection) sheep.Infection = true;
+            if (_woolStop) sheep.YieldStop = true;
+            else sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
         }
         
-        if (_infection) sheep.Infection = true;
-        if (_woolStop) sheep.YieldStop = true;
-        else sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 
     public override void SetNextState()

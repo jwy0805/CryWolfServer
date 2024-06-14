@@ -19,7 +19,6 @@ public class MosquitoPester : MosquitoBug
             {
                 case Skill.MosquitoPesterPoison:
                     _poison = true;
-                    CurrentProjectile = ProjectileId.MosquitoPesterProjectile;
                     break;
                 case Skill.MosquitoPesterWoolRate:
                     _woolDown = true;
@@ -42,7 +41,6 @@ public class MosquitoPester : MosquitoBug
     public override void Init()
     {
         base.Init();
-        CurrentProjectile = ProjectileId.BasicProjectile2;
     }
 
     protected override void AttackImpactEvents(long impactTime)
@@ -50,7 +48,8 @@ public class MosquitoPester : MosquitoBug
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(CurrentProjectile, this, 5f);
+            Room.SpawnProjectile(_poison ? ProjectileId.MosquitoPesterProjectile : ProjectileId.BasicProjectile2, 
+                this, 5f);
         });
     }
 
@@ -58,7 +57,7 @@ public class MosquitoPester : MosquitoBug
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         
-        if (CurrentProjectile == ProjectileId.MosquitoPesterProjectile)
+        if (pid == ProjectileId.MosquitoPesterProjectile)
         {
             if (target is Creature _)
             {

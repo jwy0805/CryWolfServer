@@ -15,11 +15,6 @@ public class Snake : Snakelet
             {
                 case Skill.SnakeFire:
                     _fire = true;
-                    Room?.Broadcast(new S_SkillUpdate { 
-                        ObjectEnumId = (int)UnitId, 
-                        ObjectType = GameObjectType.Monster, 
-                        SkillType = SkillType.SkillProjectile 
-                    });
                     break;
                 case Skill.SnakeAccuracy:
                     Accuracy += 25;
@@ -34,10 +29,24 @@ public class Snake : Snakelet
         }
     }
 
-    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    // {
-    //     base.SetProjectileEffect(target, ProjectileId.SmallFire);
-    //     if (_fire == false) return;
-    //     BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 5f);
-    // }
+    public override void Init()
+    {
+        base.Init();
+        Player.SkillUpgradedList.Add(Skill.SnakeFire);
+    }
+    
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(_fire ? ProjectileId.SmallFire : ProjectileId.BasicProjectile2, this, 5f);
+        });
+    }
+    
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        if (_fire) BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0.05f, 5000);
+    }
 }

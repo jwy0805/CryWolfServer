@@ -30,10 +30,10 @@ public class Projectile : GameObject
     {
         float distance = Vector3.Distance(DestPos, CellPos);
         long attackTime = (long)(distance / MoveSpeed * 1000);
-        AttackImpactTime(attackTime);
+        AttackImpact(attackTime);
     }
 
-    protected virtual async void AttackImpactTime(long impactTime)
+    protected virtual async void AttackImpact(long impactTime)
     {
         if (Target == null || Target.Targetable == false || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>

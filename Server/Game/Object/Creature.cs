@@ -11,7 +11,6 @@ public class Creature : GameObject
     protected Skill Skill;
     protected readonly Scheduler Scheduler = new();
     protected readonly List<Skill> SkillList = new();
-    protected ProjectileId CurrentProjectile = ProjectileId.BasicProjectile;
     protected bool StateChanged;
     protected bool IsAttacking;
     protected bool AttackEnded = true;
@@ -114,7 +113,36 @@ public class Creature : GameObject
     
     protected virtual void UpdateAttack2() { }
     protected virtual void UpdateAttack3() { }
-    protected virtual void UpdateSkill() { }
+
+    protected virtual void UpdateSkill()
+    {
+        // 첫 UpdateSkill Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            IsAttacking = false;
+            return;
+        }
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
+        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
+        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
+        SkillImpactEvents(impactTime);
+        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        AttackEnded = false;
+        IsAttacking = true;
+    }
+    
     protected virtual void UpdateSkill2() { }
     protected virtual void UpdateKnockBack() { }
     protected virtual void UpdateRush() { }
@@ -159,10 +187,7 @@ public class Creature : GameObject
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
-    
-    public virtual void ApplyAdditionalAttackEffect(GameObject target) { }
     public virtual void ApplyEffectEffect() { }
-
     public virtual void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);

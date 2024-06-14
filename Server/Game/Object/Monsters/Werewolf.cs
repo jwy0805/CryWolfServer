@@ -6,9 +6,9 @@ namespace Server.Game;
 
 public class Werewolf : Wolf
 {
-    private bool _thunder = false;
-    private bool _berserker = false;
-    private double _berserkerParam = 0;
+    private bool _thunder;
+    private bool _berserker;
+    private double _berserkerParam;
     
     protected override Skill NewSkill
     {
@@ -41,13 +41,13 @@ public class Werewolf : Wolf
         {
             Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
             if (_berserker == false) return;
-            AttackParam -= Attack * (int)_berserkerParam;
-            SkillParam -= Stat.Skill * (int)_berserkerParam;
+            AttackParam -= (int)(Attack * _berserkerParam);
+            SkillParam -= (int)(Stat.Skill * _berserkerParam);
             AttackSpeedParam -= AttackSpeed * (float)_berserkerParam;
                 
-            _berserkerParam = 0.5 * (MaxHp * 0.5 - Hp);
-            AttackParam += Attack * (int)_berserkerParam;
-            SkillParam += Stat.Skill * (int)_berserkerParam;
+            _berserkerParam = (MaxHp - Hp) / (float)MaxHp;
+            AttackParam += (int)(Attack * _berserkerParam);
+            SkillParam += (int)(Stat.Skill * _berserkerParam);
             AttackSpeedParam += AttackSpeed * (float)_berserkerParam;
         }
     }
@@ -57,7 +57,9 @@ public class Werewolf : Wolf
         base.Init();
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
+        DrainParam = 0.18f;
         Player.SkillUpgradedList.Add(Skill.WerewolfThunder);
+        Player.SkillUpgradedList.Add(Skill.WerewolfBerserker);
     }
     
     protected override void UpdateMoving()
@@ -129,15 +131,21 @@ public class Werewolf : Wolf
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnEffect(EffectId.LightningStrike, this, Target.PosInfo);
+            var damage = Math.Max(TotalAttack - Target.TotalDefence, 0);
+            Hp += (int)(damage * DrainParam);
+            BroadcastHp();
             Target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            // TODO : DNA
         });
     }
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-        Hp += (int)((Attack - target.Defence) * DrainParam);
+        var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+        Hp += (int)(damage * DrainParam);
         BroadcastHp();
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        // TODO : DNA
     }
     
     public override void SetNextState()

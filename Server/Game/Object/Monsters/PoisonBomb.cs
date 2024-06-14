@@ -60,18 +60,18 @@ public class PoisonBomb : SnowBomb
 
     protected override void AttackImpactEvents(long impactTime)
     {
-        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             ApplyAttackEffect(Target);
         });
     }
     
-    protected override async void SkillImpactEvents(long impactTime)
+    protected override void SkillImpactEvents(long impactTime)
     {
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.PoisonBombSkill, this, 5f);
         });
     }
@@ -125,23 +125,18 @@ public class PoisonBomb : SnowBomb
     {
         if (Room == null) return;
         if (Invincible) return;
-
-        int totalDamage;
-        if (damageType is Damage.Normal or Damage.Magical)
+        if (new Random().Next(100) < TotalEvasion)
         {
-            totalDamage = Math.Max(damage - TotalDefence, 0);
-            if (damageType is Damage.Normal && Reflection && reflected == false)
-            {
-                if (attacker != null)
-                {
-                    int refParam = (int)(totalDamage * ReflectionRate);
-                    attacker.OnDamaged(this, refParam, damageType, true);
-                }
-            }
+            // TODO: Evasion Effect
+            return;
         }
-        else
+
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        if (damageType is Damage.Normal && Reflection && reflected == false)
         {
-            totalDamage = damage;
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);

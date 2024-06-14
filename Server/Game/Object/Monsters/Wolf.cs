@@ -5,7 +5,7 @@ namespace Server.Game;
 public class Wolf : WolfPup
 {
     private bool _drain = false;
-    protected readonly float DrainParam = 0.18f;
+    protected float DrainParam = 0.12f;
     
     protected override Skill NewSkill
     {
@@ -36,14 +36,15 @@ public class Wolf : WolfPup
 
     public override void ApplyAttackEffect(GameObject target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-        
         if (_drain)
         {
-            Hp += (int)((TotalAttack - target.TotalDefence) * DrainParam);
+            var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+            Hp += (int)(damage * DrainParam);
             BroadcastHp();
         }
         
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+
         // TODO : DNA
     }
 }

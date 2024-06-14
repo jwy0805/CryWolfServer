@@ -82,10 +82,12 @@ public class MoleRat : Burrow
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+        if (_drain) Hp += (int)(damage * DrainParam);
+        BroadcastHp();
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        if (_drain) Hp += (int)(Math.Max(TotalAttack - target.TotalDefence, 0) * DrainParam);
-        if (_stealAttack == false) return;
-        
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+        if (_stealAttack == false || target == null) return;
         if (StolenObjectId == 0)
         {
             StolenDamage = (int)(target.TotalAttack * StealAttackParam);
@@ -96,7 +98,6 @@ public class MoleRat : Burrow
         }
         
         if (StolenObjectId == target.Id) return;
-        
         var stolenTarget = Room?.FindGameObjectById(StolenObjectId);
         if (stolenTarget == null) return;
         stolenTarget.AttackParam += StolenDamage;
@@ -105,5 +106,6 @@ public class MoleRat : Burrow
         target.AttackParam -= StolenDamage;
         
         StolenObjectId = target.Id;
+        
     }
 }

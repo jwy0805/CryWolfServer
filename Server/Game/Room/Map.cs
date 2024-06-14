@@ -293,40 +293,6 @@ public partial class Map
         List<Vector3> pathRes = path.GetRange(0, indexRes);
         return pathRes;
     }
-
-    public List<Vector3> ProjectileMove(Projectile p)
-    {   
-        List<Vector3> path = GetProjectilePath(p);
-        int moveTick = (int)((p.MoveSpeed * _cellCnt * p.CallCycle / 1000 + p.DistRemainder) * 100);
-        int index = 0;
-        while (moveTick >= 1 && index < path.Count - 1)
-        {
-            double xDiff = path[index + 1].X - path[index].X;
-            double zDiff = path[index + 1].Z - path[index].Z;
-            int cost = (xDiff == 0 || zDiff == 0) ? 100 : 140;
-
-            if (moveTick >= cost)
-            {
-                moveTick -= cost;
-                index++;
-            }
-            else break;
-        }
-
-        index = Math.Min(index, path.Count - 1);
-        p.CellPos = path[index];
-        int indexRes = Math.Min(index * 8, path.Count);
-        return path.GetRange(0, indexRes);
-    }
-
-    public List<Vector3> GetProjectilePath(Projectile p)
-    {   // Projectile은 맵의 collision, Objects와 충돌하지 않음
-        Vector2Int startCell = Vector3To2(p.CellPos);
-        Vector2Int destCell = Vector3To2(p.DestPos);
-        List<Vector3> path = FindPath(p, startCell, destCell).Distinct().ToList();
-        if (path.Count == 0) Console.WriteLine($"Cell: {p.CellPos}, Dest: {p.DestPos}");
-        return path;
-    }
     
     public (List<Vector3>, List<double>) KnockBack(GameObject go, double d, bool checkObjects = false)
     {   // KnockBack은 이동과 다르게 충돌체크 없이 순수 이동경로를 구한 후 이동 중 충돌하면 IDLE로 상태 변화
@@ -359,8 +325,8 @@ public partial class Map
             return (pathRes, dirRes);
         }
 
+        ApplyMap(go, go.CellPos);
         go.State = State.Idle;
-        go.BroadcastPos();
         return new ValueTuple<List<Vector3>, List<double>>();
     }
 

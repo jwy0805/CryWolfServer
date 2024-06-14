@@ -64,6 +64,7 @@ public class Bloom : Bud
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
+            IsAttacking = false;
             return;
         }
         var packet = new S_SetAnimSpeed

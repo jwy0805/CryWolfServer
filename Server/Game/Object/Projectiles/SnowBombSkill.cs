@@ -2,7 +2,7 @@ namespace Server.Game;
 
 public class SnowBombSkill : Projectile
 {
-    protected override async void AttackImpactTime(long impactTime)
+    protected override async void AttackImpact(long impactTime)
     {
         if (Target == null || Target.Targetable == false || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>

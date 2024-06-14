@@ -87,7 +87,7 @@ public class SnowBomb : Bomb
         });
     }
 
-    protected virtual async void ExplodeEvents(long impactTime)
+    protected async void ExplodeEvents(long impactTime)
     {
         if (Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
@@ -169,6 +169,11 @@ public class SnowBomb : Bomb
     {
         if (Room == null) return;
         if (Invincible) return;
+        if (new Random().Next(100) < TotalEvasion)
+        {
+            // TODO: Evasion Effect
+            return;
+        }
 
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;

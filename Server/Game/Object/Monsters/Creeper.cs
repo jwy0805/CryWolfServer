@@ -6,10 +6,11 @@ namespace Server.Game;
 
 public class Creeper : Lurker
 {
-    private bool _roll = false;
+    private bool _rush = false;
     private bool _poison = false;
     private bool _nestedPoison = false;
     private bool _rollDamageUp = false;
+    private readonly int _rushSpeed = 4;
     
     protected bool Start = false;
     protected bool SpeedRestore = false;
@@ -24,15 +25,9 @@ public class Creeper : Lurker
             {
                 case Skill.CreeperPoison:
                     _poison = true;
-                    Room?.Broadcast(new S_SkillUpdate
-                    {
-                        ObjectEnumId = (int)UnitId,
-                        ObjectType = GameObjectType.Monster,
-                        SkillType = SkillType.SkillProjectile
-                    });
                     break;
                 case Skill.CreeperRoll:
-                    _roll = true;
+                    _rush = true;
                     break;
                 case Skill.CreeperNestedPoison:
                     _nestedPoison = true;
@@ -43,60 +38,96 @@ public class Creeper : Lurker
             }
         }
     }
+
+    protected override void UpdateIdle()
+    {
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
+        if (_rush && Start == false)
+        {
+            Start = true;
+            State = State.Rush; 
+        }
+        else
+        {
+            State = State.Moving;
+        }
+    }
     
     protected override void UpdateMoving()
     {
-        if (_roll && Start == false)
+        if (_rush && Start == false)
         {
             Start = true;
-            MoveSpeedParam += 2;
+            MoveSpeedParam += _rushSpeed;
             State = State.Rush;
-            BroadcastPos();
             return;
         }
         
-        if (_roll && Start && SpeedRestore == false)
+        if (_rush && Start && SpeedRestore == false)
         {
-            MoveSpeedParam -= 2;
+            MoveSpeedParam -= _rushSpeed;
             SpeedRestore = true;
         }
         
-        base.UpdateMoving();
+        // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {   // Target이 없거나 타겟팅이 불가능한 경우
+            State = State.Idle;
+            return;
+        }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        if (distance <= TotalAttackRange)
+        {
+            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
+            State = State.Attack;
+            SetDirection();
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
     }
 
     protected override void UpdateRush()
     {
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {
-            Target = Room.FindClosestTarget(this);
-            if (Target == null) return;
+        {   // Target이 없거나 타겟팅이 불가능한 경우
+            State = State.Idle;
+            return;
         }
-        // target이랑 가까운 경우
-        Vector3 position = CellPos;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         // Roll 충돌 처리
-        if (distance <= Stat.SizeX * 0.25 + 0.75f)
+        if (distance <= Stat.SizeX * 0.25 + 0.5f)
         {
-            CellPos = position;
             SetRollEffect(Target);
             Mp += MpRecovery;
             State = State.KnockBack;
             DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-            BroadcastPos();
-            Room.Broadcast(new S_SetKnockBack
-            {
-                ObjectId = Id, 
-                Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
-            });
             return;
         }
         // Target이 있으면 이동
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         (Path, Atan) = Room.Map.Move(this);
-        // Path 전파
         BroadcastPath();
     }
 
@@ -114,8 +145,7 @@ public class Creeper : Lurker
 
     protected override void UpdateKnockBack()
     {
-        double dir = Atan.Count > 0 ? Atan[^1] : 0;
-        (Path, Atan) = Room.Map.KnockBack(this, dir);
+        (Path, Atan) = Room.Map.KnockBack(this, Dir);
         BroadcastPath();
     }
 

@@ -21,7 +21,7 @@ public class Effect : GameObject
         base.Init();
         DestroyEffect(Duration);
     }
-
+    
     private async void DestroyEffect(long destroyTime)
     {
         await Scheduler.ScheduleEvent(destroyTime, () =>
@@ -36,6 +36,17 @@ public class Effect : GameObject
         // if (IsHit == false && PacketReceived) SetEffectEffect();
     }
 
+    protected virtual async void EffectImpact(long impactTime)
+    {
+        if (Room == null) return; // Effect는 Target이 없는 경우도 있음
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            if (Parent is Creature creature) creature.ApplyEffectEffect();
+            Room?.Push(Room.LeaveGameOnlyServer, Id);
+        });
+    }
+    
     protected virtual void SetEffectEffect()
     {
         // IsHit = true;

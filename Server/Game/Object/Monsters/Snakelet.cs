@@ -29,7 +29,6 @@ public class Snakelet : Monster
     {
         base.Init();
         AttackImpactMoment = 0.25f;
-        CurrentProjectile = ProjectileId.BasicProjectile;
     }
 
     protected override void AttackImpactEvents(long impactTime)
@@ -37,7 +36,7 @@ public class Snakelet : Monster
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(CurrentProjectile, this, 5f);
+            Room.SpawnProjectile(ProjectileId.BasicProjectile, this, 5f);
         });
     }
     

@@ -223,15 +223,6 @@ public partial class GameRoom
                 // }
                 break;
             
-            case AttackMethod.AdditionalAttack:
-                if (type is GameObjectType.Monster or GameObjectType.Tower)
-                {
-                    Creature cAttacker = (Creature)attacker;
-                    cAttacker.SetNextState();
-                    cAttacker.ApplyAdditionalAttackEffect(target);
-                }
-                break;
-            
             case AttackMethod.ProjectileAttack:
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
                 Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);

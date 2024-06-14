@@ -225,34 +225,21 @@ public partial class GameRoom
             let point = new Vector2(objPos.X, objPos.Z) 
             where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
     }
-    
-    public GameObject? FindTargetWithManyFriends(List<GameObjectType> type, List<GameObjectType> typeList, 
-        GameObject gameObject, float skillRange = 5, int targetType = 2)
+
+    public GameObject? FindDensityTargets(List<GameObjectType> searchType, List<GameObjectType> targetType,
+        GameObject gameObject, float range, float impactRange, int attackType = 0)
     {
-        List<GameObject> targets = FindTargets(gameObject, type, 100, 2)
-            .Where(t => t.Way == gameObject.Way || t.Way == SpawnWay.Any).ToList();
-        List<GameObject> allTargets = FindTargets(gameObject, typeList, 100, 2)
-            .Where(t => t.Way == gameObject.Way || t.Way == SpawnWay.Any).ToList();
+        var targets = FindTargets(gameObject, searchType, range, attackType);
         if (targets.Count == 0) return null;
 
-        GameObject target = new GameObject();
-        int postFriendsCnt = 0;
-        for (int i = 0; i < targets.Count; i++)
+        GameObject? target = null;
+        var maxDensity = 0;
+        foreach (var t in targets)
         {
-            int friendsCnt = 0;
-            for (int j = 0; j < allTargets.Count; i++)
-            {
-                Vector3 friendPos = allTargets[j].CellPos;
-                bool targetable = allTargets[j].Stat.Targetable;
-                float dist = new Vector3().SqrMagnitude(friendPos - gameObject.CellPos);
-                if (dist < skillRange * skillRange && targetable) friendsCnt++;
-            }
-            
-            if (friendsCnt > postFriendsCnt)
-            {
-                postFriendsCnt = friendsCnt;
-                target = targets[i];
-            }
+            var aroundTargets = FindTargets(t, targetType, impactRange, attackType);
+            if (aroundTargets.Count <= maxDensity) continue;
+            maxDensity = aroundTargets.Count;
+            target = t;
         }
 
         return target;
@@ -305,7 +292,7 @@ public partial class GameRoom
         if (targetList.Count == 0) return new List<GameObject>();
         
         var objectsInDist = targetList
-            .Where(obj => obj.Stat.Targetable && (attackType == 2 || obj.UnitType == attackType))
+            .Where(obj => obj.Targetable && (attackType == 2 || obj.UnitType == attackType))
             .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) < dist)
             .ToList();
 
@@ -319,17 +306,17 @@ public partial class GameRoom
     /// <param name="cellPos"></param>
     /// <param name="typeList"></param>
     /// <param name="dist"></param>
-    /// <param name="targetType"></param>
+    /// <param name="attackType"></param>
     /// <returns>"plural targets in the range."</returns>
     #endregion
     public List<GameObject> FindTargets(
-        Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int targetType = 0)
+        Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
         
         var objectsInDist = targetList
-            .Where(obj => obj.Stat.Targetable && (targetType == 2 || obj.UnitType == targetType))
+            .Where(obj => obj.Stat.Targetable && (attackType == 2 || obj.UnitType == attackType))
             .Where(obj => Vector3.Distance(obj.CellPos, cellPos) < dist)
             .ToList();
 

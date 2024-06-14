@@ -87,7 +87,12 @@ public partial class GameObject : IGameObject
     {
         if (Room == null) return;
         if (Invincible) return;
-
+        if (new Random().Next(100) < TotalEvasion)
+        {
+            // TODO: Evasion Effect
+            return;
+        }
+        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         if (damageType is Damage.Normal && Reflection && reflected == false)

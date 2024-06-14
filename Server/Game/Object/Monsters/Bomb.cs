@@ -82,6 +82,7 @@ public class Bomb : Monster
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
+            IsAttacking = false;
             return;
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
@@ -105,34 +106,6 @@ public class Bomb : Monster
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
-    }
-    
-    protected override void UpdateSkill()
-    {
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            return;
-        }
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        SkillImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
     }
 
     protected override void AttackImpactEvents(long impactTime)

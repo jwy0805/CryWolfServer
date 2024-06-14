@@ -297,7 +297,7 @@ public partial class GameRoom
         {   
             Dir = effectPos.Dir, 
             PosX = effectPos.PosX, 
-            PosY = effectPos.PosY, 
+            PosY = effectPos.PosY + 0.05f, 
             PosZ = effectPos.PosZ
         };
         var parentCopied = FindGameObjectById(parent.Id);
