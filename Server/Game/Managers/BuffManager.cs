@@ -343,7 +343,7 @@ public sealed partial class BuffManager
 
     private class Invincible : ABuff
     {
-        private readonly Effect _holyAura = ObjectManager.Instance.CreateEffect(EffectId.HolyAura);
+        private readonly Effect _holyAura = ObjectManager.Instance.Create<Effect>(EffectId.HolyAura);
         
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
             bool nested)
@@ -735,7 +735,7 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.Burn = true;
-            _stateBurn = ObjectManager.Instance.CreateEffect(EffectId.StateBurn);
+            _stateBurn = ObjectManager.Instance.Create<Effect>(EffectId.StateBurn);
         }
 
         public override void RemoveBuff()

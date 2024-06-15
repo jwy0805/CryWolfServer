@@ -63,16 +63,16 @@ public class SoulMage : Haunt
             List<Creature> monsters = Room.FindTargets(this, typeList, AttackRange, 2).Cast<Creature>().ToList();
             if (monsters.Any())
             {
-                Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
-                Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
-                greenGate.Room = Room;
-                greenGate.Parent = this;
-                greenGate.Target = monster;
-                greenGate.PosInfo = monster.PosInfo;
-                greenGate.Info.PosInfo = monster.Info.PosInfo;
-                greenGate.Info.Name = nameof(EffectId.GreenGate);
-                greenGate.Init();
-                Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
+                // Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
+                // Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
+                // greenGate.Room = Room;
+                // greenGate.Parent = this;
+                // greenGate.Target = monster;
+                // greenGate.PosInfo = monster.PosInfo;
+                // greenGate.Info.PosInfo = monster.Info.PosInfo;
+                // greenGate.Info.Name = nameof(EffectId.GreenGate);
+                // greenGate.Init();
+                // Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
             }
         }
         

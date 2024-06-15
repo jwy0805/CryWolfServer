@@ -8,7 +8,7 @@ public class Werewolf : Wolf
 {
     private bool _thunder;
     private bool _berserker;
-    private double _berserkerParam;
+    private float _berserkerParam;
     
     protected override Skill NewSkill
     {
@@ -58,6 +58,7 @@ public class Werewolf : Wolf
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
+        
         Player.SkillUpgradedList.Add(Skill.WerewolfThunder);
         Player.SkillUpgradedList.Add(Skill.WerewolfBerserker);
     }
@@ -141,10 +142,15 @@ public class Werewolf : Wolf
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+        var magicalParam = (int)(TotalSkillDamage * 0.2f);
+        var damage = Math.Max(TotalAttack - target.TotalDefence, 0) 
+                     + Math.Max(magicalParam - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
         BroadcastHp();
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        
+        Room?.SpawnEffect(EffectId.WerewolfMagicalEffect, this, target.PosInfo, true);
+        target.OnDamaged(this, magicalParam, Damage.Magical);
+        if (target.Targetable) target.OnDamaged(this, TotalAttack, Damage.Normal);
         // TODO : DNA
     }
     

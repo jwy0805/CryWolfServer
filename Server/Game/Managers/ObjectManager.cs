@@ -13,67 +13,25 @@ public sealed partial class ObjectManager : IFactory
     
     // [UNUSED(1)][TYPE(7)][ID(24)]
     private int _counter = 0;
-    
-    public Tower CreateTower(UnitId towerId)
-    {
-        if (!_towerDict.TryGetValue(towerId, out var factory)) throw new InvalidDataException();
-        GameObject gameObject = factory.CreateTower();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as Tower ?? throw new InvalidCastException();
-    }
 
-    public Monster CreateMonster(UnitId monsterId)
+    public T Create<T>(Enum id) where T : GameObject
     {
-        if (!_monsterDict.TryGetValue(monsterId, out var factory)) throw new InvalidDataException();
-        GameObject gameObject = factory.CreateMonster();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as Monster ?? throw new InvalidCastException();
-    }
+        IFactory<T>? factory = id switch
+        {
+            UnitId towerId when typeof(T) == typeof(Tower) => _towerDict[towerId] as IFactory<T>,
+            UnitId monsterId when typeof(T) == typeof(Monster) => _monsterDict[monsterId] as IFactory<T>,
+            ProjectileId projectileId when typeof(T) == typeof(Projectile) =>
+                _projectileDict[projectileId] as IFactory<T>,
+            EffectId effectId when typeof(T) == typeof(Effect) => _effectDict[effectId] as IFactory<T>,
+            ResourceId resourceId when typeof(T) == typeof(Resource) => _resourceDict[resourceId] as IFactory<T>,
+            _ => throw new InvalidDataException()
+        };
 
-    public MonsterStatue CreateMonsterStatue()
-    {
-        MonsterStatueFactory factory = new();
-        GameObject gameObject = factory.CreateStatue();
+        if (factory == null) throw new InvalidDataException();
+        var gameObject = factory.Create();
         lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as MonsterStatue ?? throw new InvalidCastException();
-    }
-    
-    public Tusk CreateTusk()
-    {
-        TuskFactory factory = new();
-        GameObject gameObject = factory.CreateTusk();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as Tusk ?? throw new InvalidCastException();
-    }
-    
-    public Projectile CreateProjectile(ProjectileId projectileId)
-    {
-        if (!_projectileDict.TryGetValue(projectileId, out var factory)) throw new InvalidDataException();
-        GameObject gameObject = factory.CreateProjectile();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        return gameObject as Projectile ?? throw new InvalidCastException();
-    }
 
-    public Effect CreateEffect(EffectId effectId)
-    {
-        if (!_effectDict.TryGetValue(effectId, out var factory)) throw new InvalidDataException();
-        GameObject gameObject = factory.CreateEffect();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as Effect ?? throw new InvalidCastException();
-    }
-
-    public Resource CreateResource(ResourceId resourceId)
-    {
-        if (!_resourceDict.TryGetValue(resourceId, out var factory)) throw new InvalidDataException();
-        GameObject gameObject = factory.CreateResource();
-        lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);
-        
-        return gameObject as Resource ?? throw new InvalidCastException();
+        return gameObject;
     }
     
     public T Add<T>() where T : GameObject, new()

@@ -159,7 +159,7 @@ public class GameData
         { UnitId.WolfPup, new HashSet<Skill> 
             { Skill.WolfPupAttack, Skill.WolfPupDefence, Skill.WolfPupSpeed } },
         { UnitId.Wolf, new HashSet<Skill> 
-            { Skill.WolfCritical, Skill.WolfDrain, Skill.WolfHealth, Skill.WolfLastHitDna, Skill.WolfMoreDna } },
+            { Skill.WolfCritical, Skill.WolfDrain, Skill.WolfHealth, Skill.WolfLastHitDna, Skill.WolfMagicalAttack } },
         { UnitId.Werewolf, new HashSet<Skill> 
             { Skill.WerewolfBerserker, Skill.WerewolfCriticalDamage,
                 Skill.WerewolfCriticalRate, Skill.WerewolfThunder } },
@@ -318,9 +318,9 @@ public class GameData
         { Skill.WolfPupAttack, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfPupDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfHealth, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.WolfMoreDna, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.WolfMagicalAttack, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WolfDrain, new HashSet<Skill> { Skill.WolfHealth } },
-        { Skill.WolfCritical, new HashSet<Skill> { Skill.WolfMoreDna } },
+        { Skill.WolfCritical, new HashSet<Skill> { Skill.WolfMagicalAttack } },
         { Skill.WolfLastHitDna, new HashSet<Skill> { Skill.WolfDrain, Skill.WolfCritical } },
         { Skill.WerewolfThunder, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.WerewolfCriticalRate, new HashSet<Skill> { Skill.NoSkill } },

@@ -5,6 +5,7 @@ namespace Server.Game;
 public class Wolf : WolfPup
 {
     private bool _drain = false;
+    private bool _magicalAttack = false;
     protected float DrainParam = 0.12f;
     
     protected override Skill NewSkill
@@ -20,7 +21,8 @@ public class Wolf : WolfPup
                     Hp += 80;
                     BroadcastHp();
                     break;
-                case Skill.WolfMoreDna:
+                case Skill.WolfMagicalAttack:
+                    _magicalAttack = true;
                     break;
                 case Skill.WolfDrain:
                     _drain = true;
@@ -38,12 +40,19 @@ public class Wolf : WolfPup
     {
         if (_drain)
         {
-            var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+            var damage = _magicalAttack 
+                ? Math.Max(TotalAttack - target.TotalDefence, 0) + Math.Max(TotalSkillDamage - target.TotalDefence, 0) 
+                : Math.Max(TotalAttack - target.TotalDefence, 0);
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
         }
-        
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+
+        if (_magicalAttack)
+        {
+            Room?.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
+            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+        }
+        if (target.Targetable) target.OnDamaged(this, TotalAttack, Damage.Normal);
 
         // TODO : DNA
     }

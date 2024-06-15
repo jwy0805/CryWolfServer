@@ -232,7 +232,7 @@ public partial class GameRoom
 
     private Tower EnterTower(int unitId, PositionInfo posInfo, Player player)
     {
-        var tower = ObjectManager.Instance.CreateTower((UnitId)unitId);
+        var tower = ObjectManager.Instance.Create<Tower>((UnitId)unitId);
         tower.PosInfo = posInfo;
         tower.Info.PosInfo = tower.PosInfo;
         tower.Player = player;
@@ -246,7 +246,7 @@ public partial class GameRoom
 
     private Monster EnterMonster(int unitId, PositionInfo posInfo, Player player)
     {
-        var monster = ObjectManager.Instance.CreateMonster((UnitId)unitId);
+        var monster = ObjectManager.Instance.Create<Monster>((UnitId)unitId);
         monster.PosInfo = posInfo;
         monster.Info.PosInfo = monster.PosInfo;
         monster.Player = player;
@@ -260,7 +260,7 @@ public partial class GameRoom
     
     private MonsterStatue EnterMonsterStatue(int unitId, PositionInfo posInfo, Player player)
     {
-        var statue = ObjectManager.Instance.CreateMonsterStatue();
+        var statue = ObjectManager.Instance.Add<MonsterStatue>();
         statue.PosInfo = posInfo;
         statue.Info.PosInfo = statue.PosInfo;
         statue.Player = player;
@@ -274,7 +274,7 @@ public partial class GameRoom
     
     public Effect EnterEffect(EffectId effectId, GameObject parent, PositionInfo? effectPos = null)
     {
-        var effect = ObjectManager.Instance.CreateEffect(effectId);
+        var effect = ObjectManager.Instance.Create<Effect>(effectId);
         effect.PosInfo = parent.PosInfo;
         // effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
         effect.Info.Name = effectId.ToString();
@@ -291,7 +291,7 @@ public partial class GameRoom
         if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
         if (parent == null) return;
         
-        var effect = ObjectManager.Instance.CreateEffect(effectId);
+        var effect = ObjectManager.Instance.Create<Effect>(effectId);
         effectPos ??= parent.PosInfo;
         var position = new PositionInfo
         {   
@@ -319,7 +319,7 @@ public partial class GameRoom
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return;
         if (parent?.Target == null) return;
         
-        var projectile = ObjectManager.Instance.CreateProjectile(projectileId);
+        var projectile = ObjectManager.Instance.Create<Projectile>(projectileId);
         var position = new PositionInfo
         {   
             Dir = parent.PosInfo.Dir, 

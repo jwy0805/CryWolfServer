@@ -39,6 +39,17 @@ public class Creeper : Lurker
         }
     }
 
+    public override void Init()
+    {
+        base.Init();
+        // Player.SkillUpgradedList.Add(Skill.CreeperPoison);
+    }
+    
+    public override void Update()
+    {
+        base.Update();
+    }
+
     protected override void UpdateIdle()
     {
         Target = Room.FindClosestTarget(this, Stat.AttackType);
@@ -130,6 +141,38 @@ public class Creeper : Lurker
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
+    
+    protected override void UpdateKnockBack()
+    {
+        (Path, Atan) = Room.Map.KnockBack(this, Dir);
+        BroadcastPath();
+    }
+    
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) { return; }
+            Room.SpawnProjectile(_nestedPoison ? ProjectileId.BigPoison : 
+                _poison ? ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5f);            
+        });
+    }
+
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    {
+        if (Room == null || target == null || Hp <= 0) return;
+        
+        if (_poison)
+        {
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+        }
+        else if (_nestedPoison)
+        {
+            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, target, this, 0, 5000);
+        }
+        
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+    }
 
     protected virtual void SetRollEffect(GameObject target)
     {
@@ -141,12 +184,6 @@ public class Creeper : Lurker
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
         }
-    }
-
-    protected override void UpdateKnockBack()
-    {
-        (Path, Atan) = Room.Map.KnockBack(this, Dir);
-        BroadcastPath();
     }
 
     // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)

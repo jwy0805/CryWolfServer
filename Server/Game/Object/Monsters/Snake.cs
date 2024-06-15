@@ -32,7 +32,6 @@ public class Snake : Snakelet
     public override void Init()
     {
         base.Init();
-        Player.SkillUpgradedList.Add(Skill.SnakeFire);
     }
     
     protected override void AttackImpactEvents(long impactTime)

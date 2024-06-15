@@ -78,7 +78,7 @@ public partial class GameRoom
 
     private void EffectSetting(GameObject master)
     {
-        var effect = ObjectManager.Instance.CreateEffect(EffectId.Upgrade);
+        var effect = ObjectManager.Instance.Create<Effect>(EffectId.Upgrade);
         effect.Room = this;
         effect.Target = master;
         effect.PosInfo = master.PosInfo;

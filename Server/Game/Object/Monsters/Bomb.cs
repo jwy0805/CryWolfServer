@@ -129,15 +129,15 @@ public class Bomb : Monster
     
     public virtual void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
     {
-        if (Room == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0) return;
         if (pid == ProjectileId.BombProjectile)
         {
-            target?.OnDamaged(this, TotalAttack, Damage.Normal);
+            target.OnDamaged(this, TotalAttack, Damage.Normal);
         }
         else
         {
             Room.SpawnEffect(EffectId.BombSkillExplosion, this, posInfo);
-            target?.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
         }
     }
     

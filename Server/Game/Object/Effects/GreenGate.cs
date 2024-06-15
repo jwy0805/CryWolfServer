@@ -36,15 +36,15 @@ public class GreenGate : Effect
 
     private void CreateEffect(EffectId effectId)
     {
-        if (Room == null || Target == null || Parent == null) return;
-        Effect effect = ObjectManager.Instance.CreateEffect(effectId);
-        effect.Room = Room;
-        effect.Parent = Parent;
-        effect.Target = Target;
-        // effect.PosInfo = SetEffectPos(Target);
-        effect.Info.PosInfo = effect.PosInfo;
-        effect.Info.Name = effectId.ToString();
-        effect.Init();
-        Room.EnterGameTarget(effect, effect.Parent, effect.Target);
+        // if (Room == null || Target == null || Parent == null) return;
+        // Effect effect = ObjectManager.Instance.CreateEffect(effectId);
+        // effect.Room = Room;
+        // effect.Parent = Parent;
+        // effect.Target = Target;
+        // // effect.PosInfo = SetEffectPos(Target);
+        // effect.Info.PosInfo = effect.PosInfo;
+        // effect.Info.Name = effectId.ToString();
+        // effect.Init();
+        // Room.EnterGameTarget(effect, effect.Parent, effect.Target);
     }
 }

@@ -76,7 +76,7 @@ public class Creature : GameObject
                 break;
             case State.Standby:
                 break;
-        }   
+        }
     }
     
     protected virtual void UpdateIdle() { }

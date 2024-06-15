@@ -144,8 +144,8 @@ public partial class GameRoom
                 break;
             
             case GameObjectType.Effect:
-                EffectId effectType = (EffectId)spawnPacket.Num;
-                Effect effect = ObjectManager.Instance.CreateEffect(effectType);
+                var effectType = (EffectId)spawnPacket.Num;
+                var effect = ObjectManager.Instance.Create<Effect>(effectType);
                 effect.PosInfo = spawnPacket.PosInfo;
                 effect.Info.PosInfo = effect.PosInfo;
                 effect.Init();
@@ -225,7 +225,7 @@ public partial class GameRoom
             
             case AttackMethod.ProjectileAttack:
                 if (!Enum.IsDefined(typeof(ProjectileId), attackPacket.Projectile)) return;
-                Projectile projectile = ObjectManager.Instance.CreateProjectile(attackPacket.Projectile);
+                var projectile = ObjectManager.Instance.Create<Projectile>(attackPacket.Projectile);
                 projectile.Room = this;
                 projectile.PosInfo = attacker.PosInfo;
                 // projectile.PosInfo.PosY = attacker.PosInfo.PosY + attacker.Stat.SizeY;

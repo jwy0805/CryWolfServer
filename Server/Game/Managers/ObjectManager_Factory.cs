@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public sealed partial class ObjectManager
 {
-    private readonly Dictionary<UnitId, ITowerFactory> _towerDict = new()
+    private readonly Dictionary<UnitId, IFactory<Tower>> _towerDict = new()
     {
         { UnitId.Bunny, new BunnyFactory() },
         { UnitId.Rabbit, new RabbitFactory() },
@@ -37,8 +37,8 @@ public sealed partial class ObjectManager
         { UnitId.Haunt, new HauntFactory() },
         { UnitId.SoulMage, new SoulMageFactory() },
     };
-
-    private readonly Dictionary<UnitId, IMonsterFactory> _monsterDict = new()
+    
+    private readonly Dictionary<UnitId, IFactory<Monster>> _monsterDict = new()
     {
         { UnitId.DogPup, new DogPupFactory() },
         { UnitId.DogBark, new DogBarkFactory() },
@@ -69,7 +69,7 @@ public sealed partial class ObjectManager
         { UnitId.SkeletonMage, new SkeletonMageFactory() }
     };
     
-    private readonly Dictionary<ProjectileId, IProjectileFactory> _projectileDict = new()
+    private readonly Dictionary<ProjectileId, IFactory<Projectile>> _projectileDict = new()
     {
         { ProjectileId.BasicProjectile, new BasicProjectileFactory() },
         { ProjectileId.SmallFire, new SmallFireFactory() },
@@ -80,12 +80,12 @@ public sealed partial class ObjectManager
         { ProjectileId.BlossomProjectile, new BlossomProjectileFactory() },
         { ProjectileId.BlossomDeathProjectile, new BlossomDeathProjectileFactory() },
         { ProjectileId.HauntProjectile, new HauntProjectileFactory() },
-        { ProjectileId.HauntFire, new HauntFireProjectileFactory() },
+        { ProjectileId.HauntFire, new HauntFireFactory() },
         { ProjectileId.SoulMageProjectile, new SoulMageProjectileFactory() },
         { ProjectileId.SunfloraPixieProjectile, new SunfloraPixieProjectileFactory() },
         { ProjectileId.SunfloraPixieFire, new SunfloraPixieFireFactory() },
         { ProjectileId.MothMoonProjectile, new MothMoonProjectileFactory()},
-        { ProjectileId.MothCelestialPoison, new MothCelestialPoisonProjectileFactory() },
+        { ProjectileId.MothCelestialPoison, new MothCelestialPoisonFactory() },
         { ProjectileId.MosquitoStingerProjectile, new MosquitoStingerProjectileFactory() },
         { ProjectileId.SpikeProjectile, new SpikeProjectileFactory() },
         { ProjectileId.HermitProjectile, new HermitProjectileFactory() },
@@ -99,8 +99,8 @@ public sealed partial class ObjectManager
         { ProjectileId.HarePunch, new HarePunchFactory() },
         { ProjectileId.RabbitAggro, new RabbitAggroFactory() }
     };
-
-    private readonly Dictionary<EffectId, IEffectFactory> _effectDict = new()
+    
+    private readonly Dictionary<EffectId, IFactory<Effect>> _effectDict = new()
     {
         { EffectId.LightningStrike, new LightningStrikeFactory() },
         { EffectId.PoisonBelt, new PoisonBeltFactory() },
@@ -126,13 +126,15 @@ public sealed partial class ObjectManager
         { EffectId.BombSkillExplosion, new BombSkillExplosionFactory() },
         { EffectId.PoisonBombSkillExplosion, new PoisonBombSkillExplosionFactory() },
         { EffectId.SkeletonGiantEffect, new SkeletonGiantEffectFactory() },
-        { EffectId.SkeletonGiantSkill, new SkeletonGiantSkill() },
-        { EffectId.SkeletonGiantRevive, new SkeletonGiantRevive() },
+        { EffectId.SkeletonGiantSkill, new SkeletonGiantSkillFactory() },
+        { EffectId.SkeletonGiantRevive, new SkeletonGiantReviveFactory() },
         { EffectId.CactusBossBreathEffect, new CactusBossBreathEffectFactory() },
         { EffectId.CactusBossSmashEffect, new CactusBossSmashEffectFactory() },
+        { EffectId.WolfMagicalEffect, new WolfMagicalEffectFactory() },
+        { EffectId.WerewolfMagicalEffect, new WerewolfMagicalEffectFactory() }
     };
-
-    private readonly Dictionary<ResourceId, IResourceFactory> _resourceDict = new()
+    
+    private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
     {
         { ResourceId.CoinStarSilver, new CoinStarSilverFactory() },
         { ResourceId.CoinStarGolden, new CoinStarGoldenFactory() },
@@ -140,619 +142,130 @@ public sealed partial class ObjectManager
         { ResourceId.PouchRed, new PouchRedFactory() },
         { ResourceId.ChestGold, new ChestGoldFactory() }
     };
-    
-    public interface ITowerFactory
-    {
-        Tower CreateTower();
-    }
-    
-    public interface IMonsterFactory
-    {
-        Monster CreateMonster();
-    }
-    
-    public interface IProjectileFactory
-    {
-        Projectile CreateProjectile();
-    }
-    
-    public interface IEffectFactory
-    {
-        Effect CreateEffect();
-    }
-    
-    public interface IResourceFactory
-    {
-        Resource CreateResource();
-    }
 
-    public class MonsterStatueFactory
-    {
-        public MonsterStatue CreateStatue() => new();
-    }
-
-    public class TuskFactory
-    {
-        public Tusk CreateTusk() => new();
-    }
-    
-    public class FenceFactory
-    {
-        public Fence CreateFence() => new();
-    }
-    
-    public class BunnyFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Bunny();
-    }
-    
-    public class RabbitFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Rabbit();
-    }
-    
-    public class HareFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Hare();
-    }
-    
-    public class MushroomFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Mushroom();
-    }
-    
-    public class FungiFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Fungi();
-    }
-    
-    public class ToadstoolFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Toadstool();
-    }
-    
-    public class SeedFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Seed();
-    }
-    
-    public class SproutFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Sprout();
-    }
-    
-    public class FlowerPotFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new FlowerPot();
-    }
-    
-    public class BudFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Bud();
-    }
-    
-    public class BloomFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Bloom();
-    }
-    
-    public class BlossomFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Blossom();
-    }
-    
-    public class PracticeDummyFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new PracticeDummy();
-    }
-    
-    public class TargetDummyFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new TargetDummy();
-    }
-    
-    public class TrainingDummyFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new TrainingDummy();
-    }
-    
-    public class ShellFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Shell();
-    }
-    
-    public class SpikeFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Spike();
-    }
-    
-    public class HermitFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Hermit();
-    }
-    
-    public class SunBlossomFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new SunBlossom();
-    }
-    
-    public class SunflowerFairyFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new SunflowerFairy();
-    }
-    
-    public class SunfloraPixieFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new SunfloraPixie();
-    }
-    
-    public class MothLunaFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new MothLuna();
-    }
-    
-    public class MothMoonFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new MothMoon();
-    }
-    
-    public class MothCelestialFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new MothCelestial();
-    }
-    
-    public class SoulFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Soul();
-    }
-    
-    public class HauntFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Haunt();
-    }
-    
-    public class SoulMageFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new SoulMage();
-    }
-
-    public class PumpkinFactory : ITowerFactory
-    {
-        public Tower CreateTower() => new Pumpkin();
-    }
-    
-    public class DogPupFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new DogPup();
-    }
-    
-    public class DogBarkFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new DogBark();
-    }
-    
-    public class DogBowwowFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new DogBowwow();
-    }
-    
-    public class BurrowFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Burrow();
-    }
-    
-    public class MoleRatFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MoleRat();
-    }
-    
-    public class MoleRatKingFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MoleRatKing();
-    }
-    
-    public class MosquitoBugFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoBug();
-    }
-    
-    public class MosquitoPesterFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoPester();
-    }
-    
-    public class MosquitoStingerFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new MosquitoStinger();
-    }
-    
-    public class WolfPupFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new WolfPup();
-    }
-    
-    public class WolfFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Wolf();
-    }
-    
-    public class WerewolfFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Werewolf();
-    }
-
-    public class BombFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Bomb();
-    }
-    
-    public class SnowBombFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new SnowBomb();
-    }
-    
-    public class PoisonBombFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new PoisonBomb();
-    }
-    
-    public class CactiFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Cacti();
-    }
-    
-    public class CactusFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Cactus();
-    }
-    
-    public class CactusBossFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new CactusBoss();
-    }
-    
-    public class LurkerFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Lurker();
-    }
-    
-    public class CreeperFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Creeper();
-    }
-    
-    public class HorrorFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Horror();
-    }
-    
-    public class SnakeletFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Snakelet();
-    }
-    
-    public class SnakeFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Snake();
-    }
-    
-    public class SnakeNagaFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new SnakeNaga();
-    }
-    
-    public class SkeletonFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new Skeleton();
-    }
-    
-    public class SkeletonGiantFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new SkeletonGiant();
-    }
-    
-    public class SkeletonMageFactory : IMonsterFactory
-    {
-        public Monster CreateMonster() => new SkeletonMage();
-    }
-    
-    public class BasicProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BasicProjectile();
-    }
-    
-    public class SmallFireFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SmallFire();
-    }
-    
-    public class BigFireFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BigFire();
-    }
-    
-    public class SmallPoisonFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SmallPoison();
-    }
-    
-    public class BigPoisonFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BigPoison();
-    }
-    
-    public class SeedProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SeedProjectile();
-    }
-    
-    public class BlossomProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BlossomProjectile();
-    }
-    
-    public class BlossomDeathProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BlossomDeathProjectile();
-    }
-
-    public class HauntProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new HauntProjectile();
-    }
-    
-    public class HauntFireProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new HauntFire();
-    }
-    
-    public class SoulMageProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SoulMageProjectile();
-    }
-    
-    public class SunfloraPixieProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SunfloraPixieProjectile();
-    }
-    
-    public class SunfloraPixieFireFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SunfloraPixieFire();
-    }
-    
-    public class MothMoonProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new MothMoonProjectile();
-    }
-    
-    public class MothCelestialPoisonProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new MothCelestialPoison();
-    }
-    
-    public class MosquitoStingerProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new MosquitoStingerProjectile();
-    }
-
-    public class SpikeProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SpikeProjectile();
-    }
-
-    public class HermitProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new HermitProjectile();
-    }
-    
-    public class MosquitoPesterProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new MosquitoPesterProjectile();
-    }
-    
-    public class BombProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BombProjectile();
-    }
-
-    public class BombSkillFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BombSkill();
-    }
-    
-    public class SnowBombSkillFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SnowBombSkill();
-    }
-    
-    public class PoisonBombSkillFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new PoisonBombSkill();
-    }
-    
-    public class SkeletonMageProjectileFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new SkeletonMageProjectile();
-    }
-    
-    public class BasicProjectile2Factory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new BasicProjectile2();
-    }
-    
-    public class HarePunchFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new HarePunch();
-    }
-    
-    public class RabbitAggroFactory : IProjectileFactory
-    {
-        public Projectile CreateProjectile() => new RabbitAggro();
-    }
-    
-    public class LightningStrikeFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new LightningStrike();
-    }
-    
-    public class PoisonBeltFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new PoisonBelt();
-    }
-    
-    public class HolyAuraFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new HolyAura();
-    }
-    
-    public class SoulMagePunchFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new SoulMagePunch();
-    }
-
-    public class MeteorFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new Meteor();
-    }
-
-    public class StateSlowFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateSlow();
-    }
-
-    public class StatePoisonFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StatePoison();
-    }
-    
-    public class StateFaintFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateFaint();
-    }
-
-    public class StateCurseFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateCurse();
-    }
-
-    public class StateBurnFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateBurn();
-    }
-    
-    public class StateHealFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateHeal();
-    }
-
-    public class StateAggroFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateAggro();
-    }
-
-    public class StateDebuffRemoveFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StateDebuffRemove();
-    }
-
-    public class GreenGateFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new GreenGate();
-    }
-
-    public class NaturalTornadoFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new NaturalTornado();
-    }
-
-    public class PurpleBeamFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new PurpleBeam();
-    }
-    
-    public class StarFallFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new StarFall();
-    }
-
-    public class HorrorRollFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new HorrorRoll();
-    }
-    
-    public class UpgradeEffectFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new UpgradeEffect();
-    }
-    
-    public class SnowBombExplosionFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new SnowBombExplosion();
-    }
-    
-    public class PoisonBombExplosionFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new PoisonBombExplosion();
-    }
-    
-    public class BombSkillExplosionFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new BombSkillExplosion();
-    }
-
-    public class PoisonBombSkillExplosionFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new PoisonBombSkillExplosion();
-    }
-    
-    public class SkeletonGiantEffectFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new SkeletonGiantEffect();
-    }
-
-    public class SkeletonGiantSkill : IEffectFactory
-    {
-        public Effect CreateEffect() => new Game.SkeletonGiantSkill();
-    }
-
-    public class SkeletonGiantRevive : IEffectFactory
-    {
-        public Effect CreateEffect() => new Game.SkeletonGiantRevive();
-    }
-    
-    public class CactusBossBreathEffectFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new CactusBossBreathEffect();
-    }
-    
-    public class CactusBossSmashEffectFactory : IEffectFactory
-    {
-        public Effect CreateEffect() => new CactusBossSmashEffect();
-    }
-
-    public class CoinStarSilverFactory : IResourceFactory
-    {
-        public Resource CreateResource() => new CoinStarSilver();
-    }
-    
-    public class CoinStarGoldenFactory : IResourceFactory
-    {
-        public Resource CreateResource() => new CoinStarGolden();
-    }
-    
-    public class PouchGreenFactory : IResourceFactory
-    {
-        public Resource CreateResource() => new PouchGreen();
-    }
-    
-    public class PouchRedFactory : IResourceFactory
-    {
-        public Resource CreateResource() => new PouchRed();
-    }
-    
-    public class ChestGoldFactory : IResourceFactory
-    {
-        public Resource CreateResource() => new ChestGold();
-    }
-}
+    public interface IFactory<out T> where T : GameObject
+    {
+        T Create();
+    }
+    
+    public class MonsterStatueFactory { public MonsterStatue CreateStatue() => new(); }
+    public class FenceFactory { public Fence CreateFence() => new(); }
+    public class SheepFactory { }
+    
+    public class BunnyFactory : IFactory<Bunny> { public Bunny Create() => new(); }
+    public class RabbitFactory : IFactory<Rabbit> { public Rabbit Create() => new(); }
+    public class HareFactory : IFactory<Hare> { public Hare Create() => new(); }
+    public class MushroomFactory : IFactory<Mushroom> { public Mushroom Create() => new(); }
+    public class FungiFactory : IFactory<Fungi> { public Fungi Create() => new(); }
+    public class ToadstoolFactory : IFactory<Toadstool> { public Toadstool Create() => new(); }
+    public class SeedFactory : IFactory<Seed> { public Seed Create() => new(); }
+    public class SproutFactory : IFactory<Sprout> { public Sprout Create() => new(); }
+    public class FlowerPotFactory : IFactory<FlowerPot> { public FlowerPot Create() => new(); }
+    public class BudFactory : IFactory<Bud> { public Bud Create() => new(); }
+    public class BloomFactory : IFactory<Bloom> { public Bloom Create() => new(); }
+    public class BlossomFactory : IFactory<Blossom> { public Blossom Create() => new(); }
+    public class PracticeDummyFactory : IFactory<PracticeDummy> { public PracticeDummy Create() => new(); }
+    public class TargetDummyFactory : IFactory<TargetDummy> { public TargetDummy Create() => new(); }
+    public class TrainingDummyFactory : IFactory<TrainingDummy> { public TrainingDummy Create() => new(); }
+    public class ShellFactory : IFactory<Shell> { public Shell Create() => new(); }
+    public class SpikeFactory : IFactory<Spike> { public Spike Create() => new(); }
+    public class HermitFactory : IFactory<Hermit> { public Hermit Create() => new(); }
+    public class SunBlossomFactory : IFactory<SunBlossom> { public SunBlossom Create() => new(); }
+    public class SunflowerFairyFactory : IFactory<SunflowerFairy> { public SunflowerFairy Create() => new(); }
+    public class SunfloraPixieFactory : IFactory<SunfloraPixie> { public SunfloraPixie Create() => new(); }
+    public class MothLunaFactory : IFactory<MothLuna> { public MothLuna Create() => new(); }
+    public class MothMoonFactory : IFactory<MothMoon> { public MothMoon Create() => new(); }
+    public class MothCelestialFactory : IFactory<MothCelestial> { public MothCelestial Create() => new(); }
+    public class SoulFactory : IFactory<Soul> { public Soul Create() => new(); }
+    public class HauntFactory : IFactory<Haunt> { public Haunt Create() => new(); }
+    public class SoulMageFactory : IFactory<SoulMage> { public SoulMage Create() => new(); }
+    public class DogPupFactory : IFactory<DogPup> { public DogPup Create() => new(); }
+    public class DogBarkFactory : IFactory<DogBark> { public DogBark Create() => new(); }
+    public class DogBowwowFactory : IFactory<DogBowwow> { public DogBowwow Create() => new(); }
+    public class BurrowFactory : IFactory<Burrow> { public Burrow Create() => new(); }
+    public class MoleRatFactory : IFactory<MoleRat> { public MoleRat Create() => new(); }
+    public class MoleRatKingFactory : IFactory<MoleRatKing> { public MoleRatKing Create() => new(); }
+    public class WolfPupFactory : IFactory<WolfPup> { public WolfPup Create() => new(); }
+    public class WolfFactory : IFactory<Wolf> { public Wolf Create() => new(); }
+    public class WerewolfFactory : IFactory<Werewolf> { public Werewolf Create() => new(); }
+    public class BombFactory : IFactory<Bomb> { public Bomb Create() => new(); }
+    public class SnowBombFactory : IFactory<SnowBomb> { public SnowBomb Create() => new(); }
+    public class PoisonBombFactory : IFactory<PoisonBomb> { public PoisonBomb Create() => new(); }
+    public class CactiFactory : IFactory<Cacti> { public Cacti Create() => new(); }
+    public class CactusFactory : IFactory<Cactus> { public Cactus Create() => new(); }
+    public class CactusBossFactory : IFactory<CactusBoss> { public CactusBoss Create() => new(); }
+    public class LurkerFactory : IFactory<Lurker> { public Lurker Create() => new(); }
+    public class CreeperFactory : IFactory<Creeper> { public Creeper Create() => new(); }
+    public class HorrorFactory : IFactory<Horror> { public Horror Create() => new(); }
+    public class SnakeletFactory : IFactory<Snakelet> { public Snakelet Create() => new(); }
+    public class SnakeFactory : IFactory<Snake> { public Snake Create() => new(); }
+    public class SnakeNagaFactory : IFactory<SnakeNaga> { public SnakeNaga Create() => new(); }
+    public class MosquitoBugFactory : IFactory<MosquitoBug> { public MosquitoBug Create() => new(); }
+    public class MosquitoPesterFactory : IFactory<MosquitoPester> { public MosquitoPester Create() => new(); }
+    public class MosquitoStingerFactory : IFactory<MosquitoStinger> { public MosquitoStinger Create() => new(); }
+    public class SkeletonFactory : IFactory<Skeleton> { public Skeleton Create() => new(); }
+    public class SkeletonGiantFactory : IFactory<SkeletonGiant> { public SkeletonGiant Create() => new(); }
+    public class SkeletonMageFactory : IFactory<SkeletonMage> { public SkeletonMage Create() => new(); }
+    public class BasicProjectileFactory : IFactory<BasicProjectile> { public BasicProjectile Create() => new(); }
+    public class SmallFireFactory : IFactory<SmallFire> { public SmallFire Create() => new(); }
+    public class BigFireFactory : IFactory<BigFire> { public BigFire Create() => new(); }
+    public class SmallPoisonFactory : IFactory<SmallPoison> { public SmallPoison Create() => new(); }
+    public class BigPoisonFactory : IFactory<BigPoison> { public BigPoison Create() => new(); }
+    public class SeedProjectileFactory : IFactory<SeedProjectile> { public SeedProjectile Create() => new(); }
+    public class BlossomProjectileFactory : IFactory<BlossomProjectile> { public BlossomProjectile Create() => new(); }
+    public class BlossomDeathProjectileFactory : IFactory<BlossomDeathProjectile> { public BlossomDeathProjectile Create() => new(); }
+    public class HauntProjectileFactory : IFactory<HauntProjectile> { public HauntProjectile Create() => new(); }
+    public class HauntFireFactory : IFactory<HauntFire> { public HauntFire Create() => new(); }
+    public class SoulMageProjectileFactory : IFactory<SoulMageProjectile> { public SoulMageProjectile Create() => new(); }
+    public class SunfloraPixieProjectileFactory : IFactory<SunfloraPixieProjectile> { public SunfloraPixieProjectile Create() => new(); }
+    public class SunfloraPixieFireFactory : IFactory<SunfloraPixieFire> { public SunfloraPixieFire Create() => new(); }
+    public class MothMoonProjectileFactory : IFactory<MothMoonProjectile> { public MothMoonProjectile Create() => new(); }
+    public class MothCelestialPoisonFactory : IFactory<MothCelestialPoison> { public MothCelestialPoison Create() => new(); }
+    public class MosquitoStingerProjectileFactory : IFactory<MosquitoStingerProjectile> { public MosquitoStingerProjectile Create() => new(); }
+    public class SpikeProjectileFactory : IFactory<SpikeProjectile> { public SpikeProjectile Create() => new(); }
+    public class HermitProjectileFactory : IFactory<HermitProjectile> { public HermitProjectile Create() => new(); }
+    public class MosquitoPesterProjectileFactory : IFactory<MosquitoPesterProjectile> { public MosquitoPesterProjectile Create() => new(); }
+    public class BombProjectileFactory : IFactory<BombProjectile> { public BombProjectile Create() => new(); }
+    public class BombSkillFactory : IFactory<BombSkill> { public BombSkill Create() => new(); }
+    public class SnowBombSkillFactory : IFactory<SnowBombSkill> { public SnowBombSkill Create() => new(); }
+    public class PoisonBombSkillFactory : IFactory<PoisonBombSkill> { public PoisonBombSkill Create() => new(); }
+    public class SkeletonMageProjectileFactory : IFactory<SkeletonMageProjectile> { public SkeletonMageProjectile Create() => new(); }
+    public class BasicProjectile2Factory : IFactory<BasicProjectile2> { public BasicProjectile2 Create() => new(); }
+    public class HarePunchFactory : IFactory<HarePunch> { public HarePunch Create() => new(); }
+    public class RabbitAggroFactory : IFactory<RabbitAggro> { public RabbitAggro Create() => new(); }
+    public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
+    public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
+    public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }
+    public class SoulMagePunchFactory : IFactory<SoulMagePunch> { public SoulMagePunch Create() => new(); }
+    public class MeteorFactory : IFactory<Meteor> { public Meteor Create() => new(); }
+    public class StateSlowFactory : IFactory<StateSlow> { public StateSlow Create() => new(); }
+    public class StatePoisonFactory : IFactory<StatePoison> { public StatePoison Create() => new(); }
+    public class StateFaintFactory : IFactory<StateFaint> { public StateFaint Create() => new(); }
+    public class StateCurseFactory : IFactory<StateCurse> { public StateCurse Create() => new(); }
+    public class StateBurnFactory : IFactory<StateBurn> { public StateBurn Create() => new(); }
+    public class StateHealFactory : IFactory<StateHeal> { public StateHeal Create() => new(); }
+    public class StateDebuffRemoveFactory : IFactory<StateDebuffRemove> { public StateDebuffRemove Create() => new(); }
+    public class StateAggroFactory : IFactory<StateAggro> { public StateAggro Create() => new(); }
+    public class GreenGateFactory : IFactory<GreenGate> { public GreenGate Create() => new(); }
+    public class NaturalTornadoFactory : IFactory<NaturalTornado> { public NaturalTornado Create() => new(); }
+    public class PurpleBeamFactory : IFactory<PurpleBeam> { public PurpleBeam Create() => new(); }
+    public class StarFallFactory : IFactory<StarFall> { public StarFall Create() => new(); }
+    public class HorrorRollFactory : IFactory<HorrorRoll> { public HorrorRoll Create() => new(); }
+    public class UpgradeEffectFactory : IFactory<UpgradeEffect> { public UpgradeEffect Create() => new(); }
+    public class SnowBombExplosionFactory : IFactory<SnowBombExplosion> { public SnowBombExplosion Create() => new(); }
+    public class PoisonBombExplosionFactory : IFactory<PoisonBombExplosion> { public PoisonBombExplosion Create() => new(); }
+    public class BombSkillExplosionFactory : IFactory<BombSkillExplosion> { public BombSkillExplosion Create() => new(); }
+    public class PoisonBombSkillExplosionFactory : IFactory<PoisonBombSkillExplosion> { public PoisonBombSkillExplosion Create() => new(); }
+    public class SkeletonGiantEffectFactory : IFactory<SkeletonGiantEffect> { public SkeletonGiantEffect Create() => new(); }
+    public class SkeletonGiantSkillFactory : IFactory<SkeletonGiantSkill> { public SkeletonGiantSkill Create() => new(); }
+    public class SkeletonGiantReviveFactory : IFactory<SkeletonGiantRevive> { public SkeletonGiantRevive Create() => new(); }
+    public class CactusBossBreathEffectFactory : IFactory<CactusBossBreathEffect> { public CactusBossBreathEffect Create() => new(); }
+    public class CactusBossSmashEffectFactory : IFactory<CactusBossSmashEffect> { public CactusBossSmashEffect Create() => new(); }
+    public class WolfMagicalEffectFactory : IFactory<WolfMagicalEffect> { public WolfMagicalEffect Create() => new(); }
+    public class WerewolfMagicalEffectFactory : IFactory<WerewolfMagicalEffect> { public WerewolfMagicalEffect Create() => new(); }
+    public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
+    public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
+    public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }
+    public class PouchRedFactory : IFactory<PouchRed> { public PouchRed Create() => new(); }
+    public class ChestGoldFactory : IFactory<ChestGold> { public ChestGold Create() => new(); }
+}   
