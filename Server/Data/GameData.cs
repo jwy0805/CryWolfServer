@@ -187,7 +187,7 @@ public class GameData
         { UnitId.Creeper, new HashSet<Skill>
             { Skill.CreeperPoison, Skill.CreeperRoll, Skill.CreeperNestedPoison, Skill.CreeperRollDamageUp } },
         { UnitId.Horror, new HashSet<Skill> 
-            { Skill.HorrorPoisonBelt, Skill.HorrorPoisonImmunity, Skill.HorrorRollPoison } },
+            { Skill.HorrorPoisonSmog, Skill.HorrorPoisonImmunity, Skill.HorrorRollPoison, Skill.HorrorDegeneration, Skill.HorrorDivision } },
         { UnitId.Skeleton, new HashSet<Skill> 
             { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff, } },
         { UnitId.SkeletonGiant, new HashSet<Skill> 
@@ -370,7 +370,9 @@ public class GameData
         { Skill.CreeperRollDamageUp, new HashSet<Skill> { Skill.CreeperRoll } },
         { Skill.HorrorPoisonImmunity, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.HorrorRollPoison, new HashSet<Skill> { Skill.HorrorPoisonImmunity } },
-        { Skill.HorrorPoisonBelt, new HashSet<Skill> { Skill.HorrorPoisonImmunity } },
+        { Skill.HorrorPoisonSmog, new HashSet<Skill> { Skill.HorrorPoisonImmunity, Skill.HorrorRollPoison } },
+        { Skill.HorrorDegeneration, new HashSet<Skill> { Skill.HorrorPoisonImmunity } },
+        { Skill.HorrorDivision, new HashSet<Skill> { Skill.HorrorPoisonImmunity, Skill.HorrorDegeneration } },
         { Skill.SkeletonDefenceDown, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SkeletonNestedDebuff, new HashSet<Skill> { Skill.SkeletonDefenceDown } },
         { Skill.SkeletonGiantDefenceDebuff, new HashSet<Skill> { Skill.NoSkill } },

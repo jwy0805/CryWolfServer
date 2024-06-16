@@ -8,7 +8,8 @@ public class Horror : Creeper
 {
     private bool _poisonImmunity = false;
     private bool _rollPoison = false;
-    private bool _poisonBelt = false;
+    private bool _poisonSmog = false;
+    private bool _division = false;
     
     protected override Skill NewSkill
     {
@@ -18,14 +19,20 @@ public class Horror : Creeper
             Skill = value;
             switch (Skill)
             {
-                case Skill.HorrorPoisonBelt:
-                    _poisonBelt = true;
+                case Skill.HorrorPoisonSmog:
+                    _poisonSmog = true;
                     break;
                 case Skill.HorrorPoisonImmunity:
                     _poisonImmunity = true;
                     break;
                 case Skill.HorrorRollPoison:
                     _rollPoison = true;
+                    break;
+                case Skill.HorrorDegeneration:
+                    Degeneration = true;
+                    break;
+                case Skill.HorrorDivision:
+                    _division = true;
                     break;
             }
         }
@@ -36,7 +43,7 @@ public class Horror : Creeper
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
 
-        if (Mp >= MaxMp && _poisonBelt)
+        if (Mp >= MaxMp && _poisonSmog)
         {
             Effect poisonBelt = ObjectManager.Instance.Create<Effect>(EffectId.PoisonBelt);
             poisonBelt.Room = Room;
@@ -99,18 +106,34 @@ public class Horror : Creeper
         base.UpdateMoving();
     }
 
-    protected override void SetRollEffect(GameObject target)
+    protected override void ApplyRollEffect(GameObject? target)
     {
-        target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+        if (target == null || Room == null) return;
         
-        if (!_rollPoison) return; 
-        // RollPoison Effect
-        var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
-        Room.EnterGameParent(effect, effect.Parent ?? this);
-        BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5000);
+        target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+        if (_rollPoison == false) return;
+        Room.SpawnEffect(EffectId.HorrorRoll, this, PosInfo);
+        var typeList = new List<GameObjectType> { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+        var targets = Room.FindTargetsInAngleRange(this, typeList, 5, 60);
+        foreach (var gameObject in targets)
+        {
+            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, gameObject, this, 0.05f, 5000);
+            gameObject.OnDamaged(this, TotalSkillDamage / 2, Damage.Normal);
+        }
     }
+    
+    // protected override void SetRollEffect(GameObject target)
+    // {
+    //     target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+    //     
+    //     if (!_rollPoison) return; 
+    //     // RollPoison Effect
+    //     var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
+    //     Room.EnterGameParent(effect, effect.Parent ?? this);
+    //     BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5000);
+    // }
 
-    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;

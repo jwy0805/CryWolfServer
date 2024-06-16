@@ -42,7 +42,7 @@ public class Creeper : Lurker
     public override void Init()
     {
         base.Init();
-        // Player.SkillUpgradedList.Add(Skill.CreeperPoison);
+        Player.SkillUpgradedList.Add(Skill.CreeperRoll);
     }
     
     public override void Update()
@@ -129,12 +129,16 @@ public class Creeper : Lurker
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         // Roll 충돌 처리
-        if (distance <= Stat.SizeX * 0.25 + 0.5f)
-        {
-            SetRollEffect(Target);
+        if (distance <= Stat.SizeX * 0.25 + 0.75f)
+        { 
+            ApplyRollEffect(Target);
             Mp += MpRecovery;
             State = State.KnockBack;
-            DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
+            
+            double radians = Math.PI * Dir / 180;
+            Vector3 dirVector = new((float)Math.Sin(radians), 0, (float)Math.Cos(radians));
+            DestPos = CellPos + -dirVector * 4;
+            Console.WriteLine($"{DestPos} {dirVector}");
             return;
         }
         // Target이 있으면 이동
@@ -144,6 +148,15 @@ public class Creeper : Lurker
     
     protected override void UpdateKnockBack()
     {
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
+        if (distance <= 0.4f)
+        {
+            State = State.Idle;
+            return;
+        }
+        
         (Path, Atan) = Room.Map.KnockBack(this, Dir);
         BroadcastPath();
     }
@@ -173,9 +186,11 @@ public class Creeper : Lurker
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
-
-    protected virtual void SetRollEffect(GameObject target)
+    
+    protected virtual void ApplyRollEffect(GameObject? target)
     {
+        if (target == null) return;
+        
         if (_rollDamageUp)
         {
             target.OnDamaged(this, TotalSkillDamage * 2, Damage.Normal);
@@ -185,18 +200,4 @@ public class Creeper : Lurker
             target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
         }
     }
-
-    // public override void SetProjectileEffect(GameObject target, ProjectileId pId = ProjectileId.None)
-    // {
-    //     target.OnDamaged(this, TotalAttack, Damage.Normal);
-    //     if (_poison)
-    //     {
-    //         BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
-    //     }
-    //     else if (_nestedPoison)
-    //     {
-    //         BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, target, this, 0, 5000);
-    //
-    //     }
-    // }
 }

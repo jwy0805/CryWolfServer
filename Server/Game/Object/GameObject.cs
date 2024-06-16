@@ -150,7 +150,8 @@ public partial class GameObject : IGameObject
 
     protected virtual void BroadcastPath()
     {
-        if (Path.Count == 0) return;
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (Path == null || Path.Count == 0) return;
         var pathPacket = new S_SetPath { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         for (var i = 0; i < Path.Count; i++)
         {

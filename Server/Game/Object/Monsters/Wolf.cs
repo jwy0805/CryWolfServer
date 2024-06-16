@@ -36,6 +36,12 @@ public class Wolf : WolfPup
         }
     }
 
+    public override void Init()
+    {
+        base.Init();
+        Player.SkillUpgradedList.Add(Skill.WolfMagicalAttack);
+    }
+
     public override void ApplyAttackEffect(GameObject target)
     {
         if (_drain)

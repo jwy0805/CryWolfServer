@@ -74,11 +74,6 @@ public sealed partial class BuffManager
         public ABuff CreateBuff() => new Addicted();
     }
 
-    public class DeadlyAddictedFactory : IBuffFactory
-    {
-        public ABuff CreateBuff() => new DeadlyAddicted();
-    }
-
     public class AggroFactory : IBuffFactory
     {
         public ABuff CreateBuff() => new Aggro();

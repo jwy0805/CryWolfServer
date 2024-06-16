@@ -225,7 +225,7 @@ public partial class Map
 
         int moveTick = (int)(go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
         int index = 0;
-        while (moveTick >= 100 && index < path.Count - 1)
+        while (moveTick >= 100 && index + 1 < path.Count)
         {
             double xDiff = path[index + 1].X - path[index].X;
             double zDiff = path[index + 1].Z - path[index].Z;
@@ -271,7 +271,7 @@ public partial class Map
         
         int moveTick = (int)(go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
         int index = 0;
-        while (moveTick >= 100 && index < path.Count - 1)
+        while (moveTick >= 100 && index + 1 < path.Count)
         {
             double xDiff = path[index + 1].X - path[index].X;
             double zDiff = path[index + 1].Z - path[index].Z;
@@ -301,7 +301,7 @@ public partial class Map
         List<Vector3> path = FindPath(go, startCell, destCell, checkObjects).Distinct().ToList();
         int moveTick = (int)((go.MoveSpeed * _cellCnt * go.CallCycle / 1000 + go.DistRemainder) * 100);
         int index = 0;
-        while (moveTick >= 1 && index < path.Count)
+        while (moveTick >= 1 && index + 1 < path.Count)
         {
             double xDiff = path[index + 1].X - path[index].X;
             double zDiff = path[index + 1].Z - path[index].Z;

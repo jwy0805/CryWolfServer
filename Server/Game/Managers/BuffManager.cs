@@ -25,7 +25,6 @@ public sealed partial class BuffManager
         { BuffId.MoveSpeedDecrease, new MoveSpeedDebuffFactory() },
         { BuffId.Curse, new CurseFactory() },
         { BuffId.Addicted, new AddictedFactory() },
-        { BuffId.DeadlyAddicted, new DeadlyAddictedFactory() },
         { BuffId.Aggro, new AggroFactory() },
         { BuffId.Burn, new BurnFactory() },
         { BuffId.Fainted, new FaintedFactory() }
@@ -585,7 +584,6 @@ public sealed partial class BuffManager
         private float _param;
         private readonly double _dot = 1000;
         private double _dotTime;
-        private Effect? _statePoison;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
             bool nested)
@@ -593,7 +591,7 @@ public sealed partial class BuffManager
             base.Init(master, caster, startTime, duration, param, nested);
             Id = BuffId.Addicted;
             Type = BuffType.Debuff;
-            _param = 0.05f;
+            _param = param;
             _dotTime = startTime;
         }
 
@@ -622,68 +620,11 @@ public sealed partial class BuffManager
 
             return false;
         }
-        
-        public override void RemoveBuff()
-        {
-            base.RemoveBuff();
-            if (_statePoison != null) _statePoison.PacketReceived = true;
-        }
-    }
-
-    private class DeadlyAddicted : ABuff
-    {
-        private float _param;
-        private readonly double _dot = 1000;
-        private double _dotTime;
-        private Effect? _statePoison;
-
-        public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
-            bool nested)
-        {
-            base.Init(master, caster, startTime, duration, param, nested);
-            Id = BuffId.Addicted;
-            Type = BuffType.Debuff;
-            Nested = true;
-            _param = param;
-        }
-
-        public override void TriggerBuff()
-        {
-            var effectPos = new PositionInfo
-            {
-                PosX = Master.PosInfo.PosX,
-                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
-                PosZ = Master.PosInfo.PosZ
-            };
-            Instance.Room?.SpawnEffect(EffectId.StatePoison, Master, effectPos, true, (int)Duration);
-        }
-        
-        public override bool UpdateBuff(long deltaTime)
-        {
-            if (EndTime <= deltaTime) return true;
-            if (Master.Invincible) return false; 
-            
-            if (deltaTime > _dotTime + _dot)
-            {
-                _dotTime = deltaTime;
-                int damage = (int)(Master.MaxHp * _param * (100 - Master.PoisonResist) / 100);
-                Master.OnDamaged(Caster, damage, Damage.Poison);
-            }
-
-            return false;
-        }
-        
-        public override void RemoveBuff()
-        {
-            base.RemoveBuff();
-            if (_statePoison != null) _statePoison.PacketReceived = true;
-        }
     }
 
     public class Aggro : ABuff
     {
         private Creature? _caster;
-        private Effect? _stateAggro;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
             bool nested)
@@ -706,12 +647,6 @@ public sealed partial class BuffManager
                 PosZ = Master.PosInfo.PosZ
             };
             Instance.Room?.SpawnEffect(EffectId.StateAggro, Master, effectPos, true, (int)Duration);
-        }
-        
-        public override void RemoveBuff()
-        {
-            base.RemoveBuff();
-            if (_stateAggro != null) _stateAggro.PacketReceived = true;
         }
     }
     
