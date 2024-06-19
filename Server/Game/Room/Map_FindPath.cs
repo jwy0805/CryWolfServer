@@ -66,15 +66,6 @@ public struct Vector2Int
     {
         return new Vector2Int(v1.X - v2.X, v1.Z - v2.Z);
     }
-
-    public static double SignedAngle(Vector2Int start, Vector2Int dest)
-    {
-        double angle = Math.Atan2(dest.Z, dest.X) * 180 / Math.PI - Math.Atan2(start.Z, start.X) * 180 / Math.PI;
-        return (angle + 360) % 360; // Normalize angle to [0, 360]
-    }
-
-    public float Magnitude => (float)Math.Sqrt(SqrMagnitude);
-    public int SqrMagnitude => X * X + Z * Z;
 }
 
 public struct Region

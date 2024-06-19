@@ -74,7 +74,7 @@ public class MoleRat : Burrow
         if (state == State.RushToIdle)
         {
             State = State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             if (_burrowSpeed && StateChanged) MoveSpeedParam -= 2;
             if (_burrowEvasion && StateChanged) EvasionParam -= 30;
         }

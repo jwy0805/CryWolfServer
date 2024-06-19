@@ -4,8 +4,6 @@ namespace Server.Game;
 
 public class Lurker : Monster
 {
-    protected bool Degeneration = false;
-    
     protected override Skill NewSkill
     {
         get => Skill;

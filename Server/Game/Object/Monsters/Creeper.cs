@@ -10,10 +10,11 @@ public class Creeper : Lurker
     private bool _poison = false;
     private bool _nestedPoison = false;
     private bool _rollDamageUp = false;
-    private readonly int _rushSpeed = 4;
+    private readonly int _divideDuration = 800;
     
-    protected bool Start = false;
-    protected bool SpeedRestore = false;
+    protected bool Rushed = false;
+    protected readonly int RushSpeed = 4;
+    protected readonly float BounceParam = 1f;
     
     protected override Skill NewSkill
     {
@@ -42,12 +43,45 @@ public class Creeper : Lurker
     public override void Init()
     {
         base.Init();
-        Player.SkillUpgradedList.Add(Skill.CreeperRoll);
+        Player.SkillSubject.SkillUpgraded(Skill.CreeperRoll);
     }
     
     public override void Update()
     {
-        base.Update();
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Divide:
+                UpdateDivide();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }
     }
 
     protected override void UpdateIdle()
@@ -55,9 +89,9 @@ public class Creeper : Lurker
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
-        if (_rush && Start == false)
+        if (_rush && Rushed == false)
         {
-            Start = true;
+            MoveSpeed += RushSpeed;
             State = State.Rush; 
         }
         else
@@ -65,58 +99,13 @@ public class Creeper : Lurker
             State = State.Moving;
         }
     }
-    
-    protected override void UpdateMoving()
-    {
-        if (_rush && Start == false)
-        {
-            Start = true;
-            MoveSpeedParam += _rushSpeed;
-            State = State.Rush;
-            return;
-        }
-        
-        if (_rush && Start && SpeedRestore == false)
-        {
-            MoveSpeedParam -= _rushSpeed;
-            SpeedRestore = true;
-        }
-        
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
-            State = State.Idle;
-            return;
-        }
-        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
-        Vector3 flatDestPos = DestPos with { Y = 0 };
-        Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatDestPos, flatCellPos);
-        double deltaX = DestPos.X - CellPos.X;
-        double deltaZ = DestPos.Z - CellPos.Z;
-        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        if (distance <= TotalAttackRange)
-        {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
-            State = State.Attack;
-            SetDirection();
-            return;
-        }
-        // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
-        BroadcastPath();
-    }
 
     protected override void UpdateRush()
     {
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
+            MoveSpeed -= RushSpeed;
             State = State.Idle;
             return;
         }
@@ -129,16 +118,15 @@ public class Creeper : Lurker
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         // Roll 충돌 처리
-        if (distance <= Stat.SizeX * 0.25 + 0.75f)
-        { 
+        if (distance <= /*Stat.SizeX * 0.25 +*/ 1f)
+        {
             ApplyRollEffect(Target);
             Mp += MpRecovery;
             State = State.KnockBack;
             
             double radians = Math.PI * Dir / 180;
             Vector3 dirVector = new((float)Math.Sin(radians), 0, (float)Math.Cos(radians));
-            DestPos = CellPos + -dirVector * 4;
-            Console.WriteLine($"{DestPos} {dirVector}");
+            DestPos = CellPos + -dirVector * 3;
             return;
         }
         // Target이 있으면 이동
@@ -153,6 +141,8 @@ public class Creeper : Lurker
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
         if (distance <= 0.4f)
         {
+            Rushed = true;
+            MoveSpeed -= RushSpeed;
             State = State.Idle;
             return;
         }
@@ -160,14 +150,60 @@ public class Creeper : Lurker
         (Path, Atan) = Room.Map.KnockBack(this, Dir);
         BroadcastPath();
     }
+
+    private void UpdateDivide()
+    {
+        var destPacket = new S_SetKnockBack
+        {
+            Dest = new DestVector { X = DestPos.X, Y = DestPos.Y - BounceParam, Z = DestPos.Z },
+            ObjectId = Id
+        };
+        Room.Broadcast(destPacket);
+    }
+
+    public void OnDivide()
+    {
+        Vector3 dividePos;
+        do
+        {
+            Random random = new();
+            double minRadius = 2;
+            double maxRadius = 3;
+            double radius = minRadius + (maxRadius - minRadius) * random.NextDouble();
+
+            double directionRadian = Dir * (Math.PI / 180);
+            double minTheta = directionRadian;
+            double maxTheta = directionRadian + Math.PI;
+
+            double theta = random.NextDouble() * (maxTheta - minTheta) + minTheta;
+            float x = (float)(radius * Math.Cos(theta));
+            float z = (float)(radius * Math.Sin(theta));
+
+            dividePos = new Vector3(CellPos.X + x, CellPos.Y, CellPos.Z + z);
+        } while (Room!.Map.CanGo(this, Room.Map.Vector3To2(dividePos)) == false);
+
+        DestPos = dividePos;
+        CellPos = DestPos;
+        Room.Map.ApplyMap(this, CellPos);
+        DivideEvents(_divideDuration);
+    }
     
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) { return; }
-            Room.SpawnProjectile(_nestedPoison ? ProjectileId.BigPoison : 
-                _poison ? ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5f);            
+            Room.SpawnProjectile(_poison ?
+                ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5f);            
+        });
+    }
+
+    private async void DivideEvents(long impactTime)
+    {
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            State = State.Idle;
         });
     }
 
@@ -177,11 +213,11 @@ public class Creeper : Lurker
         
         if (_poison)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000);
         }
         else if (_nestedPoison)
         {
-            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, target, this, 0, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000, true);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);
@@ -199,5 +235,46 @@ public class Creeper : Lurker
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
         }
+    }
+    
+    protected override void OnDead(GameObject? attacker)
+    {
+        if (Room == null) return;
+        
+        Targetable = false;
+        if (attacker != null)
+        {
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
+            {
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
+                }
+                attacker.Target = null;
+            }
+        }
+        
+        if (AlreadyRevived == false && WillRevive)
+        {
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
+            return;
+        }
+
+        if (Degeneration)
+        {
+            Room.Map.ApplyLeave(this);
+
+            var lurkerPos = new PositionInfo
+            {
+                Dir = Dir, PosX = PosInfo.PosX, PosY = PosInfo.PosY, PosZ = PosInfo.PosZ
+            };
+            Room.SpawnMonster(UnitId.Lurker, lurkerPos, Player);
+            Room.LeaveGame(Id);
+            return;
+        }
+
+        Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.DieAndLeave(Id);
     }
 }

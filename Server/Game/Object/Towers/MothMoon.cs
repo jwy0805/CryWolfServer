@@ -121,7 +121,7 @@ public class MothMoon : MothLuna
                 if (distance <= AttackRange)
                 {
                     State = State.Attack;
-                    SetDirection();
+                    SyncPosAndDir();
                 }
                 else
                 {

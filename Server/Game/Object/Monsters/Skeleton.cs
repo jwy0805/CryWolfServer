@@ -6,10 +6,14 @@ namespace Server.Game;
 
 public class Skeleton : Monster
 {
-    private bool _defenceDown = false;
-    private bool _nestedDebuff = false;
+    private bool _defenceDown;
+    private bool _nestedDebuff;
+    private bool _additionalDamage;
 
-    protected readonly float DefenceDownParam = 3;
+    protected int AdditionalAttackParam;
+    protected int PreviousTargetId;
+    protected readonly int DefenceDownParam = 3;
+    
     
     protected override Skill NewSkill
     {
@@ -25,6 +29,12 @@ public class Skeleton : Monster
                 case Skill.SkeletonNestedDebuff:
                     _nestedDebuff = true;
                     break;
+                case Skill.SkeletonAdditionalDamage:
+                    _additionalDamage = true;
+                    break;
+                case Skill.SkeletonAttackSpeed:
+                    AttackSpeedParam += AttackSpeed * 0.15f;
+                    break;
             }
         }
     }
@@ -32,82 +42,106 @@ public class Skeleton : Monster
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Supporter;
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonDefenceDown);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonNestedDebuff);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonAdditionalDamage);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonAttackSpeed);
     }
     
     protected override void UpdateMoving()
     {   // Targeting
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastPos();
             return;
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        Vector3 position = CellPos;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        if (distance <= AttackRange)
+        
+        if (distance <= TotalAttackRange)
         {
-            CellPos = position;
-            State = new Random().Next(2) == 0 ? State.Attack : State.Attack2;
-            BroadcastPos();
+            State = GetRandomState(State.Attack, State.Attack2);
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
+    }
+
+    protected override void UpdateAttack2()
+    {
+        UpdateAttack();
     }
     
     public override void ApplyAttackEffect(GameObject target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-        
-        if (_defenceDown)
+        var effectPos = new PositionInfo
         {
-            BuffManager.Instance.AddBuff(BuffId.DefenceDecrease, target, this, DefenceDownParam, 5000);
+            PosX = target.CellPos.X, PosY = target.CellPos.Y + 0.5f, PosZ = target.CellPos.Z
+        };
+        var duration = (int)(1000 / TotalAttackSpeed);
+
+        if (PreviousTargetId != target.Id)
+        {
+            AdditionalAttackParam = 0;
+            PreviousTargetId = target.Id;
         }
-        if (_nestedDebuff)
+        
+        if (_defenceDown) target.DefenceParam -= DefenceDownParam;
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        if (target.Hp <= 0) return;
+        
+        if (_additionalDamage)
         {
-            target.DefenceParam -= 3;
+            if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
+            
+            if (AdditionalAttackParam > 0)
+            {
+                target.OnDamaged(this, AdditionalAttackParam, Damage.Magical);
+                if (target.Hp <= 0) return;
+            }
+            
+            Room.SpawnEffect(EffectId.SkeletonAdditionalEffect, target, effectPos, true, duration);
+        }
+        else
+        {
+            Room.SpawnEffect(EffectId.SkeletonEffect, target, effectPos, true, duration);
         }
     }
 
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
-            BroadcastPos();
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
-        if (distance <= TotalAttackRange)
+        if (distance > TotalAttackRange)
         {
-            SetDirection();
-            State = new Random().Next(2) == 0 ? State.Attack : State.Attack2;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
-            DestPos = targetPos;
-            State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            State = GetRandomState(State.Attack, State.Attack2);
+            SyncPosAndDir();
         }
     }
 }

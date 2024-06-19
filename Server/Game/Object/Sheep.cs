@@ -144,7 +144,7 @@ public class Sheep : Creature, ISkillObserver
         Room.Push(Room.EnterGame, go);
     }
     
-    public override void SkillInit()
+    protected override void SkillInit()
     {
         var skillUpgradedList = Player.SkillUpgradedList;
         var sheepName = "Sheep";
@@ -162,7 +162,7 @@ public class Sheep : Creature, ISkillObserver
         }
     }
 
-    protected override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject? attacker)
     {
         Room!.GameInfo.SheepCount--;
         base.OnDead(attacker);

@@ -101,7 +101,7 @@ public class Haunt : Soul
                 if (distance <= AttackRange)
                 {
                     State = _longAttack ? State.Skill : State.Attack;
-                    SetDirection();
+                    SyncPosAndDir();
                 }
                 else
                 {

@@ -44,6 +44,7 @@ public class Burrow : Monster
         {
             var preState = PosInfo.State;
             PosInfo.State = value;
+            if (preState != PosInfo.State) DistRemainder = 0;
             BroadcastState();
             StateChanged = preState != PosInfo.State;
         }
@@ -62,57 +63,47 @@ public class Burrow : Monster
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        if (MaxMp != 1 && Mp >= MaxMp)
+        switch (State)
         {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
-            Mp = 0;
-        }
-        else
-        {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Attack2:
-                    UpdateAttack2();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.IdleToRush:
-                    UpdateIdleToRush();
-                    break;
-                case State.RushToIdle:
-                    UpdateRushToIdle();
-                    break;
-                case State.IdleToUnderground:
-                    UpdateIdleToUnderground();
-                    break;
-                case State.UndergroundToIdle:
-                    UpdateUndergroundToIdle();
-                    break;
-                case State.Underground:
-                    UpdateUnderground();
-                    break;
-                case State.Faint:
-                    break;
-            }   
-        }
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Rush:
+                UpdateRush();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Attack2:
+                UpdateAttack2();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.IdleToRush:
+                UpdateIdleToRush();
+                break;
+            case State.RushToIdle:
+                UpdateRushToIdle();
+                break;
+            case State.IdleToUnderground:
+                UpdateIdleToUnderground();
+                break;
+            case State.UndergroundToIdle:
+                UpdateUndergroundToIdle();
+                break;
+            case State.Underground:
+                UpdateUnderground();
+                break;
+            case State.Faint:
+                break;
+        }   
     }
 
     protected override void UpdateIdle()
@@ -186,7 +177,7 @@ public class Burrow : Monster
         if (state == State.RushToIdle)
         {
             State = State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             if (StateChanged) EvasionParam -= 20;
         }
     }

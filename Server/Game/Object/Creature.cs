@@ -24,13 +24,17 @@ public class Creature : GameObject
     protected const long StdAnimTime = 1000;
     
     public UnitId UnitId { get; set; }
+    public Role UnitRole { get; set; }
+    public virtual bool Degeneration { get; set; }
 
     public override State State
     {
         get => PosInfo.State;
         set
         {
+            var preState = PosInfo.State;
             PosInfo.State = value;
+            if (preState != PosInfo.State) DistRemainder = 0;
             BroadcastState();
         }
     }
@@ -78,9 +82,36 @@ public class Creature : GameObject
                 break;
         }
     }
-    
+
     protected virtual void UpdateIdle() { }
-    protected virtual void UpdateMoving() { }
+
+    protected virtual void UpdateMoving()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {   // Target이 없거나 타겟팅이 불가능한 경우
+            State = State.Idle;
+            return;
+        }
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
+        double deltaX = DestPos.X - CellPos.X;
+        double deltaZ = DestPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+       
+        if (distance <= TotalAttackRange)
+        {
+            State = State.Attack;
+            SyncPosAndDir();
+            return;
+        }
+        // Target이 있으면 이동
+        (Path, Atan) = Room.Map.Move(this);
+        BroadcastPath();
+    }
     
     protected virtual void UpdateAttack()
     {
@@ -217,7 +248,7 @@ public class Creature : GameObject
         else
         {
             State = State.Attack;
-            SetDirection();
+            SyncPosAndDir();
         }
     }
 
@@ -233,13 +264,13 @@ public class Creature : GameObject
         }
     }
     
-    protected virtual void SetDirection()
+    protected virtual void SyncPosAndDir()
     {
         if (Room == null || Target == null) return;
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        BroadcastPos();
+        Room.Broadcast(new S_Sync { ObjectId = Id, PosInfo = PosInfo });
     }
 
     public virtual void OnSkillUpgrade(Skill skill)
@@ -251,7 +282,7 @@ public class Creature : GameObject
         SkillList.Add(NewSkill);
     }
 
-    public virtual void SkillInit()
+    protected virtual void SkillInit()
     {
         var skillUpgradedList = Player.SkillUpgradedList;
         var name = UnitId.ToString();

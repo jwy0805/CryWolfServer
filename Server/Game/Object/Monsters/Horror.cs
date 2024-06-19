@@ -10,6 +10,9 @@ public class Horror : Creeper
     private bool _rollPoison = false;
     private bool _poisonSmog = false;
     private bool _division = false;
+    private readonly int _divisionNum = 2;
+    private readonly float _poisonSmogRange = 3;
+    private PositionInfo _poisonSmogPos = new();
     
     protected override Skill NewSkill
     {
@@ -24,6 +27,7 @@ public class Horror : Creeper
                     break;
                 case Skill.HorrorPoisonImmunity:
                     _poisonImmunity = true;
+                    PoisonResistParam += 100;
                     break;
                 case Skill.HorrorRollPoison:
                     _rollPoison = true;
@@ -37,23 +41,20 @@ public class Horror : Creeper
             }
         }
     }
+
+    public override void Init()
+    {
+        base.Init();
+    }
     
     public override void Update()
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-
-        if (Mp >= MaxMp && _poisonSmog)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            Effect poisonBelt = ObjectManager.Instance.Create<Effect>(EffectId.PoisonBelt);
-            poisonBelt.Room = Room;
-            poisonBelt.Parent = this;
-            poisonBelt.PosInfo = PosInfo;
-            poisonBelt.Info.PosInfo = Info.PosInfo;
-            poisonBelt.Info.Name = EffectId.PoisonBelt.ToString();
-            poisonBelt.Init();
-            Room.EnterGameParent(poisonBelt, this);
-            Mp = 0;
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
         }
         
         switch (State)
@@ -83,27 +84,58 @@ public class Horror : Creeper
                 break;
             case State.Standby:
                 break;
-        }   
+        }
+    }
+    
+    protected override void UpdateIdle()
+    {
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
+        if (Rushed == false)
+        {
+            MoveSpeed += RushSpeed;
+            State = State.Rush; 
+        }
+        else
+        {
+            State = State.Moving;
+        }
     }
 
-    protected override void UpdateMoving()
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Start == false)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            Start = true;
-            MoveSpeedParam += 2;
-            State = State.Rush;
-            BroadcastPos();
-            return;
-        }
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BigPoison, this, 5f);
+        });
+    }
+
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    {
+        if (Room == null || target == null || Hp <= 0) return;
+        var targetPos = target.CellPos;
+        BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000, true);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         
-        if (Start && SpeedRestore == false)
+        if (_poisonSmog == false || Mp < MaxMp) return;
+        Mp = 0;
+        _poisonSmogPos = new PositionInfo { PosX = targetPos.X, PosY = targetPos.Y + 0.5f, PosZ = targetPos.Z };
+        Room.SpawnEffect(EffectId.PoisonSmog, this, _poisonSmogPos, false, 4000);
+    }
+    
+    public override void ApplyEffectEffect()
+    {
+        if (Room == null) return;
+        var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
+        var effectCellPos = new Vector3(_poisonSmogPos.PosX, _poisonSmogPos.PosY, _poisonSmogPos.PosZ);
+        var targets = Room.FindTargets(effectCellPos, types, _poisonSmogRange);
+        
+        foreach (var target in targets)
         {
-            MoveSpeedParam -= 2;
-            SpeedRestore = true;
+            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000, true);
         }
-        
-        base.UpdateMoving();
     }
 
     protected override void ApplyRollEffect(GameObject? target)
@@ -113,52 +145,102 @@ public class Horror : Creeper
         target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
         if (_rollPoison == false) return;
         Room.SpawnEffect(EffectId.HorrorRoll, this, PosInfo);
-        var typeList = new List<GameObjectType> { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-        var targets = Room.FindTargetsInAngleRange(this, typeList, 5, 60);
+        var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
+        var targets = Room.FindTargetsInAngleRange(this, types, 5, 60);
         foreach (var gameObject in targets)
         {
-            BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, gameObject, this, 0.05f, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, 0.05f, 5000, true);
             gameObject.OnDamaged(this, TotalSkillDamage / 2, Damage.Normal);
         }
     }
     
-    // protected override void SetRollEffect(GameObject target)
-    // {
-    //     target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
-    //     
-    //     if (!_rollPoison) return; 
-    //     // RollPoison Effect
-    //     var effect = Room.EnterEffect(EffectId.HorrorRoll, this);
-    //     Room.EnterGameParent(effect, effect.Parent ?? this);
-    //     BuffManager.Instance.AddBuff(BuffId.DeadlyAddicted, Target, this, 0.05f, 5000);
-    // }
-
     public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
         if (damageType is Damage.Poison && _poisonImmunity) return;
-
-        int totalDamage;
-        if (damageType is Damage.Normal or Damage.Magical)
+        
+        var random = new Random();
+        if (random.Next(100) < TotalEvasion)
         {
-            totalDamage = attacker.CriticalChance > 0 
-                ? Math.Max((int)(damage * attacker.CriticalMultiplier - TotalDefence), 0) 
-                : Math.Max(damage - TotalDefence, 0);
-            if (damageType is Damage.Normal && Reflection && reflected == false)
-            {
-                int refParam = (int)(totalDamage * ReflectionRate);
-                attacker.OnDamaged(this, refParam, damageType, true);
-            }
-        }
-        else
-        {
-            totalDamage = damage;
+            // TODO: Evasion Effect
+            return;
         }
         
+        var totalDamage = damageType is Damage.Normal or Damage.Magical 
+            ? Math.Max(damage - TotalDefence, 0) : damage;
+        
+        if (random.Next(100) < attacker?.CriticalChance)
+        {
+            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
+        }
+        
+        if (damageType is Damage.Normal && Reflection && reflected == false)
+        {
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
+        }
+
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
+    }
+
+    protected override void OnDead(GameObject? attacker)
+    {
+        if (Room == null) return;
+        
+        Targetable = false;
+        if (attacker != null)
+        {
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
+            {
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
+                }
+                attacker.Target = null;
+            }
+        }
+        
+        if (AlreadyRevived == false && WillRevive)
+        {
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
+            return;
+        }
+
+        if (Degeneration)
+        {
+            Room.Map.ApplyLeave(this);
+            
+            var creeperPos = new PositionInfo
+            {
+                PosX = PosInfo.PosX, PosY = PosInfo.PosY + BounceParam, PosZ = PosInfo.PosZ,
+                State = State.Divide,
+                Dir = Dir
+            };
+
+            if (_division)
+            {
+                for (int i = 0; i < _divisionNum; i++)
+                {
+                    var creeper = (Creeper)Room.SpawnMonster(UnitId.Creeper, creeperPos, Player);
+                    creeper.Degeneration = true;
+                    creeper.OnDivide();
+                }
+            }
+            else
+            {
+                var monster = (Creeper)Room.SpawnMonster(UnitId.Creeper, creeperPos, Player);
+                monster.Degeneration = true;
+                Room.LeaveGame(Id);
+                return;
+            }
+        }
+        
+        Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.DieAndLeave(Id);
     }
 }

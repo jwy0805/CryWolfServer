@@ -39,8 +39,8 @@ public class Scheduler
     
     public void CancelEvent(Guid taskId)
     {
-        if (_tasks.TryGetValue(taskId, out var cts) == false) return;
-        cts.Cancel();
+        if (_tasks.TryGetValue(taskId, out var cancelTokenSource) == false) return;
+        cancelTokenSource.Cancel();
         _tasks.Remove(taskId);
     }
 }

@@ -92,26 +92,6 @@ public class PacketHandler
         room?.Push(room.HandleEffectActivate, player, dirPacket);
     }
     
-    public static void C_StatInitHandler(PacketSession session, IMessage packet)
-    {
-        var initPacket = (C_StatInit)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        
-        room?.Push(room.HandleStatInit, player, initPacket);
-    }
-
-    public static void C_SkillInitHandler(PacketSession session, IMessage packet)
-    {
-        var initPacket = (C_SkillInit)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        
-        room?.Push(room.HandleSkillInit, player, initPacket);    
-    }
-    
     public static void C_SkillHandler(PacketSession session, IMessage packet)
     {
         var skillPacket = (C_Skill)packet;

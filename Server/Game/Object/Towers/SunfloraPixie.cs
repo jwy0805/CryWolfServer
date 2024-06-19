@@ -139,7 +139,7 @@ public class SunfloraPixie : SunflowerFairy
                     if (_faint)
                     {
                         State = State.Attack;
-                        SetDirection();
+                        SyncPosAndDir();
                     }
                     else State = State.Idle;
                 }

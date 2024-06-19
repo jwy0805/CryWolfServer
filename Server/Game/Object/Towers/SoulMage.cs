@@ -215,7 +215,7 @@ public class SoulMage : Haunt
                 if (distance <= AttackRange)
                 {
                     State = _tornado ? State.Skill : State.Attack;
-                    SetDirection();
+                    SyncPosAndDir();
                 }
                 else
                 {

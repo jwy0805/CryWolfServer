@@ -125,14 +125,22 @@ public class PoisonBomb : SnowBomb
     {
         if (Room == null) return;
         if (Invincible) return;
-        if (new Random().Next(100) < TotalEvasion)
+        
+        var random = new Random();
+        if (random.Next(100) < TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
         }
-
+        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
+        
+        if (random.Next(100) < attacker?.CriticalChance)
+        {
+            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
+        }
+        
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);

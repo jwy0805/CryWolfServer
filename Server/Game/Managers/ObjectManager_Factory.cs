@@ -103,7 +103,7 @@ public sealed partial class ObjectManager
     private readonly Dictionary<EffectId, IFactory<Effect>> _effectDict = new()
     {
         { EffectId.LightningStrike, new LightningStrikeFactory() },
-        { EffectId.PoisonBelt, new PoisonBeltFactory() },
+        { EffectId.PoisonSmog, new PoisonBeltFactory() },
         { EffectId.HolyAura, new HolyAuraFactory() },
         { EffectId.SoulMagePunch, new SoulMagePunchFactory() },
         { EffectId.Meteor, new MeteorFactory() },
@@ -131,7 +131,9 @@ public sealed partial class ObjectManager
         { EffectId.CactusBossBreathEffect, new CactusBossBreathEffectFactory() },
         { EffectId.CactusBossSmashEffect, new CactusBossSmashEffectFactory() },
         { EffectId.WolfMagicalEffect, new WolfMagicalEffectFactory() },
-        { EffectId.WerewolfMagicalEffect, new WerewolfMagicalEffectFactory() }
+        { EffectId.WerewolfMagicalEffect, new WerewolfMagicalEffectFactory() },
+        { EffectId.SkeletonEffect, new SkeletonEffectFactory() },
+        { EffectId.SkeletonAdditionalEffect, new SkeletonAdditionalEffectFactory() }
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -263,6 +265,8 @@ public sealed partial class ObjectManager
     public class CactusBossSmashEffectFactory : IFactory<CactusBossSmashEffect> { public CactusBossSmashEffect Create() => new(); }
     public class WolfMagicalEffectFactory : IFactory<WolfMagicalEffect> { public WolfMagicalEffect Create() => new(); }
     public class WerewolfMagicalEffectFactory : IFactory<WerewolfMagicalEffect> { public WerewolfMagicalEffect Create() => new(); }
+    public class SkeletonEffectFactory : IFactory<SkeletonEffect> { public SkeletonEffect Create() => new(); }
+    public class SkeletonAdditionalEffectFactory : IFactory<SkeletonAdditionalEffect> { public SkeletonAdditionalEffect Create() => new(); }
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

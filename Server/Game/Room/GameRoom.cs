@@ -127,7 +127,6 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Tower:
                 Tower tower = (Tower)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(UnitId), tower.UnitId.ToString()).ToString();
-                gameObject.PosInfo.State = State.Idle;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
                 _towers.Add(gameObject.Id, tower);
@@ -138,7 +137,6 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Monster:
                 Monster monster = (Monster)gameObject;
                 gameObject.Info.Name = Enum.Parse(typeof(UnitId), monster.UnitId.ToString()).ToString();
-                gameObject.PosInfo.State = State.Idle;
                 gameObject.PosInfo.Dir = 180;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
@@ -275,6 +273,22 @@ public partial class GameRoom : JobSerializer
         // }
     }
 
+    public void Degeneration(int objectId, UnitId degeneratedUnitId, PositionInfo posInfo, Player player)
+    {
+        var type = ObjectManager.GetObjectTypeById(objectId);
+        
+        switch (type)
+        {
+            case GameObjectType.Monster:
+                if (_monsters.Remove(objectId, out var monster) == false) return;
+                Map.ApplyLeave(monster);
+                var degeneratedMonster = SpawnMonster(degeneratedUnitId, posInfo, player);
+                degeneratedMonster.Degeneration = true;
+                monster.Room = null;
+                break;
+        }
+    }
+    
     public void DieAndLeave(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);

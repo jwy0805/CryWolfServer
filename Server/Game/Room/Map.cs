@@ -6,7 +6,7 @@ namespace Server.Game;
 
 public partial class Map
 {
-    private readonly short _cellCnt = 4;
+    private readonly short _cellCnt = 4; // Vector3 좌표 1당 vector2 좌표 4개
     public bool ApplyMap(GameObject gameObject, Vector3 pos = new(), bool checkObjects = true)
     {
         ApplyLeave(gameObject);
@@ -299,7 +299,7 @@ public partial class Map
         Vector2Int startCell = Vector3To2(go.CellPos);
         Vector2Int destCell = Vector3To2(go.DestPos);
         List<Vector3> path = FindPath(go, startCell, destCell, checkObjects).Distinct().ToList();
-        int moveTick = (int)((go.MoveSpeed * _cellCnt * go.CallCycle / 1000 + go.DistRemainder) * 100);
+        int moveTick = (int)((go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 + go.DistRemainder) * 100);
         int index = 0;
         while (moveTick >= 1 && index + 1 < path.Count)
         {

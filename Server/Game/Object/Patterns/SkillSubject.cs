@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public class SkillSubject : ISkillSubject
 {
-    private List<ISkillObserver> _observers = new();
+    private readonly List<ISkillObserver> _observers = new();
     private Skill _skill;
     
     public void AddObserver(ISkillObserver observer)

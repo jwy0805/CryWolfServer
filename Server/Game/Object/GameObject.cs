@@ -24,7 +24,7 @@ public partial class GameObject : IGameObject
     }
     public Player Player { get; set; }
     public List<BuffId> Buffs { get; set; } = new();
-    public GameObject? Target { get; set; }
+    public virtual GameObject? Target { get; set; }
     public GameObject? Parent { get; set; }
     public SpawnWay Way { get; set; }
     public bool Burn { get; set; }
@@ -87,7 +87,9 @@ public partial class GameObject : IGameObject
     {
         if (Room == null) return;
         if (Invincible) return;
-        if (new Random().Next(100) < TotalEvasion)
+        
+        var random = new Random();
+        if (random.Next(100) < TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
@@ -95,6 +97,12 @@ public partial class GameObject : IGameObject
         
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
+        
+        if (random.Next(100) < attacker?.CriticalChance)
+        {
+            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
+        }
+        
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
@@ -127,7 +135,7 @@ public partial class GameObject : IGameObject
         
         if (AlreadyRevived == false && WillRevive)
         {
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true};
+            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true };
             Room.Broadcast(dieAndRevivePacket);
             return;
         }
@@ -139,8 +147,7 @@ public partial class GameObject : IGameObject
     
     public virtual void BroadcastPos()
     {
-        S_Move movePacket = new() { ObjectId = Id, PosInfo = PosInfo };
-        Room?.Broadcast(movePacket);
+        Room?.Broadcast(new S_Move { ObjectId = Id, PosInfo = PosInfo });
     }
 
     protected virtual void BroadcastState()
@@ -149,8 +156,7 @@ public partial class GameObject : IGameObject
     }
 
     protected virtual void BroadcastPath()
-    {
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+    {   // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (Path == null || Path.Count == 0) return;
         var pathPacket = new S_SetPath { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         for (var i = 0; i < Path.Count; i++)
@@ -164,12 +170,11 @@ public partial class GameObject : IGameObject
     
     public virtual void BroadcastHp() 
     {
-        var hpPacket = new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp};
-        Room?.Broadcast(hpPacket);
+        Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp});
     }
 
     public virtual void BroadcastMp()
     {
-        var mpPacket = new S_ChangeMp { ObjectId = Id, Mp = Mp, MaxMp = MaxMp};
+        Room?.Broadcast(new S_ChangeMp { ObjectId = Id, Mp = Mp, MaxMp = MaxMp});
     }
 }

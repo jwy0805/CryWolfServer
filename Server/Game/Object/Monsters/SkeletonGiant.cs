@@ -9,8 +9,13 @@ public class SkeletonGiant : Skeleton
     private bool _defenceDebuff = false;
     private bool _attackSteal = false;
     private bool _reviveSelf = false;
+    protected List<GameObject> DebuffTargets = new();
+    
     protected readonly int DefenceDebuffParam = 3;
-    protected readonly float DebuffRange = 2.5f;
+    protected float DebuffRange = 2f;
+    protected readonly int AttackStealParam = 2;
+    protected readonly int ReviveAnimTime = 1000;
+    protected readonly int DeathStandbyTime = 2000;
     
     protected override Skill NewSkill
     {
@@ -35,199 +40,207 @@ public class SkeletonGiant : Skeleton
             }
         }
     }
+
+    public override void Init()
+    {
+        base.Init();
+    }
     
     public override void Update()
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
-        if (_defenceDebuff && Mp >= MaxMp)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
-            Mp = 0;
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
         }
-        else
+        
+        switch (State)
         {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Revive:
-                    UpdateRevive();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Moving:
+                UpdateMoving();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
         }
     }
     
     protected override void UpdateMoving()
     {   // Targeting
-        Target = Room.FindClosestTarget(this);
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastPos();
             return;
         }
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        Vector3 position = CellPos;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
+        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatDestPos = DestPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatDestPos, flatCellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        if (distance <= AttackRange)
+       
+        if (distance <= TotalAttackRange)
         {
-            CellPos = position;
-            State = State.Attack;
-            BroadcastPos();
+            State = _defenceDebuff && Mp >= MaxMp ? State.Skill : State.Attack;
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
 
-    protected virtual void UpdateRevive()
+    protected override void SkillImpactEvents(long impactTime)
     {
-        
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Room == null || Hp <= 0) return;
+            Mp = 0;
+            Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, PosInfo);
+            
+            foreach (var target in DebuffTargets)
+            {
+                target.AttackParam -= AttackStealParam;
+                AttackParam += AttackStealParam;
+            }
+        });
+    }
+    
+    protected virtual async void DieEvents(long standbyTime)
+    {
+        await Scheduler.ScheduleEvent(standbyTime, () =>
+        {
+            if (Room == null) return;
+            State = State.Revive;
+            ReviveEvents(ReviveAnimTime);
+        });
     }
 
+    protected virtual async void ReviveEvents(long reviveAnimTime)
+    {
+        await Scheduler.ScheduleEvent(reviveAnimTime, () =>
+        {
+            if (Room == null) return;
+            Targetable = true;
+            AlreadyRevived = true;
+            State = State.Idle;
+            Hp += (int)(MaxHp * ReviveHpRate);
+            BroadcastHp();
+        });
+    }
+    
     public override void ApplyAttackEffect(GameObject target)
     {
+        var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
+        var effectPos = new PositionInfo { PosX = targetPos.X, PosY = targetPos.Y + 0.5f, PosZ = targetPos.Z };
+        Room.SpawnEffect(EffectId.SkeletonGiantEffect, target, effectPos, true);
+        
+        if (PreviousTargetId != target.Id)
+        {
+            AdditionalAttackParam = 0;
+            PreviousTargetId = target.Id;
+        }
+        
+        if (_defenceDebuff)
+        {
+            var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
+            var targets = Room.FindTargets(targetPos, types, DebuffRange);
+            foreach (var t in targets) t.DefenceParam -= DefenceDebuffParam;
+            DebuffTargets = targets;
+        }
+        else
+        {
+            target.DefenceParam -= DefenceDownParam;
+        }
+        
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        target.DefenceParam -= DefenceDebuffParam;
-        var effect = Room.EnterEffect(EffectId.SkeletonGiantEffect, this);
-        Room.EnterGame(effect);
+        if (target.Hp <= 0) return;
+        if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
+        if (AdditionalAttackParam > 0)
+        {
+            target.OnDamaged(this, AdditionalAttackParam, Damage.Magical);
+            if (target.Hp <= 0) return;
+        }
     }
 
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-
-        if (Target.Hp <= 0)
-        {
-            Target = null;
-            State = State.Idle;
-            BroadcastPos();
+            AttackEnded = true;
             return;
         }
         
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
 
-        if (distance <= TotalAttackRange)
+        if (distance > TotalAttackRange)
         {
-            SetDirection();
-            State = State.Attack;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
-            DestPos = targetPos;
-            State = State.Moving;
-            Room.Broadcast(new S_State { ObjectId = Id, State = State });
-        }
-    }
-    
-    public override void SetNextState(State state)
-    {
-        if (state == State.Die)
-        {
-            if (AlreadyRevived == false && _reviveSelf || WillRevive)
-            {
-                AlreadyRevived = true;
-                State = State.Revive;
-                BroadcastPos();
-                return;
-            }
-        }
-        
-        if (state == State.Revive)
-        {
-            State = State.Idle;
-            Hp += (int)(MaxHp * ReviveHpRate);
-            if (Targetable == false) Targetable = true;
-            BroadcastHp();
-            BroadcastPos();
+            State = _defenceDebuff && Mp >= MaxMp ? State.Skill : State.Attack;
+            SyncPosAndDir();
         }
     }
 
-    protected override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject? attacker)
     {
         if (Room == null) return;
-        attacker.KillLog = Id;
+
         Targetable = false;
-        
-        if (attacker.Target != null)
+        if (attacker != null)
         {
-            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
             {
-                if (attacker.Parent != null)
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
                 {
-                    attacker.Parent.Target = null;
-                    attacker.State = State.Idle;
-                    // BroadcastPos();
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
                 }
+
+                attacker.Target = null;
             }
-            attacker.Target = null;
-            attacker.State = State.Idle;
-            // BroadcastPos();
         }
-        
-        if (AlreadyRevived == false && _reviveSelf)
+
+        if (AlreadyRevived == false && (_reviveSelf || WillRevive))
         {
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true};
+            State = State.Die;
+            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true };
             Room.Broadcast(dieAndRevivePacket);
+            DieEvents(DeathStandbyTime);
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id};
+        S_Die diePacket = new() { ObjectId = Id };
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
-    }
-
-    public override void RunSkill()
-    {
-        var effect = Room.EnterEffect(EffectId.SkeletonGiantSkill, this, Target?.PosInfo);
-        Room.EnterGameParent(effect, Target ?? this);
-        var targetTypeList = new HashSet<GameObjectType>
-            { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
-        var targets = Room.FindTargets(this, targetTypeList, DebuffRange);
-        foreach (var target in targets) target.DefenceParam -= DefenceDebuffParam;
-        
-        if (_attackSteal == false) return;
-        foreach (var target in targets)
-        {
-            BuffManager.Instance.AddBuff(BuffId.AttackDecrease, target, this, 2, 5000, true);
-            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, this, this, 2, 5000, true);
-        }
     }
 }

@@ -193,7 +193,7 @@ public class MothLuna : Tower
                 if (distance <= AttackRange)
                 {
                     State = State.Attack;
-                    SetDirection();
+                    SyncPosAndDir();
                 }
                 else
                 {

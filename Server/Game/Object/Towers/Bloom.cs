@@ -119,7 +119,7 @@ public class Bloom : Bud
         else
         {
             State = _combo ? State.Skill : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
         }
     }
 }

@@ -285,6 +285,21 @@ public partial class GameRoom
         return effect;
     }
 
+    public Monster SpawnMonster(UnitId unitId, PositionInfo posInfo, Player player)
+    {
+        var monster = ObjectManager.Instance.Create<Monster>(unitId);
+        monster.PosInfo = posInfo;
+        monster.Info.PosInfo = monster.PosInfo;
+        monster.Player = player;
+        monster.UnitId = unitId;
+        monster.Room = this;
+        monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
+        monster.Init();
+        Push(EnterGame, monster);
+        return monster;
+    }
+
     public void SpawnEffect(EffectId effectId, GameObject? parent, 
         PositionInfo? effectPos = null, bool trailing = false, int duration = 2000)
     {

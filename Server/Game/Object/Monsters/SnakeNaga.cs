@@ -105,14 +105,11 @@ public class SnakeNaga : Snake
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        
         if (distance <= TotalAttackRange)
         {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = Mp >= MaxMp && _meteor ? State.Skill : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
@@ -213,6 +210,6 @@ public class SnakeNaga : Snake
         }
         
         State =  Mp >= MaxMp ? State.Skill : State.Attack;
-        SetDirection();
+        SyncPosAndDir();
     }
 }

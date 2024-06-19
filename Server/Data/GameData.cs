@@ -189,7 +189,7 @@ public class GameData
         { UnitId.Horror, new HashSet<Skill> 
             { Skill.HorrorPoisonSmog, Skill.HorrorPoisonImmunity, Skill.HorrorRollPoison, Skill.HorrorDegeneration, Skill.HorrorDivision } },
         { UnitId.Skeleton, new HashSet<Skill> 
-            { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff, } },
+            { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff, Skill.SkeletonAdditionalDamage, Skill.SkeletonAttackSpeed } },
         { UnitId.SkeletonGiant, new HashSet<Skill> 
             { Skill.SkeletonGiantAttackSteal, Skill.SkeletonGiantRevive,
                 Skill.SkeletonGiantMpDown, Skill.SkeletonGiantDefenceDebuff } },
@@ -375,6 +375,8 @@ public class GameData
         { Skill.HorrorDivision, new HashSet<Skill> { Skill.HorrorPoisonImmunity, Skill.HorrorDegeneration } },
         { Skill.SkeletonDefenceDown, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SkeletonNestedDebuff, new HashSet<Skill> { Skill.SkeletonDefenceDown } },
+        { Skill.SkeletonAdditionalDamage, new HashSet<Skill> { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff }},
+        { Skill.SkeletonAttackSpeed, new HashSet<Skill> { Skill.SkeletonDefenceDown, Skill.SkeletonNestedDebuff }},
         { Skill.SkeletonGiantDefenceDebuff, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SkeletonGiantAttackSteal, new HashSet<Skill> { Skill.SkeletonGiantDefenceDebuff } },
         { Skill.SkeletonGiantMpDown, new HashSet<Skill> { Skill.SkeletonGiantAttackSteal } },

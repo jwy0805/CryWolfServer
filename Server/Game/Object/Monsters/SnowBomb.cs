@@ -62,14 +62,11 @@ public class SnowBomb : Bomb
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        
         if (distance <= TotalAttackRange)
         {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = Mp >= MaxMp ? State.Skill : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
@@ -100,7 +97,7 @@ public class SnowBomb : Bomb
 
     public override void ApplyEffectEffect()
     {
-        Room.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
+        Room?.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
         var targetList = new[] { GameObjectType.Monster };
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
@@ -162,21 +159,29 @@ public class SnowBomb : Bomb
         }
         
         State =  Mp >= MaxMp ? State.Skill : State.Attack;
-        SetDirection();
+        SyncPosAndDir();
     }
 
     public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
-        if (new Random().Next(100) < TotalEvasion)
+        
+        var random = new Random();
+        if (random.Next(100) < TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
         }
-
+        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
+        
+        if (random.Next(100) < attacker?.CriticalChance)
+        {
+            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
+        }
+        
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);

@@ -57,13 +57,11 @@ public class MosquitoBug : Monster
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        
         if (distance <= TotalAttackRange)
         {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동

@@ -329,22 +329,21 @@ public partial class GameRoom
     /// </summary>
     /// <param name="gameObject">The GameObject from which the angle is measured</param>
     /// <param name="typeList">The types of GameObjects to search for</param>
-    /// <param name="dist">The distance within which to search for targets</param>
+    /// <param name="skillDist">The distance within which to search for targets</param>
     /// <param name="angle">The half-angle range (in degrees) to search for targets</param>
     /// <param name="attackType">The specific target type to search for</param>
     /// <returns>List of GameObjects within the angle range</returns>
     #endregion
     public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, 
-        IEnumerable<GameObjectType> typeList, float dist = 100, float angle = 30, int attackType = 0)
+        IEnumerable<GameObjectType> typeList, float skillDist = 100, float angle = 30, int attackType = 0)
     {   // 1. 타겟 리스트 생성
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
-    
+        
         // 2. 현재 위치와 전방 벡터 계산
-        Vector2Int currentPos = Map.Vector3To2(gameObject.CellPos);
         double radians = gameObject.Dir * (Math.PI / 180);
-        Vector2Int forward = new Vector2Int((int)Math.Round(Math.Sin(radians)), (int)Math.Round(Math.Cos(radians)));
-
+        Vector3 forward = new Vector3((int)Math.Round(Math.Sin(radians)), 0, (int)Math.Round(Math.Cos(radians)));
+      
         // 3. 필터링할 목표물 리스트 초기화
         var objectsInAngleRange = new List<GameObject>();
 
@@ -353,13 +352,14 @@ public partial class GameRoom
         {   // 4.1 타겟팅 가능한지와 공격 타입이 맞는지 확인
             if (!obj.Targetable || (attackType != 2 && obj.UnitType != attackType)) continue;
             // 4.2 거리와 각도를 계산
-            Vector2Int targetPos = Map.Vector3To2(obj.CellPos);
-            Vector2Int directionToTarget = targetPos - currentPos;
-            float distanceSquared = directionToTarget.SqrMagnitude;
-            double angleToTarget = Vector2Int.SignedAngle(forward, directionToTarget);
+            Vector3 dirVector = obj.CellPos - gameObject.CellPos;
+            float distance = Vector3.Distance(obj.CellPos, gameObject.CellPos);
+            double angleToTarget =
+                (Math.Atan2(forward.Z, forward.X) - Math.Atan2(dirVector.Z, dirVector.X))
+                * 180 / Math.PI;
             if (angleToTarget > 180) angleToTarget -= 360;
             // 4.3 조건에 맞는지 확인
-            if (distanceSquared < dist * dist && Math.Abs(angleToTarget) <= angle / 2)
+            if (distance < skillDist && Math.Abs(angleToTarget) <= angle / 2)
             {   // 조건에 맞으면 리스트에 추가
                 objectsInAngleRange.Add(obj);
             }

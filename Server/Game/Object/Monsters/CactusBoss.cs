@@ -11,8 +11,7 @@ public class CactusBoss : Cactus
     private bool _breath = false;
     private bool _breathHeal = false;
     private bool _breathAggro = false;
-    private bool _start = false;
-    private bool _speedRestore = false;
+    private bool _rushed = false;
     private readonly int _rushSpeed = 3;
     private int HealParam => 60 + SkillParam;
     private int SmashDamage => 150 + SkillParam;
@@ -45,10 +44,10 @@ public class CactusBoss : Cactus
     {
         base.Init();
         ReflectionRate = 10;
-        Player.SkillUpgradedList.Add(Skill.CactusBossRush);
-        Player.SkillUpgradedList.Add(Skill.CactusBossBreath);
-        Player.SkillUpgradedList.Add(Skill.CactusBossHeal);
-        Player.SkillUpgradedList.Add(Skill.CactusBossAggro);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossRush);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossHeal);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossAggro);
     }
 
     public override void Update()
@@ -105,9 +104,9 @@ public class CactusBoss : Cactus
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
-        if (_rush && _start == false)
+        if (_rush && _rushed == false)
         {
-            _start = true;
+            MoveSpeed += _rushSpeed;
             State = State.Rush; 
         }
         else
@@ -118,19 +117,6 @@ public class CactusBoss : Cactus
 
     protected override void UpdateMoving()
     {
-        if (_rush && _start == false) // rush 업그레이드, 처음 spawn 되었을 때
-        {
-            MoveSpeedParam += _rushSpeed;
-            State = State.Rush;
-            return;
-        }
-        
-        if (_rush && _start && _speedRestore == false) // rush 이후 다시 moving일 때
-        {
-            MoveSpeedParam -= _rushSpeed;
-            _speedRestore = true;
-        }
-        
         // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
@@ -146,14 +132,11 @@ public class CactusBoss : Cactus
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        // Target이 사정거리 안에 있다가 밖으로 나간 경우 애니메이션 시간 고려하여 Attack 상태로 변경되도록 조정
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        
         if (distance <= TotalAttackRange)
         {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = Mp >= MaxMp && _breath ? State.Skill : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
@@ -166,6 +149,7 @@ public class CactusBoss : Cactus
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
+            MoveSpeed -= _rushSpeed;
             State = State.Idle;
             return;
         }
@@ -179,9 +163,10 @@ public class CactusBoss : Cactus
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         if (distance <= TotalAttackRange)
         {   // Attack3 = SMASH Animation
-            _start = true;
+            _rushed = true;
+            MoveSpeed -= _rushSpeed;            
             State = State.Attack3;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
@@ -283,21 +268,29 @@ public class CactusBoss : Cactus
         }
 
         State =  Mp >= MaxMp && _breath ? State.Skill : GetRandomState(State.Attack, State.Attack2);
-        SetDirection();
+        SyncPosAndDir();
     }
     
     public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
-        if (new Random().Next(100) < TotalEvasion)
+        
+        var random = new Random();
+        if (random.Next(100) < TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
         }
-
+        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
+        
+        if (random.Next(100) < attacker?.CriticalChance)
+        {
+            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
+        }
+        
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);

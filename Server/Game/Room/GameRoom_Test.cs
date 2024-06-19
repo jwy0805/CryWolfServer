@@ -61,7 +61,7 @@ public partial class GameRoom
             monster.StatueId = slot.Statue.Id;
             EnterGame(monster);
             
-            HandleSkillInit(player, new C_SkillInit { ObjectId = monster.Id });
+            // HandleSkillInit(player, new C_SkillInit { ObjectId = monster.Id });
         }
     }
     

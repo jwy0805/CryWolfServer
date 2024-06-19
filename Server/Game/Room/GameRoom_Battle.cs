@@ -114,8 +114,7 @@ public partial class GameRoom
 
             case GameObjectType.Monster:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
-                Monster monster = EnterMonster(spawnPacket.Num, spawnPacket.PosInfo, player);
-                Push(EnterGame, monster);
+                SpawnMonster((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
                 break;
             
             case GameObjectType.MonsterStatue:
@@ -268,22 +267,6 @@ public partial class GameRoom
         if (go == null) return;
         var effect = (Effect)go;
         effect.PacketReceived = true;
-    }
-    
-    public void HandleStatInit(Player? player, C_StatInit initPacket)
-    {
-        if (player == null) return;
-
-        Creature? creature = FindGameObjectById(initPacket.ObjectId) as Creature;
-        creature?.StatInit();
-    }
-
-    public void HandleSkillInit(Player? player, C_SkillInit initPacket)
-    {
-        if (player == null) return;
-        
-        Creature? creature = FindGameObjectById(initPacket.ObjectId) as Creature;
-        creature?.SkillInit();
     }
     
     public void HandleSkill(Player? player, C_Skill skillPacket)

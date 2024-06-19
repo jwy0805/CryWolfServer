@@ -103,7 +103,7 @@ public class Soul : Tower
                 if (distance <= AttackRange)
                 {
                     State = State.Attack;
-                    SetDirection();
+                    SyncPosAndDir();
                 }
                 else
                 {

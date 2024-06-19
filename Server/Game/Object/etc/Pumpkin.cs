@@ -41,5 +41,4 @@ public class Pumpkin : Tower
     protected override void UpdateMoving() { }
     protected override void UpdateAttack() { }
     public override void OnSkillUpgrade(Skill skill) { }
-    public override void SkillInit() { }
 }

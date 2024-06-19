@@ -58,6 +58,8 @@ public class Werewolf : Wolf
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
@@ -77,13 +79,11 @@ public class Werewolf : Wolf
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        
         if (distance <= TotalAttackRange)
         {
-            if (LastAnimEndTime != 0 && timeNow <= LastAnimEndTime + animPlayTime) return;
             State = _thunder ? GetRandomState(State.Skill, State.Skill2) : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
             return;
         }
         // Target이 있으면 이동
@@ -129,7 +129,7 @@ public class Werewolf : Wolf
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnEffect(EffectId.LightningStrike, this, Target.PosInfo);
-            var damage = Math.Max(TotalAttack - Target.TotalDefence, 0);
+            var damage = Math.Max(TotalSkillDamage - Target.TotalDefence, 0);
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
             Target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
@@ -174,7 +174,7 @@ public class Werewolf : Wolf
         else
         {
             State = _thunder ? GetRandomState(State.Skill, State.Skill2) : State.Attack;
-            SetDirection();
+            SyncPosAndDir();
         }
     }
 }

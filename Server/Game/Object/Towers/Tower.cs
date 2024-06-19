@@ -16,13 +16,13 @@ public class Tower : Creature, ISkillObserver
 
     public override void Init()
     {
+        base.Init();
+        Player.SkillSubject.AddObserver(this);
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
-        base.Init();
-        
+
         StatInit();
-        Player.SkillSubject.AddObserver(this);
-        State = State.Idle;
+        SkillInit();
     }
 
     protected override void UpdateIdle()
@@ -40,10 +40,10 @@ public class Tower : Creature, ISkillObserver
         
         if (distance > AttackRange) return;
         State = State.Attack;
-        SetDirection();
+        SyncPosAndDir();
     }
 
-    protected override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
         base.OnDead(attacker);

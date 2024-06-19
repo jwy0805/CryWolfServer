@@ -67,7 +67,7 @@ public class Blossom : Bloom
         else
         {
             State = State.Attack;
-            SetDirection();
+            SyncPosAndDir();
         }
     }
 

@@ -113,7 +113,7 @@ public class MoleRatKing : MoleRat
         else
         {
             State = GetRandomState(State.Attack, State.Attack2);
-            SetDirection();
+            SyncPosAndDir();
         }
     }
     
@@ -151,7 +151,7 @@ public class MoleRatKing : MoleRat
         if (state == State.RushToIdle)
         {
             State = GetRandomState(State.Attack, State.Attack2);
-            SetDirection();
+            SyncPosAndDir();
             MoveSpeedParam -= 2;
             EvasionParam -= 30;
         }
@@ -159,7 +159,7 @@ public class MoleRatKing : MoleRat
         if (state == State.UndergroundToIdle)
         {
             State = GetRandomState(State.Attack, State.Attack2);
-            SetDirection();
+            SyncPosAndDir();
             MoveSpeedParam -= 2;
             EvasionParam -= 40;
         }
