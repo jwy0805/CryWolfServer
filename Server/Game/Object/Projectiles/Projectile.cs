@@ -20,6 +20,7 @@ public class Projectile : GameObject
         if (Target == null || Target.Targetable == false)
         {
             Room.Push(Room.LeaveGame, Id);
+            Console.WriteLine("sdk");
             return;
         }
         
@@ -35,7 +36,7 @@ public class Projectile : GameObject
 
     protected virtual async void AttackImpact(long impactTime)
     {
-        if (Target == null || Target.Targetable == false || Room == null) return;
+        if (Parent == null || Target == null || Target.Targetable == false || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null) return;

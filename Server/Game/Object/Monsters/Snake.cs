@@ -39,7 +39,8 @@ public class Snake : Snakelet
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(_fire ? ProjectileId.SmallFire : ProjectileId.BasicProjectile2, this, 5f);
+            Room.SpawnProjectile(_fire ? ProjectileId.SnakeFire : ProjectileId.BasicProjectile2
+                , this, 5f);
         });
     }
     

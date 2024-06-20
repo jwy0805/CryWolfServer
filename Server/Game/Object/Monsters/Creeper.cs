@@ -239,6 +239,7 @@ public class Creeper : Lurker
     
     protected override void OnDead(GameObject? attacker)
     {
+        Player.SkillSubject.RemoveObserver(this);
         if (Room == null) return;
         
         Targetable = false;
@@ -257,6 +258,8 @@ public class Creeper : Lurker
         
         if (AlreadyRevived == false && WillRevive)
         {
+            if (IsAttacking) IsAttacking = false;
+            if (AttackEnded == false) AttackEnded = true;  
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
             return;
         }

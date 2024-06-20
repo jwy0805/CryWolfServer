@@ -28,4 +28,13 @@ public class Bunny : Tower
     {
         base.Init();
     }
+
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BasicProjectile3, this, 5f);
+        });
+    }
 }

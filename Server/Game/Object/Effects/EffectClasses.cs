@@ -23,3 +23,4 @@ public class SkeletonEffect : Effect { }
 public class SkeletonAdditionalEffect : Effect { }
 public class SkeletonGiantEffect : Effect { }
 public class SkeletonGiantSkill : Effect { }
+public class WillRevive : Effect { }

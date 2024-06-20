@@ -209,13 +209,16 @@ public partial class GameRoom : JobSerializer
         }
     }
 
-    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed)
+    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId)
     {
         var projectile = (Projectile)gameObject;
         _projectiles.Add(projectile.Id, projectile);
         projectile.Room = this;
-        var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y, Z = targetPos.Z };
-        var spawnPacket = new S_SpawnProjectile { Object = gameObject.Info, DestPos = destVector, MoveSpeed = speed };
+        var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y + 0.5f, Z = targetPos.Z };
+        var spawnPacket = new S_SpawnProjectile
+        {
+            Object = gameObject.Info, ParentId = parentId, DestPos = destVector, MoveSpeed = speed
+        };
         Broadcast(spawnPacket);
     }
 

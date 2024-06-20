@@ -342,22 +342,19 @@ public partial class GameRoom
             PosY = parent.PosInfo.PosY + parent.Stat.SizeY, 
             PosZ = parent.PosInfo.PosZ
         };
-        var targetCopied = FindGameObjectById(parent.Target.Id);
-        var parentCopied = FindGameObjectById(parent.Id);
-        if (targetCopied == null || parentCopied == null) return;
         
         projectile.Room = this;
+        projectile.Parent = parent;
+        projectile.Target = parent.Target;
         projectile.PosInfo = position;
         projectile.Info.PosInfo = projectile.PosInfo;
         projectile.Info.Name = projectileId.ToString();
         projectile.ProjectileId = projectileId;
-        projectile.Target = targetCopied;
-        projectile.Parent = parentCopied;
-        projectile.DestPos = targetCopied.CellPos;
-        projectile.Attack = parentCopied.TotalAttack;
+        projectile.DestPos = parent.Target.CellPos;
+        projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
-        EnterGameProjectile(projectile, projectile.DestPos, speed);
+        EnterGameProjectile(projectile, projectile.DestPos, speed, parent.Id);
     }
     
     private Sheep EnterSheep(Player player)

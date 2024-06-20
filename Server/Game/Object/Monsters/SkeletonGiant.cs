@@ -127,29 +127,6 @@ public class SkeletonGiant : Skeleton
         });
     }
     
-    protected virtual async void DieEvents(long standbyTime)
-    {
-        await Scheduler.ScheduleEvent(standbyTime, () =>
-        {
-            if (Room == null) return;
-            State = State.Revive;
-            ReviveEvents(ReviveAnimTime);
-        });
-    }
-
-    protected virtual async void ReviveEvents(long reviveAnimTime)
-    {
-        await Scheduler.ScheduleEvent(reviveAnimTime, () =>
-        {
-            if (Room == null) return;
-            Targetable = true;
-            AlreadyRevived = true;
-            State = State.Idle;
-            Hp += (int)(MaxHp * ReviveHpRate);
-            BroadcastHp();
-        });
-    }
-    
     public override void ApplyAttackEffect(GameObject target)
     {
         var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
@@ -180,7 +157,6 @@ public class SkeletonGiant : Skeleton
         if (AdditionalAttackParam > 0)
         {
             target.OnDamaged(this, AdditionalAttackParam, Damage.Magical);
-            if (target.Hp <= 0) return;
         }
     }
 
@@ -213,6 +189,7 @@ public class SkeletonGiant : Skeleton
 
     protected override void OnDead(GameObject? attacker)
     {
+        Player.SkillSubject.RemoveObserver(this);
         if (Room == null) return;
 
         Targetable = false;
@@ -232,9 +209,11 @@ public class SkeletonGiant : Skeleton
 
         if (AlreadyRevived == false && (_reviveSelf || WillRevive))
         {
+            if (IsAttacking) IsAttacking = false;
+            if (AttackEnded == false) AttackEnded = true;  
+            
             State = State.Die;
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true };
-            Room.Broadcast(dieAndRevivePacket);
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             DieEvents(DeathStandbyTime);
             return;
         }

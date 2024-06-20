@@ -10,13 +10,14 @@ public class SkeletonMage : SkeletonGiant
     private bool _killRecoverMp = false;
     private bool _reviveHealthUp = false;
     private bool _curse = false;
+    private int _killLog = 0;
     
     public override int KillLog
     {
-        get => base.KillLog;
+        get => _killLog;
         set
         {
-            base.KillLog = value;
+            _killLog = value;
             if (_killRecoverMp == false) return;
             Mp += 20;
             if (Mp > MaxMp) Mp = MaxMp;
@@ -51,6 +52,15 @@ public class SkeletonMage : SkeletonGiant
     public override void Init()
     {
         base.Init();
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageAdjacentRevive);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageKillRecoverMp);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageReviveHealthUp);
+        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageCurse);
+    }
+
+    public override void Update()
+    {
+        base.Update();
     }
     
     protected override void UpdateMoving()
@@ -112,9 +122,12 @@ public class SkeletonMage : SkeletonGiant
                     new[] { GameObjectType.Monster }, TotalAttackRange);
                 if (reviveTargets.Any())
                 {
-                    foreach (var creature in reviveTargets)
+                    foreach (var creature in reviveTargets
+                                 .Where(gameObject => gameObject is { WillRevive: false, AlreadyRevived: false })
+                                 .Where(gameObject => gameObject.Id != Id)
+                                 .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
-                        // TODO: Revive Effect
+                        Room.SpawnEffect(EffectId.WillRevive, creature, creature.PosInfo, true, 1000000);
                         creature.WillRevive = true;
                         if (_reviveHealthUp) creature.ReviveHpRate = 0.6f;
                     }
@@ -128,9 +141,11 @@ public class SkeletonMage : SkeletonGiant
                     this, new[] { GameObjectType.Tower }, TotalSkillRange).ToList();
                 if (curseTargets.Any())
                 {
-                    foreach (var creature in curseTargets.OrderBy(_ => Guid.NewGuid()).Take(1))
+                    foreach (var creature in curseTargets
+                                 .Where(gameObject => gameObject.Hp > 1)
+                                 .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
-                        BuffManager.Instance.AddBuff(BuffId.Curse, creature, this, 0, 5000);
+                        BuffManager.Instance.AddBuff(BuffId.Curse, creature, this, 0, 3000);
                     }
                 }
             }
@@ -151,8 +166,9 @@ public class SkeletonMage : SkeletonGiant
         var targets = Room.FindTargets(targetPos, types, DebuffRange);
         foreach (var t in targets) t.DefenceParam -= DefenceDebuffParam;
         DebuffTargets = targets;
-        
-        target.OnDamaged(this, TotalAttack, Damage.Magical);
+
+        if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
+        target.OnDamaged(this, TotalAttack + AdditionalAttackParam, Damage.Magical);
     }
 
     public override void SetNextState()
@@ -184,6 +200,7 @@ public class SkeletonMage : SkeletonGiant
     
     protected override void OnDead(GameObject? attacker)
     {
+        Player.SkillSubject.RemoveObserver(this);
         if (Room == null) return;
 
         Targetable = false;
@@ -203,9 +220,11 @@ public class SkeletonMage : SkeletonGiant
         
         if (AlreadyRevived == false || WillRevive)
         {
+            if (IsAttacking) IsAttacking = false;
+            if (AttackEnded == false) AttackEnded = true;  
+            
             State = State.Die;
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true };
-            Room.Broadcast(dieAndRevivePacket);
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             DieEvents(DeathStandbyTime);
             return;
         }

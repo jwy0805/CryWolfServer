@@ -44,9 +44,6 @@ public class SnakeNaga : Snake
     public override void Init()
     {
         base.Init();
-        Player.SkillUpgradedList.Add(Skill.SnakeNagaBigFire);
-        Player.SkillUpgradedList.Add(Skill.SnakeNagaDrain);
-        Player.SkillUpgradedList.Add(Skill.SnakeNagaMeteor);
     }
     
     public override void Update()
@@ -122,7 +119,8 @@ public class SnakeNaga : Snake
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(_bigFire ? ProjectileId.BigFire : ProjectileId.SmallFire, this, 5f);
+            Room.SpawnProjectile(_bigFire ? ProjectileId.SnakeNagaFire : ProjectileId.SnakeNagaBigFire,
+                this, 5f);
         });
     }
     

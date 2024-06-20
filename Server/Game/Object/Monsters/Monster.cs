@@ -35,6 +35,35 @@ public class Monster : Creature, ISkillObserver
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
-        base.OnDead(attacker);
+        if (Room == null) return;
+        
+        Targetable = false;
+        if (attacker != null)
+        {
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
+            {
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
+                }
+                attacker.Target = null;
+            }
+        }
+        
+        if (AlreadyRevived == false && WillRevive)
+        {
+            if (IsAttacking) IsAttacking = false;
+            if (AttackEnded == false) AttackEnded = true;  
+            
+            State = State.Die;
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
+            DieEvents(StdAnimTime * 2);
+            return;
+        }
+
+        S_Die diePacket = new() { ObjectId = Id };
+        Room.Broadcast(diePacket);
+        Room.DieAndLeave(Id);        
     }
 }

@@ -117,17 +117,20 @@ public class Creature : GameObject
     {
         // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (IsAttacking) return;
+
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
             return;
         }
+        
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
             SpeedParam = TotalAttackSpeed
         };
+        
         Room.Broadcast(packet);
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
         long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
@@ -213,6 +216,31 @@ public class Creature : GameObject
             IsAttacking = false;
         });
     }
+    
+    protected virtual async void DieEvents(long standbyTime)
+    {
+        await Scheduler.ScheduleEvent(standbyTime, () =>
+        {
+            if (Room == null) return;
+            State = State.Revive;
+            ReviveEvents(StdAnimTime);
+        });
+    }
+
+    protected virtual async void ReviveEvents(long reviveAnimTime)
+    {
+        await Scheduler.ScheduleEvent(reviveAnimTime, () =>
+        {
+            if (Room == null) return;
+            Hp += (int)(MaxHp * ReviveHpRate);
+            BroadcastHp();
+            WillRevive = false;
+            AlreadyRevived = true;
+            Targetable = true;
+            State = State.Idle;
+        });
+    }
+
     
     public virtual void ApplyAttackEffect(GameObject target)
     {

@@ -160,7 +160,7 @@ public sealed partial class BuffManager
         public virtual void RemoveBuff()
         {
             Master.Buffs.Remove(Id);
-            ABuff? buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
+            var buff = Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
             if (buff != null) Instance.Buffs.Remove(buff);
         }
     }
@@ -543,8 +543,6 @@ public sealed partial class BuffManager
 
     private class Curse : ABuff
     {
-        private Effect? _stateCurse;
-        
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
             bool nested)
         {
@@ -568,14 +566,15 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
-            if (Master.Invincible) return; 
+
+            if (Master.Invincible || Master.Hp <= 0) return;
             Master.Hp = 1;
             Instance.Room?.Broadcast(new S_ChangeHp
             {
                 ObjectId = Master.Id,
+                MaxHp = Master.MaxHp,
                 Hp = Master.Hp
             });
-            if (_stateCurse != null) _stateCurse.PacketReceived = true;
         }
     }
     

@@ -189,6 +189,7 @@ public class Horror : Creeper
 
     protected override void OnDead(GameObject? attacker)
     {
+        Player.SkillSubject.RemoveObserver(this);
         if (Room == null) return;
         
         Targetable = false;
@@ -207,6 +208,8 @@ public class Horror : Creeper
         
         if (AlreadyRevived == false && WillRevive)
         {
+            if (IsAttacking) IsAttacking = false;
+            if (AttackEnded == false) AttackEnded = true;  
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
             return;
         }
