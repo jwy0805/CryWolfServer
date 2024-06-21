@@ -20,7 +20,6 @@ public class Projectile : GameObject
         if (Target == null || Target.Targetable == false)
         {
             Room.Push(Room.LeaveGame, Id);
-            Console.WriteLine("sdk");
             return;
         }
         

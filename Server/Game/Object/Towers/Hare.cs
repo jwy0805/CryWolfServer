@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class Hare : Tower
+public class Hare : Rabbit
 {
     private bool _punch = false;
     private bool _defenceDown = false;
@@ -27,57 +27,29 @@ public class Hare : Tower
             }
         }
     }
-
-    public override void Update()
+    
+    protected override void SkillImpactEvents(long impactTime)
     {
-        if (Room == null) return;
-        Job = Room.PushAfter(CallCycle, Update);
-        
-        if (_punch && Mp >= MaxMp)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Skill;
-            BroadcastPos();
-            UpdateSkill();
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            
+            Room.SpawnProjectile(ProjectileId.HarePunch, this, 5f);
             Mp = 0;
+        });
+    }
+    
+    public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
+    {
+        if (Room == null || target == null || Hp <= 0) return;
+        if (pid == ProjectileId.HarePunch)
+        {
+            if (target is not Creature creature) return;
+            BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 2000);
         }
         else
         {
-            switch (State)
-            {
-                case State.Die:
-                    UpdateDie();
-                    break;
-                case State.Moving:
-                    UpdateMoving();
-                    break;
-                case State.Idle:
-                    UpdateIdle();
-                    break;
-                case State.Rush:
-                    UpdateRush();
-                    break;
-                case State.Attack:
-                    UpdateAttack();
-                    break;
-                case State.Skill:
-                    UpdateSkill();
-                    break;
-                case State.Skill2:
-                    UpdateSkill2();
-                    break;
-                case State.KnockBack:
-                    UpdateKnockBack();
-                    break;
-                case State.Faint:
-                    break;
-                case State.Standby:
-                    break;
-            }   
+            target.OnDamaged(this, TotalAttack, Damage.Normal);
         }
-    }
-    
-    public override void SetNextState()
-    {
-        
     }
 }

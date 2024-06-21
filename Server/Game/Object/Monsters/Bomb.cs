@@ -118,7 +118,7 @@ public class Bomb : Monster
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             Room.SpawnProjectile(ProjectileId.BombSkill, this, 5f);
             Mp = 0;
         });
