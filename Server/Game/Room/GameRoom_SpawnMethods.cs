@@ -271,20 +271,9 @@ public partial class GameRoom
         statue.Init();
         return statue;
     }
-    
-    public Effect EnterEffect(EffectId effectId, GameObject parent, PositionInfo? effectPos = null)
-    {
-        var effect = ObjectManager.Instance.Create<Effect>(effectId);
-        effect.PosInfo = parent.PosInfo;
-        // effect.Info.PosInfo = effect.SetEffectPos(parent, effectPos);
-        effect.Info.Name = effectId.ToString();
-        effect.Parent = parent;
-        effect.Target = parent.Target;
-        effect.Room = this;
-        effect.Init();
-        return effect;
-    }
 
+    
+    
     public Monster SpawnMonster(UnitId unitId, PositionInfo posInfo, Player player)
     {
         var monster = ObjectManager.Instance.Create<Monster>(unitId);

@@ -38,7 +38,7 @@ public class Tower : Creature, ISkillObserver
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (distance > AttackRange) return;
+        if (distance > TotalAttackRange) return;
         State = State.Attack;
         SyncPosAndDir();
     }

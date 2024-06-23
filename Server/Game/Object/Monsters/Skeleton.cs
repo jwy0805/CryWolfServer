@@ -12,7 +12,7 @@ public class Skeleton : Monster
 
     protected int AdditionalAttackParam;
     protected int PreviousTargetId;
-    protected readonly int DefenceDownParam = 3;
+    protected int DefenceDownParam;
     
     
     protected override Skill NewSkill
@@ -25,9 +25,11 @@ public class Skeleton : Monster
             {
                 case Skill.SkeletonDefenceDown:
                     _defenceDown = true;
+                    DefenceDownParam = 7;
                     break;
                 case Skill.SkeletonNestedDebuff:
                     _nestedDebuff = true;
+                    DefenceDownParam = 3;
                     break;
                 case Skill.SkeletonAdditionalDamage:
                     _additionalDamage = true;
@@ -95,8 +97,14 @@ public class Skeleton : Monster
             AdditionalAttackParam = 0;
             PreviousTargetId = target.Id;
         }
+
+        if (_defenceDown)
+        {
+            if (_nestedDebuff) target.DefenceParam -= DefenceDownParam;
+            else BuffManager.Instance.AddBuff(
+                BuffId.DefenceDecrease, target, this, DefenceDownParam, 5000);
+        }
         
-        if (_defenceDown) target.DefenceParam -= DefenceDownParam;
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         if (target.Hp <= 0) return;
         

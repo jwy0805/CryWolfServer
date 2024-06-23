@@ -45,6 +45,9 @@ public class Horror : Creeper
     public override void Init()
     {
         base.Init();
+        Player.SkillSubject.SkillUpgraded(Skill.HorrorRollPoison);
+        Player.SkillSubject.SkillUpgraded(Skill.HorrorDegeneration);
+        Player.SkillSubject.SkillUpgraded(Skill.HorrorDivision);
     }
     
     public override void Update()
@@ -154,14 +157,14 @@ public class Horror : Creeper
         }
     }
     
-    public override void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
+    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
         if (damageType is Damage.Poison && _poisonImmunity) return;
         
         var random = new Random();
-        if (random.Next(100) < TotalEvasion)
+        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
@@ -170,15 +173,15 @@ public class Horror : Creeper
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         
-        if (random.Next(100) < attacker?.CriticalChance)
+        if (random.Next(100) < attacker.CriticalChance)
         {
             totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
         }
         
-        if (damageType is Damage.Normal && Reflection && reflected == false)
+        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
+            attacker.OnDamaged(this, reflectionDamage, damageType, true);
         }
 
         Hp = Math.Max(Hp - totalDamage, 0);

@@ -83,13 +83,13 @@ public partial class GameObject : IGameObject
         Hp = MaxHp;
     }
     
-    public virtual void OnDamaged(GameObject? attacker, int damage, Damage damageType, bool reflected = false)
+    public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible) return;
         
         var random = new Random();
-        if (random.Next(100) < TotalEvasion)
+        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion)
         {
             // TODO: Evasion Effect
             return;
@@ -98,15 +98,15 @@ public partial class GameObject : IGameObject
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         
-        if (random.Next(100) < attacker?.CriticalChance)
+        if (random.Next(100) < attacker.CriticalChance)
         {
             totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
         }
         
-        if (damageType is Damage.Normal && Reflection && reflected == false)
+        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker?.OnDamaged(this, reflectionDamage, damageType, true);
+            attacker.OnDamaged(this, reflectionDamage, damageType, true);
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
@@ -152,7 +152,7 @@ public partial class GameObject : IGameObject
 
     protected virtual void BroadcastState()
     {
-        Room?.Broadcast(new S_State { ObjectId = Id, State = State});
+        Room?.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 
     protected virtual void BroadcastPath()

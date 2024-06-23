@@ -56,32 +56,6 @@ public class PacketHandler
         room?.Push(room.HandleState, player, statePacket);
     }
     
-    public static void C_SetDestHandler(PacketSession session, IMessage packet)
-    {
-        
-    }
-    
-    public static void C_AttackHandler(PacketSession session, IMessage packet)
-    {
-        var attackPacket = (C_Attack)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (player?.Session.SessionId != 1) return;
-        
-        room?.Push(room.HandleAttack, player, attackPacket);
-    }
-
-    public static void C_MotionHandler(PacketSession session, IMessage packet)
-    {
-        var motionPacket = (C_Motion)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        
-        room?.Push(room.HandleMotion, player, motionPacket);
-    }
-    
     public static void C_EffectActivateHandler(PacketSession session, IMessage packet)
     {
         var dirPacket = (C_EffectActivate)packet;

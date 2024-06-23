@@ -275,22 +275,6 @@ public partial class GameRoom : JobSerializer
         //     player.Session.Send(spawnPacket);
         // }
     }
-
-    public void Degeneration(int objectId, UnitId degeneratedUnitId, PositionInfo posInfo, Player player)
-    {
-        var type = ObjectManager.GetObjectTypeById(objectId);
-        
-        switch (type)
-        {
-            case GameObjectType.Monster:
-                if (_monsters.Remove(objectId, out var monster) == false) return;
-                Map.ApplyLeave(monster);
-                var degeneratedMonster = SpawnMonster(degeneratedUnitId, posInfo, player);
-                degeneratedMonster.Degeneration = true;
-                monster.Room = null;
-                break;
-        }
-    }
     
     public void DieAndLeave(int objectId)
     {
