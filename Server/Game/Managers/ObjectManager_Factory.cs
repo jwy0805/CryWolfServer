@@ -100,7 +100,8 @@ public sealed partial class ObjectManager
         { ProjectileId.HarePunch, new HarePunchFactory() },
         { ProjectileId.RabbitAggro, new RabbitAggroFactory() },
         { ProjectileId.BasicProjectile3, new BasicProjectile3Factory() },
-        { ProjectileId.BasicProjectile4, new BasicProjectile4Factory() }
+        { ProjectileId.BasicProjectile4, new BasicProjectile4Factory() },
+        { ProjectileId.SproutFire, new SproutFireFactory() }
     };
     
     private readonly Dictionary<EffectId, IFactory<Effect>> _effectDict = new()
@@ -137,7 +138,9 @@ public sealed partial class ObjectManager
         { EffectId.WerewolfMagicalEffect, new WerewolfMagicalEffectFactory() },
         { EffectId.SkeletonEffect, new SkeletonEffectFactory() },
         { EffectId.SkeletonAdditionalEffect, new SkeletonAdditionalEffectFactory() },
-        { EffectId.WillRevive, new WillReviveFactory() }
+        { EffectId.WillRevive, new WillReviveFactory() },
+        { EffectId.HareEffect, new HareEffectFactory() },
+        { EffectId.HareCloneEffect, new HareCloneEffectFactory() }
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -242,6 +245,7 @@ public sealed partial class ObjectManager
     public class RabbitAggroFactory : IFactory<RabbitAggro> { public RabbitAggro Create() => new(); }
     public class BasicProjectile3Factory : IFactory<BasicProjectile3> { public BasicProjectile3 Create() => new(); }
     public class BasicProjectile4Factory : IFactory<BasicProjectile4> { public BasicProjectile4 Create() => new(); }
+    public class SproutFireFactory : IFactory<SproutFire> { public SproutFire Create() => new(); }
     public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
     public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
     public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }
@@ -275,6 +279,8 @@ public sealed partial class ObjectManager
     public class SkeletonEffectFactory : IFactory<SkeletonEffect> { public SkeletonEffect Create() => new(); }
     public class SkeletonAdditionalEffectFactory : IFactory<SkeletonAdditionalEffect> { public SkeletonAdditionalEffect Create() => new(); }
     public class WillReviveFactory : IFactory<WillRevive> { public WillRevive Create() => new(); }
+    public class HareEffectFactory : IFactory<HareEffect> { public HareEffect Create() => new(); }
+    public class HareCloneEffectFactory : IFactory<HareCloneEffect> { public HareCloneEffect Create() => new(); }
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

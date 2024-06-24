@@ -143,11 +143,10 @@ public class Werewolf : Wolf
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0) 
                      + Math.Max(magicalParam - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
-        BroadcastHp();
-        
         Room?.SpawnEffect(EffectId.WerewolfMagicalEffect, this, target.PosInfo, true);
+        
         target.OnDamaged(this, magicalParam, Damage.Magical);
-        if (target.Targetable) target.OnDamaged(this, TotalAttack, Damage.Normal);
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         // TODO : DNA
     }
     

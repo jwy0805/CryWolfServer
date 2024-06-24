@@ -125,14 +125,7 @@ public class PoisonBomb : SnowBomb
     {
         if (Room == null) return;
         if (Invincible) return;
-        
         var random = new Random();
-        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion)
-        {
-            // TODO: Evasion Effect
-            return;
-        }
-        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         
@@ -141,34 +134,43 @@ public class PoisonBomb : SnowBomb
             totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
         }
         
-        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
+        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
         {
-            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            // TODO: Evasion Effect
+            return;
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
-        if (Hp > 0) return;
-        AttackEnded = true;
-        IsAttacking = false;
-        Targetable = false;
-        Attacker = attacker;
-        if (_selfDestruct)
+
+        if (Hp <= 0)
         {
-            var target = Room.FindRandomTarget(
-                this, TotalAttackRange * 3, 0, true);
-            DestPos = target == null 
-                ? new Vector3(CellPos.X, CellPos.Y, CellPos.Z) 
-                : new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
-            MoveSpeed = 16;
-            State = State.Rush;
+            AttackEnded = true;
+            IsAttacking = false;
+            Targetable = false;
+            Attacker = attacker;
+            if (_selfDestruct)
+            {
+                var target = Room.FindRandomTarget(
+                    this, TotalAttackRange * 3, 0, true);
+                DestPos = target == null 
+                    ? new Vector3(CellPos.X, CellPos.Y, CellPos.Z) 
+                    : new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
+                MoveSpeed = 16;
+                State = State.Rush;
+            }
+            else
+            {
+                State = State.Explode;
+                ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
+            }
         }
-        else
+        
+        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
-            State = State.Explode;
-            ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker.OnDamaged(this, reflectionDamage, damageType, true);
         }
     }
 }

@@ -142,7 +142,7 @@ public class SkeletonMage : SkeletonGiant
                 if (curseTargets.Any())
                 {
                     foreach (var creature in curseTargets
-                                 .Where(gameObject => gameObject.Hp > 1)
+                                 .Where(gameObject => gameObject is { Hp: > 1, Targetable: true })
                                  .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
                         BuffManager.Instance.AddBuff(BuffId.Curse, creature, this, 0, 3000);

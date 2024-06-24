@@ -24,3 +24,5 @@ public class SkeletonAdditionalEffect : Effect { }
 public class SkeletonGiantEffect : Effect { }
 public class SkeletonGiantSkill : Effect { }
 public class WillRevive : Effect { }
+public class HareEffect : Effect { }
+public class HareCloneEffect : Effect { }

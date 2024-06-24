@@ -75,5 +75,6 @@ public class Tower : Creature, ISkillObserver
 
         S_Die diePacket = new() { ObjectId = Id };
         Room.Broadcast(diePacket);
-        Room.DieAndLeave(Id);            }
+        Room.DieAndLeave(Id);
+    }
 }

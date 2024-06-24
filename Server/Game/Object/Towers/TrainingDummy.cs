@@ -7,7 +7,6 @@ namespace Server.Game;
 public class TrainingDummy : TargetDummy
 {
     private bool _faint = false;
-    private bool _debuffRemove = false;
     private readonly int _faintProb = 30;
     
     protected override Skill NewSkill
@@ -16,54 +15,50 @@ public class TrainingDummy : TargetDummy
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.TrainingDummyAggro:
-            //         SkillRange += 4.0f;
-            //         break;
-            //     case Skill.TrainingDummyDefence:
-            //         Defence += 6;
-            //         break;
-            //     case Skill.TrainingDummyHeal:
-            //         HealParam += 0.1f;
-            //         break;
-            //     case Skill.TrainingDummyHealth:
-            //         MaxHp += 200;
-            //         Hp += 200;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.TrainingDummyFireResist:
-            //         FireResist += 15;
-            //         break;
-            //     case Skill.TrainingDummyPoisonResist:
-            //         PoisonResist += 15;
-            //         break;
-            //     case Skill.TrainingDummyFaint:
-            //         _faint = true;
-            //         break;
-            //     case Skill.TrainingDummyDebuffRemove:
-            //         _debuffRemove = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.TrainingDummyAccuracy:
+                    SkillRange += 4.0f;
+                    break;
+                case Skill.TrainingDummyHealth:
+                    MaxHp += 200;
+                    Hp += 200;
+                    break;
+                case Skill.TrainingDummyFaintAttack:
+                    _faint = true;
+                    break;
+            }
         }
     }
 
-    public override void ApplyAttackEffect(GameObject target)
+    public override void Init()
     {
-        if (!_faint) return;
-        Random r = new Random();
-        if (r.Next(99) < _faintProb)
+        base.Init();
+        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyAccuracy);
+        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyHealth);
+        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyFaintAttack);
+    }
+
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            target.State = State.Faint;
-            BroadcastPos();
-        }
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (_faint && new Random().Next(100) < _faintProb)
+            {
+                BuffManager.Instance.AddBuff(BuffId.Fainted, Target, this, 0, 2500);
+            }
+            Target.OnDamaged(this, TotalAttack, Damage.Normal);
+        });
     }
     
-    public override void RunSkill()
+    protected override void SkillImpactEvents(long impactTime)
     {
-        base.RunSkill();
-        if (_debuffRemove == true) BuffManager.Instance.RemoveAllDebuff(this);
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            var targets = Room.FindTargets(
+                this, new [] { GameObjectType.Tower }, TotalSkillRange);
+        });
     }
-
-
 }

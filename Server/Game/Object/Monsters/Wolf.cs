@@ -39,11 +39,19 @@ public class Wolf : WolfPup
     public override void Init()
     {
         base.Init();
-        Player.SkillUpgradedList.Add(Skill.WolfMagicalAttack);
+        Player.SkillSubject.SkillUpgraded(Skill.WolfMagicalAttack);
     }
 
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (_magicalAttack)
+        {
+            Room?.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
+            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+        }
+        
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        
         if (_drain)
         {
             var damage = _magicalAttack 
@@ -52,13 +60,6 @@ public class Wolf : WolfPup
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
         }
-
-        if (_magicalAttack)
-        {
-            Room?.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-        }
-        if (target.Targetable) target.OnDamaged(this, TotalAttack, Damage.Normal);
 
         // TODO : DNA
     }

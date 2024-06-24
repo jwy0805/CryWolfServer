@@ -38,7 +38,8 @@ public sealed partial class BuffManager
         _stopwatch.Start();
     }
     
-    public void AddBuff(BuffId buffId, GameObject master, Creature caster, float param, long duration = 10000, bool nested = false)
+    public void AddBuff(BuffId buffId,
+        GameObject master, Creature caster, float param, long duration = 10000, bool nested = false)
     {
         if (!_buffDict.TryGetValue(buffId, out var factory)) return;
         
@@ -652,8 +653,6 @@ public sealed partial class BuffManager
     private class Burn : ABuff
     {
         private float _param;
-        private readonly double _dot = 1000;
-        private double _dotTime;
         private Effect? _stateBurn;
 
         public override void Init(GameObject master, Creature caster, long startTime, long duration, float param,
@@ -669,32 +668,19 @@ public sealed partial class BuffManager
         public override void TriggerBuff()
         {
             Master.Burn = true;
-            _stateBurn = ObjectManager.Instance.Create<Effect>(EffectId.StateBurn);
+            var effectPos = new PositionInfo
+            {
+                PosX = Master.PosInfo.PosX,
+                PosY = Master.PosInfo.PosY + Master.Stat.SizeY,
+                PosZ = Master.PosInfo.PosZ
+            };
+            Instance.Room?.SpawnEffect(EffectId.StateBurn, Master, effectPos, true, (int)Duration);
         }
 
         public override void RemoveBuff()
         {
             base.RemoveBuff();
             Master.Burn = false;
-            if (_stateBurn != null) _stateBurn.PacketReceived = true;
-        }
-
-        public override bool UpdateBuff(long deltaTime)
-        {
-            if (EndTime <= deltaTime) return true;
-
-            if (deltaTime > _dotTime + _dot && Master.ObjectType == GameObjectType.Fence)
-            {
-                _dotTime = deltaTime;
-                Master.Hp -= (int)(Master.MaxHp * _param);
-                Instance.Room?.Broadcast(new S_ChangeHp
-                {
-                    ObjectId = Master.Id,
-                    Hp = Master.Hp
-                });
-            }
-
-            return false;
         }
     }
     

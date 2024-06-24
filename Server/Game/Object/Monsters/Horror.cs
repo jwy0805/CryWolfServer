@@ -162,14 +162,7 @@ public class Horror : Creeper
         if (Room == null) return;
         if (Invincible) return;
         if (damageType is Damage.Poison && _poisonImmunity) return;
-        
         var random = new Random();
-        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion)
-        {
-            // TODO: Evasion Effect
-            return;
-        }
-        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         
@@ -177,17 +170,28 @@ public class Horror : Creeper
         {
             totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
         }
+
+        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
+        {
+            // TODO: Evasion Effect
+            return;
+        }
+        
+        Hp = Math.Max(Hp - totalDamage, 0);
+        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        Room.Broadcast(damagePacket);
+        
+        if (Hp <= 0)
+        {
+            OnDead(attacker);
+            return;
+        }
         
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
         }
-
-        Hp = Math.Max(Hp - totalDamage, 0);
-        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
-        Room.Broadcast(damagePacket);
-        if (Hp <= 0) OnDead(attacker);
     }
 
     protected override void OnDead(GameObject? attacker)

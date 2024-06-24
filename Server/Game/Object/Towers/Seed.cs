@@ -21,4 +21,18 @@ public class Seed : Tower
             }
         }
     }
+    
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
+        });
+    }
+    
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId _)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+    }
 }

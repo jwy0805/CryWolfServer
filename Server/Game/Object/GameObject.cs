@@ -86,15 +86,8 @@ public partial class GameObject : IGameObject
     public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
-        if (Invincible) return;
-        
+        if (Invincible || Targetable == false || Hp <= 0) return;
         var random = new Random();
-        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion)
-        {
-            // TODO: Evasion Effect
-            return;
-        }
-        
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
             ? Math.Max(damage - TotalDefence, 0) : damage;
         
@@ -103,16 +96,27 @@ public partial class GameObject : IGameObject
             totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
         }
         
-        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
+        if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
         {
-            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            // TODO: Evasion Effect
+            return;
         }
         
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
-        if (Hp <= 0) OnDead(attacker);
+        
+        if (Hp <= 0)
+        {
+            OnDead(attacker);
+            return;
+        }
+        
+        if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
+        {
+            var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
+            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+        }
     }
     
     protected virtual void OnDead(GameObject? attacker)

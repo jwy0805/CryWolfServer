@@ -18,3 +18,4 @@ public class BasicProjectile3 : Projectile { }
 public class BasicProjectile4 : Projectile { }
 public class RabbitAggro : Projectile { }
 public class HarePunch : Projectile { }
+public class SproutFire : Projectile { }

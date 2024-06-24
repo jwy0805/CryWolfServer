@@ -19,25 +19,41 @@ public partial class GameObject
     public virtual int Hp
     {
         get => Stat.Hp;
-        set => Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
+        set 
+        {
+            Stat.Hp = Math.Clamp(value, 0, Stat.MaxHp);
+            BroadcastHp(); 
+        }
     }
 
     public int MaxHp
     {
         get => Stat.MaxHp;
-        set => Stat.MaxHp = value;
+        set
+        {
+            Stat.MaxHp = value;
+            BroadcastHp();
+        }
     }
 
     public int Mp
     {
         get => Stat.Mp;
-        set => Stat.Mp = Math.Clamp(value, 0, Stat.MaxMp);
+        set
+        {
+            Stat.Mp = Math.Clamp(value, 0, Stat.MaxMp);
+            BroadcastMp();
+        }
     }
 
     public int MaxMp
     {
         get => Stat.MaxMp;
-        set => Stat.MaxMp = value;
+        set
+        {
+            Stat.MaxMp = value;
+            BroadcastMp();
+        }
     }
     
     public int Attack

@@ -48,19 +48,44 @@ public class Hare : Rabbit
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (_punch && distance < TotalSkillRange && Mp >= MaxMp)
+        if (_punch && Mp >= MaxMp)
         {
             State = State.Skill;
-            SyncPosAndDir();
             return;
         }
-        
-        if (distance < TotalAttackRange)
-        {
-            State = State.Attack;
-        }
-        
+
+        if (distance > TotalAttackRange) return;
+        State = State.Attack;
         SyncPosAndDir();
+    }
+    
+    protected override void UpdateSkill()
+    {   // 토끼 분신 소환
+        // 첫 UpdateSkill Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            IsAttacking = false;
+            return;
+        }
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
+        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
+        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
+        SkillImpactEvents(impactTime);
+        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        AttackEnded = false;
+        IsAttacking = true;
     }
     
     protected override void AttackImpactEvents(long impactTime)
@@ -68,8 +93,7 @@ public class Hare : Rabbit
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(Mp >= MaxMp ?
-                ProjectileId.HarePunch : ProjectileId.RabbitAggro, this, 5f);
+            Room.SpawnProjectile(ProjectileId.RabbitAggro, this, 5f);
         });
     }
     
@@ -81,20 +105,42 @@ public class Hare : Rabbit
 
             if (_punch)
             {
-                Vector3 dir = Target.CellPos - CellPos;
-                dir = Vector3.Normalize(dir);
-                Vector3 spawnPos = CellPos + dir * TotalAttackRange;
-                var posInfo = new PositionInfo
+                var targets  = Room.FindTargets(
+                        this, new [] { GameObjectType.Monster }, TotalSkillRange)
+                    .Where(target => target.Targetable)
+                    .OrderBy(_ => Guid.NewGuid()).Take(1).ToList();
+
+                if (targets.Any())
                 {
-                    PosX = spawnPos.X, PosY = spawnPos.Y, PosZ = spawnPos.Z, State = State.Skill2, Dir = Dir
-                };
-                SpawnClone(posInfo, Player);
-                Mp = 0;
+                    var target = targets.First();
+                    Vector3 dir = target.CellPos - CellPos;
+                    dir = Vector3.Normalize(dir);
+                    Vector3 spawnPos = CellPos + dir * TotalAttackRange;
+                    var posInfo = new PositionInfo
+                    {
+                        PosX = spawnPos.X, PosY = spawnPos.Y, PosZ = spawnPos.Z, State = State.Skill2, Dir = Dir
+                    };
+                    var vector = Room.Map.Vector3To2(new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ));
+
+                    if (Room.Map.CanGo(this, vector) == false)
+                    {
+                        var newVector2 = Room.Map.FindNearestEmptySpace(vector, this);
+                        var newVector3 = Room.Map.Vector2To3(newVector2);
+                        posInfo.PosX = newVector3.X;
+                        posInfo.PosZ = newVector3.Z;
+                    }
+                
+                    SpawnClone(posInfo, Player);
+                    Room.SpawnEffect(EffectId.HareEffect, 
+                        this, PosInfo, false, (int)(StdAnimTime / TotalAttackSpeed));
+                }
             }
             else
             {
                 Room.SpawnProjectile(ProjectileId.HarePunch, this, 5f);
             }
+            
+            Mp = 0;
         });
     }
     
@@ -105,7 +151,6 @@ public class Hare : Rabbit
         {
             if (target is not Creature creature) return;
             BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 2000);
-            Mp = 0;
         }
         else
         {
@@ -130,6 +175,33 @@ public class Hare : Rabbit
         tower.Parent = this;
         tower.Init();
         Room?.Push(Room.EnterGame, tower);
+        Room?.SpawnEffect(EffectId.HareCloneEffect, this, clonePos);
+    }
+    
+    public override void SetNextState()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+
+        State = _punch && Mp >= MaxMp ? State.Skill : State.Attack;
+        SyncPosAndDir();
     }
 }
 
@@ -139,21 +211,18 @@ public class HareClone : Rabbit
     {
         if (Room == null || Parent == null) return;
         Time = Room.Stopwatch.ElapsedMilliseconds;
+        Targetable = false;
         MaxHp = Parent.MaxHp;
         Hp = Parent.Hp;
-        AttackSpeed = Parent.AttackSpeed;
-        AttackSpeedParam = Parent.AttackSpeedParam;
-        Accuracy = Parent.Accuracy;
+        AttackSpeed = Parent.TotalAttackSpeed;
+        Accuracy = Parent.TotalAccuracy;
+        SkillDamage = Parent.TotalSkillDamage;
         
         Target = Parent.Target;
         WillRevive = false;
         
         Room.Broadcast(new S_SetAnimSpeed { ObjectId = Id, SpeedParam = TotalAttackSpeed });
-        
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        SkillImpactEvents(impactMoment);
-        EndEvents(animPlayTime); // 공격 Animation이 끝나면 사라짐
+        SyncPosAndDir();
     }
 
     public override void Update()

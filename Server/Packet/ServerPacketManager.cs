@@ -32,7 +32,7 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CMove, MakePacket<C_Move>);
 		_handler.Add((ushort)MessageId.CMove, PacketHandler.C_MoveHandler);		
 		_onRecv.Add((ushort)MessageId.CState, MakePacket<C_State>);
-		_handler.Add((ushort)MessageId.CState, PacketHandler.C_StateHandler);	
+		_handler.Add((ushort)MessageId.CState, PacketHandler.C_StateHandler);		
 		_onRecv.Add((ushort)MessageId.CEffectActivate, MakePacket<C_EffectActivate>);
 		_handler.Add((ushort)MessageId.CEffectActivate, PacketHandler.C_EffectActivateHandler);		
 		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);
