@@ -28,6 +28,12 @@ public class DogBowwow : DogBark
         }
     }
 
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Warrior;
+    }
+
     public override void Update()
     {
         base.Update();

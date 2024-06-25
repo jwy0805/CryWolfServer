@@ -12,6 +12,7 @@ public class StateCurse : Effect { }
 public class StateDebuffRemove : Effect { }
 public class StateFaint : Effect { }
 public class StateSlow : Effect { }
+public class HolyAura : Effect { }
 public class UpgradeEffect : Effect { }
 public class WolfMagicalEffect : Effect { }
 public class WerewolfMagicalEffect : Effect { }

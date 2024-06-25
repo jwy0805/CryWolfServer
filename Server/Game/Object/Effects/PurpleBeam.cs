@@ -30,19 +30,19 @@ public class PurpleBeam : Effect
         
         if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + _interval)
         {
-            SetEffectEffect();
+            // SetEffectEffect();
             _damageTime = Room.Stopwatch.ElapsedMilliseconds;
         }
     }
 
-    protected override void SetEffectEffect()
-    {
-        if (Room == null) return;
-        if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + _duration - _startTime || Target == null)
-        {
-            Room.LeaveGame(Id);
-            return;
-        }
-        Target.OnDamaged(this, _skillDamage, Damage.Magical);
-    }
+    // protected override void SetEffectEffect()
+    // {
+    //     if (Room == null) return;
+    //     if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + _duration - _startTime || Target == null)
+    //     {
+    //         Room.LeaveGame(Id);
+    //         return;
+    //     }
+    //     Target.OnDamaged(this, _skillDamage, Damage.Magical);
+    // }
 }

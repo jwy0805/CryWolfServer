@@ -33,6 +33,7 @@ public class Bomb : Monster
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
         Player.SkillUpgradedList.Add(Skill.BombBomb);
     }
     

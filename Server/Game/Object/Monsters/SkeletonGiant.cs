@@ -44,6 +44,7 @@ public class SkeletonGiant : Skeleton
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Supporter;
     }
     
     public override void Update()

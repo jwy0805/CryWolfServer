@@ -6,10 +6,9 @@ namespace Server.Game;
 
 public class SoulMage : Haunt
 {
-    public bool Fire = false;
-    private bool _tornado = false;
+    private bool _dragonPunch = false;
     private bool _shareDamage = false;
-    private bool _natureAttack = false;
+    private bool _magicPortal = false;
     private bool _debuffResist = false;
     
     protected override Skill NewSkill
@@ -18,77 +17,54 @@ public class SoulMage : Haunt
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.SoulMageAvoid:
-            //         Evasion += 20;
-            //         break;
-            //     case Skill.SoulMageDefenceAll:
-            //         Defence += 20;
-            //         FireResist += 35;
-            //         PoisonResist += 35;
-            //         break;
-            //     case Skill.SoulMageFireDamage:
-            //         Fire = true;
-            //         break;
-            //     case Skill.SoulMageTornado:
-            //         _tornado = true;
-            //         break;
-            //     case Skill.SoulMageShareDamage:
-            //         _shareDamage = true;
-            //         break;
-            //     case Skill.SoulMageNatureAttack:
-            //         _natureAttack = true;
-            //         break;
-            //     case Skill.SoulMageDebuffResist:
-            //         _debuffResist = true;
-            //         break;
-            //     case Skill.SoulMageCritical:
-            //         CriticalChance += 25;
-            //         CriticalMultiplier = 1.5f;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.SoulMageDragonPunch:
+                    _dragonPunch = true;
+                    break;
+                case Skill.SoulMageShareDamage:
+                    _shareDamage = true;
+                    break;
+                case Skill.SoulMageMagicPortal:
+                    _magicPortal = true;
+                    break;
+                case Skill.SoulMageDebuffResist:
+                    _debuffResist = true;
+                    break;
+                case Skill.SoulMageCritical:
+                    CriticalChance += 25;
+                    CriticalMultiplier = 1.5f;
+                    break;
+                
+            }
         }
+    }
+
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Mage;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.SoulMageDragonPunch);
     }
     
     public override void Update()
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 5 && _natureAttack)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            Time = Room!.Stopwatch.ElapsedMilliseconds;
-            List<GameObjectType> typeList = new() { GameObjectType.Monster };
-            List<Creature> monsters = Room.FindTargets(this, typeList, AttackRange, 2).Cast<Creature>().ToList();
-            if (monsters.Any())
-            {
-                // Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
-                // Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
-                // greenGate.Room = Room;
-                // greenGate.Parent = this;
-                // greenGate.Target = monster;
-                // greenGate.PosInfo = monster.PosInfo;
-                // greenGate.Info.PosInfo = monster.Info.PosInfo;
-                // greenGate.Info.Name = nameof(EffectId.GreenGate);
-                // greenGate.Init();
-                // Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
-            }
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
         }
-        
+
         switch (State)
         {
             case State.Die:
                 UpdateDie();
                 break;
-            case State.Moving:
-                UpdateMoving();
-                break;
             case State.Idle:
                 UpdateIdle();
-                break;
-            case State.Rush:
-                UpdateRush();
                 break;
             case State.Attack:
                 UpdateAttack();
@@ -96,58 +72,133 @@ public class SoulMage : Haunt
             case State.Skill:
                 UpdateSkill();
                 break;
-            case State.Skill2:
-                UpdateSkill2();
-                break;
             case State.KnockBack:
                 UpdateKnockBack();
+                break;
+            case State.Rush:
+                UpdateRush();
                 break;
             case State.Faint:
                 break;
             case State.Standby:
                 break;
-        }   
+        }
     }
     
-    protected override void UpdateMoving()
-    {
-        // Targeting
-        Target = Room?.FindClosestTarget(this);
-        if (Target != null)
-        {
-            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        }
+    // public override void Update()
+    // {
+    //     if (Room == null) return;
+    //     Job = Room.PushAfter(CallCycle, Update);
+    //     
+    //     if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 5 && _natureAttack)
+    //     {
+    //         Time = Room!.Stopwatch.ElapsedMilliseconds;
+    //         List<GameObjectType> typeList = new() { GameObjectType.Monster };
+    //         List<Creature> monsters = Room.FindTargets(this, typeList, AttackRange, 2).Cast<Creature>().ToList();
+    //         if (monsters.Any())
+    //         {
+    //             Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
+    //             Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
+    //             greenGate.Room = Room;
+    //             greenGate.Parent = this;
+    //             greenGate.Target = monster;
+    //             greenGate.PosInfo = monster.PosInfo;
+    //             greenGate.Info.PosInfo = monster.Info.PosInfo;
+    //             greenGate.Info.Name = nameof(EffectId.GreenGate);
+    //             greenGate.Init();
+    //             Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
+    //         }
+    //     }
+    //     
+    //     switch (State)
+    //     {
+    //         case State.Die:
+    //             UpdateDie();
+    //             break;
+    //         case State.Moving:
+    //             UpdateMoving();
+    //             break;
+    //         case State.Idle:
+    //             UpdateIdle();
+    //             break;
+    //         case State.Rush:
+    //             UpdateRush();
+    //             break;
+    //         case State.Attack:
+    //             UpdateAttack();
+    //             break;
+    //         case State.Skill:
+    //             UpdateSkill();
+    //             break;
+    //         case State.Skill2:
+    //             UpdateSkill2();
+    //             break;
+    //         case State.KnockBack:
+    //             UpdateKnockBack();
+    //             break;
+    //         case State.Faint:
+    //             break;
+    //         case State.Standby:
+    //             break;
+    //     }   
+    // }
+    
+    protected override void UpdateIdle()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
         
-        if (Target == null || Target.Room != Room)
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
+        if (_magicPortal && Mp >= MaxMp)
         {
-            State = State.Idle;
-            BroadcastPos();
+            State = State.Skill;
             return;
         }
 
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            // Attack
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                if (distance <= AttackRange)
-                {
-                    CellPos = position;
-                    State = _tornado ? State.Skill : State.Attack;
-                    BroadcastPos();
-                    return;
-                }
-            }
+        if (distance > TotalAttackRange) return;
+        State = State.Attack;
+        SyncPosAndDir();
+    }
+
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {   
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             
-            BroadcastPos();
+            if (_dragonPunch)
+            {
+                var effectPos = new PositionInfo
+                { 
+                    PosX = CellPos.X, PosY = CellPos.Y, PosZ = CellPos.Z, Dir = Dir
+                };
+                
+                Room.SpawnEffect(EffectId.SoulMagePunch, this, effectPos);
+            }
+            else
+            {
+                Room.SpawnProjectile(ProjectileId.SoulMageProjectile, this, 5f);
+            }
+        });
+    }
+    
+    public override void ApplyEffectEffect()
+    {
+        if (Room == null) return;
+        var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue };
+        var targets = Room.FindTargetsInRectangle(this,
+            types, 2, 6, Dir, 2);
+        foreach (var target in targets)
+        {
+            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
         }
     }
     
@@ -191,44 +242,30 @@ public class SoulMage : Haunt
         Room.Broadcast(damagePacket);
         if (Hp <= 0) OnDead(attacker);
     }
-
-    public override void ApplyAttackEffect(GameObject target)
-    {
-        if (_debuffResist == false || !Buffs.Any()) return;
-        BuffId buffId = Buffs.OrderBy(_ => Guid.NewGuid()).ToList().First();
-        
-        Buffs.Remove(buffId);
-    }
     
     public override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-        }
-        else
-        {
-            if (Target.Hp > 0)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = _tornado ? State.Skill : State.Attack;
-                    SyncPosAndDir();
-                }
-                else
-                {
-                    State = State.Idle;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
+            AttackEnded = true;
+            return;
         }
         
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+
+        State = _magicPortal && Mp >= MaxMp ? State.Skill : State.Attack;
+        SyncPosAndDir();
     }
 }

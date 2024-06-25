@@ -35,6 +35,7 @@ public class Cactus : Cacti
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Tanker;
     }
 
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)

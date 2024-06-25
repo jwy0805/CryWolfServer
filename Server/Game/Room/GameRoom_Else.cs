@@ -196,36 +196,108 @@ public partial class GameRoom
 
         return targetList.Count == 0 ? null : targetList[new Random().Next(targetList.Count)];
     }
-    
-    public List<GameObject> FindTargetsInRectangle(IEnumerable<GameObjectType> typeList,
-        GameObject gameObject, double width, double height, int attackType = 0)
+
+    public List<GameObject> FindTargetsInRectangle(GameObject gameObject, IEnumerable<GameObjectType> typeList,
+        float width, float height, float degree, int attackType = 0)
     {
-        Map map = Map;
-        Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
+        // 1. 타겟 리스트 생성
+        var targetList = typeList.SelectMany(GetTargets).ToList();
+        if (targetList.Count == 0) return new List<GameObject>();
         
-        double halfWidth = width / 2.0f;
-        double angle = gameObject.Dir * Math.PI / 180;
-
-        double x1 = pos.X - halfWidth;
-        double x2 = pos.X + halfWidth;
-        double z1 = pos.Z - height;
-        double z2 = pos.Z;
-        Vector2[] corners = new Vector2[4];
-        corners[0] = new Vector2((float)x1, (float)z1);
-        corners[1] = new Vector2((float)x1, (float)z2);
-        corners[2] = new Vector2((float)x2, (float)z2);
-        corners[3] = new Vector2((float)x2, (float)z1);
+        // 2. 현재 위치와 전방 벡터 계산
+        Vector3 center = gameObject.CellPos;
+        double radians = degree * (Math.PI / 180);
+        Vector3 forward = new Vector3((float)Math.Sin(radians), 0, (float)Math.Cos(radians));
         
-        List<GameObject> gameObjects = FindTargets(gameObject, typeList, (float)(height > width ? height : width));
-        Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
+        // 3. 필터링할 목표물 리스트 초기화
+        var objectsInRectangle = new List<GameObject>();
+        
+        // 4. 직사각형 모서리 좌표 계산
+        float halfWidth = width / 2;
+        float halfHeight = height / 2;
+        List<Vector3> corners = new List<Vector3>()
+        {
+            new(center.X - halfWidth, center.Y, center.Z - halfHeight),
+            new(center.X - halfWidth, center.Y, center.Z + halfHeight),
+            new(center.X + halfWidth, center.Y, center.Z + halfHeight),
+            new(center.X + halfWidth, center.Y, center.Z - halfHeight)
+        };
+        
+        // 5. 직사각형 모서리 회전
+        List<Vector3> rotatedCorners = corners.Select(corner => 
+            corner.RotateAroundPoint(center, degree)).ToList();
 
-        return (from obj in gameObjects 
-            where obj.Targetable && attackType == 2 || obj.UnitType == attackType
-            let objPos = map.Cell2Pos(map.Vector3To2(obj.CellPos)) 
-            let point = new Vector2(objPos.X, objPos.Z) 
-            where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
+        foreach (var corner in rotatedCorners)
+        {
+            Console.WriteLine(corner);
+        }
+        
+        // 6. 직사각형 경계 계산
+        float minX = rotatedCorners.Min(corner => corner.X);
+        float maxX = rotatedCorners.Max(corner => corner.X);
+        float minZ = rotatedCorners.Min(corner => corner.Z);
+        float maxZ = rotatedCorners.Max(corner => corner.Z);
+        
+        // 7. 각 목표물에 대해 조건 검사
+        foreach (var obj in targetList)
+        {
+            if (obj.Targetable == false || (attackType != 2 && obj.UnitType != attackType)) continue;
+
+            Vector3 targetPos = obj.CellPos;
+            if (targetPos.X >= minX && targetPos.X <= maxX && targetPos.Z >= minZ && targetPos.Z <= maxZ)
+            {
+                objectsInRectangle.Add(obj);
+            }
+        }
+
+        return objectsInRectangle;
     }
-
+    
+    // public List<GameObject> FindTargetsInRectangle(IEnumerable<GameObjectType> typeList,
+    //     GameObject gameObject, double width, double height, int attackType = 0)
+    // {
+    //     Map map = Map;
+    //     Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
+    //     
+    //     double halfWidth = width / 2.0f;
+    //     double angle = gameObject.Dir * Math.PI / 180;
+    //
+    //     double x1 = pos.X - halfWidth;
+    //     double x2 = pos.X + halfWidth;
+    //     double z1 = pos.Z - height;
+    //     double z2 = pos.Z;
+    //     Vector2[] corners = new Vector2[4];
+    //     corners[0] = new Vector2((float)x1, (float)z1);
+    //     corners[1] = new Vector2((float)x1, (float)z2);
+    //     corners[2] = new Vector2((float)x2, (float)z2);
+    //     corners[3] = new Vector2((float)x2, (float)z1);
+    //     
+    //     List<GameObject> gameObjects = FindTargets(gameObject, typeList, (float)(height > width ? height : width));
+    //     Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
+    //
+    //     return (from obj in gameObjects 
+    //         where obj.Targetable && attackType == 2 || obj.UnitType == attackType
+    //         let objPos = map.Cell2Pos(map.Vector3To2(obj.CellPos)) 
+    //         let point = new Vector2(objPos.X, objPos.Z) 
+    //         where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
+    // }
+    //
+    // private Vector2[] RotateRectangle(Vector2[] corners, Vector2 datumPoint, double angle)
+    // {
+    //     for (int i = 0; i < corners.Length; i++)
+    //     {
+    //         Vector2 offset = corners[i] - datumPoint;
+    //         float x = offset.X;
+    //         float z = offset.Y;
+    //         corners[i] = new Vector2(
+    //             datumPoint.X + x * (float)Math.Cos(angle) - z * (float)Math.Sin(angle),
+    //             datumPoint.Y + x * (float)Math.Sin(angle) + z * (float)Math.Cos(angle)
+    //         );
+    //     }
+    //
+    //     return corners;
+    // }
+    
     public GameObject? FindDensityTargets(List<GameObjectType> searchType, List<GameObjectType> targetType,
         GameObject gameObject, float range, float impactRange, int attackType = 0)
     {
@@ -350,7 +422,7 @@ public partial class GameRoom
         // 4. 각 목표물에 대해 조건 검사
         foreach (var obj in targetList)
         {   // 4.1 타겟팅 가능한지와 공격 타입이 맞는지 확인
-            if (!obj.Targetable || (attackType != 2 && obj.UnitType != attackType)) continue;
+            if (obj.Targetable == false || (attackType != 2 && obj.UnitType != attackType)) continue;
             // 4.2 거리와 각도를 계산
             Vector3 dirVector = obj.CellPos - gameObject.CellPos;
             float distance = Vector3.Distance(obj.CellPos, gameObject.CellPos);
@@ -531,22 +603,6 @@ public partial class GameRoom
         double sum = area1 + area2 + area3 + area4;
 
         return Math.Abs(sum - area) < 0.01f;
-    }
-    
-    private Vector2[] RotateRectangle(Vector2[] corners, Vector2 datumPoint, double angle)
-    {
-        for (int i = 0; i < corners.Length; i++)
-        {
-            Vector2 offset = corners[i] - datumPoint;
-            float x = offset.X;
-            float z = offset.Y;
-            corners[i] = new Vector2(
-                datumPoint.X + x * (float)Math.Cos(angle) - z * (float)Math.Sin(angle),
-                datumPoint.Y + x * (float)Math.Sin(angle) + z * (float)Math.Cos(angle)
-            );
-        }
-
-        return corners;
     }
     
     private bool InsideFence(GameObject gameObject)

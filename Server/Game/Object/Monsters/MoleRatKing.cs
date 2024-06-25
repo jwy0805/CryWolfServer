@@ -33,6 +33,7 @@ public class MoleRatKing : MoleRat
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
         IdleToRushAnimTime = StdAnimTime * 2 / 3;
         RushToIdleAnimTime = StdAnimTime * 5 / 6;
     }

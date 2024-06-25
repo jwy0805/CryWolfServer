@@ -53,6 +53,7 @@ public class Burrow : Monster
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
         IdleToRushAnimTime = StdAnimTime * 2 / 3;
         RushToIdleAnimTime = StdAnimTime * 5 / 6;
         Player.SkillSubject.SkillUpgraded(Skill.BurrowHalfBurrow);

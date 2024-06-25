@@ -15,116 +15,44 @@ public class Soul : Tower
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.SoulAttack:
-            //         Attack += 8;
-            //         break;
-            //     case Skill.SoulDefence:
-            //         Defence += 5;
-            //         break;
-            //     case Skill.SoulHealth:
-            //         MaxHp += 25;
-            //         Hp += 25;
-            //         break;
-            //     case Skill.SoulDrain:
-            //         _drain = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.SoulAttack:
+                    Attack += 10;
+                    break;
+                case Skill.SoulAttackSpeed:
+                    AttackSpeed += AttackSpeed * 0.1f;
+                    break;
+                case Skill.SoulDrain:
+                    _drain = true;
+                    break;
+            }
         }
     }
 
-    protected override void UpdateIdle()
+    public override void Init()
     {
-        Target = Room?.FindClosestTarget(this);
-        if (Target == null) return;
-        State = State.Moving;
-        BroadcastPos();
+        base.Init();
+        Player.SkillSubject.SkillUpgraded(Skill.SoulAttack);
+        Player.SkillSubject.SkillUpgraded(Skill.SoulAttackSpeed);
+        Player.SkillSubject.SkillUpgraded(Skill.SoulDrain);
     }
-
-    // protected override void UpdateMoving()
-    // {
-    //     // Targeting
-    //     Target = Room?.FindNearestTarget(this);
-    //     if (Target != null)
-    //     {
-    //         DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-    //         (Path, Dest, Atan) = Room!.Map.Move(this, CellPos, DestPos, false);
-    //         BroadcastDest();
-    //     }
-    //     
-    //     if (Target == null || Target.Room != Room)
-    //     {
-    //         State = State.Idle;
-    //         BroadcastMove();
-    //         return;
-    //     }
-    //
-    //     if (Room != null)
-    //     {
-    //         // 이동
-    //         // target이랑 너무 가까운 경우
-    //         // Attack
-    //         StatInfo targetStat = Target.Stat;
-    //         Vector3 position = CellPos;
-    //         if (targetStat.Targetable)
-    //         {
-    //             float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-    //             double deltaX = DestPos.X - CellPos.X;
-    //             double deltaZ = DestPos.Z - CellPos.Z;
-    //             Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-    //             if (distance <= AttackRange)
-    //             {
-    //                 CellPos = position;
-    //                 State = State.Attack;
-    //                 BroadcastMove();
-    //                 return;
-    //             }
-    //         }
-    //         
-    //         BroadcastMove();
-    //     }
-    // }
-
-    public override void SetNextState()
+    
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Room == null) return;
-
-        if (Target == null || Target.Stat.Targetable == false)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Idle;
-        }
-        else
-        {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = State.Attack;
-                    SyncPosAndDir();
-                }
-                else
-                {
-                    DestPos = Target.CellPos;
-                    State = State.Moving;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
-        }
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.SoulProjectile, this, 5f);
+        });
+    }
+    
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
+    {
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
         
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
-    }
-
-    public override void ApplyAttackEffect(GameObject target)
-    {
-        if (!_drain) return;
-        Hp += (int)((Attack - target.Defence) * DrainParam);
-        Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+        if (_drain == false) return;
+        var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+        Hp += (int)(damage * DrainParam);
     }
 }

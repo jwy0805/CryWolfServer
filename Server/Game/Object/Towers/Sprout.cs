@@ -58,6 +58,5 @@ public class Sprout : Tower
         if (_drain == false) return;
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
-        BroadcastHp();
     }
 }

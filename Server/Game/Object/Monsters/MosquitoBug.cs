@@ -34,6 +34,12 @@ public class MosquitoBug : Monster
         }
     }
 
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Mage;
+    }
+
     protected override void UpdateIdle()
     {
         Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType);

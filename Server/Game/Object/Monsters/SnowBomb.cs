@@ -41,6 +41,7 @@ public class SnowBomb : Bomb
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
         SkillImpactMoment2 = 1.0f;
         Player.SkillUpgradedList.Add(Skill.SnowBombAreaAttack);
         Player.SkillUpgradedList.Add(Skill.SnowBombFrostArmor);

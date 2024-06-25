@@ -37,6 +37,7 @@ public class PoisonBomb : SnowBomb
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
         SelfExplosionRange = 3.5f;
         Player.SkillUpgradedList.Add(Skill.PoisonBombSelfDestruct);
     }

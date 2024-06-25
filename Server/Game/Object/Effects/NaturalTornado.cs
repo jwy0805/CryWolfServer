@@ -20,19 +20,19 @@ public class NaturalTornado : Effect
         
         if (Room.Stopwatch.ElapsedMilliseconds > _damageTime + 1000)
         {
-            SetEffectEffect();
+            // SetEffectEffect();
             if (Room != null) _damageTime = Room.Stopwatch.ElapsedMilliseconds;
         }
     }
 
-    protected override void SetEffectEffect()
-    {
-        if (Target == null || Target.Targetable == false)
-        {
-            Room?.LeaveGame(Id);
-            return;
-        }
-        int damage = Target.MaxHp / 10;
-        Target.OnDamaged(this, damage, Damage.Magical);
-    }
+    // protected override void SetEffectEffect()
+    // {
+    //     if (Target == null || Target.Targetable == false)
+    //     {
+    //         Room?.LeaveGame(Id);
+    //         return;
+    //     }
+    //     int damage = Target.MaxHp / 10;
+    //     Target.OnDamaged(this, damage, Damage.Magical);
+    // }
 }

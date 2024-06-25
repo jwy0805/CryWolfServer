@@ -32,6 +32,7 @@ public class Hare : Rabbit
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
         Player.SkillSubject.SkillUpgraded(Skill.HarePunch);
     }
     
@@ -57,35 +58,6 @@ public class Hare : Rabbit
         if (distance > TotalAttackRange) return;
         State = State.Attack;
         SyncPosAndDir();
-    }
-    
-    protected override void UpdateSkill()
-    {   // 토끼 분신 소환
-        // 첫 UpdateSkill Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            IsAttacking = false;
-            return;
-        }
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        SkillImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
     }
     
     protected override void AttackImpactEvents(long impactTime)

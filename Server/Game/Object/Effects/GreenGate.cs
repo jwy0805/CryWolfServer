@@ -12,27 +12,27 @@ public class GreenGate : Effect
         if (IsHit && Room?.Stopwatch.ElapsedMilliseconds > _packetReceivedTime + 1000) Room?.LeaveGame(Id);
     }
 
-    protected override void SetEffectEffect()
-    {
-        if (Room == null || Target == null || IsHit) return;
-        Random random = new();
-        int rand = random.Next(3);
-        switch (rand)
-        {
-            case 0:
-                CreateEffect(EffectId.NaturalTornado);
-                break;
-            case 1:
-                CreateEffect(EffectId.PurpleBeam);
-                break;
-            case 2:
-                CreateEffect(EffectId.StarFall);
-                break;
-        }
-
-        IsHit = true;
-        _packetReceivedTime = Room.Stopwatch.ElapsedMilliseconds;
-    }
+    // protected override void SetEffectEffect()
+    // {
+    //     if (Room == null || Target == null || IsHit) return;
+    //     Random random = new();
+    //     int rand = random.Next(3);
+    //     switch (rand)
+    //     {
+    //         case 0:
+    //             CreateEffect(EffectId.NaturalTornado);
+    //             break;
+    //         case 1:
+    //             CreateEffect(EffectId.PurpleBeam);
+    //             break;
+    //         case 2:
+    //             CreateEffect(EffectId.StarFall);
+    //             break;
+    //     }
+    //
+    //     IsHit = true;
+    //     _packetReceivedTime = Room.Stopwatch.ElapsedMilliseconds;
+    // }
 
     private void CreateEffect(EffectId effectId)
     {

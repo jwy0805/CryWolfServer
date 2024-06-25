@@ -28,8 +28,14 @@ public class DogBark : DogPup
                 case Skill.DogBarkFourthAttack:
                     _4Hit = true;
                     break;
-            }
+            } 
         }
+    }
+    
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Warrior;
     }
     
     public override void Update()

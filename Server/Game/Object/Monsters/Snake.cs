@@ -32,6 +32,7 @@ public class Snake : Snakelet
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Ranger;
     }
     
     protected override void AttackImpactEvents(long impactTime)

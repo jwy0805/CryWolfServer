@@ -24,4 +24,10 @@ public class DogPup : Monster
             }
         }
     }
+    
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Warrior;
+    }
 }

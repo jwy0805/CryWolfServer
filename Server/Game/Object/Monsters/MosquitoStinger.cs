@@ -35,6 +35,7 @@ public class MosquitoStinger : MosquitoPester
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
         SkillImpactMoment = 0.9f;
         Player.SkillSubject.SkillUpgraded(Skill.MosquitoStingerSheepDeath);
     }

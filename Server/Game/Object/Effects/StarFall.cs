@@ -17,23 +17,22 @@ public class StarFall : Effect
         
         if (Room?.Stopwatch.ElapsedMilliseconds > _damageTime + _interval)
         {
-            SetEffectEffect();
             _damageTime = Room.Stopwatch.ElapsedMilliseconds;
         }
     }
 
-    protected override void SetEffectEffect()
-    {
-        if (Room == null) return;
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + _duration)
-        {
-            Room.LeaveGame(Id);
-            return;
-        }
-        
-        List<GameObjectType> typeList = new() { GameObjectType.Monster };
-        List<GameObject> targets = Room.FindTargets(this, typeList, _starFallRad);
-        if (!targets.Any()) return;
-        foreach (var t in targets) t.OnDamaged(this, _skillDamage, Damage.Magical);
-    }
+    // protected override void SetEffectEffect()
+    // {
+    //     if (Room == null) return;
+    //     if (Room.Stopwatch.ElapsedMilliseconds > Time + _duration)
+    //     {
+    //         Room.LeaveGame(Id);
+    //         return;
+    //     }
+    //     
+    //     List<GameObjectType> typeList = new() { GameObjectType.Monster };
+    //     List<GameObject> targets = Room.FindTargets(this, typeList, _starFallRad);
+    //     if (!targets.Any()) return;
+    //     foreach (var t in targets) t.OnDamaged(this, _skillDamage, Damage.Magical);
+    // }
 }

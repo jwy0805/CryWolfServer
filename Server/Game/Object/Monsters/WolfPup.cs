@@ -24,4 +24,10 @@ public class WolfPup : Monster
             }
         }
     }
+
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Warrior;
+    }
 }

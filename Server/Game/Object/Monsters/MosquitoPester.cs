@@ -41,6 +41,7 @@ public class MosquitoPester : MosquitoBug
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
     }
 
     protected override void AttackImpactEvents(long impactTime)

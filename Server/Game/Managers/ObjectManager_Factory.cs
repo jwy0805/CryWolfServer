@@ -101,7 +101,8 @@ public sealed partial class ObjectManager
         { ProjectileId.RabbitAggro, new RabbitAggroFactory() },
         { ProjectileId.BasicProjectile3, new BasicProjectile3Factory() },
         { ProjectileId.BasicProjectile4, new BasicProjectile4Factory() },
-        { ProjectileId.SproutFire, new SproutFireFactory() }
+        { ProjectileId.SproutFire, new SproutFireFactory() },
+        { ProjectileId.SoulProjectile, new SoulProjectileFactory() }
     };
     
     private readonly Dictionary<EffectId, IFactory<Effect>> _effectDict = new()
@@ -246,6 +247,7 @@ public sealed partial class ObjectManager
     public class BasicProjectile3Factory : IFactory<BasicProjectile3> { public BasicProjectile3 Create() => new(); }
     public class BasicProjectile4Factory : IFactory<BasicProjectile4> { public BasicProjectile4 Create() => new(); }
     public class SproutFireFactory : IFactory<SproutFire> { public SproutFire Create() => new(); }
+    public class SoulProjectileFactory : IFactory<SoulProjectile> { public SoulProjectile Create() => new(); }
     public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
     public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
     public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }

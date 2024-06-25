@@ -52,6 +52,7 @@ public class SkeletonMage : SkeletonGiant
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Supporter;
         Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageAdjacentRevive);
         Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageKillRecoverMp);
         Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageReviveHealthUp);

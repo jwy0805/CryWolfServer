@@ -6,7 +6,7 @@ namespace Server.Game;
 
 public class Haunt : Soul
 {
-    private bool _longAttack = false;
+    private bool _fire = false;
     
     protected override Skill NewSkill
     {
@@ -14,107 +14,53 @@ public class Haunt : Soul
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.HauntLongAttack:
-            //         _longAttack = true;
-            //         AttackRange += 3.5f;
-            //         break;
-            //     case Skill.HauntAttackSpeed:
-            //         AttackSpeed += 0.15f;
-            //         break;
-            //     case Skill.HauntAttack:
-            //         Attack += 10;
-            //         break;
-            //     case Skill.HauntFireResist:
-            //         FireResist += 10;
-            //         break;
-            //     case Skill.HauntPoisonResist:
-            //         PoisonResist += 10;
-            //         break;
-            //     case Skill.HauntFire:
-            //         Room?.Broadcast(new S_SkillUpdate
-            //         {
-            //             ObjectEnumId = (int)TowerId,
-            //             ObjectType = GameObjectType.Tower,
-            //             SkillType = SkillType.SkillProjectile
-            //         });
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.HauntFireResist:
+                    FireResist += 10;
+                    break;
+                case Skill.HauntPoisonResist:
+                    PoisonResist += 10;
+                    break;
+                case Skill.HauntFire:
+                    _fire = true;
+                    break;
+                case Skill.HauntRange:
+                    AttackRange += 2.0f;
+                    break;
+            }
         }
     }
-    
-    protected override void UpdateMoving()
-    {
-        // Targeting
-        Target = Room?.FindClosestTarget(this);
-        if (Target != null)
-        {
-            DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        }
-        
-        if (Target == null || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
 
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            // Attack
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                if (distance <= AttackRange)
-                {
-                    CellPos = position;
-                    State = _longAttack ? State.Skill : State.Attack;
-                    BroadcastPos();
-                    return;
-                }
-            }
-            
-            BroadcastPos();
-        }
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Mage;
+        Player.SkillSubject.SkillUpgraded(Skill.HauntFireResist);
+        Player.SkillSubject.SkillUpgraded(Skill.HauntPoisonResist);
+        Player.SkillSubject.SkillUpgraded(Skill.HauntFire);
+        Player.SkillSubject.SkillUpgraded(Skill.HauntRange);
     }
     
-    public override void SetNextState()
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Idle;
-        }
-        else
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(_fire ? ProjectileId.HauntFire : ProjectileId.HauntProjectile, this, 5f);
+        });
+    }
+
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
+    {
+        if (pid == ProjectileId.HauntFire)
         {
-            if (Target.Hp > 0)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = _longAttack ? State.Skill : State.Attack;
-                    SyncPosAndDir();
-                }
-                else
-                {
-                    State = State.Idle;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
+            BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
         }
         
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+        target.OnDamaged(this, TotalAttack, Damage.Normal);
+
+        var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
+        Hp += (int)(damage * DrainParam);
     }
 }

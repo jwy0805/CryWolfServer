@@ -55,6 +55,7 @@ public class Werewolf : Wolf
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
@@ -89,33 +90,6 @@ public class Werewolf : Wolf
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
-    }
-    
-    protected override void UpdateSkill()
-    {
-        if (IsAttacking) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            IsAttacking = false;
-            return;
-        }
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactTime = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
-        long animTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long nextAnim = LastAnimEndTime - timeNow + animTime;
-        long nextImpact = LastAnimEndTime - timeNow + impactTime;
-        long nextAnimEndTime = nextAnim > 0 ? Math.Min(nextAnim, animTime) : animTime;
-        long nextImpactTime = nextImpact > 0 ? Math.Min(nextImpact, impactTime) : impactTime;
-        SkillImpactEvents(nextImpactTime);
-        EndEvents(nextAnimEndTime);
-        IsAttacking = true;
     }
 
     protected override void UpdateSkill2()

@@ -28,5 +28,6 @@ public class Lurker : Monster
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Ranger;
     }
 }

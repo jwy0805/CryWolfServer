@@ -31,4 +31,10 @@ public class Cacti : Monster
             }
         }
     }
+
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Tanker;
+    }
 }

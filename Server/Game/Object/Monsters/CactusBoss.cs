@@ -43,6 +43,7 @@ public class CactusBoss : Cactus
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Tanker;
         ReflectionRate = 10;
         // Player.SkillSubject.SkillUpgraded(Skill.CactusBossRush);
         // Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);

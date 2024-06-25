@@ -44,6 +44,7 @@ public class SnakeNaga : Snake
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Mage;
     }
     
     public override void Update()

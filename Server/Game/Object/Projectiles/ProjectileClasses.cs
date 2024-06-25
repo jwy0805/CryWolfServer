@@ -2,7 +2,6 @@ namespace Server.Game;
 
 public class BasicProjectile : Projectile { }
 public class BasicProjectile2 : Projectile { }
-public class BigFire : Projectile { }
 public class BlossomDeathProjectile : Projectile { }
 public class BlossomProjectile : Projectile { }
 public class BombProjectile : Projectile { }
@@ -19,3 +18,4 @@ public class BasicProjectile4 : Projectile { }
 public class RabbitAggro : Projectile { }
 public class HarePunch : Projectile { }
 public class SproutFire : Projectile { }
+public class SoulProjectile : Projectile { }

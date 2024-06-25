@@ -40,10 +40,4 @@ public class Effect : GameObject
             Room?.Push(Room.LeaveGameOnlyServer, Id);
         });
     }
-    
-    protected virtual void SetEffectEffect()
-    {
-        // IsHit = true;
-        // Room?.LeaveGame(Id);
-    }
 }
