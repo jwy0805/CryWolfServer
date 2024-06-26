@@ -34,6 +34,7 @@ public class TrainingDummy : TargetDummy
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Tanker;
         Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyAccuracy);
         Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyHealth);
         Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyFaintAttack);
@@ -59,6 +60,11 @@ public class TrainingDummy : TargetDummy
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             var targets = Room.FindTargets(
                 this, new [] { GameObjectType.Tower }, TotalSkillRange);
+            foreach (var target in targets)
+            {
+                if (target.Targetable == false || target.Hp <= 0) continue;
+                
+            }
         });
     }
 }

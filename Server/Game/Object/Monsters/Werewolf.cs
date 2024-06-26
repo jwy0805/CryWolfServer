@@ -61,6 +61,9 @@ public class Werewolf : Wolf
         DrainParam = 0.18f;
         
         Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfCriticalDamage);
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfCriticalRate);
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfBerserker);
     }
     
     protected override void UpdateMoving()

@@ -711,6 +711,7 @@ public sealed partial class BuffManager
         public override void RemoveBuff()
         {
             base.RemoveBuff();
+            if (Master.Targetable == false || Master.Hp <= 0) return;
             Master.State = State.Idle;
         }
     }

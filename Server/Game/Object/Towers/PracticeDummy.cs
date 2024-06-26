@@ -23,4 +23,10 @@ public class PracticeDummy : Tower
             }
         }
     }
+    
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Tanker;
+    }
 }

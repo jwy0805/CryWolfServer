@@ -90,8 +90,20 @@ public partial class GameRoom
         return MeasureShortestDist(gameObject, targetList, attackType);
     }
 
+    public GameObject? FindRandomTarget(GameObject gameObject, List<GameObjectType> typeList, float dist, int attackType = 0)
+    {
+        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
+
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) targetList.AddRange(GetTargets(type));
+
+        return GetRandomTarget(gameObject, targetList, dist, attackType);
+    }
+    
     public GameObject? FindRandomTarget(GameObject gameObject, float dist, int attackType = 0, bool? reachableInFence = null)
     {   
+        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
+
         var targetTypeList = GetTargetType(gameObject, reachableInFence);
         var targetList = new List<GameObject>();
         foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
@@ -127,6 +139,9 @@ public partial class GameRoom
 
     private bool ReachableInFence(GameObject go)
     {
+        var type = go.ObjectType;
+        if (type is GameObjectType.Tower or GameObjectType.Sheep) return true;
+        
         if (go.Way == SpawnWay.North)
         {
             if (GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt) return true;
@@ -146,6 +161,9 @@ public partial class GameRoom
         {
             case GameObjectType.Monster:
                 targets = _monsters.Values.Cast<GameObject>().ToList();
+                break;
+            case GameObjectType.MonsterStatue:
+                targets = _statues.Values.Cast<GameObject>().ToList();
                 break;
             case GameObjectType.Tower:
                 targets = _towers.Values.Cast<GameObject>().ToList();
@@ -172,10 +190,10 @@ public partial class GameRoom
                 || (target.UnitType != attackType && attackType != 2)) continue;
             var pos = target.PosInfo;
             var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            var distSq = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (distSq < closestDistSq == false) continue;
+            var distance = Vector3.Distance(targetPos, gameObject.CellPos);
+            if (distance < closestDistSq == false) continue;
             closest = target;
-            closestDistSq = distSq;
+            closestDistSq = distance;
         }
 
         return closest;
@@ -186,12 +204,12 @@ public partial class GameRoom
         List<GameObject> targetList = new();
         foreach (var target in targets)
         {
-            if (target.Targetable == false || target.UnitType != attackType
+            if (target.Targetable == false || (target.UnitType != attackType && attackType != 2)
                 || target.Id == gameObject.Id && attackType != 2) continue;
             var pos = target.PosInfo;
             var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            var distSq = new Vector3().SqrMagnitude(targetPos - gameObject.CellPos);
-            if (distSq < dist * dist) targetList.Add(target);
+            var distance = Vector3.Distance(targetPos, gameObject.CellPos);
+            if (distance < dist) targetList.Add(target);
         }
 
         return targetList.Count == 0 ? null : targetList[new Random().Next(targetList.Count)];
@@ -204,10 +222,8 @@ public partial class GameRoom
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
         
-        // 2. 현재 위치와 전방 벡터 계산
+        // 2. 현재 위치 계산
         Vector3 center = gameObject.CellPos;
-        double radians = degree * (Math.PI / 180);
-        Vector3 forward = new Vector3((float)Math.Sin(radians), 0, (float)Math.Cos(radians));
         
         // 3. 필터링할 목표물 리스트 초기화
         var objectsInRectangle = new List<GameObject>();
@@ -215,22 +231,17 @@ public partial class GameRoom
         // 4. 직사각형 모서리 좌표 계산
         float halfWidth = width / 2;
         float halfHeight = height / 2;
-        List<Vector3> corners = new List<Vector3>()
+        List<Vector3> corners = new List<Vector3>
         {
-            new(center.X - halfWidth, center.Y, center.Z - halfHeight),
-            new(center.X - halfWidth, center.Y, center.Z + halfHeight),
-            new(center.X + halfWidth, center.Y, center.Z + halfHeight),
-            new(center.X + halfWidth, center.Y, center.Z - halfHeight)
+            center with { X = center.X - halfWidth },
+            new(center.X - halfWidth, center.Y, center.Z + halfHeight * 2),
+            new(center.X + halfWidth, center.Y, center.Z + halfHeight * 2),
+            center with { X = center.X + halfWidth }
         };
         
         // 5. 직사각형 모서리 회전
         List<Vector3> rotatedCorners = corners.Select(corner => 
             corner.RotateAroundPoint(center, degree)).ToList();
-
-        foreach (var corner in rotatedCorners)
-        {
-            Console.WriteLine(corner);
-        }
         
         // 6. 직사각형 경계 계산
         float minX = rotatedCorners.Min(corner => corner.X);
@@ -464,14 +475,14 @@ public partial class GameRoom
             case GameObjectType.Monster:
                 objectsInDist = targetList.OfType<Monster>()
                     .Where(obj => unitIds.Contains(obj.UnitId))
-                    .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
+                    .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) <= dist)
                     .Cast<GameObject>()
                     .ToList();
                 break;
             case GameObjectType.Tower:
                 objectsInDist = targetList.OfType<Tower>()
                     .Where(obj => unitIds.Contains(obj.UnitId))
-                    .Where(obj => new Vector3().SqrMagnitude(obj.CellPos - gameObject.CellPos) < dist * dist)
+                    .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) <= dist)
                     .Cast<GameObject>()
                     .ToList();
                 break;
@@ -582,27 +593,6 @@ public partial class GameRoom
         }
 
         return go;
-    }
-    
-    private double GetAreaOfTriangle(Vector2 a, Vector2 b, Vector2 c)
-    {
-        return Math.Abs((a.X * (b.Y - c.Y) + b.X * (c.Y - a.Y) + c.X * (a.Y - b.Y)) / 2);
-    }
-
-    private bool CheckPointInRectangle(Vector2[] corners, Vector2 point, double area)
-    {
-        Vector2 a = corners[0];
-        Vector2 b = corners[1];
-        Vector2 c = corners[2];
-        Vector2 d = corners[3];
-        
-        double area1 = GetAreaOfTriangle(a, b, point);
-        double area2 = GetAreaOfTriangle(b, c, point);
-        double area3 = GetAreaOfTriangle(c, d, point);
-        double area4 = GetAreaOfTriangle(d, a, point);
-        double sum = area1 + area2 + area3 + area4;
-
-        return Math.Abs(sum - area) < 0.01f;
     }
     
     private bool InsideFence(GameObject gameObject)

@@ -247,11 +247,11 @@ public class Creature : GameObject
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
     public virtual void ApplyEffectEffect() { }
+    public virtual void ApplyEffectEffect(EffectId eid) { }
     public virtual void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
-    public virtual void ApplyAdditionalProjectileEffect(GameObject target) { }
 
     public virtual void SetNextState()
     {

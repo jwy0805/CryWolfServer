@@ -4,47 +4,20 @@ namespace Server.Game;
 
 public class GreenGate : Effect
 {
-    private long _packetReceivedTime;
-
-    public override void Update()
+    public override void Init()
     {
-        base.Update();
-        if (IsHit && Room?.Stopwatch.ElapsedMilliseconds > _packetReceivedTime + 1000) Room?.LeaveGame(Id);
+        base.Init();
+        EffectImpact(2000);
     }
-
-    // protected override void SetEffectEffect()
-    // {
-    //     if (Room == null || Target == null || IsHit) return;
-    //     Random random = new();
-    //     int rand = random.Next(3);
-    //     switch (rand)
-    //     {
-    //         case 0:
-    //             CreateEffect(EffectId.NaturalTornado);
-    //             break;
-    //         case 1:
-    //             CreateEffect(EffectId.PurpleBeam);
-    //             break;
-    //         case 2:
-    //             CreateEffect(EffectId.StarFall);
-    //             break;
-    //     }
-    //
-    //     IsHit = true;
-    //     _packetReceivedTime = Room.Stopwatch.ElapsedMilliseconds;
-    // }
-
-    private void CreateEffect(EffectId effectId)
+    
+    protected override async void EffectImpact(long impactTime)
     {
-        // if (Room == null || Target == null || Parent == null) return;
-        // Effect effect = ObjectManager.Instance.CreateEffect(effectId);
-        // effect.Room = Room;
-        // effect.Parent = Parent;
-        // effect.Target = Target;
-        // // effect.PosInfo = SetEffectPos(Target);
-        // effect.Info.PosInfo = effect.PosInfo;
-        // effect.Info.Name = effectId.ToString();
-        // effect.Init();
-        // Room.EnterGameTarget(effect, effect.Parent, effect.Target);
+        if (Room == null) return; // Effect는 Target이 없는 경우도 있음
+        await Scheduler.ScheduleEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            if (Parent is Creature creature) creature.ApplyEffectEffect(EffectId);
+            Room?.Push(Room.LeaveGameOnlyServer, Id);
+        });
     }
 }

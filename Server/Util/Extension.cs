@@ -19,9 +19,10 @@ public static class Extension
         double dz = point.Z - pivot.Z;
         
         return new Vector3(
-            (float)(cosTheta * dx - sinTheta * dz + pivot.X), 
-            point.Y, 
-            (float)(sinTheta * dx + cosTheta * dz + pivot.Z));
+            (float)(cosTheta * dx + sinTheta * dz + pivot.X),
+            point.Y,
+            (float)(-sinTheta * dx + cosTheta * dz + pivot.Z)
+        );
     }
     
     // public static bool SaveChangesExtended(this SharedDbContext dbContext)

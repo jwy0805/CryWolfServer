@@ -33,6 +33,8 @@ public class TargetDummy : PracticeDummy
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Tanker;
+        
         Player.SkillSubject.SkillUpgraded(Skill.TargetDummyHealSelf);
         Player.SkillSubject.SkillUpgraded(Skill.TargetDummyPoisonResist);
         Player.SkillSubject.SkillUpgraded(Skill.TargetDummyAggro);

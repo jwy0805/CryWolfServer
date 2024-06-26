@@ -27,3 +27,4 @@ public class SkeletonGiantSkill : Effect { }
 public class WillRevive : Effect { }
 public class HareEffect : Effect { }
 public class HareCloneEffect : Effect { }
+public class StarFall : Effect { }
