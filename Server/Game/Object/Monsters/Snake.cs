@@ -48,6 +48,7 @@ public class Snake : Snakelet
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        if (_fire) BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+        if (_fire) BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, 
+            target, this, 0, 5000);
     }
 }

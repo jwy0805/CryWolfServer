@@ -7,7 +7,8 @@ namespace Server.Game;
 public class MosquitoBug : Monster
 {
     private bool _faint = false;
-    
+
+    protected int FaintParam = 30;
     protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
     
     protected override Skill NewSkill
@@ -78,9 +79,9 @@ public class MosquitoBug : Monster
     public override void ApplyAttackEffect(GameObject target)
     {
         target.OnDamaged(this, TotalAttack, Damage.Normal);       
-        if (target is Sheep _ && _faint)
+        if (target is Sheep _ && _faint && new Random().Next(100) < FaintParam)
         {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, target, this, 0, 1000);
         }
     }
 }

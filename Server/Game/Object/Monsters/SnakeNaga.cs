@@ -169,7 +169,7 @@ public class SnakeNaga : Snake
             BroadcastHp();
         }
         
-        BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+        BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         target.OnDamaged(this, TotalAttack, Damage.Normal);        
     }
 
@@ -182,7 +182,7 @@ public class SnakeNaga : Snake
         foreach (var target in targets)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         }
     }
     

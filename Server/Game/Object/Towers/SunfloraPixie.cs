@@ -71,44 +71,44 @@ public class SunfloraPixie : SunflowerFairy
         {
             foreach (var tower in towers)
             {
-                tower.Hp += HealParam;
-                Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
-                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, this, AttackParam);
-                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, this, DefenceParam);
-                if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, tower, this, _attackSpeedParam);
-                if (_debuffRemove) BuffManager.Instance.RemoveAllDebuff(tower);
+                // tower.Hp += HealParam;
+                // Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+                // BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
+                // BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, this, AttackParam);
+                // BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, this, DefenceParam);
+                // if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, tower, this, _attackSpeedParam);
+                // if (_debuffRemove) BuffManager.Instance.RemoveAllDebuff(tower);
             }
         }
 
-        int num = _triple ? 3 : 2;
-        if (_invincible)
-        {
-            foreach (var tower in towers)
-                BuffManager.Instance.AddBuff(BuffId.Invincible, tower, this, 0, 3000);
-        }
-
-        List<GameObjectType> typeList = new() { GameObjectType.Monster };
-        List<Creature> monsters = Room.FindTargets(this, typeList, SkillRange, 2).Cast<Creature>().ToList();
-        if (monsters.Any())
-        {
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
-                BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
-
-            if (_faint)
-            {
-                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.Fainted, monster, this, 0, 2000);
-            }
-            
-            if (_curse)
-            {
-                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.Curse, monster, this, 0, 5000);
-            }
-        }
+        // int num = _triple ? 3 : 2;
+        // if (_invincible)
+        // {
+        //     foreach (var tower in towers)
+        //         BuffManager.Instance.AddBuff(BuffId.Invincible, tower, this, 0, 3000);
+        // }
+        //
+        // List<GameObjectType> typeList = new() { GameObjectType.Monster };
+        // List<Creature> monsters = Room.FindTargets(this, typeList, SkillRange, 2).Cast<Creature>().ToList();
+        // if (monsters.Any())
+        // {
+        //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
+        //         BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
+        //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+        //         BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
+        //
+        //     if (_faint)
+        //     {
+        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+        //             BuffManager.Instance.AddBuff(BuffId.Fainted, monster, this, 0, 2000);
+        //     }
+        //     
+        //     if (_curse)
+        //     {
+        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+        //             BuffManager.Instance.AddBuff(BuffId.Curse, monster, this, 0, 5000);
+        //     }
+        // }
 
         List<GameObjectType> typeList2 = new() { GameObjectType.Fence };
         List<GameObject> fences = Room.FindTargets(this, typeList2, SkillRange);

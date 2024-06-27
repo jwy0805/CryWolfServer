@@ -240,9 +240,10 @@ public class CactusBoss : Cactus
         foreach (var target in targetList)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            if (_breathAggro) BuffManager.Instance.AddBuff(BuffId.Aggro, target, this, 0, 2000);
+            if (_breathAggro) BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None,
+                target, this, 0, 2000);
         }
-        if (_breathHeal) BuffManager.Instance.AddBuff(BuffId.Heal, 
+        if (_breathHeal) BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
             this, this, HealParam * targetList.Count, 1000, true);
     }
     
@@ -307,7 +308,8 @@ public class CactusBoss : Cactus
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
             if (new Random().Next(99) < ReflectionFaintRate && attacker.Targetable)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
+                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None,
+                    attacker, this, 0, 1000);
             }
         }
     }

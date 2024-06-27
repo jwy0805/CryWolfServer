@@ -50,13 +50,13 @@ public class Hermit : Spike
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
         
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
-            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.MoveSpeedDebuff, BuffParamType.Constant, monster, this, MoveSpeedParam);
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
-            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
+            BuffManager.Instance.AddBuff(BuffId.AttackSpeedDebuff, BuffParamType.Percentage, monster, this, AttackSpeedParam);
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
-            BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, this, AttackBuffParam);
+            BuffManager.Instance.AddBuff(BuffId.AttackBuff, BuffParamType.Constant, monster, this, AttackBuffParam);
         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
-            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, this, DefenceBuffParam);
+            BuffManager.Instance.AddBuff(BuffId.DefenceBuff, BuffParamType.Constant, monster, this, DefenceBuffParam);
 
         if (_debuffRemove)
         {
@@ -67,7 +67,7 @@ public class Hermit : Spike
         if (_aggro)
         {
             foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(2).ToList())
-                BuffManager.Instance.AddBuff(BuffId.Aggro, monster, this, 0, 3000);
+                BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None, monster, this, 0, 3000);
         }
     }
 }

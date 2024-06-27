@@ -35,8 +35,6 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CState, PacketHandler.C_StateHandler);		
 		_onRecv.Add((ushort)MessageId.CEffectActivate, MakePacket<C_EffectActivate>);
 		_handler.Add((ushort)MessageId.CEffectActivate, PacketHandler.C_EffectActivateHandler);		
-		_onRecv.Add((ushort)MessageId.CSkill, MakePacket<C_Skill>);
-		_handler.Add((ushort)MessageId.CSkill, PacketHandler.C_SkillHandler);		
 		_onRecv.Add((ushort)MessageId.CBaseSkillRun, MakePacket<C_BaseSkillRun>);
 		_handler.Add((ushort)MessageId.CBaseSkillRun, PacketHandler.C_BaseSkillRunHandler);		
 		_onRecv.Add((ushort)MessageId.CSkillUpgrade, MakePacket<C_SkillUpgrade>);

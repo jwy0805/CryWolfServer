@@ -73,7 +73,8 @@ public class Cactus : Cacti
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
             if (_reflectionFaint && new Random().Next(100) < ReflectionFaintRate && attacker.Targetable)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, attacker, this, 0, 1000);
+                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
+                    attacker, this, 0, 1000);
             }
         }
     }

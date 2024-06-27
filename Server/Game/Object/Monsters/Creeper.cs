@@ -214,11 +214,13 @@ public class Creeper : Lurker
         
         if (_poison)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
+                target, this, 0.05f, 5000);
         }
         else if (_nestedPoison)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0.05f, 5000, true);
+            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
+                target, this, 0.05f, 5000, true);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);

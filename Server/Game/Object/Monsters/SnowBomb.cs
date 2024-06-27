@@ -11,7 +11,7 @@ public class SnowBomb : Bomb
 
     protected float ExplosionRange = 1.5f;
     protected float SelfExplosionRange = 2.5f;
-    protected readonly float AttackDecreaseParam = 0.1f;
+    protected readonly float AttackSpeedDecreaseParam = 0.1f;
     protected GameObject? Attacker;
     
     protected override Skill NewSkill
@@ -103,7 +103,8 @@ public class SnowBomb : Bomb
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
         {
-            BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, gameObject, this, 3, 5000);
+            BuffManager.Instance.AddBuff(BuffId.DefenceDebuff, BuffParamType.Constant, 
+                gameObject, this, 3, 5000);
         }
     }
 
@@ -126,8 +127,8 @@ public class SnowBomb : Bomb
                 {
                     gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
                     if (_frostbite == false) continue;
-                    BuffManager.Instance.AddBuff(
-                        BuffId.AttackSpeedDecrease, gameObject, this, AttackDecreaseParam, 5000);
+                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDebuff, BuffParamType.Percentage,
+                        gameObject, this, AttackSpeedDecreaseParam, 5000);
                 }
             }
             else

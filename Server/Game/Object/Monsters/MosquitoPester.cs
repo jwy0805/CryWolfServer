@@ -56,22 +56,27 @@ public class MosquitoPester : MosquitoBug
 
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (new Random().Next(100) < FaintParam)
+        {
+            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, target, this, 0, 5000);
+        }
+        
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (pid == ProjectileId.MosquitoPesterProjectile)
         {
             if (target is Creature _)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
                 if (_poison)
-                {
-                    BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+                {   // Poison
+                    BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
+                        target, this, 0, 5000);
                 }
             }
         }
         
+        // WoolDown
         if (target is not Sheep sheep) return;
         if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
-        BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
     }
 }

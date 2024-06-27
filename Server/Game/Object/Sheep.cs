@@ -9,7 +9,6 @@ namespace Server.Game;
 public class Sheep : Creature, ISkillObserver
 {
     private readonly int _sheepNo = 1;
-    private long _lastSetDest = 0;
     private bool _idle = false;
     private long _idleTime;
     private readonly float _infectionDist = 3f;
@@ -63,7 +62,7 @@ public class Sheep : Creature, ISkillObserver
     {
         if (_idle == false)
         {
-            _idleTime = Room.Stopwatch.ElapsedMilliseconds;
+            _idleTime = Room!.Stopwatch.ElapsedMilliseconds;
             _idle = true;
         }
         
@@ -80,11 +79,12 @@ public class Sheep : Creature, ISkillObserver
     {
         if (Infection)
         {   // 모기 공격 맞았을 때 독 감염시키는 메서드
-            var sheeps = Room.FindTargets(this,
+            var sheeps = Room!.FindTargets(this,
                 new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
             foreach (var sheep in sheeps.Select(s => s as Creature))
             {
-                if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, sheep, this, 0.05f);
+                if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
+                    sheep, this, 0.05f);
             }
         }
         // 이동
@@ -99,17 +99,6 @@ public class Sheep : Creature, ISkillObserver
         
         (Path, Atan) = Room!.Map.Move(this);
         BroadcastPath();
-    }
-
-    public void OnSkillUpgrade(Skill skill)
-    {
-        string skillName = skill.ToString();
-        string sheepName = "Sheep";
-        if (skillName.Contains(sheepName))
-        {
-            NewSkill = skill;
-            SkillList.Add(NewSkill);
-        }
     }
 
     public void YieldCoin(int yield)
@@ -144,6 +133,17 @@ public class Sheep : Creature, ISkillObserver
         Room.Push(Room.EnterGame, go);
     }
     
+    public override void OnSkillUpgrade(Skill skill)
+    {
+        string skillName = skill.ToString();
+        string sheepName = "Sheep";
+        if (skillName.Contains(sheepName))
+        {
+            NewSkill = skill;
+            SkillList.Add(NewSkill);
+        }
+    }
+    
     protected override void SkillInit()
     {
         var skillUpgradedList = Player.SkillUpgradedList;
@@ -166,5 +166,28 @@ public class Sheep : Creature, ISkillObserver
     {
         Room!.GameInfo.SheepCount--;
         base.OnDead(attacker);
+    }
+    
+    protected virtual Vector3 GetRandomDestInFence()
+    {
+        if (Room == null) return new Vector3();
+        
+        List<Vector3> sheepBound = GameData.SheepBounds;
+        float minX = sheepBound.Select(v => v.X).ToList().Min() + 1.0f;
+        float maxX = sheepBound.Select(v => v.X).ToList().Max() - 1.0f;
+        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1.0f;
+        float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - 1.0f;
+
+        do
+        {
+            Random random = new();
+            Map map = Room.Map;
+            float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
+            float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
+            Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
+            bool canGo = map.CanGo(this, map.Vector3To2(dest));
+            float dist = Vector3.Distance(CellPos, dest);
+            if (canGo && dist > 3f) return dest;
+        } while (true);
     }
 }

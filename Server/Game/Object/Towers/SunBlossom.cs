@@ -46,35 +46,35 @@ public class SunBlossom : Tower
         
         List<Creature> towers = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
-        if (towers.Any())
-        {
-            foreach (var tower in towers)
-            {
-                if (_heal)
-                {
-                    tower.Hp += HealParam;
-                    Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                }
-                if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
-            }
-        }
-
-        List<Creature> monsters = Room.FindTargets(this,
-            new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
-        if (monsters.Any())
-        {
-            if (_slow)
-            {
-                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
-            }
-            
-            if (_slowAttack)
-            {
-                foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
-            }
-        }
+        // if (towers.Any())
+        // {
+        //     foreach (var tower in towers)
+        //     {
+        //         if (_heal)
+        //         {
+        //             tower.Hp += HealParam;
+        //             Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+        //         }
+        //         if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
+        //     }
+        // }
+        //
+        // List<Creature> monsters = Room.FindTargets(this,
+        //     new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
+        // if (monsters.Any())
+        // {
+        //     if (_slow)
+        //     {
+        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+        //             BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
+        //     }
+        //     
+        //     if (_slowAttack)
+        //     {
+        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+        //             BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
+        //     }
+        // }
     }
     
     public override void SetNextState()

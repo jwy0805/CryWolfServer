@@ -36,7 +36,7 @@ public class FlowerPot : Sprout
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+        BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         Hp += (int)(damage * DrainParam);

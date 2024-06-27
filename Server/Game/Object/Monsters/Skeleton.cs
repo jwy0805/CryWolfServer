@@ -100,9 +100,15 @@ public class Skeleton : Monster
 
         if (_defenceDown)
         {
-            if (_nestedDebuff) target.DefenceParam -= DefenceDownParam;
-            else BuffManager.Instance.AddBuff(
-                BuffId.DefenceDecrease, target, this, DefenceDownParam, 5000);
+            if (_nestedDebuff)
+            {
+                target.DefenceParam -= DefenceDownParam;
+            }
+            else
+            {
+                BuffManager.Instance.AddBuff(BuffId.DefenceDebuff, 
+                    BuffParamType.Constant, target, this, DefenceDownParam, 5000);
+            }
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);

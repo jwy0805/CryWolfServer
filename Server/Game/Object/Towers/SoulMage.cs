@@ -10,6 +10,7 @@ public class SoulMage : Haunt
     private bool _shareDamage = false;
     private bool _magicPortal = false;
     private bool _debuffResist = false;
+    private readonly int _debuffParam = 25;
     private GameObject? _effectTarget;
     
     protected override Skill NewSkill
@@ -97,64 +98,6 @@ public class SoulMage : Haunt
         }
     }
     
-    // public override void Update()
-    // {
-    //     if (Room == null) return;
-    //     Job = Room.PushAfter(CallCycle, Update);
-    //     
-    //     if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime * 5 && _natureAttack)
-    //     {
-    //         Time = Room!.Stopwatch.ElapsedMilliseconds;
-    //         List<GameObjectType> typeList = new() { GameObjectType.Monster };
-    //         List<Creature> monsters = Room.FindTargets(this, typeList, AttackRange, 2).Cast<Creature>().ToList();
-    //         if (monsters.Any())
-    //         {
-    //             Creature monster = monsters.OrderBy(_ => Guid.NewGuid()).ToList().First();
-    //             Effect greenGate = ObjectManager.Instance.CreateEffect(EffectId.GreenGate);
-    //             greenGate.Room = Room;
-    //             greenGate.Parent = this;
-    //             greenGate.Target = monster;
-    //             greenGate.PosInfo = monster.PosInfo;
-    //             greenGate.Info.PosInfo = monster.Info.PosInfo;
-    //             greenGate.Info.Name = nameof(EffectId.GreenGate);
-    //             greenGate.Init();
-    //             Room.EnterGameTarget(greenGate, greenGate.Parent, monster);
-    //         }
-    //     }
-    //     
-    //     switch (State)
-    //     {
-    //         case State.Die:
-    //             UpdateDie();
-    //             break;
-    //         case State.Moving:
-    //             UpdateMoving();
-    //             break;
-    //         case State.Idle:
-    //             UpdateIdle();
-    //             break;
-    //         case State.Rush:
-    //             UpdateRush();
-    //             break;
-    //         case State.Attack:
-    //             UpdateAttack();
-    //             break;
-    //         case State.Skill:
-    //             UpdateSkill();
-    //             break;
-    //         case State.Skill2:
-    //             UpdateSkill2();
-    //             break;
-    //         case State.KnockBack:
-    //             UpdateKnockBack();
-    //             break;
-    //         case State.Faint:
-    //             break;
-    //         case State.Standby:
-    //             break;
-    //     }   
-    // }
-    
     protected override void UpdateIdle()
     {   // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
@@ -200,7 +143,8 @@ public class SoulMage : Haunt
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
             if (_effectTarget == null) return;
-            BuffManager.Instance.AddBuff(BuffId.Fainted, _effectTarget, this, 0, 1300);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None,
+                _effectTarget, this, 0, 1300);
             _effectTarget.OnDamaged(this, (int)(TotalSkillDamage * 0.4), Damage.True);
         });
     }
@@ -253,7 +197,7 @@ public class SoulMage : Haunt
         foreach (var target in targets)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         }
     }
 
@@ -382,5 +326,15 @@ public class SoulMage : Haunt
 
         State = _dragonPunch ? State.Skill : State.Attack;
         SyncPosAndDir();
+    }
+
+    public override void AddBuff(Buff buff)
+    {
+        if (_debuffResist && buff.Type is BuffType.Debuff)
+        {
+            if (new Random().Next(100) < _debuffParam) return;
+        }
+        
+        base.AddBuff(buff);
     }
 }

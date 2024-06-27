@@ -50,7 +50,7 @@ public class Sprout : Tower
     {
         if (pid == ProjectileId.SproutFire)
         {
-            BuffManager.Instance.AddBuff(BuffId.Burn, target, this, 0, 5000);
+            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);

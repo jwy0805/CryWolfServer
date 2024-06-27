@@ -89,7 +89,8 @@ public class PoisonBomb : SnowBomb
             foreach (var gameObject in gameObjects)
             {
                 gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-                BuffManager.Instance.AddBuff(BuffId.Addicted, gameObject, this, _poisonParam, 5000);
+                BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.None, 
+                    gameObject, this, _poisonParam, 5000);
                 if (_mpDown == false) continue;
                 gameObject.MaxMp *= _increasingMaxMpParam;
                 gameObject.BroadcastMp();
@@ -102,7 +103,8 @@ public class PoisonBomb : SnowBomb
 
             foreach (var gameObject in gameObjects)
             {
-                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, gameObject, this, 3, 5000);
+                BuffManager.Instance.AddBuff(BuffId.DefenceBuff, BuffParamType.Constant, 
+                    gameObject, this, 3, 5000);
             }
         }
     }
@@ -118,7 +120,8 @@ public class PoisonBomb : SnowBomb
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
             BuffManager.Instance.AddBuff(
-                BuffId.AttackSpeedDecrease, gameObject, this, AttackDecreaseParam, 5000);
+                BuffId.AttackSpeedDebuff, BuffParamType.Constant, 
+                gameObject, this, AttackSpeedDecreaseParam, 5000);
         }
     }
 

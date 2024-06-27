@@ -170,15 +170,6 @@ public partial class GameRoom
         effect.PacketReceived = true;
     }
     
-    public void HandleSkill(Player? player, C_Skill skillPacket)
-    {   // 공격이 아닌 버프, 디버프 스킬 등
-        if (player == null) return;
-        
-        Creature? creature = FindGameObjectById(skillPacket.ObjectId) as Creature;
-        creature?.RunSkill();
-        creature?.SetNextState();
-    }
-    
     public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)
     {
         if (player == null) return;

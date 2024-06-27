@@ -204,14 +204,14 @@ public class Shell : Tower
         
         if (_moveSpeedBuff)
         {
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
+            // foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                // BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
         }
 
         if (_attackSpeedBuff)
         {
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
+            // foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
+                // BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
         }
     }
     

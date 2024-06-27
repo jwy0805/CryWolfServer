@@ -109,23 +109,23 @@ public class Spike : Shell
         
         List<Creature> monsters = Room.FindTargets(this, 
             new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
-        
-        if (!monsters.Any()) return;
-        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-            BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
-        foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-            BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
-
-        if (_attackBuff)
-        {
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, this, AttackBuffParam);
-        }
-
-        if (_defenceBuff)
-        {
-            foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-                BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, this, DefenceBuffParam);
-        }
+    //     
+    //     if (!monsters.Any()) return;
+    //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+    //         BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
+    //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+    //         BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
+    //
+    //     if (_attackBuff)
+    //     {
+    //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+    //             BuffManager.Instance.AddBuff(BuffId.AttackIncrease, monster, this, AttackBuffParam);
+    //     }
+    //
+    //     if (_defenceBuff)
+    //     {
+    //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
+    //             BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, monster, this, DefenceBuffParam);
+    //     }
     }
 }

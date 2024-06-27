@@ -47,7 +47,8 @@ public class TrainingDummy : TargetDummy
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             if (_faint && new Random().Next(100) < _faintProb)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, Target, this, 0, 2500);
+                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
+                    Target, this, 0, 2500);
             }
             Target.OnDamaged(this, TotalAttack, Damage.Normal);
         });
@@ -58,13 +59,19 @@ public class TrainingDummy : TargetDummy
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            // AccuracyIncrease
             var targets = Room.FindTargets(
                 this, new [] { GameObjectType.Tower }, TotalSkillRange);
             foreach (var target in targets)
             {
                 if (target.Targetable == false || target.Hp <= 0) continue;
-                
+                BuffManager.Instance.AddBuff(BuffId.AccuracyBuff, BuffParamType.Constant,
+                    target, this, 20, 5000);
             }
+            // Heal -> Inherited from TargetDummy
+            Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
+            Hp += (int)(MaxHp * HealParam);
+            Mp = 0;
         });
     }
 }

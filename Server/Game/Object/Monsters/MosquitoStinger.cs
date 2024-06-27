@@ -97,8 +97,14 @@ public class MosquitoStinger : MosquitoPester
     {
         if (target is Creature _)
         {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
-            BuffManager.Instance.AddBuff(BuffId.Addicted, target, this, 0, 5000);
+            if (new Random().Next(100) < FaintParam)
+            {
+                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
+                    target, this, 0, 1000);
+            }
+            
+            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage,
+                target, this, 0, 5000);
         }
 
         if (target is Sheep sheep)

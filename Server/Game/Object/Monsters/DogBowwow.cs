@@ -93,7 +93,8 @@ public class DogBowwow : DogBark
             if (_smash == false || _smashFaint == false) return;
             var randomInt = new Random().Next(100);
             if (randomInt > 15) return;
-            BuffManager.Instance.AddBuff(BuffId.Fainted, target, this, 0, 1000);
+            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
+                target, this, 0, 1000);
         }
         else
         {

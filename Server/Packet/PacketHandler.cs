@@ -66,16 +66,6 @@ public class PacketHandler
         room?.Push(room.HandleEffectActivate, player, dirPacket);
     }
     
-    public static void C_SkillHandler(PacketSession session, IMessage packet)
-    {
-        var skillPacket = (C_Skill)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-
-        room?.Push(room.HandleSkill, player, skillPacket);
-    }
-
     public static void C_BaseSkillRunHandler(PacketSession session, IMessage packet)
     {
         var skillPacket = (C_BaseSkillRun)packet;

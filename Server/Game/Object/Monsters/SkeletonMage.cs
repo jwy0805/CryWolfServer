@@ -146,7 +146,8 @@ public class SkeletonMage : SkeletonGiant
                                  .Where(gameObject => gameObject is { Hp: > 1, Targetable: true })
                                  .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
-                        BuffManager.Instance.AddBuff(BuffId.Curse, creature, this, 0, 3000);
+                        BuffManager.Instance.AddBuff(BuffId.Curse, BuffParamType.None,
+                            creature, this, 0, 3000);
                     }
                 }
             }

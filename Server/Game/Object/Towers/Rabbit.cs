@@ -102,7 +102,7 @@ public class Rabbit : Bunny
         if (pid == ProjectileId.RabbitAggro)
         {
             if (target is not Creature creature) return;
-            BuffManager.Instance.AddBuff(BuffId.Aggro, creature, this, 0, 2000);
+            BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000);
         }
         else
         {

@@ -148,6 +148,14 @@ public partial class GameObject : IGameObject
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
     }
+
+    public virtual void AddBuff(Buff buff)
+    {
+        if (Invincible && buff.Type is BuffType.Debuff) return;
+        Buffs.Add(buff.Id);
+        BuffManager.Instance.Buffs.Add(buff);
+        buff.TriggerBuff();
+    }
     
     public virtual void BroadcastPos()
     {
