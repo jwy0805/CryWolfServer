@@ -19,3 +19,4 @@ public class RabbitAggro : Projectile { }
 public class HarePunch : Projectile { }
 public class SproutFire : Projectile { }
 public class SoulProjectile : Projectile { }
+public class FungiProjectile : Projectile { }

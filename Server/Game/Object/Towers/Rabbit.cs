@@ -31,6 +31,7 @@ public class Rabbit : Bunny
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
         Player.SkillSubject.SkillUpgraded(Skill.RabbitAggro);
     }
     

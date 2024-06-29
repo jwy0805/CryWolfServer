@@ -7,6 +7,7 @@ namespace Server.Game;
 public partial class GameObject : IGameObject
 {
     protected long Time;
+    protected IJob? Job;
     protected List<Vector3> Path = new();
     protected List<double> Atan = new();
 
@@ -71,7 +72,6 @@ public partial class GameObject : IGameObject
         Time = Room.Stopwatch.ElapsedMilliseconds;
     }
     
-    protected IJob Job;
     public virtual void Update()
     {
         if (Room == null) return;

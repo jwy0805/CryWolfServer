@@ -248,6 +248,7 @@ public sealed partial class ObjectManager
     public class BasicProjectile4Factory : IFactory<BasicProjectile4> { public BasicProjectile4 Create() => new(); }
     public class SproutFireFactory : IFactory<SproutFire> { public SproutFire Create() => new(); }
     public class SoulProjectileFactory : IFactory<SoulProjectile> { public SoulProjectile Create() => new(); }
+    public class FungiPoisonFactory : IFactory<FungiProjectile> { public FungiProjectile Create() => new(); }
     public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
     public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
     public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }

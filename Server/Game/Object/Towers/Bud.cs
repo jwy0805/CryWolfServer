@@ -27,6 +27,7 @@ public class Bud : Tower
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Ranger;
         AttackImpactMoment = 0.3f;
     }
     

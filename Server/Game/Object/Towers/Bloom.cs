@@ -36,6 +36,7 @@ public class Bloom : Bud
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Ranger;
         AttackImpactMoment = 0.4f;
         SkillImpactMoment = 0.25f;
     }

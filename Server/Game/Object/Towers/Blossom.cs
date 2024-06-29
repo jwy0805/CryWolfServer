@@ -26,6 +26,12 @@ public class Blossom : Bloom
             }
         }
     }
+
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Ranger;
+    }
     
     protected override void UpdateIdle()
     {   // Targeting

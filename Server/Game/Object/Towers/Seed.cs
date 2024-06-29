@@ -30,9 +30,4 @@ public class Seed : Tower
             Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
         });
     }
-    
-    public override void ApplyProjectileEffect(GameObject target, ProjectileId _)
-    {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
-    }
 }

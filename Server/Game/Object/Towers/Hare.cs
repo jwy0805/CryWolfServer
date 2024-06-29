@@ -189,6 +189,7 @@ public class HareClone : Rabbit
         AttackSpeed = Parent.TotalAttackSpeed;
         Accuracy = Parent.TotalAccuracy;
         SkillDamage = Parent.TotalSkillDamage;
+        UnitRole = Role.Warrior;
         
         Target = Parent.Target;
         WillRevive = false;

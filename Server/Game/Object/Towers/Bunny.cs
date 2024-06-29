@@ -27,6 +27,7 @@ public class Bunny : Tower
     public override void Init()
     {
         base.Init();
+        UnitRole = Role.Warrior;
     }
 
     protected override void AttackImpactEvents(long impactTime)
