@@ -102,7 +102,9 @@ public sealed partial class ObjectManager
         { ProjectileId.BasicProjectile3, new BasicProjectile3Factory() },
         { ProjectileId.BasicProjectile4, new BasicProjectile4Factory() },
         { ProjectileId.SproutFire, new SproutFireFactory() },
-        { ProjectileId.SoulProjectile, new SoulProjectileFactory() }
+        { ProjectileId.SoulProjectile, new SoulProjectileFactory() },
+        { ProjectileId.FungiProjectile, new FungiProjectileFactory() },
+        { ProjectileId.ToadstoolProjectile, new ToadstoolProjectileFactory() }
     };
     
     private readonly Dictionary<EffectId, IFactory<Effect>> _effectDict = new()
@@ -141,7 +143,8 @@ public sealed partial class ObjectManager
         { EffectId.SkeletonAdditionalEffect, new SkeletonAdditionalEffectFactory() },
         { EffectId.WillRevive, new WillReviveFactory() },
         { EffectId.HareEffect, new HareEffectFactory() },
-        { EffectId.HareCloneEffect, new HareCloneEffectFactory() }
+        { EffectId.HareCloneEffect, new HareCloneEffectFactory() },
+        { EffectId.PoisonCloud, new PoisonCloudFactory() }
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -248,7 +251,8 @@ public sealed partial class ObjectManager
     public class BasicProjectile4Factory : IFactory<BasicProjectile4> { public BasicProjectile4 Create() => new(); }
     public class SproutFireFactory : IFactory<SproutFire> { public SproutFire Create() => new(); }
     public class SoulProjectileFactory : IFactory<SoulProjectile> { public SoulProjectile Create() => new(); }
-    public class FungiPoisonFactory : IFactory<FungiProjectile> { public FungiProjectile Create() => new(); }
+    public class FungiProjectileFactory : IFactory<FungiProjectile> { public FungiProjectile Create() => new(); }
+    public class ToadstoolProjectileFactory : IFactory<ToadstoolProjectile> { public ToadstoolProjectile Create() => new(); }
     public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
     public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
     public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }
@@ -284,6 +288,7 @@ public sealed partial class ObjectManager
     public class WillReviveFactory : IFactory<WillRevive> { public WillRevive Create() => new(); }
     public class HareEffectFactory : IFactory<HareEffect> { public HareEffect Create() => new(); }
     public class HareCloneEffectFactory : IFactory<HareCloneEffect> { public HareCloneEffect Create() => new(); }
+    public class PoisonCloudFactory : IFactory<PoisonCloud> { public PoisonCloud Create() => new(); }
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

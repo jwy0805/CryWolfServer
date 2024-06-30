@@ -20,3 +20,4 @@ public class HarePunch : Projectile { }
 public class SproutFire : Projectile { }
 public class SoulProjectile : Projectile { }
 public class FungiProjectile : Projectile { }
+public class ToadstoolProjectile : Projectile { }

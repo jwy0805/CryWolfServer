@@ -89,7 +89,7 @@ public class GameData
         { UnitId.Fungi, new HashSet<Skill> 
             { Skill.FungiPoison, Skill.FungiClosestHeal, Skill.FungiPoisonResist } },
         { UnitId.Toadstool, new HashSet<Skill> 
-            { Skill.ToadstoolPoisonImmunity, Skill.ToadstoolPoisonResist, Skill.ToadstoolClosestAttackAll } },
+            { Skill.ToadstoolNestedPoison, Skill.ToadstoolPoisonResist, Skill.ToadstoolClosestAttackAll, Skill.ToadstoolPoisonCloud } },
         { UnitId.Seed, new HashSet<Skill> 
             { Skill.SeedEvasion, Skill.SeedRange } },
         { UnitId.Sprout, new HashSet<Skill> 
@@ -215,8 +215,9 @@ public class GameData
         { Skill.FungiPoisonResist, new HashSet<Skill> { Skill.FungiPoison } },
         { Skill.FungiClosestHeal, new HashSet<Skill> { Skill.FungiPoisonResist } },
         { Skill.ToadstoolClosestAttackAll, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.ToadstoolPoisonResist, new HashSet<Skill> { Skill.ToadstoolClosestAttackAll } },
-        { Skill.ToadstoolPoisonImmunity, new HashSet<Skill> { Skill.ToadstoolPoisonResist } },
+        { Skill.ToadstoolPoisonResist, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.ToadstoolNestedPoison, new HashSet<Skill> { Skill.ToadstoolClosestAttackAll } },
+        { Skill.ToadstoolPoisonCloud, new HashSet<Skill> { Skill.ToadstoolPoisonResist, Skill.ToadstoolNestedPoison } },
         { Skill.SeedEvasion, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SeedRange, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SproutDrain, new HashSet<Skill> { Skill.NoSkill } },

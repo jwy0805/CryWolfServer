@@ -41,10 +41,19 @@ public class Mushroom : Tower
     public override void Update()
     {
         base.Update();
-        if (_closestAttack) FindClosestMushRoom();
+        if (_closestAttack) FindClosestMushroom();
     }
 
-    protected virtual void FindClosestMushRoom()
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BasicProjectile4, this, 5f);
+        });
+    }
+    
+    protected void FindClosestMushroom()
     {
         if (Room == null) return;
         var unitIds = new List<UnitId> { UnitId.Mushroom, UnitId.Fungi, UnitId.Toadstool };
@@ -65,14 +74,5 @@ public class Mushroom : Tower
         if (previousMushroom != null) previousMushroom.AttackParam -= ClosestAttackParam;
         // 업데이트
         _currentMushroomId = mushroom.Id;
-    }
-
-    protected override void AttackImpactEvents(long impactTime)
-    {
-        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
-        {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(ProjectileId.BasicProjectile4, this, 5f);
-        });
     }
 }

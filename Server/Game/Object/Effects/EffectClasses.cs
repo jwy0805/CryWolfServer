@@ -28,3 +28,4 @@ public class WillRevive : Effect { }
 public class HareEffect : Effect { }
 public class HareCloneEffect : Effect { }
 public class StarFall : Effect { }
+public class PoisonCloud : Effect { }

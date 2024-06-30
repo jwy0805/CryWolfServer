@@ -54,7 +54,7 @@ public abstract class Buff
     public BuffParamType ParamType { get; private set; }
     public GameObject Master { get; private set; } = new();
     public Creature Caster { get; private set; } = new();
-    public float Param { get; private set; }
+    public float Param { get; protected set; }
     public long Duration { get; private set; }
     public bool Nested { get; private set; }
 
@@ -587,6 +587,7 @@ public class Addicted : Buff
         Id = BuffId.Addicted;
         Type = BuffType.Debuff;
         _dotTime = StartTime;
+        if (Math.Abs(param) - 0.001 < 0) Param = 0.05f;
     }
 
     public override void CalculateFactor()
