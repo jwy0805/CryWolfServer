@@ -113,6 +113,7 @@ public class AttackBuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AttackParam += (int)Factor;
     }
 
@@ -120,7 +121,6 @@ public class AttackBuff : Buff
     {
         base.RenewBuff(duration);
         Master.AttackParam -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -151,6 +151,7 @@ public class AttackSpeedBuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AttackSpeedParam += (int)Factor;
     }
 
@@ -158,7 +159,6 @@ public class AttackSpeedBuff : Buff
     {
         base.RenewBuff(duration);
         Master.AttackSpeedParam -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -190,6 +190,7 @@ public class HealBuff : Buff
     public override void TriggerBuff()
     {
         BuffManager.Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        CalculateFactor();
         Master.Hp += (int)Factor;
         RemoveBuff();
     }
@@ -216,6 +217,7 @@ public class HealthBuff : Buff
     public override void TriggerBuff()
     {
         BuffManager.Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        CalculateFactor();
         Master.MaxHp += (int)Factor;
         Master.Hp += (int)Factor;
     }
@@ -224,7 +226,6 @@ public class HealthBuff : Buff
     {
         base.RenewBuff(duration);
         Master.MaxHp -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -256,6 +257,7 @@ public class DefenceBuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.DefenceParam += (int)Factor;
     }
 
@@ -263,7 +265,6 @@ public class DefenceBuff : Buff
     {
         base.RenewBuff(duration);
         Master.DefenceParam -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -294,6 +295,7 @@ public class AccuracyBuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AccuracyParam += (int)Factor;
     }
 
@@ -301,7 +303,6 @@ public class AccuracyBuff : Buff
     {
         base.RenewBuff(duration);
         Master.AccuracyParam -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -332,6 +333,7 @@ public class MoveSpeedBuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.MoveSpeedParam += (int)Factor;
     }
 
@@ -339,7 +341,6 @@ public class MoveSpeedBuff : Buff
     {
         base.RenewBuff(duration);
         Master.MoveSpeedParam -= (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -391,6 +392,7 @@ public class AttackDebuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AttackParam -= (int)Factor;
     }
 
@@ -398,7 +400,6 @@ public class AttackDebuff : Buff
     {
         base.RenewBuff(duration);
         Master.AttackParam += (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -427,6 +428,7 @@ public class AttackSpeedDebuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AttackSpeedParam -= (int)Factor;
     }
 
@@ -434,7 +436,6 @@ public class AttackSpeedDebuff : Buff
     {
         base.RenewBuff(duration);
         Master.AttackSpeedParam += (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -463,6 +464,7 @@ public class DefenceDebuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.DefenceParam -= (int)Factor;
     }
 
@@ -470,7 +472,6 @@ public class DefenceDebuff : Buff
     {
         base.RenewBuff(duration);
         Master.DefenceParam += (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -499,6 +500,7 @@ public class AccuracyDebuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.AccuracyParam -= (int)Factor;
     }
 
@@ -506,7 +508,6 @@ public class AccuracyDebuff : Buff
     {
         base.RenewBuff(duration);
         Master.AccuracyParam += (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -535,6 +536,7 @@ public class MoveSpeedDebuff : Buff
     
     public override void TriggerBuff()
     {
+        CalculateFactor();
         Master.MoveSpeedParam -= (int)Factor;
     }
 
@@ -542,7 +544,6 @@ public class MoveSpeedDebuff : Buff
     {
         base.RenewBuff(duration);
         Master.MoveSpeedParam += (int)Factor;
-        CalculateFactor();
         TriggerBuff();
     }
 
@@ -606,6 +607,7 @@ public class Addicted : Buff
         if (EndTime <= deltaTime) return true;
         if (!(deltaTime > _dotTime + _dot)) return false;
         _dotTime = deltaTime;
+        CalculateFactor();
         Master.OnDamaged(Caster, (int)Factor, Damage.Poison);
 
         return false;

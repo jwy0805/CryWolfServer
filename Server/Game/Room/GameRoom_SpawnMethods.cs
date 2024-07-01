@@ -306,7 +306,6 @@ public partial class GameRoom
         };
         var parentCopied = FindGameObjectById(parent.Id);
         if (parentCopied == null) return;
-        
         effect.Room = this;
         effect.PosInfo = position;
         effect.Info.PosInfo = effect.PosInfo;
@@ -318,10 +317,10 @@ public partial class GameRoom
         EnterGameEffect(effect, parentCopied.Id, trailing, duration);
     }
     
-    public void SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
+    public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
     {
-        if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return;
-        if (parent?.Target == null) return;
+        if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
+        if (parent?.Target == null) return new Projectile();
         
         var projectile = ObjectManager.Instance.Create<Projectile>(projectileId);
         var position = new PositionInfo
@@ -344,6 +343,37 @@ public partial class GameRoom
         projectile.MoveSpeed = speed;
         projectile.Init();
         EnterGameProjectile(projectile, projectile.DestPos, speed, parent.Id);
+        return projectile;
+    }   
+    
+    public Projectile SpawnProjectile(
+        ProjectileId projectileId, GameObject? parent, PositionInfo posInfo, float speed, GameObject target)
+    {
+        if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
+        if (parent?.Target == null) return new Projectile();
+        
+        var projectile = ObjectManager.Instance.Create<Projectile>(projectileId);
+        var position = new PositionInfo
+        {   
+            Dir = posInfo.Dir, 
+            PosX = posInfo.PosX, 
+            PosY = posInfo.PosY + parent.Stat.SizeY, 
+            PosZ = posInfo.PosZ
+        };
+        
+        projectile.Room = this;
+        projectile.Parent = parent;
+        projectile.Target = target;
+        projectile.PosInfo = position;
+        projectile.Info.PosInfo = projectile.PosInfo;
+        projectile.Info.Name = projectileId.ToString();
+        projectile.ProjectileId = projectileId;
+        projectile.DestPos = target.CellPos;
+        projectile.Attack = parent.TotalAttack;
+        projectile.MoveSpeed = speed;
+        projectile.Init();
+        EnterGameProjectile(projectile, projectile.DestPos, speed, parent.Id);
+        return projectile;
     }
     
     private Sheep EnterSheep(Player player)

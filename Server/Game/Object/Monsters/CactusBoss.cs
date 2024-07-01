@@ -46,7 +46,7 @@ public class CactusBoss : Cactus
         UnitRole = Role.Tanker;
         ReflectionRate = 10;
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossRush);
-        Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
+        // Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossHeal);
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossAggro);
     }

@@ -189,8 +189,9 @@ public partial class GameRoom
             if (target.Targetable == false || target.Id == gameObject.Id
                 || (target.UnitType != attackType && attackType != 2)) continue;
             var pos = target.PosInfo;
-            var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            var distance = Vector3.Distance(targetPos, gameObject.CellPos);
+            var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
+            var cellPos = gameObject.CellPos with { Y = 0 };
+            var distance = Vector3.Distance(targetPos, cellPos);
             if (distance < closestDistSq == false) continue;
             closest = target;
             closestDistSq = distance;
@@ -207,8 +208,9 @@ public partial class GameRoom
             if (target.Targetable == false || (target.UnitType != attackType && attackType != 2)
                 || target.Id == gameObject.Id && attackType != 2) continue;
             var pos = target.PosInfo;
-            var targetPos = new Vector3(pos.PosX, pos.PosY, pos.PosZ);
-            var distance = Vector3.Distance(targetPos, gameObject.CellPos);
+            var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
+            var cellPos = gameObject.CellPos with { Y = 0 };
+            var distance = Vector3.Distance(targetPos, cellPos);
             if (distance < dist) targetList.Add(target);
         }
 
@@ -376,7 +378,8 @@ public partial class GameRoom
         
         var objectsInDist = targetList
             .Where(obj => obj.Targetable && (attackType == 2 || obj.UnitType == attackType))
-            .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) < dist)
+            .Where(obj => Vector3.Distance(
+                obj.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 }) < dist)
             .ToList();
 
         return objectsInDist;
@@ -400,7 +403,7 @@ public partial class GameRoom
         
         var objectsInDist = targetList
             .Where(obj => obj.Stat.Targetable && (attackType == 2 || obj.UnitType == attackType))
-            .Where(obj => Vector3.Distance(obj.CellPos, cellPos) < dist)
+            .Where(obj => Vector3.Distance(obj.CellPos with { Y = 0 }, cellPos with { Y = 0 }) < dist)
             .ToList();
 
         return objectsInDist;
@@ -436,7 +439,7 @@ public partial class GameRoom
             if (obj.Targetable == false || (attackType != 2 && obj.UnitType != attackType)) continue;
             // 4.2 거리와 각도를 계산
             Vector3 dirVector = obj.CellPos - gameObject.CellPos;
-            float distance = Vector3.Distance(obj.CellPos, gameObject.CellPos);
+            float distance = Vector3.Distance(obj.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 });
             double angleToTarget =
                 (Math.Atan2(forward.Z, forward.X) - Math.Atan2(dirVector.Z, dirVector.X))
                 * 180 / Math.PI;
@@ -475,14 +478,16 @@ public partial class GameRoom
             case GameObjectType.Monster:
                 objectsInDist = targetList.OfType<Monster>()
                     .Where(obj => unitIds.Contains(obj.UnitId))
-                    .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) <= dist)
+                    .Where(obj => Vector3.Distance(
+                        obj.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 }) <= dist)
                     .Cast<GameObject>()
                     .ToList();
                 break;
             case GameObjectType.Tower:
                 objectsInDist = targetList.OfType<Tower>()
                     .Where(obj => unitIds.Contains(obj.UnitId))
-                    .Where(obj => Vector3.Distance(obj.CellPos, gameObject.CellPos) <= dist)
+                    .Where(obj => Vector3.Distance(
+                        obj.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 }) <= dist)
                     .Cast<GameObject>()
                     .ToList();
                 break;

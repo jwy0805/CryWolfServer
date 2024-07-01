@@ -5,9 +5,10 @@ namespace Server.Game;
 public class Toadstool : Fungi
 {
     private bool _closestAttackAll;
-    private bool _nestedPoison;
     private bool _poisonCloud;
     private readonly int _closestAttackAllParam = 5;
+    
+    public bool NestedPoison { get; set; }
     
     protected override Skill NewSkill
     {
@@ -24,7 +25,7 @@ public class Toadstool : Fungi
                     PoisonResist += 30;
                     break;
                 case Skill.ToadstoolNestedPoison:
-                    _nestedPoison = true;
+                    NestedPoison = true;
                     break;
                 case Skill.ToadstoolPoisonCloud:
                     _poisonCloud = true;
@@ -37,6 +38,8 @@ public class Toadstool : Fungi
     {
         base.Init();
         UnitRole = Role.Ranger;
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonCloud);
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolNestedPoison);
     }
 
     public override void Update()
@@ -94,12 +97,13 @@ public class Toadstool : Fungi
             {
                 PosX = target.CellPos.X, PosY = target.CellPos.Y, PosZ = target.CellPos.Z
             };
-            Room.SpawnEffect(EffectId.PoisonCloud, this, effectPos);
+            Room.SpawnEffect(EffectId.PoisonCloud, this, effectPos, false, 3000);
+            Mp = 0;
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.None, 
-            target, this, 0.03f, 5000, _nestedPoison);
+            target, this, 0.03f, 5000, NestedPoison);
     }
 
     private void FindMushrooms()
@@ -116,12 +120,14 @@ public class Toadstool : Fungi
         // 추가된 버섯에 버프 적용
         foreach (var mushroomId in newSet.Where(mushroomId => CurrentSet.Contains(mushroomId) == false))
         {
-            if (Room.FindGameObjectById(mushroomId) is Creature creature) creature.AttackParam += ClosestAttackParam;
+            if (Room.FindGameObjectById(mushroomId) is Creature creature) 
+                creature.AttackParam += _closestAttackAllParam;
         }
         // 제거된 버섯에서 버프 제거
         foreach (var mushroomId in CurrentSet.Where(mushroomId => newSet.Contains(mushroomId) == false))
         {
-            if (Room.FindGameObjectById(mushroomId) is Creature creature) creature.AttackParam -= ClosestAttackParam;
+            if (Room.FindGameObjectById(mushroomId) is Creature creature) 
+                creature.AttackParam -= _closestAttackAllParam;
         }
         // 현재 상태를 새로운 상태로 업데이트
         CurrentSet = newSet;

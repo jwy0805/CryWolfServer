@@ -17,7 +17,9 @@ public class BasicProjectile3 : Projectile { }
 public class BasicProjectile4 : Projectile { }
 public class RabbitAggro : Projectile { }
 public class HarePunch : Projectile { }
-public class SproutFire : Projectile { }
+public class Sprout3HitFire : SproutFire { }
 public class SoulProjectile : Projectile { }
 public class FungiProjectile : Projectile { }
 public class ToadstoolProjectile : Projectile { }
+public class HauntFire : Projectile { }
+public class HauntProjectile : Projectile { }

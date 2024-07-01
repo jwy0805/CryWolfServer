@@ -95,7 +95,7 @@ public class GameData
         { UnitId.Sprout, new HashSet<Skill> 
             { Skill.SproutDrain, Skill.SproutFireAttack, Skill.SproutFireResist } },
         { UnitId.FlowerPot, new HashSet<Skill> 
-            { Skill.FlowerPot3Hit, Skill.FlowerPotRecoverBurn } },
+            { Skill.FlowerPot3Hit, Skill.FlowerPotDoubleTargets, Skill.FlowerPotRecoverBurn, Skill.FlowerPotLostHealthAttack } },
         { UnitId.Bud, new HashSet<Skill> 
             { Skill.BudAttackSpeed, Skill.BudRange, Skill.BudAccuracy } },
         { UnitId.Bloom, new HashSet<Skill> 
@@ -225,6 +225,8 @@ public class GameData
         { Skill.SproutFireResist, new HashSet<Skill> { Skill.SproutFireAttack } },
         { Skill.FlowerPot3Hit, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.FlowerPotRecoverBurn, new HashSet<Skill> { Skill.FlowerPot3Hit } },
+        { Skill.FlowerPotDoubleTargets, new HashSet<Skill> { Skill.FlowerPot3Hit } },
+        { Skill.FlowerPotLostHealthAttack, new HashSet<Skill> { Skill.FlowerPotRecoverBurn, Skill.FlowerPotDoubleTargets} },
         { Skill.BudAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BudRange, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BudAccuracy, new HashSet<Skill> { Skill.NoSkill } },

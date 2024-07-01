@@ -9,7 +9,7 @@ public class Projectile : GameObject
     protected readonly Scheduler Scheduler = new();   
     public ProjectileId ProjectileId { get; set; }
     
-    protected Projectile()
+    public Projectile()
     {
         ObjectType = GameObjectType.Projectile;
     }

@@ -59,4 +59,6 @@ public class Sprout : Tower
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
     }
+    
+    public virtual void ApplyProjectileEffect2(GameObject target, ProjectileId pid) { }
 }
