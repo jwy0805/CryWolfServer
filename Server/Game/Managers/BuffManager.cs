@@ -43,7 +43,7 @@ public sealed partial class BuffManager
     {
         if (!_buffDict.TryGetValue(buffId, out var factory)) return;
         
-        Buff buff = factory.CreateBuff();
+        var buff = factory.CreateBuff();
         buff.Init(paramType, master, caster, param, duration, nested);
 
         if (master.Invincible && buff.Type == BuffType.Debuff) return;
@@ -60,7 +60,11 @@ public sealed partial class BuffManager
     
     public void RemoveBuff(BuffId buffId, Creature master)
     {
-        
+        var removeBuff = (from buff in Buffs 
+            where buff.Master.Id == master.Id && buff.Id == buffId select buff).FirstOrDefault();
+        if (removeBuff == null) return;
+        master.Buffs.Remove(removeBuff.Id);
+        removeBuff.RemoveBuff();
     }
 
     public void RemoveAllBuff(Creature master)

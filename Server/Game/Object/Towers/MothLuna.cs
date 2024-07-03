@@ -175,8 +175,8 @@ public class MothLuna : Tower
             }
         }
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
 

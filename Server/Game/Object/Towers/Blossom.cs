@@ -7,7 +7,10 @@ namespace Server.Game;
 public class Blossom : Bloom
 {
     private bool _blossomDeath = false;
-    private readonly int _deathProb = 3;
+    private bool _faintCritical = false;
+    private bool _powerAttack = false;
+    private int _attackRemainder = 0;
+    private readonly int _deathProb = 4;
     
     protected override Skill NewSkill
     {
@@ -17,11 +20,17 @@ public class Blossom : Bloom
             Skill = value;
             switch (Skill)
             {
-                case Skill.BlossomAttack:
-                    Attack += 10;
+                case Skill.BlossomAttackSpeed:
+                    AttackSpeed += AttackSpeed * 0.3f;
                     break;
                 case Skill.BlossomDeath:
                     _blossomDeath = true;
+                    break;
+                case Skill.BlossomFaintCritical:
+                    _faintCritical = true;
+                    break;
+                case Skill.BlossomPowerAttack:
+                    _powerAttack = true;
                     break;
             }
         }
@@ -31,11 +40,15 @@ public class Blossom : Bloom
     {
         base.Init();
         UnitRole = Role.Ranger;
+        Player.SkillSubject.SkillUpgraded(Skill.BlossomAttackSpeed);
+        Player.SkillSubject.SkillUpgraded(Skill.BlossomDeath);
+        Player.SkillSubject.SkillUpgraded(Skill.BlossomFaintCritical);
+        Player.SkillSubject.SkillUpgraded(Skill.BlossomPowerAttack);
     }
     
     protected override void UpdateIdle()
     {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
@@ -49,8 +62,8 @@ public class Blossom : Bloom
         if (distance > TotalAttackRange) return;
         State =  State.Attack;
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
@@ -100,10 +113,35 @@ public class Blossom : Bloom
     {
         if (pid == ProjectileId.BlossomProjectile)
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            if (_faintCritical)
+            {
+                if (target.State == State.Faint)
+                {
+                    var criticalRate = CriticalChance;
+                    CriticalChance = 100;
+                    target.OnDamaged(this, TotalAttack, Damage.Normal);
+                    CriticalChance = criticalRate;
+                    return;
+                }
+            }
+
+            if (_powerAttack)
+            {
+                target.OnDamaged(this, TotalAttack + _attackRemainder, Damage.Normal);
+                _attackRemainder = 0;
+            }
+            else
+            {
+                target.OnDamaged(this, TotalAttack, Damage.Normal);
+            }
         }       
         else
         {
+            if (_powerAttack)
+            {
+                _attackRemainder = target.Hp / 2;
+            }
+            
             target.OnDamaged(this, 9999, Damage.True);
         }
     }

@@ -35,6 +35,8 @@ public partial class GameObject
             BroadcastHp();
         }
     }
+    
+    public int Shield { get; set; }
 
     public int Mp
     {

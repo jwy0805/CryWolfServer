@@ -76,8 +76,8 @@ public class SunBlossom : Tower
         //     }
         // }
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         State = State.Idle;

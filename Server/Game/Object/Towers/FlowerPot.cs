@@ -6,7 +6,7 @@ namespace Server.Game;
 public class FlowerPot : Sprout
 {
     private bool _3Hit;
-    private bool _recoverBurn;
+    private bool _fireResistDown;
     private bool _doubleTarget;
     private bool _lostHealthAttack;
     private float _lostHealAttackParam = 1;
@@ -26,8 +26,8 @@ public class FlowerPot : Sprout
                 case Skill.FlowerPot3Hit:
                     _3Hit = true;
                     break;
-                case Skill.FlowerPotRecoverBurn:
-                    _recoverBurn = true;
+                case Skill.FlowerPotFireResistDown:
+                    _fireResistDown = true;
                     break;
                 case Skill.FlowerPotDoubleTargets:
                     _doubleTarget = true;
@@ -44,7 +44,7 @@ public class FlowerPot : Sprout
         base.Init();
         UnitRole = Role.Ranger;
         Player.SkillSubject.SkillUpgraded(Skill.FlowerPot3Hit);
-        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotRecoverBurn);
+        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotFireResistDown);
         Player.SkillSubject.SkillUpgraded(Skill.FlowerPotDoubleTargets);
         Player.SkillSubject.SkillUpgraded(Skill.FlowerPotLostHealthAttack);
     }
@@ -71,6 +71,7 @@ public class FlowerPot : Sprout
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         if (Room == null) return;
+        if (_fireResistDown) target.FireResistParam -= 2;
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
         
         BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
@@ -80,7 +81,7 @@ public class FlowerPot : Sprout
         
         if (pid == ProjectileId.Sprout3HitFire)
         {
-            var additionalDamage = Math.Max((int)(TotalAttack * 0.5 * _lostHealAttackParam) - target.TotalDefence, 0);
+            var additionalDamage = Math.Max((int)(TotalAttack * _lostHealAttackParam) - target.TotalDefence, 0);
             target.OnDamaged(this, additionalDamage, Damage.Magical);
             Hp += (int)(additionalDamage * DrainParam);
         }
@@ -89,7 +90,7 @@ public class FlowerPot : Sprout
         
         if (_doubleTarget)
         {
-            var types = new List<GameObjectType> { GameObjectType.Monster, GameObjectType.MonsterStatue };
+            var types = new[]{ GameObjectType.Monster, GameObjectType.MonsterStatue };
             var secondTarget = Room.FindTargets(_projectile.CellPos, types, TotalAttackRange, AttackType)
                 .Where(gameObject => gameObject.Id != target.Id)
                 .MinBy(gameObject => Vector3.Distance(
@@ -102,10 +103,11 @@ public class FlowerPot : Sprout
             if (_projectile2 is SproutFire projectile2) projectile2.Depth = 1;
         }
     }
-    
+
     public override void ApplyProjectileEffect2(GameObject target, ProjectileId pid)
     {
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
+        if (_fireResistDown) target.FireResistParam -= 1;
         BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
         var damage = (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam);
         var drain = Math.Max(damage - target.TotalDefence, 0);
@@ -114,7 +116,7 @@ public class FlowerPot : Sprout
 
         if (pid != ProjectileId.Sprout3HitFire) return;
         var additionalDamage = Math.Max(
-            (int)(TotalAttack * 0.5 * _doubleTargetParam * _lostHealAttackParam) - target.TotalDefence, 0);
+            (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam) - target.TotalDefence, 0);
         target.OnDamaged(this, additionalDamage, Damage.Magical);
         Hp += (int)(additionalDamage * DrainParam);
     }

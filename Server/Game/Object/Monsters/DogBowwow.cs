@@ -101,8 +101,8 @@ public class DogBowwow : DogBark
             target.OnDamaged(this, TotalAttack, Damage.Normal);
         }
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)

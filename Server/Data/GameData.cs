@@ -95,13 +95,13 @@ public class GameData
         { UnitId.Sprout, new HashSet<Skill> 
             { Skill.SproutDrain, Skill.SproutFireAttack, Skill.SproutFireResist } },
         { UnitId.FlowerPot, new HashSet<Skill> 
-            { Skill.FlowerPot3Hit, Skill.FlowerPotDoubleTargets, Skill.FlowerPotRecoverBurn, Skill.FlowerPotLostHealthAttack } },
+            { Skill.FlowerPot3Hit, Skill.FlowerPotDoubleTargets, Skill.FlowerPotFireResistDown, Skill.FlowerPotLostHealthAttack } },
         { UnitId.Bud, new HashSet<Skill> 
             { Skill.BudAttackSpeed, Skill.BudRange, Skill.BudAccuracy } },
         { UnitId.Bloom, new HashSet<Skill> 
             { Skill.Bloom3Combo, Skill.BloomCritical, Skill.BloomCriticalDamage } },
         { UnitId.Blossom, new HashSet<Skill> 
-            { Skill.BlossomAttack, Skill.BlossomDeath } },
+            { Skill.BlossomAttackSpeed, Skill.BlossomDeath, Skill.BlossomFaintCritical, Skill.BlossomPowerAttack } },
         { UnitId.PracticeDummy, new HashSet<Skill> 
             { Skill.PracticeDummyHealth, Skill.PracticeDummyHealth2 } },
         { UnitId.TargetDummy, new HashSet<Skill> 
@@ -109,11 +109,11 @@ public class GameData
         { UnitId.TrainingDummy, new HashSet<Skill> 
             { Skill.TrainingDummyFaintAttack, Skill.TrainingDummyAccuracy, Skill.TrainingDummyHealth } },
         { UnitId.Shell, new HashSet<Skill> 
-            { Skill.ShellDefence, Skill.ShellDefence2 } },
+            { Skill.ShellDefence, Skill.ShellPoisonResist, Skill.ShellFireResist } },
         { UnitId.Spike, new HashSet<Skill> 
-            { Skill.SpikeReflection, Skill.SpikeFireResist, Skill.SpikePoisonResist } },
+            { Skill.SpikeReflection, Skill.SpikeFireResist, Skill.SpikeDefence } },
         { UnitId.Hermit, new HashSet<Skill> 
-            { Skill.HermitNormalAttackDefence, Skill.HermitAttackerFaint, Skill.HermitFireResist } },
+            { Skill.HermitNormalAttackDefence, Skill.HermitAttackerFaint, Skill.HermitRecoverBurn, Skill.HermitShield } },
         { UnitId.SunBlossom, new HashSet<Skill> 
             { Skill.SunBlossomHeal, Skill.SunBlossomSelfDefence, Skill.SunBlossomDefence } },
         { UnitId.SunflowerFairy, new HashSet<Skill> 
@@ -170,7 +170,7 @@ public class GameData
         { UnitId.PoisonBomb, new HashSet<Skill> 
             { Skill.PoisonBombBombRange, Skill.PoisonBombSelfDestruct, Skill.PoisonBombExplosionMpDown, Skill.PoisonBombPoisonPowerUp } },
         { UnitId.Cacti, new HashSet<Skill> 
-            { Skill.CactiDefence, Skill.CactiDefence2, Skill.CactiHealth, Skill.CactiHealth2 } },
+            { Skill.CactiDefence, Skill.CactiDefence2 } },
         { UnitId.Cactus, new HashSet<Skill> 
             { Skill.CactusPoisonResist, Skill.CactusReflection, Skill.CactusSpeed } },
         { UnitId.CactusBoss, new HashSet<Skill> 
@@ -224,17 +224,19 @@ public class GameData
         { Skill.SproutFireAttack, new HashSet<Skill> { Skill.SproutDrain } },
         { Skill.SproutFireResist, new HashSet<Skill> { Skill.SproutFireAttack } },
         { Skill.FlowerPot3Hit, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.FlowerPotRecoverBurn, new HashSet<Skill> { Skill.FlowerPot3Hit } },
+        { Skill.FlowerPotFireResistDown, new HashSet<Skill> { Skill.FlowerPot3Hit } },
         { Skill.FlowerPotDoubleTargets, new HashSet<Skill> { Skill.FlowerPot3Hit } },
-        { Skill.FlowerPotLostHealthAttack, new HashSet<Skill> { Skill.FlowerPotRecoverBurn, Skill.FlowerPotDoubleTargets} },
+        { Skill.FlowerPotLostHealthAttack, new HashSet<Skill> { Skill.FlowerPotFireResistDown, Skill.FlowerPotDoubleTargets} },
         { Skill.BudAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BudRange, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BudAccuracy, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.Bloom3Combo, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.BloomCritical, new HashSet<Skill> { Skill.Bloom3Combo } },
         { Skill.BloomCriticalDamage, new HashSet<Skill> { Skill.BloomCritical } },
-        { Skill.BlossomAttack, new HashSet<Skill> { Skill.BlossomAttack } },
-        { Skill.BlossomDeath, new HashSet<Skill> { Skill.BlossomAttack } },
+        { Skill.BlossomAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
+        { Skill.BlossomDeath, new HashSet<Skill> { Skill.BlossomAttackSpeed } },
+        { Skill.BlossomFaintCritical, new HashSet<Skill> { Skill.BlossomAttackSpeed }},
+        { Skill.BlossomPowerAttack, new HashSet<Skill> { Skill.BlossomDeath, Skill.BlossomFaintCritical } },
         { Skill.PracticeDummyHealth, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.PracticeDummyHealth2, new HashSet<Skill> { Skill.PracticeDummyHealth } },
         { Skill.TargetDummyHealSelf, new HashSet<Skill> { Skill.NoSkill } },
@@ -244,13 +246,15 @@ public class GameData
         { Skill.TrainingDummyAccuracy, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.TrainingDummyHealth, new HashSet<Skill> { Skill.TrainingDummyFaintAttack, Skill.TrainingDummyAccuracy } },
         { Skill.ShellDefence, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.ShellDefence2, new HashSet<Skill> { Skill.ShellDefence } },
+        { Skill.ShellFireResist, new HashSet<Skill> { Skill.ShellDefence } },
+        { Skill.ShellPoisonResist, new HashSet<Skill> { Skill.ShellDefence } },
         { Skill.SpikeReflection, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SpikeFireResist, new HashSet<Skill> { Skill.SpikeReflection } },
-        { Skill.SpikePoisonResist, new HashSet<Skill> { Skill.SpikeReflection } },
+        { Skill.SpikeDefence, new HashSet<Skill> { Skill.SpikeReflection } },
         { Skill.HermitNormalAttackDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.HermitAttackerFaint, new HashSet<Skill> { Skill.HermitNormalAttackDefence } },
-        { Skill.HermitFireResist, new HashSet<Skill> { Skill.HermitAttackerFaint } },
+        { Skill.HermitRecoverBurn, new HashSet<Skill> { Skill.HermitNormalAttackDefence } },
+        { Skill.HermitShield, new HashSet<Skill> { Skill.HermitNormalAttackDefence } },
         { Skill.SunBlossomHeal, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SunBlossomSelfDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.SunBlossomDefence, new HashSet<Skill> { Skill.SunBlossomHeal, Skill.SunBlossomSelfDefence } },
@@ -340,8 +344,6 @@ public class GameData
         { Skill.PoisonBombSelfDestruct, new HashSet<Skill> { Skill.PoisonBombBombRange } },
         { Skill.PoisonBombPoisonPowerUp, new HashSet<Skill> { Skill.PoisonBombSelfDestruct } },
         { Skill.PoisonBombExplosionMpDown, new HashSet<Skill> { Skill.PoisonBombPoisonPowerUp } },
-        { Skill.CactiHealth, new HashSet<Skill> { Skill.NoSkill } },
-        { Skill.CactiHealth2, new HashSet<Skill> { Skill.CactiHealth } },
         { Skill.CactiDefence, new HashSet<Skill> { Skill.NoSkill } },
         { Skill.CactiDefence2, new HashSet<Skill> { Skill.CactiDefence } },
         { Skill.CactusSpeed, new HashSet<Skill> { Skill.NoSkill } },

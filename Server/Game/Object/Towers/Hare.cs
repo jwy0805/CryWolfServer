@@ -34,6 +34,8 @@ public class Hare : Rabbit
         base.Init();
         UnitRole = Role.Warrior;
         Player.SkillSubject.SkillUpgraded(Skill.HarePunch);
+        Player.SkillSubject.SkillUpgraded(Skill.HarePunchDefenceDown);
+        Player.SkillSubject.SkillUpgraded(Skill.HareEvasion);
     }
     
     protected override void UpdateIdle()
@@ -149,8 +151,8 @@ public class Hare : Rabbit
         Room?.Push(Room.EnterGame, tower);
         Room?.SpawnEffect(EffectId.HareCloneEffect, this, clonePos);
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)

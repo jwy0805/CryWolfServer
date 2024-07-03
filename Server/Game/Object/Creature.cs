@@ -24,7 +24,7 @@ public class Creature : GameObject
     protected const long StdAnimTime = 1000;
     
     public UnitId UnitId { get; set; }
-    public Role UnitRole { get; set; }
+    public Role UnitRole { get; protected set; }
     public virtual bool Degeneration { get; set; }
 
     public override State State
@@ -182,16 +182,6 @@ public class Creature : GameObject
     protected virtual void UpdateRush() { }
     protected virtual void UpdateDie() { }
     public virtual void RunSkill() { }
-
-    public virtual void OnFaint()
-    {
-        State = State.Faint;
-        IsAttacking = false;
-        AttackEnded = true;
-        Scheduler.CancelEvent(AttackTaskId);
-        Scheduler.CancelEvent(EndTaskId);
-    }
-
     
     protected virtual void AttackImpactEvents(long impactTime)
     {
@@ -253,7 +243,7 @@ public class Creature : GameObject
         target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 
-    public virtual void SetNextState()
+    protected virtual void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
@@ -280,16 +270,15 @@ public class Creature : GameObject
         }
     }
 
-    public virtual void SetNextState(State state)
+    public virtual void SetNextState(State state) { }
+    
+    public virtual void OnFaint()
     {
-        if (state == State.Die && WillRevive)
-        {
-            State = State.Idle;
-            Hp = (int)(MaxHp * ReviveHpRate);
-            if (Targetable == false) Targetable = true;
-            BroadcastHp();
-            // 부활 Effect 추가
-        }
+        State = State.Faint;
+        IsAttacking = false;
+        AttackEnded = true;
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
     }
     
     protected virtual void SyncPosAndDir()

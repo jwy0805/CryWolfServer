@@ -90,8 +90,8 @@ public class MoleRatKing : MoleRat
     {
         MotionChangeEvents(RushToIdleAnimTime);
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)

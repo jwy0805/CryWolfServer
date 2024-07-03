@@ -137,8 +137,8 @@ public class SnowBomb : Bomb
             }
         }
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)

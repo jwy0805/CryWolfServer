@@ -8,7 +8,7 @@ public class PoisonBomb : SnowBomb
     private bool _selfDestruct;
     private bool _mpDown;
     private readonly int _increasingMaxMpParam = 20;
-    private int _poisonParam = 3;
+    private float _poisonParam = 0.03f;
     
     protected override Skill NewSkill
     {
@@ -25,7 +25,7 @@ public class PoisonBomb : SnowBomb
                     _selfDestruct = true;
                     break;
                 case Skill.PoisonBombPoisonPowerUp:
-                    _poisonParam = 6;
+                    _poisonParam = 0.06f;
                     break;
                 case Skill.PoisonBombExplosionMpDown:
                     _mpDown = true;

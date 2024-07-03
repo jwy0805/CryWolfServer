@@ -12,16 +12,6 @@ public class Cacti : Monster
             Skill = value;
             switch (Skill)
             {
-                case Skill.CactiHealth:
-                    MaxHp += 30;
-                    Hp += 30;
-                    BroadcastHp();
-                    break;
-                case Skill.CactiHealth2:
-                    Hp += 50;
-                    MaxHp += 50;
-                    BroadcastHp();
-                    break;
                 case Skill.CactiDefence:
                     Defence += 2;
                     break;

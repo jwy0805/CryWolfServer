@@ -246,8 +246,8 @@ public class CactusBoss : Cactus
         if (_breathHeal) BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
             this, this, HealParam * targetList.Count, 1000, true);
     }
-    
-    public override void SetNextState()
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)

@@ -104,9 +104,9 @@ public class MothMoon : MothLuna
             }
         }
     }
-    
-    
-    public override void SetNextState()
+
+
+    protected override void SetNextState()
     {
         if (Room == null) return;
         if (Target == null || Target.Stat.Targetable == false)

@@ -145,7 +145,8 @@ public sealed partial class ObjectManager
         { EffectId.WillRevive, new WillReviveFactory() },
         { EffectId.HareEffect, new HareEffectFactory() },
         { EffectId.HareCloneEffect, new HareCloneEffectFactory() },
-        { EffectId.PoisonCloud, new PoisonCloudFactory() }
+        { EffectId.PoisonCloud, new PoisonCloudFactory() },
+        { EffectId.HermitRecoverBurn, new HermitRecoverBurnFactory() }
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -291,6 +292,7 @@ public sealed partial class ObjectManager
     public class HareEffectFactory : IFactory<HareEffect> { public HareEffect Create() => new(); }
     public class HareCloneEffectFactory : IFactory<HareCloneEffect> { public HareCloneEffect Create() => new(); }
     public class PoisonCloudFactory : IFactory<PoisonCloud> { public PoisonCloud Create() => new(); }
+    public class HermitRecoverBurnFactory : IFactory<HermitRecoverBurn> { public HermitRecoverBurn Create() => new(); }
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

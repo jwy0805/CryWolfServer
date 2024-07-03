@@ -6,239 +6,41 @@ namespace Server.Game;
 
 public class Shell : Tower
 {
-    private bool _moveSpeedBuff = false;
-    private bool _attackSpeedBuff = false;
-    private bool _roll = false;
-    private bool _start = false; 
-    
-    protected double CrashTime;
-    protected readonly float MoveSpeedParam = 1f;
-    protected readonly float AttackSpeedParam = 0.1f;
-    protected long RollCoolTime;
-    
     protected override Skill NewSkill
     {
         get => Skill;
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.ShellHealth:
-            //         MaxHp += 35;
-            //         Hp += 35;
-            //         BroadcastHealth();
-            //         break;
-            //     case Skill.ShellSpeed:
-            //         _moveSpeedBuff = true;
-            //         break;
-            //     case Skill.ShellAttackSpeed:
-            //         _attackSpeedBuff = true;
-            //         break;
-            //     case Skill.ShellRoll:
-            //         _roll = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.ShellDefence:
+                    Defence += 4;
+                    break;
+                case Skill.ShellFireResist:
+                    FireResist += 15;
+                    break;
+                case Skill.ShellPoisonResist:
+                    PoisonResist += 15;
+                    break;
+            }
         }
     }
 
     public override void Init()
     {
         base.Init();
-        CrashTime = 0;
-        RollCoolTime = 10000;
-    }
-
-    protected override void UpdateIdle()
-    {
-        Random random = new Random();
-        if (Room!.Stopwatch.ElapsedMilliseconds < CrashTime + random.Next(1500, 3000) && _start) return;
+        UnitRole = Role.Tanker;
         
-        GameObject? target = Room?.FindClosestTarget(this);
-        if (target == null || Room == null || Target?.Id == target.Id) return;
-        Target = target;
-        DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        State = State.Moving;
+        Player.SkillUpgradedList.Add(Skill.ShellDefence);
     }
     
-    protected override void UpdateMoving()
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (_roll && (Room!.Stopwatch.ElapsedMilliseconds <= CrashTime + RollCoolTime || _start == false))
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Rush;
-            _start = true;
-            BroadcastPos();
-        }
-        else
-        {
-            // Targeting
-            double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-            // if (timeNow > LastSearch + SearchTick)
-            // {
-            //     LastSearch = timeNow;
-            //     GameObject? target = Room?.FindClosestTarget(this);
-            //     if (Target?.Id != target?.Id)
-            //     {
-            //         Target = target;
-            //         if (Target != null)
-            //         {
-            //             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-            //         }
-            //     }
-            // }
-        
-            if (Target == null || Target.Targetable == false || Target.Room != Room)
-            {
-                State = State.Idle;
-                BroadcastPos();           
-                return;
-            }
-
-            if (Room != null)
-            {
-                // 이동
-                // target이랑 너무 가까운 경우
-                // Attack
-                StatInfo targetStat = Target.Stat;
-                Vector3 position = CellPos;
-                if (targetStat.Targetable)
-                {
-                    float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                    double deltaX = DestPos.X - CellPos.X;
-                    double deltaZ = DestPos.Z - CellPos.Z;
-                    Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                    if (distance <= AttackRange)
-                    {
-                        CellPos = position;
-                        State = State.Idle;
-                        BroadcastPos();
-                        return;
-                    }
-                }
-            }
-            
-            BroadcastPos();
-        }
-    }
-
-    protected override void UpdateRush()
-    {
-        // Targeting
-        double timeNow = Room!.Stopwatch.Elapsed.TotalMilliseconds;
-        // if (timeNow > LastSearch + SearchTick)
-        // {
-        //     LastSearch = timeNow;
-        //     GameObject? target = Room?.FindClosestTarget(this);
-        //     if (Target?.Id != target?.Id)
-        //     {
-        //         Target = target;
-        //         if (Target != null)
-        //         {
-        //             DestPos = Room!.Map.GetClosestPoint(CellPos, Target);
-        //         }
-        //     }
-        // }
-        
-        if (Target == null || Target.Room != Room)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            return;
-        }
-
-        if (Room != null)
-        {
-            // 이동
-            // target이랑 너무 가까운 경우
-            StatInfo targetStat = Target.Stat;
-            Vector3 position = CellPos;
-            if (targetStat.Targetable)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos)); // 거리의 제곱
-                double deltaX = DestPos.X - CellPos.X;
-                double deltaZ = DestPos.Z - CellPos.Z;
-                Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-                // Roll 충돌 처리
-                if (distance <= Stat.SizeX * 0.25 + 0.75f)
-                {
-                    CellPos = position;
-                    CrashTime = Room.Stopwatch.ElapsedMilliseconds;
-                    Target.OnDamaged(this, SkillDamage, Damage.Normal);
-                    Mp += MpRecovery;
-                    State = State.KnockBack;
-                    DestPos = CellPos + (-Vector3.Normalize(Target.CellPos - CellPos) * 3);
-                    BroadcastPos();
-                    Room.Broadcast(new S_SetKnockBack
-                    {
-                        ObjectId = Id, 
-                        Dest = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z }
-                    });
-                    return;
-                }
-            }
-        }
-
-        BroadcastPos();
-    }
-
-    protected override void UpdateKnockBack()
-    {
-        // 넉백중 충돌하면 Idle
-        //
-    }
-
-    protected override void UpdateSkill()
-    {
-        State = State.Skill;
-        BroadcastPos();
-    }
-
-    public override void RunSkill()
-    {
-        if (Room == null) return;
-        
-        List<Creature> monsters = Room.FindTargets(this, 
-            new List<GameObjectType> { GameObjectType.Monster }, SkillRange)
-            .Cast<Creature>().ToList();
-        if (!monsters.Any()) return;
-        
-        if (_moveSpeedBuff)
-        {
-            // foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                // BuffManager.Instance.AddBuff(BuffId.MoveSpeedIncrease, monster, this, MoveSpeedParam);
-        }
-
-        if (_attackSpeedBuff)
-        {
-            // foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-                // BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, monster, this, AttackSpeedParam);
-        }
-    }
-    
-    public override void SetNextState()
-    {
-        if (Room == null) return; 
-        
-        if (Target == null || Target.Stat.Targetable == false)
-        {
-            State = State.Idle;
-        }
-        else
-        {
-            if (Target.Hp > 0)
-            {
-                Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(targetPos - CellPos));
-                if (_roll) State = State.Rush;
-                else State = distance <= AttackRange ? State.Idle : State.Moving;
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
-        }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BasicProjectile3, this, 5f);
+        });
     }
 }
