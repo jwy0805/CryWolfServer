@@ -36,6 +36,8 @@ public partial class GameObject
         }
     }
     
+    public int ShieldMax { get; set; }
+    
     public int Shield { get; set; }
 
     public int Mp
