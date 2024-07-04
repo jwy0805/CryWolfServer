@@ -45,6 +45,7 @@ public class Hermit : Spike
         Player.SkillSubject.SkillUpgraded(Skill.HermitNormalAttackDefence);
         Player.SkillSubject.SkillUpgraded(Skill.HermitAttackerFaint);
         Player.SkillSubject.SkillUpgraded(Skill.HermitRecoverBurn);
+        Player.SkillSubject.SkillUpgraded(Skill.HermitShield);
     }
     
     public override void Update() 
@@ -122,6 +123,11 @@ public class Hermit : Spike
         _skillEndTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             State = State.Idle;
+            if (_shield)
+            {
+                ShieldAdd = _damageRemainder;
+                _damageRemainder = 0;
+            }
         });
     }
     
@@ -147,34 +153,40 @@ public class Hermit : Spike
         Scheduler.CancelEvent(AttackTaskId);
         Scheduler.CancelEvent(EndTaskId);
         Scheduler.CancelEvent(_skillEndTaskId);
+        _damageRemainder = 0;
     }
     
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
         if (Room == null) return;
         if (Invincible || Targetable == false || Hp <= 0) return;
-        // Normal Attack Defence
+        var random = new Random();
+
         if (State == State.Skill && damageType == Damage.Normal)
-        {
+        {   // Normal Attack Defence
             _damageRemainder += damage;
             damage = 0;
         }
         
-        var random = new Random();
-        var totalDamage = damageType is Damage.Normal or Damage.Magical 
-            ? Math.Max(damage - TotalDefence, 0) : damage;
-        
-        if (random.Next(100) < attacker.CriticalChance)
-        {
-            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
-        }
-        
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {
+        {   // Evasion
             // TODO: Evasion Effect
             return;
         }
         
+        var totalDamage = random.Next(100) < attacker.CriticalChance && damageType is Damage.Normal
+            ? (int)(damage * attacker.CriticalMultiplier) : damage;
+        
+        if (ShieldRemain > 0)
+        {   // Shield
+            ShieldRemain -= totalDamage;
+            if (ShieldRemain >= 0) return;
+            totalDamage = Math.Abs(ShieldRemain);
+            ShieldRemain = 0;
+        }
+
+        totalDamage = damageType is Damage.Normal or Damage.Magical
+            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
@@ -192,7 +204,8 @@ public class Hermit : Spike
             if (_reflectionFaint && new Random().Next(100) < _reflectionFaintRate && attacker.Targetable)
             {
                 BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                    attacker, this, 0, 1000);            }
+                    attacker, this, 0, 1000);
+            }
         }
     }
 }

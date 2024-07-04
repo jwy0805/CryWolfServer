@@ -6,15 +6,12 @@ namespace Server.Game;
 
 public class SunfloraPixie : SunflowerFairy
 {
-
-    private readonly float _attackSpeedParam = 0.15f;
-    
-    private bool _faint = false;
-    private bool _curse = false;
-    private bool _attackSpeedBuff = false;
-    private bool _triple = false;
-    private bool _debuffRemove = false;
-    private bool _invincible = false;
+    private bool _recoverMp;
+    private bool _strongAttack;
+    private bool _invincible;
+    private bool _debuffRemove;
+    private bool _triple;
+    private readonly int _mpRecoverParam = 40;
     
     protected override Skill NewSkill
     {
@@ -22,139 +19,104 @@ public class SunfloraPixie : SunflowerFairy
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.SunfloraPixieFaint:
-            //         _faint = true;
-            //         break;
-            //     case Skill.SunfloraPixieHeal:
-            //         HealParam = 120;
-            //         break;
-            //     case Skill.SunfloraPixieRange:
-            //         AttackRange += 2;
-            //         SkillRange += 2;
-            //         break;
-            //     case Skill.SunfloraPixieCurse:
-            //         _curse = true;
-            //         break;
-            //     case Skill.SunfloraPixieAttackSpeed:
-            //         _attackSpeedBuff = true;
-            //         break;
-            //     case Skill.SunfloraPixieTriple:
-            //         _triple = true;
-            //         break;
-            //     case Skill.SunfloraPixieDebuffRemove:
-            //         _debuffRemove = true;
-            //         break;
-            //     case Skill.SunfloraPixieAttack:
-            //         Room?.Broadcast(new S_SkillUpdate
-            //         {
-            //             ObjectEnumId = (int)TowerId,
-            //             ObjectType = GameObjectType.Tower,
-            //             SkillType = SkillType.SkillProjectile
-            //         });
-            //         break;
-            //     case Skill.SunfloraPixieInvincible:
-            //         _invincible = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.SunfloraPixieRecoverMp:
+                    _recoverMp = true;
+                    break;
+                case Skill.SunfloraPixieStrongAttack:
+                    _strongAttack = true;
+                    Attack += 40;
+                    break;
+                case Skill.SunfloraPixieInvincible:
+                    _invincible = true;
+                    break;
+                case Skill.SunfloraPixieDebuffRemove:
+                    _debuffRemove = true;
+                    break;
+                case Skill.SunfloraPixieTripleBuff:
+                    _triple = true;
+                    break;
+            }
         }
     }
     
-    public override void RunSkill()
+    public override void Init()
     {
-        if (Room == null) return;
+        base.Init();
+        UnitRole = Role.Supporter;
         
-        List<Creature> towers = Room.FindTargets(this, 
-            new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
-        if (towers.Count != 0)
-        {
-            foreach (var tower in towers)
-            {
-                // tower.Hp += HealParam;
-                // Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                // BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
-                // BuffManager.Instance.AddBuff(BuffId.AttackIncrease, tower, this, AttackParam);
-                // BuffManager.Instance.AddBuff(BuffId.DefenceIncrease, tower, this, DefenceParam);
-                // if (_attackSpeedBuff) BuffManager.Instance.AddBuff(BuffId.AttackSpeedIncrease, tower, this, _attackSpeedParam);
-                // if (_debuffRemove) BuffManager.Instance.RemoveAllDebuff(tower);
-            }
-        }
-
-        // int num = _triple ? 3 : 2;
-        // if (_invincible)
-        // {
-        //     foreach (var tower in towers)
-        //         BuffManager.Instance.AddBuff(BuffId.Invincible, tower, this, 0, 3000);
-        // }
-        //
-        // List<GameObjectType> typeList = new() { GameObjectType.Monster };
-        // List<Creature> monsters = Room.FindTargets(this, typeList, SkillRange, 2).Cast<Creature>().ToList();
-        // if (monsters.Any())
-        // {
-        //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())   
-        //         BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
-        //     foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-        //         BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
-        //
-        //     if (_faint)
-        //     {
-        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-        //             BuffManager.Instance.AddBuff(BuffId.Fainted, monster, this, 0, 2000);
-        //     }
-        //     
-        //     if (_curse)
-        //     {
-        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(num).ToList())
-        //             BuffManager.Instance.AddBuff(BuffId.Curse, monster, this, 0, 5000);
-        //     }
-        // }
-
-        List<GameObjectType> typeList2 = new() { GameObjectType.Fence };
-        List<GameObject> fences = Room.FindTargets(this, typeList2, SkillRange);
-        if (fences.Any())
-        {
-            foreach (var fence in fences)
-            {
-                fence.Hp += HealParam;
-                Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-            }
-        }
+        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieRecoverMp);
+        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieStrongAttack);
+        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieInvincible);
+        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieDebuffRemove);
+        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieTripleBuff);
     }
-
-    protected override void SetNextState()
+    
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Idle;
-        }
-        else
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(_strongAttack ? 
+                ProjectileId.SunfloraPixieFire : ProjectileId.SunfloraPixieProjectile, this, 5f);
+        });
+    }
+    
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target.Hp > 0)
+            if (Room == null) return;
+            
+            var types = new[] { GameObjectType.Tower };
+            var num = _triple ? 3 : 2;
+            
+            // Heal
+            var skillTargets = Room.FindTargets(this, types, TotalSkillRange, AttackType);
+            var healTargets = skillTargets
+                .OrderBy(target => target.Hp / target.MaxHp).Take(num).ToList();
+            foreach (var target in healTargets)
             {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
+                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
+                    target, this, HealParam);
+                // Debuff Remove
+                if (_debuffRemove && target is Creature creature) BuffManager.Instance.RemoveAllDebuff(creature);
+            }
+            
+            // Recover Mp
+            if (_recoverMp)
+            {
+                var mpTargets = skillTargets.OrderBy(_ => Guid.NewGuid()).Take(num).ToList();
+                foreach (var target in mpTargets)
                 {
-                    if (_faint)
-                    {
-                        State = State.Attack;
-                        SyncPosAndDir();
-                    }
-                    else State = State.Idle;
-                }
-                else
-                {
-                    State = State.Idle;
+                    target.Mp += _mpRecoverParam;
                 }
             }
-            else
+            
+            // Fence Heal
+            var fenceType = new[] { GameObjectType.Fence };
+            var fenceTargets = Room.FindTargets(this, fenceType, TotalSkillRange, AttackType)
+                .OrderBy(target => target.Hp).Take(num).ToList();
+            foreach (var target in fenceTargets)  
             {
-                Target = null;
-                State = State.Idle;
+                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
+                    target, this, FenceHealParam);
             }
-        }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+            
+            // Invincible - Instead shield
+            if (_invincible)
+            {
+                var targets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                    .OrderByDescending(target => target.CellPos.Z).Take(num).ToList();
+                foreach (var target in targets)
+                {
+                    BuffManager.Instance.AddBuff(BuffId.Invincible, BuffParamType.None,
+                        target, this, 0, 3000);
+                }
+            }
+            
+            Mp = 0;
+        });
     }
 }

@@ -1,18 +1,15 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
 public class SunBlossom : Tower
 {
-    protected int HealParam = 25;
-    protected readonly int HealthParam = 30;
-    protected readonly float SlowParam = 0.2f;
-    protected readonly float SlowAttackParam = 0.2f;
+    private bool _heal;
+    private bool _defenceBuff;
     
-    private bool _heal = false;
-    private bool _health = false;
-    private bool _slow = false;
-    private bool _slowAttack = false;
+    protected int HealParam = 50;
+    protected int DefenceBuffParam = 5;
     
     protected override Skill NewSkill
     {
@@ -20,67 +17,151 @@ public class SunBlossom : Tower
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.SunBlossomHeal:
-            //         _heal = true;
-            //         break;
-            //     case Skill.SunBlossomHealth:
-            //         _health = true;
-            //         break;
-            //     case Skill.SunBlossomSlow:
-            //         _slow = true;
-            //         break;
-            //     case Skill.SunBlossomSlowAttack:
-            //         _slowAttack = true;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.SunBlossomHeal:
+                    _heal = true;
+                    break;
+                case Skill.SunBlossomSelfDefence:
+                    Defence += 3;
+                    break;
+                case Skill.SunBlossomDefence:
+                    _defenceBuff = true;
+                    break;
+            }
         }
     }
 
-    protected override void UpdateIdle() { }
-
-    public override void RunSkill()
+    public override void Init()
     {
-        if (Room == null) return;
+        base.Init();
+        UnitRole = Role.Supporter;
         
-        List<Creature> towers = Room.FindTargets(this, 
-            new List<GameObjectType> { GameObjectType.Tower }, SkillRange).Cast<Creature>().ToList();
-        // if (towers.Any())
-        // {
-        //     foreach (var tower in towers)
-        //     {
-        //         if (_heal)
-        //         {
-        //             tower.Hp += HealParam;
-        //             Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-        //         }
-        //         if (_health) BuffManager.Instance.AddBuff(BuffId.HealthIncrease, tower, this, HealthParam);
-        //     }
-        // }
-        //
-        // List<Creature> monsters = Room.FindTargets(this,
-        //     new List<GameObjectType> { GameObjectType.Monster }, SkillRange).Cast<Creature>().ToList();
-        // if (monsters.Any())
-        // {
-        //     if (_slow)
-        //     {
-        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-        //             BuffManager.Instance.AddBuff(BuffId.MoveSpeedDecrease, monster, this, SlowParam);
-        //     }
-        //     
-        //     if (_slowAttack)
-        //     {
-        //         foreach (var monster in monsters.OrderBy(_ => Guid.NewGuid()).Take(1).ToList())
-        //             BuffManager.Instance.AddBuff(BuffId.AttackSpeedDecrease, monster, this, SlowAttackParam);
-        //     }
-        // }
+        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomHeal);
+        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomSelfDefence);
+        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomDefence);
     }
 
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
+        }
+    }
+
+    protected override void UpdateIdle()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+
+        if (distance > TotalAttackRange) return;
+        State = _heal && Mp >= MaxMp ? State.Skill : State.Attack;
+        SyncPosAndDir();
+    }
+    
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.BasicProjectile4, this, 5f);
+        });
+    }
+    
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            
+            var types = new[] { GameObjectType.Tower };
+            
+            // Heal
+            if (_heal)
+            {
+                var target = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                    .MinBy(target => target.Hp / target.MaxHp);
+                if (target != null)
+                {
+                    BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
+                        target, this, HealParam);
+                }
+            }
+            
+            // Defence Buff
+            if (_defenceBuff)
+            {
+                var target = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                    .MaxBy(target => target.CellPos.Z);
+                if (target != null)
+                {
+                    BuffManager.Instance.AddBuff(BuffId.DefenceBuff, BuffParamType.Constant,
+                        target, this, DefenceBuffParam);
+                }
+            }
+            Mp = 0;
+        });
+    }
+    
     protected override void SetNextState()
     {
         if (Room == null) return;
-        State = State.Idle;
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
+
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
+        }
+        else
+        {
+            State = Mp >= MaxMp && _heal ? State.Skill : State.Attack;
+            SyncPosAndDir();
+        }
     }
 }

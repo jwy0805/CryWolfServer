@@ -2,6 +2,9 @@ namespace Server.Game;
 
 public partial class GameObject
 {
+    private int _shieldAdd;
+    private int _shieldRemain;
+    
     public int TotalAttack => Math.Max(Attack + AttackParam, 0);
     public float TotalAttackSpeed => Math.Max(AttackSpeed + AttackSpeedParam, 0);
     public int TotalSkillDamage => Math.Max(SkillDamage + SkillParam, 0);
@@ -36,9 +39,27 @@ public partial class GameObject
         }
     }
     
-    public int ShieldMax { get; set; }
-    
-    public int Shield { get; set; }
+    public int ShieldAdd
+    {   // 더해지는 쉴드 양(쉴드 추가시 사용) - 쉴드에는 방어, 독 저항 등 적용되지 않으며 반사 또한 적용 x
+        get => _shieldAdd;
+        set
+        {
+            _shieldAdd += value;
+            _shieldRemain += value;
+            BroadcastShield();
+        } 
+    }
+
+    public int ShieldRemain
+    {   // 남아있는 쉴드 양(데미지를 받아 쉴드가 깎일 때 사용)
+        get => _shieldRemain;
+        set
+        {
+            _shieldRemain = value;
+            if (_shieldRemain <= 0) _shieldAdd = 0;
+            BroadcastShield();
+        }
+    }
 
     public int Mp
     {

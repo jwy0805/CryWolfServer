@@ -106,7 +106,6 @@ public class SkeletonMage : SkeletonGiant
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Room == null || Hp <= 0) return;
-            Mp = 0;
             Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, PosInfo);
             
             // AttackSteal
@@ -151,6 +150,8 @@ public class SkeletonMage : SkeletonGiant
                     }
                 }
             }
+            
+            Mp = 0;
         });
     }
 

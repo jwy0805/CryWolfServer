@@ -88,32 +88,39 @@ public partial class GameObject : IGameObject
         if (Room == null) return;
         if (Invincible || Targetable == false || Hp <= 0) return;
         var random = new Random();
-        var totalDamage = damageType is Damage.Normal or Damage.Magical 
-            ? Math.Max(damage - TotalDefence, 0) : damage;
-        
-        if (random.Next(100) < attacker.CriticalChance)
-        {
-            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
-        }
         
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {
+        {   // Evasion
             // TODO: Evasion Effect
             return;
         }
         
+        // 일반적으로 Normal Damage 만 Critical 가능, Magical이나 True Damage Critical 구현 시 데미지를 넣는 Unit으로부터 자체적으로 계산
+        var totalDamage = random.Next(100) < attacker.CriticalChance && damageType is Damage.Normal
+            ? (int)(damage * attacker.CriticalMultiplier) : damage;
+        
+        if (ShieldRemain > 0)
+        {   // Shield
+            ShieldRemain -= totalDamage;
+            if (ShieldRemain >= 0) return;
+            totalDamage = Math.Abs(ShieldRemain);
+            ShieldRemain = 0;
+        }
+
+        totalDamage = damageType is Damage.Normal or Damage.Magical
+            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)
-        {
+        {   // Dead
             OnDead(attacker);
             return;
         }
         
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
-        {
+        {   // Reflection
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
         }
@@ -185,6 +192,11 @@ public partial class GameObject : IGameObject
         Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp});
     }
 
+    public virtual void BroadcastShield()
+    {
+        Room?.Broadcast(new S_ChangeShield { ObjectId = Id, ShieldRemain = ShieldRemain, ShieldAdd = ShieldAdd});
+    }
+    
     public virtual void BroadcastMp()
     {
         Room?.Broadcast(new S_ChangeMp { ObjectId = Id, Mp = Mp, MaxMp = MaxMp});
