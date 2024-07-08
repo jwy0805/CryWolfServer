@@ -53,13 +53,47 @@ public class SunfloraPixie : SunflowerFairy
         Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieTripleBuff);
     }
     
+    protected override void UpdateAttack()
+    {
+        Room.SpawnProjectile(_strongAttack ? 
+            ProjectileId.SunfloraPixieFire : ProjectileId.SunfloraPixieProjectile, this, 5f);
+        
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        if (IsAttacking) return;
+
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        {
+            State = State.Idle;
+            IsAttacking = false;
+            return;
+        }
+        
+        var packet = new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        };
+        
+        Room.Broadcast(packet);
+        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
+        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
+        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
+        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
+        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
+        AttackImpactEvents(impactTime);
+        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        AttackEnded = false;
+        IsAttacking = true;
+    }   
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(_strongAttack ? 
-                ProjectileId.SunfloraPixieFire : ProjectileId.SunfloraPixieProjectile, this, 5f);
+            Target.OnDamaged(this, TotalAttack, Damage.Normal);
         });
     }
     
@@ -87,7 +121,9 @@ public class SunfloraPixie : SunflowerFairy
             // Recover Mp
             if (_recoverMp)
             {
-                var mpTargets = skillTargets.OrderBy(_ => Guid.NewGuid()).Take(num).ToList();
+                var mpTargets = skillTargets
+                    .Where(target => target.MaxMp != 1)
+                    .OrderBy(_ => Guid.NewGuid()).Take(num).ToList();
                 foreach (var target in mpTargets)
                 {
                     target.Mp += _mpRecoverParam;
@@ -119,4 +155,6 @@ public class SunfloraPixie : SunflowerFairy
             Mp = 0;
         });
     }
+    
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId projectileId) { }
 }

@@ -8,12 +8,12 @@ namespace Server.Game;
 
 public class MothMoon : MothLuna
 {
-    private readonly int _debuffRemoveParam = 40;
-    protected readonly int HealParam = 20;
-    protected readonly int OutputParam = 10;
-    private bool _debuffRemoveSheep = false;
-    private bool _healSheep = false;
-    private bool _output = false;
+    private bool _sheepDebuffRemove;
+    private bool _sheepHeal;
+    private bool _sheepshield;
+    
+    protected readonly int HealParam = 80;
+    protected readonly int ShieldParam = 100;
     
     protected override Skill NewSkill
     {
@@ -21,120 +21,146 @@ public class MothMoon : MothLuna
         set
         {
             Skill = value;
-            // switch (Skill)
-            // {
-            //     case Skill.MothMoonRemoveDebuffSheep:
-            //         _debuffRemoveSheep = true;
-            //         break;
-            //     case Skill.MothMoonHealSheep:
-            //         _healSheep = true;
-            //         break;
-            //     case Skill.MothMoonRange:
-            //         AttackRange += 3;
-            //         break;
-            //     case Skill.MothMoonOutput:
-            //         _output = true;
-            //         break;
-            //     case Skill.MothMoonAttackSpeed:
-            //         AttackSpeed += 0.15f;
-            //         break;
-            // }
+            switch (Skill)
+            {
+                case Skill.MothMoonSheepHeal:
+                    _sheepHeal = true;
+                    break;
+                case Skill.MothMoonSheepShield:
+                    _sheepshield = true;
+                    break;
+                case Skill.MothMoonSheepDebuffRemove:
+                    _sheepDebuffRemove = true;
+                    break;
+                case Skill.MothMoonAttackSpeed:
+                    AttackSpeed += AttackSpeed * 0.2f;
+                    break;
+            }
         }
     }
 
-    protected override void UpdateIdle()
+    public override void Init()
     {
-        GameObject? target = Room?.FindClosestTarget(this, AttackType);
-        if (target == null) return;
-        Target ??= target;
-        if (Target == null) return;
-
-        StatInfo targetStat = Target.Stat;
-        if (targetStat.Targetable)
+        base.Init();
+        UnitRole = Role.Supporter;
+    }
+    
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
-            float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-            double deltaX = Target.CellPos.X - CellPos.X;
-            double deltaZ = Target.CellPos.Z - CellPos.Z;
-            Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-            if (distance <= AttackRange)
-            {
-                State = State.Attack;
-                BroadcastPos();
-            }
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
         }
     }
     
-    protected override void UpdateAttack()
+    protected override void AttackImpactEvents(long impactTime)
     {
-        if (Target == null || Target.Stat.Targetable == false)
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            State = State.Idle;
-            BroadcastPos();
-        }
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
+        });
     }
-
-    public override void RunSkill()
-    {
-        if (Room == null) return;
-        List<GameObject> sheeps = Room.FindTargets(this, 
-            new List<GameObjectType> { GameObjectType.Sheep }, AttackRange);
-        Random random = new Random();
+    
+    protected override void UpdateIdle()
+    {   // Targeting
+        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
         
-        if (sheeps.Any())
-        {
-            foreach (var s in sheeps)
-            {
-                if (_healSheep)
-                {
-                    s.Hp += HealParam;
-                    Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
-                }
-                
-                if (_debuffRemoveSheep)
-                {
-                    int r = random.Next(99);
-                    if (r < _debuffRemoveParam) BuffManager.Instance.RemoveAllDebuff(this);
-                }
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
 
-                if (_output)
-                {
-                    Sheep sheep = (Sheep)s;
-                    sheep.YieldIncrement = sheep.Resource * OutputParam / 100;
-                }
-            }
-        }
+        if (distance > TotalAttackRange) return;
+        State = (_sheepshield || _sheepHeal) && Mp >= MaxMp ? State.Skill : State.Attack;
+        SyncPosAndDir();
     }
 
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            
+            var types = new[] { GameObjectType.Sheep };
+            var sheeps = Room.FindTargets(this, types, AttackRange);
 
+            if (sheeps.Any() == false) return;
+            if (_sheepHeal)
+            {
+                var sheep = sheeps.MinBy(sheep => sheep.Hp);
+                if (sheep != null) sheep.Hp += HealParam;
+            }
+            
+            if (_sheepshield)
+            {
+                var sheep = sheeps.MinBy(_ => Guid.NewGuid());
+                if (sheep != null) sheep.ShieldAdd += ShieldParam;
+            }
+
+            if (_sheepDebuffRemove)
+            {
+                var sheep = BuffManager.Instance.Buffs.Where(buff => buff.Master is Sheep)
+                    .MinBy(_ => Guid.NewGuid())?.Master;
+                if (sheep is Creature creature && sheep.Room != null) BuffManager.Instance.RemoveAllDebuff(creature);
+            }
+        });
+    }
+    
     protected override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Stat.Targetable == false)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
+            AttackEnded = true;
+            return;
+        }
+        
+        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 flatTargetPos = targetPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
+
+        if (distance > TotalAttackRange)
+        {
+            State = State.Idle;
+            AttackEnded = true;
         }
         else
         {
-            if (Target.Hp > 0)
-            {
-                float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(Target.CellPos - CellPos));
-                if (distance <= AttackRange)
-                {
-                    State = State.Attack;
-                    SyncPosAndDir();
-                }
-                else
-                {
-                    State = State.Idle;
-                }
-            }
-            else
-            {
-                Target = null;
-                State = State.Idle;
-            }
+            State = Mp >= MaxMp && (_sheepshield || _sheepHeal) ? State.Skill : State.Attack;
+            SyncPosAndDir();
         }
-        
-        Room.Broadcast(new S_State { ObjectId = Id, State = State });
     }
 }

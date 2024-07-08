@@ -37,12 +37,7 @@ public class Snakelet : Monster
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(ProjectileId.BasicProjectile, this, 5f);
+            Room.SpawnProjectile(ProjectileId.BasicProjectile2, this, 5f);
         });
-    }
-    
-    public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
-    {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
     }
 }

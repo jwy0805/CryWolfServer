@@ -12,9 +12,9 @@ public partial class GameObject : IGameObject
     protected List<double> Atan = new();
 
     public int CallCycle => 200;
-    public int DistRemainder { get; set; } = 0;
-    public bool WillRevive { get; set; } = false;
-    public bool AlreadyRevived { get; set; } = false;
+    public int DistRemainder { get; set; }
+    public bool WillRevive { get; set; }
+    public bool AlreadyRevived { get; protected set; }
     public float ReviveHpRate { get; set; } = 0.3f;
     public virtual int KillLog { get; set; }
     
@@ -25,7 +25,7 @@ public partial class GameObject : IGameObject
     }
     public Player Player { get; set; }
     public List<BuffId> Buffs { get; set; } = new();
-    public virtual GameObject? Target { get; set; }
+    public GameObject? Target { get; set; }
     public GameObject? Parent { get; set; }
     public SpawnWay Way { get; set; }
     public bool Burn { get; set; }
@@ -35,7 +35,7 @@ public partial class GameObject : IGameObject
     public PositionInfo PosInfo { get; set; } = new();
     public Vector3 DestPos { get; set; }
     public StatInfo Stat { get; private set; } = new();
-    public GameObjectType ObjectType { get; protected set; } = GameObjectType.None;
+    public GameObjectType ObjectType { get; protected init; } = GameObjectType.None;
     
     public virtual State State
     {
@@ -78,7 +78,7 @@ public partial class GameObject : IGameObject
         Job = Room.PushAfter(CallCycle, Update);
     }
     
-    public void StatInit()
+    protected void StatInit()
     {
         Hp = MaxHp;
     }

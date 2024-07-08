@@ -135,8 +135,8 @@ public class Creature : GameObject
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
         long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
+        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
         long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
         long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
         AttackImpactEvents(impactTime);
@@ -167,8 +167,8 @@ public class Creature : GameObject
         long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
         long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
+        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
+        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
         long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
         long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
         SkillImpactEvents(impactTime);
@@ -204,6 +204,7 @@ public class Creature : GameObject
             SetNextState();
             LastAnimEndTime = Room.Stopwatch.ElapsedMilliseconds;
             IsAttacking = false;
+            AttackEnded = true;
         });
     }
     

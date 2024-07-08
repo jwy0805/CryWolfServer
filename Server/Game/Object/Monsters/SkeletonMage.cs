@@ -6,11 +6,11 @@ namespace Server.Game;
 
 public class SkeletonMage : SkeletonGiant
 {
-    private bool _adjacentRevive = false;
-    private bool _killRecoverMp = false;
-    private bool _reviveHealthUp = false;
-    private bool _curse = false;
-    private int _killLog = 0;
+    private bool _adjacentRevive;
+    private bool _killRecoverMp;
+    private bool _reviveHealthUp;
+    private bool _curse;
+    private int _killLog;
     
     public override int KillLog
     {

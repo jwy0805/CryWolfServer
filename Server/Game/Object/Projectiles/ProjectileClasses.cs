@@ -23,3 +23,11 @@ public class FungiProjectile : Projectile { }
 public class ToadstoolProjectile : Projectile { }
 public class HauntFire : Projectile { }
 public class HauntProjectile : Projectile { }
+public class SunfloraPixieFire : Projectile { }
+public class SunfloraPixieProjectile : Projectile { }
+public class HermitProjectile : Projectile { }
+public class SoulMageProjectile : Projectile { }
+public class SpikeProjectile : Projectile { }
+public class SkeletonMageProjectile : Projectile { }
+public class MothMoonProjectile : Projectile { }
+public class MothCelestialPoison : Projectile { }

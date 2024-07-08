@@ -11,7 +11,7 @@ namespace Server;
 public class Program
 {
     private static Listener _listener = new Listener();
-    private static int _environment = 1; // 0: local, 1: docker
+    private static int _environment = 0; // 0: local, 1: docker
     public static int Port { get; set; } = 7777;
 
     private static void Main(string[] args)
