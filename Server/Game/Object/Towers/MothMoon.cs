@@ -12,7 +12,7 @@ public class MothMoon : MothLuna
     private bool _sheepHeal;
     private bool _sheepshield;
     
-    protected readonly int HealParam = 80;
+    protected int HealParam = 80;
     protected readonly int ShieldParam = 100;
     
     protected override Skill NewSkill
@@ -79,15 +79,6 @@ public class MothMoon : MothLuna
         }
     }
     
-    protected override void AttackImpactEvents(long impactTime)
-    {
-        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
-        {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
-        });
-    }
-    
     protected override void UpdateIdle()
     {   // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
@@ -105,6 +96,15 @@ public class MothMoon : MothLuna
         State = (_sheepshield || _sheepHeal) && Mp >= MaxMp ? State.Skill : State.Attack;
         SyncPosAndDir();
     }
+    
+    protected override void AttackImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
+        });
+    }
 
     protected override void SkillImpactEvents(long impactTime)
     {
@@ -113,7 +113,7 @@ public class MothMoon : MothLuna
             if (Room == null) return;
             
             var types = new[] { GameObjectType.Sheep };
-            var sheeps = Room.FindTargets(this, types, AttackRange);
+            var sheeps = Room.FindTargets(this, types, TotalSkillRange);
 
             if (sheeps.Any() == false) return;
             if (_sheepHeal)
@@ -131,9 +131,15 @@ public class MothMoon : MothLuna
             if (_sheepDebuffRemove)
             {
                 var sheep = BuffManager.Instance.Buffs.Where(buff => buff.Master is Sheep)
-                    .MinBy(_ => Guid.NewGuid())?.Master;
-                if (sheep is Creature creature && sheep.Room != null) BuffManager.Instance.RemoveAllDebuff(creature);
+                    .Select(buff => buff.Master as Sheep)
+                    .Distinct()
+                    .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
+                    .MinBy(_ => Guid.NewGuid());
+                
+                if (sheep is { Room: not null }) BuffManager.Instance.RemoveAllDebuff(sheep);
             }
+            
+            Mp = 0;
         });
     }
     

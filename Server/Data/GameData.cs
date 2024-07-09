@@ -8,12 +8,9 @@ public class GameData
     public static readonly float GroundHeight = 6.0f;
     public static readonly float AirHeight = 9.0f;
     public static Vector3 Center = new(0.0f, 6.0f, 0.0f); // Center of the Map
-    public static readonly int[] ZCoordinatesOfMap = { 112, 84, 52, 20, 0, -20, -52, -84, -112 }; // Vector2Int, Vector3 * 4
-    
-    public static Vector3[] SpawnerPos { get; set; } = {
-        new(0.0f, 6.0f, 30.0f), // North
-        new(0.0f, 6.0f, -30.0f) // South
-    };
+    public static readonly int[] ZCoordinatesOfMap = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
+
+    public static Vector3 PortalPos => new(0, 6, 20);
     
     #region FenceData
 

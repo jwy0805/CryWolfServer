@@ -389,16 +389,21 @@ public partial class GameRoom
         return sheep;
     }
 
-    private void EnterSheepByServer(Player player)
+    public void EnterSheepByServer(Player player)
     {
         var sheep = ObjectManager.Instance.Add<Sheep>();
-        sheep.PosInfo = new PositionInfo { State = State.Idle };
+        var sheepCellPos = Map.FindSpawnPos(sheep);
+        
+        sheep.PosInfo = new PositionInfo
+        {
+            State = State.Idle, PosX = sheepCellPos.X, PosY = sheepCellPos.Y, PosZ = sheepCellPos.Z
+        };
         sheep.Info.PosInfo = sheep.PosInfo;
         sheep.Room = this;
         sheep.Player = player;
         sheep.Init();
         sheep.CellPos = Map.FindSpawnPos(sheep);
-        EnterGame(sheep);
+        Push(EnterGame, sheep);
         GameInfo.SheepCount++;
     }
 }

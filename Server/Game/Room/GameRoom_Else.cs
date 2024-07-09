@@ -10,24 +10,14 @@ public partial class GameRoom
 {
     private void BaseInit()
     {
-        // Spawn Rock Pile
-        Vector3[] portalPos = GameData.SpawnerPos;
-
+        // Spawn Portal
         Portal northPortal = ObjectManager.Instance.Add<Portal>();
         northPortal.Init();
         northPortal.Way = SpawnWay.North;
         northPortal.Info.Name = "Portal#6Red";
-        northPortal.CellPos = portalPos[0];
+        northPortal.CellPos = GameData.PortalPos;
         northPortal.Dir = 90;
         Push(EnterGame, northPortal);
-        
-        Portal southPortal = ObjectManager.Instance.Add<Portal>();
-        southPortal.Init();
-        southPortal.Way = SpawnWay.South;
-        southPortal.Info.Name = "Portal#6Blue";
-        southPortal.CellPos = portalPos[1];
-        southPortal.Dir = 270;
-        Push(EnterGame, southPortal);
     }
     
     public void InfoInit()
