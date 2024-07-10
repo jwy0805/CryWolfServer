@@ -51,23 +51,23 @@ public class ClientSession : PacketSession
     {
         Console.WriteLine($"OnConnected : {endPoint}");
 
-        MyPlayer = ObjectManager.Instance.Add<Player>();
-        {
-            MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
-            MyPlayer.Info.PosInfo.State = State.Idle;
-            MyPlayer.Info.PosInfo.PosX = 0f;
-            MyPlayer.Info.PosInfo.PosY = 6f;
-            MyPlayer.Info.PosInfo.PosZ = 0f;
-            MyPlayer.Info.PosInfo.Dir = 0f;
-            MyPlayer.Session = this;
-        }
+        // MyPlayer = ObjectManager.Instance.Add<Player>();
+        // {
+        //     MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
+        //     MyPlayer.Info.PosInfo.State = State.Idle;
+        //     MyPlayer.Info.PosInfo.PosX = 0f;
+        //     MyPlayer.Info.PosInfo.PosY = 6f;
+        //     MyPlayer.Info.PosInfo.PosZ = 0f;
+        //     MyPlayer.Info.PosInfo.Dir = 0f;
+        //     MyPlayer.Session = this;
+        // }
         
         // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
         GameLogic.Instance.Push(() =>
         {
             // GameRoom? room = GameLogic.Instance.Find(1);
             var room = GameLogic.Instance.Add(1);
-            room?.Push(room.EnterGame, MyPlayer);
+            room.Push(room.EnterGame, MyPlayer);
         });
     }
 

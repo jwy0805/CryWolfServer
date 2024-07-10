@@ -144,7 +144,8 @@ public class SunfloraPixie : SunflowerFairy
             if (_invincible)
             {
                 var targets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
-                    .OrderByDescending(target => target.CellPos.Z).Take(num).ToList();
+                    .OrderByDescending(target => Way == SpawnWay.North ? target.CellPos.Z : -target.CellPos.Z)
+                    .Take(num).ToList();
                 foreach (var target in targets)
                 {
                     BuffManager.Instance.AddBuff(BuffId.Invincible, BuffParamType.None,

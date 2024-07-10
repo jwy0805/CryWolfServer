@@ -8,7 +8,7 @@ public class GameLogic : JobSerializer
     private int _roomId = 1;
 
     public void Update()
-    {
+    { 
         Flush();
 
         foreach (var room in _rooms.Values)

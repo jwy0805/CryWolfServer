@@ -34,6 +34,7 @@ public class Listener
     {
         if (args.SocketError == SocketError.Success)
         {
+            Console.WriteLine("accept");
             Session session = _sessionFactory.Invoke();
             session.Start(args.AcceptSocket);  
             session.OnConnected(args.AcceptSocket.RemoteEndPoint);

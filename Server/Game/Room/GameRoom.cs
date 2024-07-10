@@ -174,13 +174,6 @@ public partial class GameRoom : JobSerializer
                 sheep.Update();
                 break;
             
-            case GameObjectType.Effect:
-                Effect effect = (Effect)gameObject;
-                _effects.Add(gameObject.Id, effect);
-                effect.Room = this;
-                effect.Update();
-                break;
-            
             case GameObjectType.Resource:
                 Resource resource = (Resource)gameObject;
                 resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();

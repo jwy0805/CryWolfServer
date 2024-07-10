@@ -15,7 +15,7 @@ public partial class GameRoom
         northPortal.Init();
         northPortal.Way = SpawnWay.North;
         northPortal.Info.Name = "Portal#6Red";
-        northPortal.CellPos = GameData.PortalPos;
+        northPortal.CellPos = GameData.PortalPos[0];
         northPortal.Dir = 90;
         Push(EnterGame, northPortal);
     }

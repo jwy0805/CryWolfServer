@@ -361,6 +361,9 @@ public partial class Map
                 }
             }
         }
+        
+        // Fence, UI Setting
+        
     }
 
     public Vector3 FindSpawnPos(GameObject gameObject)

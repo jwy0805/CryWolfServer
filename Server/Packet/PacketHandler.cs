@@ -16,6 +16,17 @@ public class PacketHandler
         if (player != null) player.Camp = enterPacket.IsSheep ? Camp.Sheep : Camp.Wolf;    
     }
     
+    public static void C_SetMapIdHandler(PacketSession session, IMessage packet)
+    {
+        var mapPacket = (C_SetMapId)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        if (room == null) return;
+
+        Console.WriteLine("SetMapIdHandler");
+    }
+    
     public static void C_SpawnHandler(PacketSession session, IMessage packet)
     {
         var spawnPacket = (C_Spawn)packet;

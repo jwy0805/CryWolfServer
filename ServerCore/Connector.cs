@@ -25,8 +25,7 @@ public class Connector
 
     void RegisterConnect(SocketAsyncEventArgs args)
     {
-        Socket socket = args.UserToken as Socket;
-        if (socket == null) return;
+        if (args.UserToken is not Socket socket) return;
 
         bool pending = socket.ConnectAsync(args);
         if (pending == false) OnConnectedCompleted(null, args);

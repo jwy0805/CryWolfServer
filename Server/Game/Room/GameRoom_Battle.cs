@@ -141,15 +141,6 @@ public partial class GameRoom
                 Push(EnterGame, sheep);
                 GameInfo.SheepCount++;
                 break;
-            
-            case GameObjectType.Effect:
-                var effectType = (EffectId)spawnPacket.Num;
-                var effect = ObjectManager.Instance.Create<Effect>(effectType);
-                effect.PosInfo = spawnPacket.PosInfo;
-                effect.Info.PosInfo = effect.PosInfo;
-                effect.Init();
-                Push(EnterGame, effect);
-                break;
         }
     }
 

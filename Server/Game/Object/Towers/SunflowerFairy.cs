@@ -112,7 +112,7 @@ public class SunflowerFairy : SunBlossom
             if (_shield)
             {
                 var targets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
-                    .OrderByDescending(target => target.CellPos.Z)
+                    .OrderByDescending(target => Way == SpawnWay.North ? target.CellPos.Z : -target.CellPos.Z)
                     .Take(_double ? 2 : 1)
                     .ToList();
                 foreach (var target in targets)

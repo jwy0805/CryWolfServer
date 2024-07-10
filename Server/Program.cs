@@ -40,7 +40,12 @@ public class Program
         if (ipAddress != null)
         {
             var endPoint = new IPEndPoint(ipAddress, Port);
-            _listener.Init(endPoint, () => SessionManager.Instance.Generate());
+            _listener.Init(endPoint, () =>
+            {
+                Console.WriteLine("listener callback");
+                var session = SessionManager.Instance.Generate();
+                return session;
+            });
             Console.WriteLine($"Listening... {endPoint}");
         }
 
