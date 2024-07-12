@@ -10,10 +10,11 @@ namespace Server.Game;
 public partial class GameRoom : JobSerializer
 {
     private bool _tutorialSet = false;
+    private bool _roomActivated;
     private Player _npc = new();
 
     public GameInfo GameInfo;
-    public List<Game.GameRoom.UnitSize> UnitSizeList = new();
+    public List<UnitSize> UnitSizeList = new();
 
     private readonly object _lock = new();
 
@@ -53,6 +54,7 @@ public partial class GameRoom : JobSerializer
 
     public void Update()
     {
+        if (_roomActivated == false) return;
         Flush();
         SetTimeAndRound();
     }

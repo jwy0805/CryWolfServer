@@ -288,7 +288,7 @@ namespace Google.Protobuf.Protocol {
             "SEVFUF9JTkNSRUFTRRCANxIVChBNT05TVEVSX0NBUEFDSVRZEMA+EhEKDERO",
             "QV9JTkNSRUFTRRDKPhIRCgxSRVNUT1JFX0NBVkUQ1D4SEQoMQ0FSRF9VUEdS",
             "QURFEN4+EhUKEEJMQUNLX01BR0lDX0NBUkQQ6D4qUwoEUm9sZRINCglST0xF",
-            "X05PTkUQABILCgdXQVJSSU9SEAESCgoGUkFOR0VSEAISCAoETWFnZRADEg0K",
+            "X05PTkUQABILCgdXQVJSSU9SEAESCgoGUkFOR0VSEAISCAoETUFHRRADEg0K",
             "CVNVUFBPUlRFUhAEEgoKBlRBTktFUhAFKnYKCVVuaXRDbGFzcxITCg9VTklU",
             "X0NMQVNTX05PTkUQABILCgdQRUFTQU5UEAESCgoGU1FVSVJFEAISCgoGS05J",
             "R0hUEAMSEAoMTk9CTEVfS05JR0hUEAQSCQoFQkFST04QBRIICgRFQVJMEAYS",
@@ -364,14 +364,17 @@ namespace Google.Protobuf.Protocol {
             "TERFThACEg8KC1BPVUNIX0dSRUVOEAMSDQoJUE9VQ0hfUkVEEAQSDgoKQ0hF",
             "U1RfR09MRBAFKloKEVBsYXllclNlcnZlclN0YXRlEhYKElNFUlZFUl9TVEFU",
             "RV9MT0dJThAAEhYKElNFUlZFUl9TVEFURV9MT0JCWRABEhUKEVNFUlZFUl9T",
-            "VEFURV9HQU1FEAIqKQoIU3Bhd25XYXkSCQoFTk9SVEgQABIJCgVTT1VUSBAB",
-            "EgcKA0FOWRACKnYKC0NvbW1vblRleHRzEgsKB05PX1RFWFQQABIRCg1SRVNP",
-            "VVJDRV9URVhUEAESFQoRU1VCX1JFU09VUkNFX1RFWFQQAhIXChNOT1JUSF9D",
-            "QVBBQ0lUWV9URVhUEAMSFwoTU09VVEhfQ0FQQUNJVFlfVEVYVBAEQhuqAhhH",
-            "b29nbGUuUHJvdG9idWYuUHJvdG9jb2xiBnByb3RvMw=="));
+            "VEFURV9HQU1FEAIqiQEKB1VzZXJBY3QSCwoHUGVuZGluZxAAEg8KC01hdGNo",
+            "TWFraW5nEAESEAoMSW5TaW5nbGVHYW1lEAISDwoLSW5NdWx0aUdhbWUQAxIO",
+            "CgpJblJhbmtHYW1lEAQSEAoMSW5DdXN0b21HYW1lEAUSDgoKSW5UdXRvcmlh",
+            "bBAGEgsKB0luTG9iYnkQByopCghTcGF3bldheRIJCgVOT1JUSBAAEgkKBVNP",
+            "VVRIEAESBwoDQU5ZEAIqdgoLQ29tbW9uVGV4dHMSCwoHTk9fVEVYVBAAEhEK",
+            "DVJFU09VUkNFX1RFWFQQARIVChFTVUJfUkVTT1VSQ0VfVEVYVBACEhcKE05P",
+            "UlRIX0NBUEFDSVRZX1RFWFQQAxIXChNTT1VUSF9DQVBBQ0lUWV9URVhUEARC",
+            "G6oCGEdvb2dsZS5Qcm90b2J1Zi5Qcm90b2NvbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.Camp), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Damage), typeof(global::Google.Protobuf.Protocol.Direction), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.Role), typeof(global::Google.Protobuf.Protocol.UnitClass), typeof(global::Google.Protobuf.Protocol.UnitId), typeof(global::Google.Protobuf.Protocol.Species), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.ResourceId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.CommonTexts), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.Camp), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Damage), typeof(global::Google.Protobuf.Protocol.Direction), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.Role), typeof(global::Google.Protobuf.Protocol.UnitClass), typeof(global::Google.Protobuf.Protocol.UnitId), typeof(global::Google.Protobuf.Protocol.Species), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.ResourceId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.UserAct), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.CommonTexts), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.C_EnterGame), global::Google.Protobuf.Protocol.C_EnterGame.Parser, new[]{ "IsSheep" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_EnterGame), global::Google.Protobuf.Protocol.S_EnterGame.Parser, new[]{ "Player" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Protocol.S_LeaveGame), global::Google.Protobuf.Protocol.S_LeaveGame.Parser, new[]{ "ObjectId" }, null, null, null, null),
@@ -778,7 +781,7 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("ROLE_NONE")] None = 0,
     [pbr::OriginalName("WARRIOR")] Warrior = 1,
     [pbr::OriginalName("RANGER")] Ranger = 2,
-    [pbr::OriginalName("Mage")] Mage = 3,
+    [pbr::OriginalName("MAGE")] Mage = 3,
     [pbr::OriginalName("SUPPORTER")] Supporter = 4,
     [pbr::OriginalName("TANKER")] Tanker = 5,
   }
@@ -967,6 +970,17 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("SERVER_STATE_LOGIN")] ServerStateLogin = 0,
     [pbr::OriginalName("SERVER_STATE_LOBBY")] ServerStateLobby = 1,
     [pbr::OriginalName("SERVER_STATE_GAME")] ServerStateGame = 2,
+  }
+
+  public enum UserAct {
+    [pbr::OriginalName("Pending")] Pending = 0,
+    [pbr::OriginalName("MatchMaking")] MatchMaking = 1,
+    [pbr::OriginalName("InSingleGame")] InSingleGame = 2,
+    [pbr::OriginalName("InMultiGame")] InMultiGame = 3,
+    [pbr::OriginalName("InRankGame")] InRankGame = 4,
+    [pbr::OriginalName("InCustomGame")] InCustomGame = 5,
+    [pbr::OriginalName("InTutorial")] InTutorial = 6,
+    [pbr::OriginalName("InLobby")] InLobby = 7,
   }
 
   public enum SpawnWay {

@@ -18,11 +18,11 @@ public class PacketHandler
     
     public static void C_SetMapIdHandler(PacketSession session, IMessage packet)
     {
-        var mapPacket = (C_SetMapId)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (room == null) return;
+        // var mapPacket = (C_SetMapId)packet;
+        // var clientSession = (ClientSession)session;
+        // var player = clientSession.MyPlayer;
+        // var room = player?.Room;
+        // if (room == null) return;
 
         Console.WriteLine("SetMapIdHandler");
     }

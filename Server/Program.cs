@@ -42,7 +42,6 @@ public class Program
             var endPoint = new IPEndPoint(ipAddress, Port);
             _listener.Init(endPoint, () =>
             {
-                Console.WriteLine("listener callback");
                 var session = SessionManager.Instance.Generate();
                 return session;
             });
