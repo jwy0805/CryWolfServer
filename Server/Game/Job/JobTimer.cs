@@ -2,27 +2,27 @@ using ServerCore;
 
 namespace Server.Game;
 
-struct JobTimerElem : IComparable<JobTimerElem>
+internal struct JobTimerElem : IComparable<JobTimerElem>
 {
-    public int execTick;
-    public IJob job;
+    public int ExecTick;
+    public IJob Job;
 
     public int CompareTo(JobTimerElem other)
     {
-        return other.execTick - execTick;
+        return other.ExecTick - ExecTick;
     }
 }
 
 public class JobTimer
 {
-    private PriorityQueue<JobTimerElem> _priorityQueue = new();
+    private readonly PriorityQueue<JobTimerElem> _priorityQueue = new();
     private readonly object _lock = new();
 
     public void Push(IJob job, int tickAfter = 0)
     {
         JobTimerElem jobElement;
-        jobElement.execTick = Environment.TickCount + tickAfter;
-        jobElement.job = job;
+        jobElement.ExecTick = Environment.TickCount + tickAfter;
+        jobElement.Job = job;
 
         lock (_lock)
         {
@@ -41,12 +41,12 @@ public class JobTimer
             {
                 if (_priorityQueue.Count == 0) break;
                 jobElement = _priorityQueue.Peek();
-                if (jobElement.execTick > now) break;
+                if (jobElement.ExecTick > now) break;
 
                 _priorityQueue.Pop();
             }
             
-            jobElement.job.Execute();
+            jobElement.Job.Execute();
         }
     }
 }

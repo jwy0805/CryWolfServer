@@ -11,6 +11,8 @@ namespace Server;
 public class Program
 {
     private static Listener _listener = new Listener();
+    private static HttpListener _httpListener;
+    private static HttpClient _httpClient = new HttpClient();
     private static int _environment = 0; // 0: local, 1: docker
     public static int Port { get; set; } = 7777;
 
@@ -56,7 +58,21 @@ public class Program
 
         DbTask();
     }
+
+    private static void StartHttpsServer()
+    {
+        _httpListener = new HttpListener();
+        _httpListener.Prefixes.Add("https://*:8080/");
+        _httpListener.Start();
+        Console.WriteLine("HTTP Server Started");
+        Task.Run(HandleHttpsRequests);
+    }
+
+    private static async Task HandleHttpsRequests()
+    {
         
+    }
+    
     private static void GameLogicTask()
     {
         while (true)
