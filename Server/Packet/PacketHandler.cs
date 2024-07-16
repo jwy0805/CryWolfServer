@@ -16,15 +16,17 @@ public class PacketHandler
         if (player != null) player.Camp = enterPacket.IsSheep ? Camp.Sheep : Camp.Wolf;    
     }
     
-    public static void C_SetMapIdHandler(PacketSession session, IMessage packet)
+    public static async void C_SetSessionHandler(PacketSession session, IMessage packet)
     {
-        // var mapPacket = (C_SetMapId)packet;
-        // var clientSession = (ClientSession)session;
-        // var player = clientSession.MyPlayer;
-        // var room = player?.Room;
-        // if (room == null) return;
-
-        Console.WriteLine("SetMapIdHandler");
+        var sessionPacket = (C_SetSession)packet;
+        var clientSession = (ClientSession)session;
+        var webPacket = new GetUserIdPacketRequired { UserAccount = sessionPacket.UserAccount };
+        var task = NetworkManager.Instance.GetUserIdFromApiServer<GetUserIdPacketResponse>(
+            "/GetUserIdByAccount", webPacket);
+        
+        await task;
+        if (task.Result == null) return;
+        clientSession.UserId = task.Result.UserId;
     }
     
     public static void C_SpawnHandler(PacketSession session, IMessage packet)

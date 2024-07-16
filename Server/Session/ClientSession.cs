@@ -12,6 +12,7 @@ public class ClientSession : PacketSession
 {
     public Player? MyPlayer { get; set; }
     public int SessionId { get; set; }
+    public int UserId { get; set; }
 
     private readonly object _lock = new();
     private List<ArraySegment<byte>> _reserveQueue = new();
@@ -50,25 +51,17 @@ public class ClientSession : PacketSession
     public override void OnConnected(EndPoint endPoint)
     {
         Console.WriteLine($"OnConnected : {endPoint}");
-
-        MyPlayer = ObjectManager.Instance.Add<Player>();
-        {
-            MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
-            MyPlayer.Info.PosInfo.State = State.Idle;
-            MyPlayer.Info.PosInfo.PosX = 0f;
-            MyPlayer.Info.PosInfo.PosY = 6f;
-            MyPlayer.Info.PosInfo.PosZ = 0f;
-            MyPlayer.Info.PosInfo.Dir = 0f;
-            MyPlayer.Session = this;
-        }
         
-        // TODO :  RoomId 받아서 맞는 룸에 들어갈 수 있도록
-        GameLogic.Instance.Push(() =>
-        {
-            // GameRoom? room = GameLogic.Instance.Find(1);
-            var room = GameLogic.Instance.Add(1);
-            room.Push(room.EnterGame, MyPlayer);
-        });
+        // MyPlayer = ObjectManager.Instance.Add<Player>();
+        // {
+        //     MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
+        //     MyPlayer.Info.PosInfo.State = State.Idle;
+        //     MyPlayer.Info.PosInfo.PosX = 0f;
+        //     MyPlayer.Info.PosInfo.PosY = 6f;
+        //     MyPlayer.Info.PosInfo.PosZ = 0f;
+        //     MyPlayer.Info.PosInfo.Dir = 0f;
+        //     MyPlayer.Session = this;
+        // }
     }
 
     public override void OnRecvPacket(ArraySegment<byte> buffer)

@@ -11,7 +11,7 @@ public class Player : GameObject
     public HashSet<int> Portraits = new ();
     public Camp Camp { get; set; }
     
-    public ClientSession Session { get; set; }
+    public ClientSession? Session { get; set; }
 
     public Player()
     {

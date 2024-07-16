@@ -1,5 +1,8 @@
 ﻿using System.Net;
+using System.Text;
 using System.Timers;
+using Google.Protobuf.Protocol;
+using Newtonsoft.Json;
 using Server.Data;
 using Server.DB;
 using Server.Game;
@@ -10,16 +13,14 @@ namespace Server;
 
 public class Program
 {
-    private static Listener _listener = new Listener();
-    private static HttpListener _httpListener;
-    private static HttpClient _httpClient = new HttpClient();
+    private static readonly Listener Listener = new();
+    private static HttpListener? _httpListener;
     private static int _environment = 0; // 0: local, 1: docker
     public static int Port { get; set; } = 7777;
 
     private static void Main(string[] args)
     {
         DataManager.LoadData();
-        // GameLogic.Instance.Push(() => { GameLogic.Instance.Add(1); });
 
         // DNS
         var host = Dns.GetHostName();
@@ -42,13 +43,15 @@ public class Program
         if (ipAddress != null)
         {
             var endPoint = new IPEndPoint(ipAddress, Port);
-            _listener.Init(endPoint, () =>
+            Listener.Init(endPoint, () =>
             {
                 var session = SessionManager.Instance.Generate();
                 return session;
             });
             Console.WriteLine($"Listening... {endPoint}");
         }
+        
+        NetworkManager.Instance.StartHttpServer();
 
         var gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
         gameLogicTask.Start();
@@ -57,20 +60,6 @@ public class Program
         networkTask.Start();
 
         DbTask();
-    }
-
-    private static void StartHttpsServer()
-    {
-        _httpListener = new HttpListener();
-        _httpListener.Prefixes.Add("https://*:8080/");
-        _httpListener.Start();
-        Console.WriteLine("HTTP Server Started");
-        Task.Run(HandleHttpsRequests);
-    }
-
-    private static async Task HandleHttpsRequests()
-    {
-        
     }
     
     private static void GameLogicTask()

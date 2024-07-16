@@ -4,8 +4,7 @@ namespace Server;
 
 public class SessionManager
 {
-    private static SessionManager _session = new();
-    public static SessionManager Instance => _session;
+    public static SessionManager Instance { get; } = new();
 
     private int _sessionId = 0;
     private Dictionary<int, ClientSession> _sessions = new();
@@ -54,6 +53,14 @@ public class SessionManager
         {
             _sessions.TryGetValue(id, out var session);
             return session;
+        }
+    }
+    
+    public ClientSession? FindByUserId(int userId)
+    {
+        lock (_lock)
+        {
+            return _sessions.Values.FirstOrDefault(s => s.UserId == userId);
         }
     }
 
