@@ -10,7 +10,6 @@ namespace Server.Game;
 public partial class GameRoom : JobSerializer
 {
     private bool _tutorialSet = false;
-    private bool _roomActivated;
     private Player _npc = new();
 
     public GameInfo GameInfo;
@@ -38,23 +37,30 @@ public partial class GameRoom : JobSerializer
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
-
-
+    
     public int Round => _round;
     public int RoomId { get; set; }
+    public bool RoomActivated { get; set; }
     public Map Map { get; private set; } = new();
+    public int MapId { get; set; }
+    private GameManager.GameData _gameData = new();
     
     public void Init(int mapId)
     {
+        _gameData = GameManager.Instance.GameDataCache[mapId];
+        Map.GameData = _gameData;
+        MapId = mapId;
         Map.LoadMap(mapId);
         Map.MapSetting();
+        Map.Room = this; 
+        
         UnitSizeMapping();
         GameInit();
     }
 
     public void Update()
     {
-        if (_roomActivated == false) return;
+        if (RoomActivated == false) return;
         Flush();
         SetTimeAndRound();
     }

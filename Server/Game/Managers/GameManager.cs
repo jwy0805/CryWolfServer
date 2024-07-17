@@ -7,6 +7,29 @@ public class GameManager
 {
     public static GameManager Instance { get; } = new();
 
+    public readonly Dictionary<int, GameData> GameDataCache = new()
+    {
+        {
+            1, new GameData
+            {
+                NorthFenceMax = 12,
+                SouthFenceMax = 0,
+                FenceStartPos = new Vector3(-11, 6, -8),
+                PortalPos = new[] { new Vector3(0, 6, 20) }
+            }
+        },
+        {
+            2, new GameData
+            {
+                ZCoordinatesOfMap = new[] { 108, 80, 52, 24, 0, -24, -52, -80, -108 },
+                NorthFenceMax = 8,
+                SouthFenceMax = 8,
+                FenceStartPos = new Vector3(-7, 6, 5),
+                PortalPos = new[] { new Vector3(0, 6, 25), new Vector3(0, 6, -25) }
+            }
+        }
+    };
+    
     public class GameData
     {   // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
         public GameData()
@@ -18,10 +41,10 @@ public class GameManager
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;
         public Vector3 Center => new(0, 6.0f, 0);
-        public int[] ZCoordinatesOfMap => new[] { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
         public int[] StorageLvUpCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
         
+        public int[] ZCoordinatesOfMap { get; set; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
         public int NorthFenceMax { get; set; }
         public int SouthFenceMax { get; set; }
         public Vector3 FenceStartPos { get; set; }
@@ -50,7 +73,7 @@ public class GameManager
         
         public Vector3[] FenceBounds { get; private set; }
         public Vector3[] SheepBounds { get; private set; }
-        public Vector3[] PortalPos { get; private set; }
+        public Vector3[] PortalPos { get; set; }
 
         private void UpdateBounds()
         {
@@ -77,8 +100,8 @@ public class GameManager
 
             for (int i = 0; i < row; i++)
             {
-                posArr[i] = startPos with { X = startPos.X + i * 2, Z = -5}; // south fence
-                posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = 5 }; // north fence
+                posArr[i] = startPos with { X = startPos.X + i * 2, Z = startPos.Z}; // north fence
+                if (SouthFenceMax != 0)posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = -startPos.Z }; // south fence
             }
         
             return posArr;
@@ -90,8 +113,8 @@ public class GameManager
         
             for (int i = 0; i < row; i++)
             {
-                rotationArr[i] = 180;
-                rotationArr[row + i] = 0;
+                rotationArr[i] = 0;
+                if (SouthFenceMax != 0) rotationArr[row + i] = 180;
             }
 
             return rotationArr;
@@ -99,7 +122,7 @@ public class GameManager
 
         #region Skills
 
-        public static readonly Dictionary<UnitId, HashSet<Skill>> OwnSkills = new()
+        public readonly Dictionary<UnitId, HashSet<Skill>> OwnSkills = new()
         {
             { UnitId.Bunny, new HashSet<Skill> 
                 { Skill.BunnyHealth, Skill.BunnyEvasion } },
@@ -221,7 +244,7 @@ public class GameManager
                     Skill.SkeletonMageReviveHealthUp, Skill.SkeletonMageCurse } }
         };
         
-        public static readonly Dictionary<Skill, HashSet<Skill>> SkillTree = new()
+        public readonly Dictionary<Skill, HashSet<Skill>> SkillTree = new()
         {
             { Skill.BunnyHealth, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.BunnyEvasion, new HashSet<Skill> { Skill.NoSkill } },

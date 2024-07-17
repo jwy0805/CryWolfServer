@@ -129,16 +129,18 @@ public partial class GameRoom
     
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
-        Vector3[] fencePos = GameData.GetPos(GameData.NorthFenceMax + GameData.SouthFenceMax, 8, GameData.FenceStartPos);
-        float[] fenceRotation = GameData.GetRotation(GameData.NorthFenceMax + GameData.SouthFenceMax, 8);
+        Vector3[] fencePos = _gameData.GetPos(
+            _gameData.NorthFenceMax + _gameData.SouthFenceMax, _gameData.NorthFenceMax, _gameData.FenceStartPos);
+        float[] fenceRotation = _gameData.GetRotation(
+            _gameData.NorthFenceMax + _gameData.SouthFenceMax, _gameData.NorthFenceMax);
 
         if (storageLv == 1)
         {
-            for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
+            for (int i = 0; i < _gameData.NorthFenceMax + _gameData.SouthFenceMax; i++)
             {
                 Fence fence = ObjectManager.Instance.Add<Fence>();
                 fence.Init();
-                fence.Info.Name = GameData.FenceName[storageLv];
+                fence.Info.Name = _gameData.FenceNames[storageLv];
                 fence.CellPos = fencePos[i];
                 fence.Dir = fenceRotation[i];
                 fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
@@ -152,11 +154,11 @@ public partial class GameRoom
         }
         else if (storageLv == 2)
         {
-            for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
+            for (int i = 0; i < _gameData.NorthFenceMax + _gameData.SouthFenceMax; i++)
             {
                 Fence fence = ObjectManager.Instance.Add<Fence>();
                 fence.Init();
-                fence.Info.Name = GameData.FenceName[storageLv];
+                fence.Info.Name = _gameData.FenceNames[storageLv];
                 fence.CellPos = fencePos[i];
                 fence.Dir = fenceRotation[i] + 90;
                 fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;

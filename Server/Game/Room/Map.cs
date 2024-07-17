@@ -7,6 +7,10 @@ namespace Server.Game;
 public partial class Map
 {
     private readonly short _cellCnt = 4; // Vector3 좌표 1당 vector2 좌표 4개
+
+    public GameManager.GameData? GameData { get; set; }
+    public GameRoom? Room { get; set; }
+    
     public bool ApplyMap(GameObject gameObject, Vector3 pos = new(), bool checkObjects = true)
     {
         ApplyLeave(gameObject);
@@ -391,7 +395,7 @@ public partial class Map
         }
 
         Vector2Int vector = FindNearestEmptySpace(Vector3To2(cell), gameObject);
-        Vector3 result = gameObject.UnitType == 0 ? Vector2To3(vector) : Vector2To3(vector, GameData.AirHeight);
+        Vector3 result = gameObject.UnitType == 0 ? Vector2To3(vector) : Vector2To3(vector, GameData!.AirHeight);
 
         return result;
     }

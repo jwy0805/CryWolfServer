@@ -21,7 +21,7 @@ public class Program
     private static void Main(string[] args)
     {
         DataManager.LoadData();
-
+        
         // DNS
         var host = Dns.GetHostName();
         var ipHost = Dns.GetHostEntry(host);

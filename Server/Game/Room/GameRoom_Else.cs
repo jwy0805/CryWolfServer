@@ -15,7 +15,7 @@ public partial class GameRoom
         northPortal.Init();
         northPortal.Way = SpawnWay.North;
         northPortal.Info.Name = "Portal#6Red";
-        northPortal.CellPos = GameData.PortalPos[0];
+        northPortal.CellPos = _gameData.PortalPos[0];
         northPortal.Dir = 90;
         Push(EnterGame, northPortal);
     }
@@ -593,8 +593,8 @@ public partial class GameRoom
     private bool InsideFence(GameObject gameObject)
     {
         Vector3 cell = gameObject.CellPos;
-        Vector3 center = GameData.FenceCenter;
-        Vector3 size = GameData.FenceSize;
+        Vector3 center = _gameData.FenceCenter;
+        Vector3 size = _gameData.FenceSize;
 
         float halfWidth = size.X / 2;
         float minX = center.X - halfWidth;

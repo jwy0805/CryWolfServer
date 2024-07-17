@@ -172,7 +172,7 @@ public class Sheep : Creature, ISkillObserver
     {
         if (Room == null) return new Vector3();
         
-        List<Vector3> sheepBound = GameData.SheepBounds;
+        Vector3[] sheepBound = GameManager.Instance.GameDataCache[Room.MapId].SheepBounds;
         float minX = sheepBound.Select(v => v.X).ToList().Min() + 1.0f;
         float maxX = sheepBound.Select(v => v.X).ToList().Max() - 1.0f;
         float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1.0f;

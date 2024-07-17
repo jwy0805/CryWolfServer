@@ -51,17 +51,6 @@ public class ClientSession : PacketSession
     public override void OnConnected(EndPoint endPoint)
     {
         Console.WriteLine($"OnConnected : {endPoint}");
-        
-        // MyPlayer = ObjectManager.Instance.Add<Player>();
-        // {
-        //     MyPlayer.Info.Name = $"Player_{MyPlayer.Info.ObjectId}";
-        //     MyPlayer.Info.PosInfo.State = State.Idle;
-        //     MyPlayer.Info.PosInfo.PosX = 0f;
-        //     MyPlayer.Info.PosInfo.PosY = 6f;
-        //     MyPlayer.Info.PosInfo.PosZ = 0f;
-        //     MyPlayer.Info.PosInfo.Dir = 0f;
-        //     MyPlayer.Session = this;
-        // }
     }
 
     public override void OnRecvPacket(ArraySegment<byte> buffer)

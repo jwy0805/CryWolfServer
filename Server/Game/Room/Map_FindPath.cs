@@ -116,7 +116,7 @@ public partial class Map
     
     private void DivideRegion()
     {
-        int[] yCoordinates = GameData.ZCoordinatesOfMap;
+        int[] yCoordinates = GameData!.ZCoordinatesOfMap;
         for (int i = 0; i < yCoordinates.Length - 1; i++)
         {
             Region region = new(_regionIdGenerator, new [] {yCoordinates[i], yCoordinates[i + 1]});
@@ -302,9 +302,9 @@ public partial class Map
             
 			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
 			Pos node = new Pos(pqNode.Z, pqNode.X);
-			if (closeList.Contains(node)) continue;                                                                      // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
-			closeList.Add(node);                                                                                         // 제일 좋은 후보를 찾는다
-			if (node.Z == dest.Z && node.X == dest.X) break;                                                             // 목적지 도착했으면 바로 종료
+			if (closeList.Add(node) == false) continue;                                                                      // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
+            // 제일 좋은 후보를 찾는다
+            if (node.Z == dest.Z && node.X == dest.X) break;                                                             // 목적지 도착했으면 바로 종료
             
 			for (int i = 0; i < _deltaZ.Length; i++)                                                                     // 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
 			{
@@ -393,7 +393,7 @@ public partial class Map
         double deltaZ = targetCellPos.Z - cellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
         double x;
-        double y = target.UnitType == 0 ? GameData.GroundHeight : GameData.AirHeight;
+        double y = target.UnitType == 0 ? GameData!.GroundHeight : GameData!.AirHeight;
         double z;
 
         if (deltaX != 0)

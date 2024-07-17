@@ -20,13 +20,34 @@ public class PacketHandler
     {
         var sessionPacket = (C_SetSession)packet;
         var clientSession = (ClientSession)session;
-        var webPacket = new GetUserIdPacketRequired { UserAccount = sessionPacket.UserAccount };
-        var task = NetworkManager.Instance.GetUserIdFromApiServer<GetUserIdPacketResponse>(
-            "/GetUserIdByAccount", webPacket);
         
-        await task;
-        if (task.Result == null) return;
-        clientSession.UserId = task.Result.UserId;
+        if (sessionPacket.Test)
+        {
+            clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
+            clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.ObjectId}";
+            clientSession.MyPlayer.Info.PosInfo.State = State.Idle;
+            clientSession.MyPlayer.Info.PosInfo.PosX = 0f;
+            clientSession.MyPlayer.Info.PosInfo.PosY = 13.8f;
+            clientSession.MyPlayer.Info.PosInfo.PosZ = -22f;
+            clientSession.MyPlayer.Info.PosInfo.Dir = 0f;
+            clientSession.MyPlayer.Session = clientSession;
+        
+            GameLogic.Instance.Push(() =>
+            {
+                var room = GameLogic.Instance.Add(1, true);
+                room.Push(room.EnterGame, clientSession.MyPlayer);
+            });
+        }
+        else
+        {
+            var webPacket = new GetUserIdPacketRequired { UserAccount = sessionPacket.UserAccount };
+            var task = NetworkManager.Instance.GetUserIdFromApiServer<GetUserIdPacketResponse>(
+                "/GetUserIdByAccount", webPacket);
+        
+            await task;
+            if (task.Result == null) return;
+            clientSession.UserId = task.Result.UserId;
+        }
     }
     
     public static void C_SpawnHandler(PacketSession session, IMessage packet)
