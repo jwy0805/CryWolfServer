@@ -168,20 +168,28 @@ public class MoleRatKing : MoleRat
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null) return;
+        
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
         BroadcastHp();
+        
         // Steal Wool 처리
-        if (_stealWool == false) return;
-        if (target is not Sheep sheep) return;
-        int stealWool = (int)(Room.GameInfo.SheepYield * _stealWoolParam);
-        sheep.YieldDecrement += stealWool;
+        if (_stealWool)
+        {
+            if (target is Sheep sheep)
+            {
+                var stealWool = (int)(Room.GameInfo.SheepYield * _stealWoolParam);
+                sheep.YieldDecrement += stealWool;
+            }
+        }
+        
         // TODO : 훔친만큼 DNA 증가
         // some code
+        
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         // Steal Attack 처리
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-        if (target == null) return;
+        if (target.Room == null || target.Targetable == false || target.Hp <= 0) return;
         if (StolenObjectId == 0)
         {
             StolenDamage = (int)(target.TotalAttack * StealAttackParam);
@@ -192,7 +200,7 @@ public class MoleRatKing : MoleRat
         }
         
         if (StolenObjectId == target.Id) return;
-        var stolenTarget = Room?.FindGameObjectById(StolenObjectId);
+        var stolenTarget = Room.FindGameObjectById(StolenObjectId);
         if (stolenTarget == null) return;
         
         stolenTarget.AttackParam += StolenDamage;

@@ -145,7 +145,7 @@ public partial class GameRoom
                 fence.Dir = fenceRotation[i];
                 fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
                 fence.Room = this;
-                fence.Way = fence.CellPos.Z > 0 ? SpawnWay.North : SpawnWay.South;
+                fence.Way = fence.CellPos.Z > _gameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
                 if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
                 else GameInfo.SouthFenceCnt++;
                 fence.FenceNum = fenceLv;
@@ -184,7 +184,7 @@ public partial class GameRoom
             var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
             monster.StatueId = slot.Statue.Id;
             Push(EnterGame, monster);
-            player.Session.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.UnitId });
+            player.Session?.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.UnitId });
         }
     }
 
@@ -386,7 +386,7 @@ public partial class GameRoom
         sheep.Room = this;
         sheep.Player = player;
         sheep.Init();
-        sheep.CellPos = Map.FindSpawnPos(sheep);
+        sheep.CellPos = Map.FindSheepSpawnPos(sheep);
 
         return sheep;
     }
@@ -394,7 +394,7 @@ public partial class GameRoom
     public void EnterSheepByServer(Player player)
     {
         var sheep = ObjectManager.Instance.Add<Sheep>();
-        var sheepCellPos = Map.FindSpawnPos(sheep);
+        var sheepCellPos = Map.FindSheepSpawnPos(sheep);
         
         sheep.PosInfo = new PositionInfo
         {
@@ -404,7 +404,7 @@ public partial class GameRoom
         sheep.Room = this;
         sheep.Player = player;
         sheep.Init();
-        sheep.CellPos = Map.FindSpawnPos(sheep);
+        sheep.CellPos = new Vector3(sheep.PosInfo.PosX, sheep.PosInfo.PosY, sheep.PosInfo.PosZ);
         Push(EnterGame, sheep);
         GameInfo.SheepCount++;
     }

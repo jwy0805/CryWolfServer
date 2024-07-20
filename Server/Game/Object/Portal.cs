@@ -5,9 +5,6 @@ namespace Server.Game;
 
 public class Portal : GameObject      
 {
-    private readonly int _rockPileNum = 2;
-    public SpawnWay Way { get; set; } = SpawnWay.Any;
-    
     public Portal()
     {
         ObjectType = GameObjectType.Portal;
@@ -15,9 +12,8 @@ public class Portal : GameObject
 
     public override void Init()
     {
-        DataManager.ObjectDict.TryGetValue(_rockPileNum, out var rockPileData);
-        if (rockPileData == null) throw new InvalidDataException();
-        Stat.MergeFrom(rockPileData.stat);
-        Stat.Hp = rockPileData.stat.MaxHp;
+        DataManager.ObjectDict.TryGetValue(2, out var objectData);
+        if (objectData == null) throw new InvalidDataException();
+        Stat.MergeFrom(objectData.stat);
     }
 }

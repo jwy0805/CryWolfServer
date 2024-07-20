@@ -22,12 +22,14 @@ public partial class GameRoom
     
     public void InfoInit()
     {
-        GameInfo = new GameInfo(_players);
+        GameInfo = new GameInfo(_players, MapId);
         StorageLevel = 1;
         foreach (var player in _players.Values)
         {
+            if (player.Session == null) return;
+            
             EnterSheepByServer(player);
-            // EnterSheepByServer(player);
+
             if (player.Camp == Camp.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});

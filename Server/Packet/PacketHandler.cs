@@ -34,7 +34,7 @@ public class PacketHandler
         
             GameLogic.Instance.Push(() =>
             {
-                var room = GameLogic.Instance.Add(1, true);
+                var room = GameLogic.Instance.CreateGameRoom(1, true);
                 room.Push(room.EnterGame, clientSession.MyPlayer);
             });
         }

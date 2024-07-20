@@ -6,6 +6,7 @@ namespace Server.Data;
 public class GameInfo // 한 판마다 초기화되는 정보
 {
     private readonly Dictionary<int, Player> _players;
+    private int _mapId;
     private int _northMaxTower = 6;
     private int _northTower = 0;
     private int _southMaxTower = 6;
@@ -19,14 +20,16 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _sheepResource = 100000;
     private int _wolfResource = 100000;
     public int SheepYield { get; set; } = 80;
-    public int NorthFenceCnt { get; set; } = 0;
-    public int SouthFenceCnt { get; set; } = 0;
-    public int NorthMaxFenceCnt { get; set; } = 8;
+    public int NorthFenceCnt { get; set; }
+    public int SouthFenceCnt { get; set; }
+    public int NorthMaxFenceCnt { get; set; }
     public int SouthMaxFenceCnt { get; set; } = 8;
     
-    public GameInfo(Dictionary<int, Player> players)
+    public GameInfo(Dictionary<int, Player> players, int mapId)
     {
         _players = players;
+        _mapId = mapId;
+        NorthMaxFenceCnt = _mapId == 1 ? 12 : 8;
     }
     
     public int MaxStorageLevel => 2;

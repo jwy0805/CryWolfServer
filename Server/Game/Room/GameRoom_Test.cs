@@ -60,8 +60,6 @@ public partial class GameRoom
             var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
             monster.StatueId = slot.Statue.Id;
             EnterGame(monster);
-            
-            // HandleSkillInit(player, new C_SkillInit { ObjectId = monster.Id });
         }
     }
     
@@ -125,15 +123,15 @@ public partial class GameRoom
         switch (round)
         {
             case 0: // 북 2
-                PositionInfo pos1 = new() { PosX = -5, PosY = 6, PosZ = 21, Dir = 0, State = State.Idle };
-                PositionInfo pos2 = new() { PosX = 3, PosY = 6, PosZ = 21, Dir = 0, State = State.Idle };
+                PositionInfo pos1 = new() { PosX = -5, PosY = 6, PosZ = 12, State = State.Idle };
+                PositionInfo pos2 = new() { PosX = 3, PosY = 6, PosZ = 12, State = State.Idle };
                 T_SpawnStatue(UnitId.WolfPup, pos1);
                 T_SpawnStatue(UnitId.WolfPup, pos2);
                 break;
             
             case 1: // 북 4
-                PositionInfo pos3 = new() { PosX = 0, PosY = 6, PosZ = 18, Dir = 0, State = State.Idle };
-                PositionInfo pos4 = new() { PosX = -3, PosY = 6, PosZ = 21, Dir = 0, State = State.Idle };
+                PositionInfo pos3 = new() { PosX = 0, PosY = 6, PosZ = 13, State = State.Idle };
+                PositionInfo pos4 = new() { PosX = -3, PosY = 6, PosZ = 15, State = State.Idle };
                 T_SpawnStatue(UnitId.Lurker, pos3);
                 T_SpawnStatue(UnitId.Snakelet, pos4);
                 break;
@@ -144,7 +142,7 @@ public partial class GameRoom
             case 3: // 북 4 남 1
                 T_SkillUpgrade(Skill.LurkerDefence);
                 
-                PositionInfo pos5 = new() { PosX = 0, PosY = 6, PosZ = -22, Dir = 0, State = State.Idle };
+                PositionInfo pos5 = new() { PosX = 1.5f, PosY = 6, PosZ = 13, State = State.Idle };
                 T_SpawnStatue(UnitId.WolfPup, pos5);
                 
                 
@@ -173,7 +171,7 @@ public partial class GameRoom
             case 7:
                 T_SkillUpgrade(Skill.CreeperRoll);
                 
-                PositionInfo pos7 = new() { PosX = -3, PosY = 6, PosZ = 18, Dir = 0, State = State.Idle };
+                PositionInfo pos7 = new() { PosX = -3, PosY = 6, PosZ = 12, State = State.Idle };
                 T_SpawnStatue(UnitId.Werewolf, pos7);
                 
                 MonsterStatue? northWolfpup = _testStatues

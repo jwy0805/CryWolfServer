@@ -114,7 +114,7 @@ public class NetworkManager
                 return;
             }
             
-            var room = GameLogic.Instance.Add(packet.MapId);
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             room.Push(room.EnterGame, sheepPlayer);
             room.Push(room.EnterGame, wolfPlayer);
             Console.WriteLine("Game room created.");

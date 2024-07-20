@@ -7,11 +7,11 @@ namespace Server.Game;
 
 public class CactusBoss : Cactus
 {
-    private bool _rush = false;
-    private bool _breath = false;
-    private bool _breathHeal = false;
-    private bool _breathAggro = false;
-    private bool _rushed = false;
+    private bool _rush;
+    private bool _breath;
+    private bool _breathHeal;
+    private bool _breathAggro;
+    private bool _rushed;
     private readonly int _rushSpeed = 3;
     private int HealParam => 60 + SkillParam;
     private int SmashDamage => 150 + SkillParam;
@@ -46,7 +46,7 @@ public class CactusBoss : Cactus
         UnitRole = Role.Tanker;
         ReflectionRate = 10;
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossRush);
-        // Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossHeal);
         Player.SkillSubject.SkillUpgraded(Skill.CactusBossAggro);
     }
@@ -148,6 +148,7 @@ public class CactusBoss : Cactus
     protected override void UpdateRush()
     {
         Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Console.WriteLine(Target?.ObjectType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             MoveSpeed -= _rushSpeed;

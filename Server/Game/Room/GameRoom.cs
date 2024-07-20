@@ -31,7 +31,7 @@ public partial class GameRoom : JobSerializer
     private List<TowerSlot> _southTowers = new();
     private List<MonsterSlot> _northMonsters = new();
     private List<MonsterSlot> _southMonsters = new();
-
+    
     private int _storageLevel = 0;
     private int _roundTime = 19;
     private int _round = 0;
@@ -85,22 +85,23 @@ public partial class GameRoom : JobSerializer
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
-        // // Tutorial
-        // if (_roundTime < 15 && _tutorialSet == false)
-        // {
-        //     SetTutorialRound(_round);
-        //     _tutorialSet = true;
-        // }
-        //
-        // if (_roundTime < 0) 
-        // {
-        //     _roundTime = 24;
-        //     _round++;
-        //     _tutorialSet = true;
-        //     T_SpawnMonstersInNewRound();
-        //     // SpawnMonstersInNewRound();
-        //     SpawnTowersInNewRound();
-        // }
+        // Tutorial
+        if (_roundTime < 15 && _tutorialSet == false)
+        {
+            // SetTutorialRound(_round);
+            _tutorialSet = true;
+        }
+        
+        if (_roundTime < 0) 
+        {
+            _roundTime = 24;
+            _round++;
+            _tutorialSet = false;
+            
+            // T_SpawnMonstersInNewRound();
+            // SpawnMonstersInNewRound();
+            SpawnTowersInNewRound();
+        }
         _timeSendTime = time;
     }
     
@@ -317,7 +318,7 @@ public partial class GameRoom : JobSerializer
                 player.Room = null;
 
                 S_LeaveGame leavePacket = new S_LeaveGame();
-                player.Session.Send(leavePacket);
+                player.Session?.Send(leavePacket);
                 break;
             
             case GameObjectType.Monster:
@@ -403,7 +404,7 @@ public partial class GameRoom : JobSerializer
         {
             foreach (var p in _players.Values)
             {
-                p.Session.Send(packet);
+                p.Session?.Send(packet);
             }
         }
     }

@@ -44,7 +44,7 @@ public class Creeper : Lurker
     {
         base.Init();
         UnitRole = Role.Ranger;
-        Player.SkillSubject.SkillUpgraded(Skill.CreeperRoll);
+        // Player.SkillSubject.SkillUpgraded(Skill.CreeperRoll);
     }
     
     public override void Update()

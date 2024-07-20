@@ -15,6 +15,8 @@ public class GameManager
                 NorthFenceMax = 12,
                 SouthFenceMax = 0,
                 FenceStartPos = new Vector3(-11, 6, -8),
+                FenceCenter = new Vector3(0, 6, -14),
+                FenceSize = new Vector3(24, 6, 12),
                 PortalPos = new[] { new Vector3(0, 6, 20) }
             }
         },
@@ -25,6 +27,7 @@ public class GameManager
                 NorthFenceMax = 8,
                 SouthFenceMax = 8,
                 FenceStartPos = new Vector3(-7, 6, 5),
+                FenceSize = new Vector3(12, 6, 10),
                 PortalPos = new[] { new Vector3(0, 6, 25), new Vector3(0, 6, -25) }
             }
         }
@@ -60,7 +63,7 @@ public class GameManager
             }
         }
         
-        private Vector3 _fenceSize = new Vector3();
+        private Vector3 _fenceSize = new();
         public Vector3 FenceSize
         {
             get => _fenceSize;

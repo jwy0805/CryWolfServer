@@ -370,7 +370,7 @@ public partial class Map
         
     }
 
-    public Vector3 FindSpawnPos(GameObject gameObject)
+    public Vector3 FindSheepSpawnPos(GameObject gameObject)
     {
         GameObjectType type = gameObject.ObjectType;
         Vector3 cell = new Vector3();
@@ -380,7 +380,7 @@ public partial class Map
         while (canSpawn == false)
         {
             Random random = new();
-            List<Vector3> xList = new List<Vector3>(GameData.SheepBounds);
+            List<Vector3> xList = new List<Vector3>(GameData!.SheepBounds);
             int minX = (int)(xList.Min(v => v.X) * _cellCnt);
             int maxX = (int)(xList.Max(v => v.X) * _cellCnt);
             int minZ = (int)(xList.Min(v => v.Z) * _cellCnt);

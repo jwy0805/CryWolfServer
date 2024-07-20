@@ -14,8 +14,8 @@ public class MonsterStatue : GameObject
     
     public override void Init()
     {
-        DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
-        Stat.MergeFrom(unitData!.stat);
+        DataManager.ObjectDict.TryGetValue(3, out var objectData);
+        Stat.MergeFrom(objectData!.stat);
         Hp = MaxHp;
     }
 }

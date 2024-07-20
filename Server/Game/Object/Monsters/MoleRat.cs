@@ -87,8 +87,8 @@ public class MoleRat : Burrow
         if (_drain) Hp += (int)(damage * DrainParam);
         BroadcastHp();
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-        if (_stealAttack == false || target == null) return;
+        
+        if (_stealAttack == false || target.Targetable == false || target.Hp < 0) return;
         if (StolenObjectId == 0)
         {
             StolenDamage = (int)(target.TotalAttack * StealAttackParam);
