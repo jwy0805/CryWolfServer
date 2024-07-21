@@ -44,7 +44,7 @@ public class Creeper : Lurker
     {
         base.Init();
         UnitRole = Role.Ranger;
-        // Player.SkillSubject.SkillUpgraded(Skill.CreeperRoll);
+        Player.SkillSubject.SkillUpgraded(Skill.CreeperRoll);
     }
     
     public override void Update()
@@ -127,7 +127,7 @@ public class Creeper : Lurker
             
             double radians = Math.PI * Dir / 180;
             Vector3 dirVector = new((float)Math.Sin(radians), 0, (float)Math.Cos(radians));
-            DestPos = CellPos + -dirVector * 3;
+            DestPos = CellPos + dirVector * 3;
             return;
         }
         // Target이 있으면 이동

@@ -146,7 +146,8 @@ public sealed partial class ObjectManager
         { EffectId.HareEffect, new HareEffectFactory() },
         { EffectId.HareCloneEffect, new HareCloneEffectFactory() },
         { EffectId.PoisonCloud, new PoisonCloudFactory() },
-        { EffectId.HermitRecoverBurn, new HermitRecoverBurnFactory() }
+        { EffectId.HermitRecoverBurn, new HermitRecoverBurnFactory() },
+        { EffectId.MoveForwardEffect, new MoveForwardEffectFactory() }
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -293,6 +294,7 @@ public sealed partial class ObjectManager
     public class HareCloneEffectFactory : IFactory<HareCloneEffect> { public HareCloneEffect Create() => new(); }
     public class PoisonCloudFactory : IFactory<PoisonCloud> { public PoisonCloud Create() => new(); }
     public class HermitRecoverBurnFactory : IFactory<HermitRecoverBurn> { public HermitRecoverBurn Create() => new(); }
+    public class MoveForwardEffectFactory : IFactory<MoveForwardEffect> { public MoveForwardEffect Create() => new(); }
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

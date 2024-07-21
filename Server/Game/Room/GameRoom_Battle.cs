@@ -39,11 +39,7 @@ public partial class GameRoom
             if (_storageLevel != 1 && _fences.Count > 0)
             {   // 기존 울타리 삭제
                 List<int> deleteFences = _fences.Keys.ToList();
-                foreach (var fenceId in deleteFences)
-                {
-                    LeaveGame(fenceId);
-                    Broadcast(new S_Despawn { ObjectIds = { fenceId } });
-                }
+                foreach (var fenceId in deleteFences) LeaveGame(fenceId);
                 _fences.Clear();
             }
             

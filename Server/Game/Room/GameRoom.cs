@@ -9,14 +9,14 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
-    private bool _tutorialSet = false;
+    private bool _tutorialSet;
     private Player _npc = new();
-
+    
     public GameInfo GameInfo;
     public List<UnitSize> UnitSizeList = new();
-
+    
     private readonly object _lock = new();
-
+    
     private Dictionary<int, Player> _players = new();
     private Dictionary<int, Tower> _towers = new();
     private Dictionary<int, Monster> _monsters = new();
@@ -43,12 +43,12 @@ public partial class GameRoom : JobSerializer
     public bool RoomActivated { get; set; }
     public Map Map { get; private set; } = new();
     public int MapId { get; set; }
-    private GameManager.GameData _gameData = new();
+    public GameManager.GameData GameData { get; set; } = new();
     
     public void Init(int mapId)
     {
-        _gameData = GameManager.Instance.GameDataCache[mapId];
-        Map.GameData = _gameData;
+        GameData = GameManager.Instance.GameDataCache[mapId];
+        Map.GameData = GameData;
         MapId = mapId;
         Map.LoadMap(mapId);
         Map.MapSetting();
@@ -88,9 +88,10 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            // SetTutorialRound(_round);
+            SetTutorialRound(_round);
             _tutorialSet = true;
         }
+        // Tutorial
         
         if (_roundTime < 0) 
         {
@@ -98,10 +99,13 @@ public partial class GameRoom : JobSerializer
             _round++;
             _tutorialSet = false;
             
-            // T_SpawnMonstersInNewRound();
+            T_SpawnMonstersInNewRound();
             // SpawnMonstersInNewRound();
             SpawnTowersInNewRound();
         }
+        
+        if (_roundTime < 10) CheckMonsters();
+        
         _timeSendTime = time;
     }
     
@@ -342,6 +346,10 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Fence:
                 if (_fences.Remove(objectId, out var fence) == false) return;
                 Map.ApplyLeave(fence);
+                
+                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt--;
+                else  GameInfo.SouthFenceCnt--;
+                
                 fence.Room = null;
                 break;
             

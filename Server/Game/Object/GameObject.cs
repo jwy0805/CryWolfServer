@@ -169,6 +169,14 @@ public partial class GameObject : IGameObject
         Room?.Broadcast(new S_Move { ObjectId = Id, PosInfo = PosInfo });
     }
 
+    public virtual void BroadcastMoveForward()
+    {
+        Room?.Broadcast(new S_MoveForwardObject
+        {
+            ObjectId = Id, Dest = new DestVector { X = CellPos.X, Y = CellPos.Y, Z = CellPos.Z }
+        });
+    }
+
     protected virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State });

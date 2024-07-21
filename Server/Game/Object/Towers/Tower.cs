@@ -6,8 +6,8 @@ using Server.Util;
 namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
-{ 
-    public Vector3 RelativePosition { get; set; }
+{
+    public Vector3 RelativePosition => Room != null ? CellPos - Room.GameData.FenceStartPos : CellPos;
 
     protected Tower()
     {

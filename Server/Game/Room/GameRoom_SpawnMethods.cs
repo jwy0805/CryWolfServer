@@ -129,49 +129,43 @@ public partial class GameRoom
     
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
-        Vector3[] fencePos = _gameData.GetPos(
-            _gameData.NorthFenceMax + _gameData.SouthFenceMax, _gameData.NorthFenceMax, _gameData.FenceStartPos);
-        float[] fenceRotation = _gameData.GetRotation(
-            _gameData.NorthFenceMax + _gameData.SouthFenceMax, _gameData.NorthFenceMax);
+        Vector3[] fencePos = GameData.GetPos(
+            GameData.NorthFenceMax + GameData.SouthFenceMax, GameData.NorthFenceMax, GameData.FenceStartPos);
 
-        if (storageLv == 1)
+        for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
         {
-            for (int i = 0; i < _gameData.NorthFenceMax + _gameData.SouthFenceMax; i++)
-            {
-                Fence fence = ObjectManager.Instance.Add<Fence>();
-                fence.Init();
-                fence.Info.Name = _gameData.FenceNames[storageLv];
-                fence.CellPos = fencePos[i];
-                fence.Dir = fenceRotation[i];
-                fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-                fence.Room = this;
-                fence.Way = fence.CellPos.Z > _gameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
-                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
-                else GameInfo.SouthFenceCnt++;
-                fence.FenceNum = fenceLv;
-                Push(EnterGame, fence);
-            }
+            var fence = ObjectManager.Instance.Add<Fence>();
+            fence.Init();
+            fence.Info.Name = GameData.FenceNames[storageLv];
+            fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+            fence.Room = this;
+            fence.Way = fence.CellPos.Z > GameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
+            fence.CellPos = fencePos[i];
+            fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
+            if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
+            else GameInfo.SouthFenceCnt++;
+            fence.FenceNum = fenceLv;
+            Push(EnterGame, fence);
         }
-        else if (storageLv == 2)
-        {
-            for (int i = 0; i < _gameData.NorthFenceMax + _gameData.SouthFenceMax; i++)
-            {
-                Fence fence = ObjectManager.Instance.Add<Fence>();
-                fence.Init();
-                fence.Info.Name = _gameData.FenceNames[storageLv];
-                fence.CellPos = fencePos[i];
-                fence.Dir = fenceRotation[i] + 90;
-                fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-                fence.Room = this;
-                fence.Way = fence.CellPos.Z > 0 ? SpawnWay.North : SpawnWay.South;
-                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
-                else GameInfo.SouthFenceCnt++;
-                fence.FenceNum = fenceLv;
-                Push(EnterGame, fence);
-                
-                EffectSetting(fence);
-            }
-        }
+    }
+
+    private Fence SpawnFence(Vector3 cellPos, int fenceLv = 0)
+    {
+        var storageLv = GameInfo.StorageLevel;
+        var fence = ObjectManager.Instance.Add<Fence>();
+        fence.Init();
+        fence.Info.Name = GameData.FenceNames[storageLv];
+        fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+        fence.Room = this;
+        fence.Way = fence.CellPos.Z > GameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
+        fence.CellPos = cellPos;
+        fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
+        if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
+        else GameInfo.SouthFenceCnt++;
+        fence.FenceNum = fenceLv;
+        Push(EnterGame, fence);
+        
+        return fence;
     }
 
     private void SpawnMonstersInNewRound()

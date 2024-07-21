@@ -49,7 +49,7 @@ public partial class GameRoom
 
     private int VerifyUpgradePortrait(Player player, UnitId unitId)
     {
-        _gameData.OwnSkills.TryGetValue(unitId, out var skills);
+        GameData.OwnSkills.TryGetValue(unitId, out var skills);
         if (skills == null) return 100000;
         int cost = 0;
         foreach (var skill in skills)
@@ -115,7 +115,7 @@ public partial class GameRoom
 
     private bool VerifySkillTree(Player player, Skill skill)
     {
-        var skills = _gameData.SkillTree[skill];
+        var skills = GameData.SkillTree[skill];
         if (skills.Contains(Skill.NoSkill)) return false;
         return !skills.All(item => player.SkillUpgradedList.Contains(item));
     }

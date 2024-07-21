@@ -29,3 +29,4 @@ public class HareEffect : Effect { }
 public class HareCloneEffect : Effect { }
 public class StarFall : Effect { }
 public class HermitRecoverBurn : Effect { }
+public class MoveForwardEffect : Effect { }

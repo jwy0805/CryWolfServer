@@ -109,19 +109,6 @@ public class GameManager
         
             return posArr;
         }
-        
-        public float[] GetRotation(int cnt, int row)
-        {
-            float[] rotationArr = new float[cnt];
-        
-            for (int i = 0; i < row; i++)
-            {
-                rotationArr[i] = 0;
-                if (SouthFenceMax != 0) rotationArr[row + i] = 180;
-            }
-
-            return rotationArr;
-        }
 
         #region Skills
 
