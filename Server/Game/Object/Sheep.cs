@@ -172,15 +172,15 @@ public class Sheep : Creature, ISkillObserver
     {
         if (Room == null) return new Vector3();
         
-        Vector3[] sheepBound = GameManager.Instance.GameDataCache[Room.MapId].SheepBounds;
+        Vector3[] sheepBound = Room.GetSheepBounds();
         float minX = sheepBound.Select(v => v.X).ToList().Min() + 1.0f;
         float maxX = sheepBound.Select(v => v.X).ToList().Max() - 1.0f;
         float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1.0f;
         float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - 1.0f;
 
+        Random random = new();
         do
         {
-            Random random = new();
             Map map = Room.Map;
             float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
             float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);

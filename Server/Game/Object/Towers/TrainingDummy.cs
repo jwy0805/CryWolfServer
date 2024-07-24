@@ -6,6 +6,7 @@ namespace Server.Game;
 
 public class TrainingDummy : TargetDummy
 {
+    private bool _accuracy = false;
     private bool _faint = false;
     private readonly int _faintProb = 30;
     
@@ -18,7 +19,7 @@ public class TrainingDummy : TargetDummy
             switch (Skill)
             {
                 case Skill.TrainingDummyAccuracy:
-                    SkillRange += 4.0f;
+                    _accuracy = true;
                     break;
                 case Skill.TrainingDummyHealth:
                     MaxHp += 200;
@@ -59,15 +60,20 @@ public class TrainingDummy : TargetDummy
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            // AccuracyIncrease
-            var targets = Room.FindTargets(
-                this, new [] { GameObjectType.Tower }, TotalSkillRange);
-            foreach (var target in targets)
-            {
-                if (target.Targetable == false || target.Hp <= 0) continue;
-                BuffManager.Instance.AddBuff(BuffId.AccuracyBuff, BuffParamType.Constant,
-                    target, this, 20, 5000);
+            
+            // Accuracy Buff
+            if (_accuracy)
+            {   
+                var targets = Room.FindTargets(
+                    this, new [] { GameObjectType.Tower }, TotalSkillRange);
+                foreach (var target in targets)
+                {
+                    if (target.Targetable == false || target.Hp <= 0) continue;
+                    BuffManager.Instance.AddBuff(BuffId.AccuracyBuff, BuffParamType.Constant,
+                        target, this, 20, 5000);
+                }
             }
+            
             // Heal -> Inherited from TargetDummy
             Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);

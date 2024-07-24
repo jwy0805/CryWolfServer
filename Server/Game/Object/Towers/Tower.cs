@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    public Vector3 RelativePosition => Room != null ? CellPos - Room.GameData.FenceStartPos : CellPos;
+    public Vector3 RelativePosition => Room != null ? CellPos - Room.GameInfo.FenceStartPos : CellPos;
 
     protected Tower()
     {
@@ -25,9 +25,25 @@ public class Tower : Creature, ISkillObserver
         SkillInit();
     }
 
+    public virtual void RoundInit()
+    {
+        if (Room == null) return;
+        Target = null;
+        Targetable = true;
+        AlreadyRevived = false;
+        WillRevive = false;
+        AttackEnded = true;
+        IsAttacking = false;
+        State = State.Idle;
+        Hp = MaxHp;
+        Room.Map.ApplyMap(this, new Vector3(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ));
+        Room.Broadcast(new S_State { ObjectId = Id, State = State.Idle });
+        Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+    }
+    
     protected override void UpdateIdle()
     {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
@@ -73,8 +89,7 @@ public class Tower : Creature, ISkillObserver
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id };
-        Room.Broadcast(diePacket);
-        Room.DieAndLeave(Id);
+        Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.DieTower(Id);
     }
 }

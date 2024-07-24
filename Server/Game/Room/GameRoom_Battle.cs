@@ -25,14 +25,14 @@ public partial class GameRoom
             {
                 GameInfo.MaxSheep = 5;
                 GameInfo.NorthMaxTower = 6;
-                GameInfo.SouthMaxTower = 6;
+                if (MapId != 1) GameInfo.SouthMaxTower = 6;
             }
             else if (_storageLevel == 2)
             {
                 GameInfo.MaxSheep = 8;
                 GameInfo.NorthMaxTower = 9;
-                GameInfo.SouthMaxTower = 9;
                 GameInfo.SheepYield += 20;
+                if (MapId != 1) GameInfo.SouthMaxTower = 9;
             }
             
             // 울타리 생성

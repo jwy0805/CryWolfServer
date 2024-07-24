@@ -40,10 +40,6 @@ public class Blossom : Bloom
     {
         base.Init();
         UnitRole = Role.Ranger;
-        Player.SkillSubject.SkillUpgraded(Skill.BlossomAttackSpeed);
-        Player.SkillSubject.SkillUpgraded(Skill.BlossomDeath);
-        Player.SkillSubject.SkillUpgraded(Skill.BlossomFaintCritical);
-        Player.SkillSubject.SkillUpgraded(Skill.BlossomPowerAttack);
     }
     
     protected override void UpdateIdle()

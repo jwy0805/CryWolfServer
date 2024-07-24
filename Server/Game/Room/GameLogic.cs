@@ -25,7 +25,7 @@ public class GameLogic : JobSerializer
         gameRoom.RoomId = _roomId;
         _rooms.Add(_roomId, gameRoom);
         _roomId++;
-        
+
         return gameRoom;
     }
 

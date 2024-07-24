@@ -130,7 +130,7 @@ public partial class GameRoom
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
         Vector3[] fencePos = GameData.GetPos(
-            GameData.NorthFenceMax + GameData.SouthFenceMax, GameData.NorthFenceMax, GameData.FenceStartPos);
+            GameData.NorthFenceMax + GameData.SouthFenceMax, GameData.NorthFenceMax, GameInfo.FenceStartPos);
 
         for (int i = 0; i < GameData.NorthFenceMax + GameData.SouthFenceMax; i++)
         {
@@ -139,7 +139,7 @@ public partial class GameRoom
             fence.Info.Name = GameData.FenceNames[storageLv];
             fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
             fence.Room = this;
-            fence.Way = fence.CellPos.Z > GameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
+            fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
             fence.CellPos = fencePos[i];
             fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
             if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
@@ -157,7 +157,7 @@ public partial class GameRoom
         fence.Info.Name = GameData.FenceNames[storageLv];
         fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
         fence.Room = this;
-        fence.Way = fence.CellPos.Z > GameData.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
+        fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
         fence.CellPos = cellPos;
         fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
         if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
@@ -197,32 +197,10 @@ public partial class GameRoom
             sheep.YieldStop = false;
         }
         
-        List<TowerSlot> slots = _northTowers.Concat(_southTowers).ToList();
-
-        // Spawn Towers
-        foreach (var slot in slots)
-        {
-            var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
-            // if (slot.ObjectId == 0) continue;
-            var gameObject = FindGameObjectById(slot.ObjectId);
-            if (gameObject == null || gameObject.Id == 0)
-            {
-                var tower = EnterTower((int)slot.TowerId, slot.PosInfo, player);
-                RenewTowerSlot(slot, tower);
-                Push(EnterGame, tower);
-            }
-            else
-            {
-                gameObject.Hp = gameObject.MaxHp;
-                Broadcast(new S_ChangeHp { ObjectId = gameObject.Id, Hp = gameObject.Hp });
-            }
-        }
-        
         // Reset State
         foreach (var tower in _towers.Values)
         {
-            tower.State = State.Idle;
-            Broadcast(new S_State { ObjectId = tower.Id, State = State.Idle });
+            tower.RoundInit();
         }
     }
 
@@ -234,7 +212,7 @@ public partial class GameRoom
         tower.Player = player;
         tower.UnitId = (UnitId)unitId;
         tower.Room = this;
-        tower.Way = tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        tower.Way = MapId == 1 ? SpawnWay.North : tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         tower.Dir = tower.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         tower.Init();
         return tower;

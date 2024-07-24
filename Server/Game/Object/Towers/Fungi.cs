@@ -105,8 +105,7 @@ public class Fungi : Mushroom
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id };
-        Room.Broadcast(diePacket);
-        Room.DieAndLeave(Id);
+        Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.DieTower(Id);
     }
 }

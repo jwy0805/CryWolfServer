@@ -158,6 +158,7 @@ public partial class GameObject : IGameObject
 
     public virtual void AddBuff(Buff buff)
     {
+        if (Room == null) return;
         if (Invincible && buff.Type is BuffType.Debuff) return;
         Buffs.Add(buff.Id);
         BuffManager.Instance.Buffs.Add(buff);

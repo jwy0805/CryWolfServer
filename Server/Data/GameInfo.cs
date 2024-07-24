@@ -1,3 +1,4 @@
+using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Game;
 
@@ -24,13 +25,32 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int SouthFenceCnt { get; set; }
     public int NorthMaxFenceCnt { get; set; }
     public int SouthMaxFenceCnt { get; set; } = 8;
+    public Vector3 FenceStartPos { get; set; }
     
-    public GameInfo(Dictionary<int, Player> players, int mapId)
-    {
-        _players = players;
-        _mapId = mapId;
-        NorthMaxFenceCnt = _mapId == 1 ? 12 : 8;
+    private Vector3 _fenceCenter;
+    public Vector3 FenceCenter 
+    { 
+        get => _fenceCenter;
+        set
+        {
+            _fenceCenter = value;
+            UpdateBounds();
+        }
     }
+        
+    private Vector3 _fenceSize;
+    public Vector3 FenceSize
+    {
+        get => _fenceSize;
+        set
+        {
+            _fenceSize = value;
+            UpdateBounds();
+        }
+    }
+    
+    public Vector3[] FenceBounds { get; private set; }
+    public Vector3[] SheepBounds { get; private set; }
     
     public int MaxStorageLevel => 2;
     public int StorageLevel { get; set; } = 0;
@@ -43,7 +63,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _northMaxTower = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxTower, Max = true});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxTower, Max = true});
         }
     }
 
@@ -54,7 +74,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _northTower = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northTower, Max = false});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northTower, Max = false});
         }
     }
 
@@ -65,7 +85,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _southMaxTower = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxTower, Max = true});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxTower, Max = true});
         }
     }
 
@@ -76,7 +96,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _southTower = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southTower, Max = false});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southTower, Max = false});
         }
     }
 
@@ -87,7 +107,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _maxSheep = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _maxSheep, Max = true});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _maxSheep, Max = true});
         }
     }
 
@@ -98,7 +118,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _sheepCount = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _sheepCount, Max = false});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _sheepCount, Max = false});
         }
     } 
 
@@ -109,7 +129,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _northMaxMonster = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxMonster, Max = true});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxMonster, Max = true});
         } 
     }
 
@@ -120,7 +140,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _northMonster = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMonster, Max = false});      
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMonster, Max = false});      
         }
     }
 
@@ -131,7 +151,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _southMaxMonster = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxMonster, Max = true});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxMonster, Max = true});
         }
     }
 
@@ -142,7 +162,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _southMonster = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMonster, Max = false});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMonster, Max = false});
         }
     } 
 
@@ -153,7 +173,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _sheepResource = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource});
         }
     }
 
@@ -164,7 +184,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _wolfResource = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource});
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource});
         }
     }
     
@@ -172,4 +192,30 @@ public class GameInfo // 한 판마다 초기화되는 정보
 
     public bool NorthPortal { get; set; } = false;
     public bool SouthPortal { get; set; } = false;
+    
+    public GameInfo(Dictionary<int, Player> players, int mapId)
+    {
+        _players = players;
+        _mapId = mapId;
+        NorthMaxFenceCnt = _mapId == 1 ? 12 : 8;
+    }
+    
+    private void UpdateBounds()
+    {
+        FenceBounds = new[]
+        {
+            new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2),
+            new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
+            new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
+            new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2)
+        };
+            
+        SheepBounds = new[]
+        {
+            new Vector3(FenceCenter.X - FenceSize.X / 2 + 2 , 6, FenceCenter.Z + FenceSize.Z / 2 - 2),
+            new Vector3(FenceCenter.X - FenceSize.X / 2 + 2, 6, FenceCenter.Z - FenceSize.Z / 2 + 2),
+            new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z - FenceSize.Z / 2 + 2),
+            new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z + FenceSize.Z / 2 - 2)
+        };
+    }
 }

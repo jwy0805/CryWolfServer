@@ -23,13 +23,13 @@ public class PacketHandler
         
         if (sessionPacket.Test)
         {
+            var playerPos = sessionPacket.Camp == Camp.Sheep 
+                ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 } 
+                : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+            
             clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
             clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.ObjectId}";
-            clientSession.MyPlayer.Info.PosInfo.State = State.Idle;
-            clientSession.MyPlayer.Info.PosInfo.PosX = 0f;
-            clientSession.MyPlayer.Info.PosInfo.PosY = 13.8f;
-            clientSession.MyPlayer.Info.PosInfo.PosZ = -22f;
-            clientSession.MyPlayer.Info.PosInfo.Dir = 0f;
+            clientSession.MyPlayer.Info.PosInfo = playerPos;
             clientSession.MyPlayer.Session = clientSession;
         
             GameLogic.Instance.Push(() =>

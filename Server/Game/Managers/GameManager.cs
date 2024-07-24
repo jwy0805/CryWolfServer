@@ -14,9 +14,9 @@ public class GameManager
             {
                 NorthFenceMax = 12,
                 SouthFenceMax = 0,
-                FenceStartPos = new Vector3(-11, 6, -8),
-                FenceCenter = new Vector3(0, 6, -14),
-                FenceSize = new Vector3(24, 6, 12),
+                InitFenceStartPos = new Vector3(-11, 6, -8),
+                InitFenceCenter = new Vector3(0, 6, -14),
+                InitFenceSize = new Vector3(24, 6, 12),
                 PortalPos = new[] { new Vector3(0, 6, 20) }
             }
         },
@@ -26,8 +26,8 @@ public class GameManager
                 ZCoordinatesOfMap = new[] { 108, 80, 52, 24, 0, -24, -52, -80, -108 },
                 NorthFenceMax = 8,
                 SouthFenceMax = 8,
-                FenceStartPos = new Vector3(-7, 6, 5),
-                FenceSize = new Vector3(12, 6, 10),
+                InitFenceStartPos = new Vector3(-7, 6, 5),
+                InitFenceSize = new Vector3(12, 6, 10),
                 PortalPos = new[] { new Vector3(0, 6, 25), new Vector3(0, 6, -25) }
             }
         }
@@ -35,11 +35,6 @@ public class GameManager
     
     public class GameData
     {   // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
-        public GameData()
-        {
-            UpdateBounds();
-        }
-
         public int RoundTime => 20000;
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;
@@ -47,55 +42,13 @@ public class GameManager
         public int[] StorageLvUpCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
         
-        public int[] ZCoordinatesOfMap { get; set; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
-        public int NorthFenceMax { get; set; }
-        public int SouthFenceMax { get; set; }
-        public Vector3 FenceStartPos { get; set; }
-        
-        private Vector3 _fenceCenter = new Vector3();
-        public Vector3 FenceCenter 
-        { 
-            get => _fenceCenter;
-            set
-            {
-                _fenceCenter = value;
-                UpdateBounds();
-            }
-        }
-        
-        private Vector3 _fenceSize = new();
-        public Vector3 FenceSize
-        {
-            get => _fenceSize;
-            set
-            {
-                _fenceSize = value;
-                UpdateBounds();
-            }
-        }
-        
-        public Vector3[] FenceBounds { get; private set; }
-        public Vector3[] SheepBounds { get; private set; }
+        public int[] ZCoordinatesOfMap { get; init; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
+        public int NorthFenceMax { get; init; }
+        public int SouthFenceMax { get; init; }
+        public Vector3 InitFenceStartPos { get; init; }
+        public Vector3 InitFenceCenter { get; init; } = new();
+        public Vector3 InitFenceSize { get; init; } = new();
         public Vector3[] PortalPos { get; set; }
-
-        private void UpdateBounds()
-        {
-            FenceBounds = new[]
-            {
-                new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2),
-                new Vector3(FenceCenter.X - FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
-                new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z - FenceSize.Z / 2),
-                new Vector3(FenceCenter.X + FenceSize.X / 2 , 6, FenceCenter.Z + FenceSize.Z / 2)
-            };
-            
-            SheepBounds = new[]
-            {
-                new Vector3(FenceCenter.X - FenceSize.X / 2 + 2 , 6, FenceCenter.Z + FenceSize.Z / 2 - 2),
-                new Vector3(FenceCenter.X - FenceSize.X / 2 + 2, 6, FenceCenter.Z - FenceSize.Z / 2 + 2),
-                new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z - FenceSize.Z / 2 + 2),
-                new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z + FenceSize.Z / 2 - 2)
-            };
-        }
         
         public Vector3[] GetPos(int cnt, int row, Vector3 startPos)
         {

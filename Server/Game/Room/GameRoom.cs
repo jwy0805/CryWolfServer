@@ -12,25 +12,22 @@ public partial class GameRoom : JobSerializer
     private bool _tutorialSet;
     private Player _npc = new();
     
-    public GameInfo GameInfo;
-    public List<UnitSize> UnitSizeList = new();
-    
     private readonly object _lock = new();
     
-    private Dictionary<int, Player> _players = new();
-    private Dictionary<int, Tower> _towers = new();
-    private Dictionary<int, Monster> _monsters = new();
-    private Dictionary<int, MonsterStatue> _statues = new();
-    private Dictionary<int, Sheep> _sheeps = new();
-    private Dictionary<int, Fence> _fences = new();
-    private Dictionary<int, Effect> _effects = new();
-    private Dictionary<int, Projectile> _projectiles = new();
-    private Dictionary<int, Portal> _portals = new();
+    private readonly Dictionary<int, Player> _players = new();
+    private readonly Dictionary<int, Tower> _towers = new();
+    private readonly Dictionary<int, Monster> _monsters = new();
+    private readonly Dictionary<int, MonsterStatue> _statues = new();
+    private readonly Dictionary<int, Sheep> _sheeps = new();
+    private readonly Dictionary<int, Fence> _fences = new();
+    private readonly Dictionary<int, Effect> _effects = new();
+    private readonly Dictionary<int, Projectile> _projectiles = new();
+    private readonly Dictionary<int, Portal> _portals = new();
     
-    private List<TowerSlot> _northTowers = new();
-    private List<TowerSlot> _southTowers = new();
-    private List<MonsterSlot> _northMonsters = new();
-    private List<MonsterSlot> _southMonsters = new();
+    private readonly List<TowerSlot> _northTowers = new();
+    private readonly List<TowerSlot> _southTowers = new();
+    private readonly List<MonsterSlot> _northMonsters = new();
+    private readonly List<MonsterSlot> _southMonsters = new();
     
     private int _storageLevel = 0;
     private int _roundTime = 19;
@@ -38,6 +35,8 @@ public partial class GameRoom : JobSerializer
     private readonly long _interval = 1000;
     private long _timeSendTime;
     
+    public GameInfo GameInfo { get; set; }
+    public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
     public int RoomId { get; set; }
     public bool RoomActivated { get; set; }
@@ -60,7 +59,11 @@ public partial class GameRoom : JobSerializer
 
     public void Update()
     {
-        if (RoomActivated == false) return;
+        if (RoomActivated == false)
+        {
+            return;
+        }
+        
         Flush();
         SetTimeAndRound();
     }
@@ -74,7 +77,7 @@ public partial class GameRoom : JobSerializer
             DataManager.UnitDict.TryGetValue(unitId, out var unitData);
             StatInfo stat = new StatInfo();
             stat.MergeFrom(unitData?.stat);
-            UnitSizeList.Add(new Game.GameRoom.UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
+            UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
     
@@ -82,6 +85,7 @@ public partial class GameRoom : JobSerializer
     {
         long time = Stopwatch.ElapsedMilliseconds;
         if (time < _timeSendTime + _interval || time < 1000) return;
+
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
@@ -95,17 +99,12 @@ public partial class GameRoom : JobSerializer
         
         if (_roundTime < 0) 
         {
-            _roundTime = 24;
-            _round++;
-            _tutorialSet = false;
-            
+            InitRound();
             T_SpawnMonstersInNewRound();
             // SpawnMonstersInNewRound();
-            SpawnTowersInNewRound();
         }
         
-        if (_roundTime < 10) CheckMonsters();
-        
+        if (_roundTime < 10 && _round != 0) CheckMonsters();
         _timeSendTime = time;
     }
     
@@ -122,7 +121,7 @@ public partial class GameRoom : JobSerializer
                 player.Init();
                 // 본인에게 정보 전송
                 var enterPacket = new S_EnterGame { Player = player.Info };
-                player.Session.Send(enterPacket);
+                player.Session?.Send(enterPacket);
                 {
                     var spawnPacket = new S_Spawn();
                     foreach (var p in _players.Values.Where(p => player != p)) 
@@ -133,7 +132,7 @@ public partial class GameRoom : JobSerializer
                     foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                     foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
                     foreach (var r in _portals.Values) spawnPacket.Objects.Add(r.Info);
-                    player.Session.Send(spawnPacket);
+                    player.Session?.Send(spawnPacket);
                 }
                 break;
             
@@ -210,7 +209,7 @@ public partial class GameRoom : JobSerializer
             spawnPacket.Objects.Add(gameObject.Info);
             foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
             {
-                player.Session.Send(spawnPacket);
+                player.Session?.Send(spawnPacket);
             }
         }
     }
@@ -308,6 +307,12 @@ public partial class GameRoom : JobSerializer
             default: return;
         }
     }
+
+    public void DieTower(int objectId)
+    {
+        if (_towers.TryGetValue(objectId, out var tower) == false) return;
+        Map.ApplyLeave(tower);
+    }
     
     public void LeaveGame(int objectId)
     {
@@ -379,7 +384,7 @@ public partial class GameRoom : JobSerializer
         despawnPacket.ObjectIds.Add(objectId);
         foreach (var player in _players.Values)
         {
-            if (player.Id != objectId) player.Session.Send(despawnPacket);
+            if (player.Id != objectId) player.Session?.Send(despawnPacket);
         }
     }
 

@@ -22,14 +22,20 @@ public partial class GameRoom
     
     public void InfoInit()
     {
-        GameInfo = new GameInfo(_players, MapId);
+        GameInfo = new GameInfo(_players, MapId)
+        {
+            FenceCenter = GameData.InitFenceCenter,
+            FenceStartPos = GameData.InitFenceStartPos,
+            FenceSize = GameData.InitFenceSize
+        };
+        
         StorageLevel = 1;
         foreach (var player in _players.Values)
         {
             if (player.Session == null) return;
             
             EnterSheepByServer(player);
-
+            
             if (player.Camp == Camp.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
@@ -37,8 +43,11 @@ public partial class GameRoom
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxTower, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthTower, Max = false });
+                if (MapId != 1)
+                {
+                    player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxTower, Max = true });
+                    player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthTower, Max = false });
+                }
             }
             else
             {
@@ -47,8 +56,11 @@ public partial class GameRoom
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMonster, Max = false });
+                if (MapId != 1)
+                {
+                    player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
+                    player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMonster, Max = false });
+                } 
             }
         }
     }
@@ -122,7 +134,7 @@ public partial class GameRoom
                 }
                 break;
             case GameObjectType.Tower:
-                targetTypeList = new List<GameObjectType> { GameObjectType.Monster };
+                targetTypeList = new List<GameObjectType> { GameObjectType.Monster, GameObjectType.MonsterStatue };
                 break;
         }
         
@@ -595,8 +607,8 @@ public partial class GameRoom
     private bool InsideFence(GameObject gameObject)
     {
         Vector3 cell = gameObject.CellPos;
-        Vector3 center = GameData.FenceCenter;
-        Vector3 size = GameData.FenceSize;
+        Vector3 center = GameInfo.FenceCenter;
+        Vector3 size = GameInfo.FenceSize;
 
         float halfWidth = size.X / 2;
         float minX = center.X - halfWidth;
@@ -609,5 +621,10 @@ public partial class GameRoom
         bool insideZ = minZ <= cell.Z && maxZ >= cell.Z;
         
         return insideX && insideZ;
+    }
+
+    public Vector3[] GetSheepBounds()
+    {
+        return GameInfo.SheepBounds;
     }
 }

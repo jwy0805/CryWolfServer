@@ -212,7 +212,7 @@ public class Creature : GameObject
     {
         await Scheduler.ScheduleEvent(standbyTime, () =>
         {
-            if (Room == null) return;
+            if (Room == null || State != State.Die) return;
             State = State.Revive;
             ReviveEvents(StdAnimTime);
         });
