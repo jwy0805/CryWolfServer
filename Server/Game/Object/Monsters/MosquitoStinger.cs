@@ -41,7 +41,9 @@ public class MosquitoStinger : MosquitoPester
     }
 
     protected override void UpdateMoving()
-    { // Targeting
+    {
+        if (Room == null) return;
+        // Targeting
         Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -95,16 +97,18 @@ public class MosquitoStinger : MosquitoPester
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        if (target is Creature _)
+        if (Room == null || AddBuffAction == null) return;
+        
+        if (target is Creature)
         {
             if (new Random().Next(100) < FaintParam)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                    target, this, 0, 1000);
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, target, this, 0, 1000, false);
             }
-            
-            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage,
-                target, this, 0, 5000);
+
+            Room.Push(AddBuffAction, BuffId.Addicted,
+                BuffParamType.Percentage, target, this, 0, 5000, false);
         }
 
         if (target is Sheep sheep)

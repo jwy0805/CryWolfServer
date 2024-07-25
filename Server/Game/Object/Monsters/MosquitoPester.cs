@@ -56,22 +56,23 @@ public class MosquitoPester : MosquitoBug
 
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         if (new Random().Next(100) < FaintParam)
         {
-            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, target, this, 0, 5000);
+            Room.Push(AddBuffAction, BuffId.Fainted,
+                BuffParamType.None, target, this, 0, 5000, false);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (pid == ProjectileId.MosquitoPesterProjectile)
         {
-            if (target is Creature _)
+            if (target is Creature && _poison)
             {
-                if (_poison)
-                {   // Poison
-                    BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                        target, this, 0, 5000);
-                }
+                // Poison
+                Room.Push(AddBuffAction, BuffId.Addicted, 
+                    BuffParamType.Percentage, target, this, 0.05f, 5000, false);
             }
         }
         

@@ -162,7 +162,7 @@ public partial class GameRoom
 
             Push(EnterGame, tower);
             UpgradeTower(t, tower);
-            player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
+            player.Session?.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
         }
         else if (go.ObjectType == GameObjectType.Monster)
         {

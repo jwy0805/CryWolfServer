@@ -236,16 +236,23 @@ public class CactusBoss : Cactus
 
     private void ApplyBreathEffect()
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         var types = new List<GameObjectType> { GameObjectType.Tower, GameObjectType.Sheep };
         var targetList = Room.FindTargetsInAngleRange(this, types, 80, 90);
         foreach (var target in targetList)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            if (_breathAggro) BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None,
-                target, this, 0, 2000);
+            Room.Push(AddBuffAction, BuffId.Aggro,
+                BuffParamType.None, target, this, 0, 2000, false);
         }
-        if (_breathHeal) BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-            this, this, HealParam * targetList.Count, 1000, true);
+        
+        // Breath Heal
+        if (_breathHeal)
+        {
+            Room.Push(AddBuffAction, BuffId.HealBuff, 
+                BuffParamType.Constant, this, this, HealParam * targetList.Count, 1000, true);
+        }
     }
 
     protected override void SetNextState()
@@ -276,7 +283,7 @@ public class CactusBoss : Cactus
     
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         if (Invincible) return;
         var random = new Random();
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
@@ -309,8 +316,8 @@ public class CactusBoss : Cactus
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
             if (new Random().Next(99) < ReflectionFaintRate && attacker.Targetable)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None,
-                    attacker, this, 0, 1000);
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, attacker, this, 0, 2000, false);   
             }
         }
     }

@@ -85,6 +85,8 @@ public class DogBowwow : DogBark
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         HitCount++;
         if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
         {
@@ -93,8 +95,8 @@ public class DogBowwow : DogBark
             if (_smash == false || _smashFaint == false) return;
             var randomInt = new Random().Next(100);
             if (randomInt > 15) return;
-            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                target, this, 0, 1000);
+            Room.Push(AddBuffAction, BuffId.Fainted,
+                BuffParamType.None, target, this, 0, 1000, false);
         }
         else
         {

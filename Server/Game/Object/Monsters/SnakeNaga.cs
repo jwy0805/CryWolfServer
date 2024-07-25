@@ -162,6 +162,8 @@ public class SnakeNaga : Snake
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId _)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         if (_drain)
         {
             var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
@@ -169,20 +171,20 @@ public class SnakeNaga : Snake
             BroadcastHp();
         }
         
-        BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+        Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         target.OnDamaged(this, TotalAttack, Damage.Normal);        
     }
 
     public override void ApplyEffectEffect()
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         var meteorPos = new Vector3(_meteorPos.PosX, _meteorPos.PosY, _meteorPos.PosZ);
         var types = new HashSet<GameObjectType> { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
         var targets = Room.FindTargets(meteorPos, types, _meteorRange, 2);
         foreach (var target in targets)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+            Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         }
     }
 

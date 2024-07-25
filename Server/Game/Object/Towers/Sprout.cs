@@ -48,9 +48,11 @@ public class Sprout : Tower
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         if (pid == ProjectileId.SproutFire)
         {
-            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+            Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);

@@ -56,11 +56,15 @@ public class Fungi : Mushroom
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (Room == null || AddBuffAction == null) return;
         if (pid == ProjectileId.FungiProjectile)
         {
             target.OnDamaged(this, TotalAttack, Damage.Normal);
-            if (_poison) BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.None, 
-                target, this, 0.03f, 5000);
+            if (_poison)
+            {
+                Room.Push(AddBuffAction, BuffId.Addicted,
+                    BuffParamType.None, target, this, 0.03f, 5000, false);
+            }
         }
         else
         {
@@ -70,7 +74,7 @@ public class Fungi : Mushroom
     
     protected override void OnDead(GameObject? attacker)
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         
         Targetable = false;
         if (attacker != null)
@@ -93,8 +97,8 @@ public class Fungi : Mushroom
             if (fungus.Count == 0) return;
             foreach (var fungi in fungus)
             {
-                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                    fungi, this, _closestHealParam, 0);
+                Room.Push(AddBuffAction, BuffId.HealBuff,
+                    BuffParamType.Constant, fungi, this, _closestHealParam, 0, false);
             }
         }
         

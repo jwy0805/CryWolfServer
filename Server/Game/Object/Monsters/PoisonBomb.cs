@@ -79,6 +79,7 @@ public class PoisonBomb : SnowBomb
     
     public override void ApplyEffectEffect()
     {
+        if (Room == null || AddBuffAction == null) return;
         Room.SpawnEffect(EffectId.PoisonBombExplosion, this, PosInfo);
         
         if (_selfDestruct)
@@ -89,8 +90,8 @@ public class PoisonBomb : SnowBomb
             foreach (var gameObject in gameObjects)
             {
                 gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-                BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.None, 
-                    gameObject, this, _poisonParam, 5000);
+                Room.Push(AddBuffAction, BuffId.Addicted,
+                    BuffParamType.Percentage, gameObject, this, _poisonParam, 5000, false);
                 if (_mpDown == false) continue;
                 gameObject.MaxMp *= _increasingMaxMpParam;
                 gameObject.BroadcastMp();
@@ -103,25 +104,26 @@ public class PoisonBomb : SnowBomb
 
             foreach (var gameObject in gameObjects)
             {
-                BuffManager.Instance.AddBuff(BuffId.DefenceBuff, BuffParamType.Constant, 
-                    gameObject, this, 3, 5000);
+                Room.Push(AddBuffAction, BuffId.Addicted,
+                    BuffParamType.Constant, gameObject, this, 3, 5000, false);
             }
         }
     }
 
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
     {
-        if (Room == null || Hp <= 0) return;
+        if (Room == null || Hp <= 0 || AddBuffAction == null) return;
         Room.SpawnEffect(EffectId.PoisonBombSkillExplosion, this, posInfo);
+        
         var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         var cellPos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
         var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);
+        
         foreach (var gameObject in gameObjects)
         {
             gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(
-                BuffId.AttackSpeedDebuff, BuffParamType.Constant, 
-                gameObject, this, AttackSpeedDecreaseParam, 5000);
+            Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
+                BuffParamType.Constant, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
         }
     }
 

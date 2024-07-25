@@ -120,11 +120,11 @@ public class Hare : Rabbit
     
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
-        if (Room == null || target == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0 || AddBuffAction == null) return;
         if (pid == ProjectileId.HarePunch)
         {
             if (target is not Creature creature) return;
-            BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000);
+            Room.Push(AddBuffAction, BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000, false);
         }
         else
         {
@@ -240,9 +240,11 @@ public class HareClone : Rabbit
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Parent is not { Hp: > 0 }) return;
+
             Target.OnDamaged(Parent, TotalSkillDamage, Damage.Normal);
-            BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None, 
-                Target, (Creature)Parent, 0, 2000);
+            Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
+            Room.Push(addBuffAction, BuffId.Aggro,
+                BuffParamType.None, Target, (Creature)Parent, 0, 2000, false);
         });
     }
     

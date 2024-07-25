@@ -142,9 +142,9 @@ public class SoulMage : Haunt
     {
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
-            if (_effectTarget == null) return;
-            BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None,
-                _effectTarget, this, 0, 1300);
+            if (_effectTarget == null || Room == null || AddBuffAction == null) return;
+            Room.Push(AddBuffAction, BuffId.Fainted,
+                BuffParamType.None, _effectTarget, this, 0, 1300, false);
             _effectTarget.OnDamaged(this, (int)(TotalSkillDamage * 0.4), Damage.True);
         });
     }
@@ -177,7 +177,7 @@ public class SoulMage : Haunt
     
     public override void ApplyEffectEffect()
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
 
         float dir;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
@@ -197,7 +197,7 @@ public class SoulMage : Haunt
         foreach (var target in targets)
         {
             target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
-            BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+            Room.Push(AddBuffAction, BuffId.Fainted, BuffParamType.None, target, this, 0, 1300, false);
         }
     }
 

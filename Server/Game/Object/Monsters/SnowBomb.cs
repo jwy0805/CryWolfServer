@@ -98,19 +98,22 @@ public class SnowBomb : Bomb
 
     public override void ApplyEffectEffect()
     {
-        Room?.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
+        if (Room == null || AddBuffAction == null) return;
+        
+        Room.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
         var targetList = new[] { GameObjectType.Monster };
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
         {
-            BuffManager.Instance.AddBuff(BuffId.DefenceDebuff, BuffParamType.Constant, 
-                gameObject, this, 3, 5000);
+            Room.Push(AddBuffAction, BuffId.DefenceDebuff,
+                BuffParamType.Constant, gameObject, this, 3, 5000, false);
         }
     }
 
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid, PositionInfo posInfo)
     {
-        if (Room == null || Hp <= 0) return;
+        if (Room == null || Hp <= 0 || AddBuffAction == null) return;
+        
         if (pid == ProjectileId.BombProjectile)
         {
             target?.OnDamaged(this, TotalAttack, Damage.Normal);
@@ -127,8 +130,8 @@ public class SnowBomb : Bomb
                 {
                     gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
                     if (_frostbite == false) continue;
-                    BuffManager.Instance.AddBuff(BuffId.AttackSpeedDebuff, BuffParamType.Percentage,
-                        gameObject, this, AttackSpeedDecreaseParam, 5000);
+                    Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
+                        BuffParamType.Percentage, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
                 }
             }
             else

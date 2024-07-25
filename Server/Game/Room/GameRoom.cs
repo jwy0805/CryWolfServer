@@ -35,6 +35,8 @@ public partial class GameRoom : JobSerializer
     private readonly long _interval = 1000;
     private long _timeSendTime;
     
+    public readonly Stopwatch Stopwatch = new();
+    public HashSet<Buff> Buffs { get; } = new();
     public GameInfo GameInfo { get; set; }
     public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
@@ -66,6 +68,7 @@ public partial class GameRoom : JobSerializer
         
         Flush();
         SetTimeAndRound();
+        UpdateBuffs();
     }
 
     private void UnitSizeMapping()

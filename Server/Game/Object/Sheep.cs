@@ -77,14 +77,19 @@ public class Sheep : Creature, ISkillObserver
 
     protected override void UpdateMoving()
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         if (Infection)
         {   // 모기 공격 맞았을 때 독 감염시키는 메서드
             var sheeps = Room!.FindTargets(this,
                 new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
             foreach (var sheep in sheeps.Select(s => s as Creature))
             {
-                if (sheep != null) BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                    sheep, this, 0.05f);
+                if (sheep != null)
+                {
+                    Room.Push(AddBuffAction, BuffId.Addicted,
+                        BuffParamType.Percentage, sheep, this, 0.05f, 5000, false);
+                }
             }
         }
         // 이동

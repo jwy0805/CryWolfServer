@@ -101,7 +101,7 @@ public class SunfloraPixie : SunflowerFairy
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Room == null) return;
+            if (Room == null || AddBuffAction == null) return;
             
             var types = new[] { GameObjectType.Tower };
             var num = _triple ? 3 : 2;
@@ -112,10 +112,10 @@ public class SunfloraPixie : SunflowerFairy
                 .OrderBy(target => target.Hp / target.MaxHp).Take(num).ToList();
             foreach (var target in healTargets)
             {
-                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                    target, this, HealParam);
+                Room.Push(AddBuffAction, BuffId.HealBuff,
+                    BuffParamType.Constant, target, this, HealParam, 1000, false);
                 // Debuff Remove
-                if (_debuffRemove && target is Creature creature) BuffManager.Instance.RemoveAllDebuff(creature);
+                if (_debuffRemove && target is Creature creature) Room.Push(Room.RemoveAllDebuffs, creature);
             }
             
             // Recover Mp
@@ -136,8 +136,8 @@ public class SunfloraPixie : SunflowerFairy
                 .OrderBy(target => target.Hp).Take(num).ToList();
             foreach (var target in fenceTargets)  
             {
-                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                    target, this, FenceHealParam);
+                Room.Push(AddBuffAction, BuffId.HealBuff,
+                    BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
             }
             
             // Invincible - Instead shield
@@ -148,8 +148,8 @@ public class SunfloraPixie : SunflowerFairy
                     .Take(num).ToList();
                 foreach (var target in targets)
                 {
-                    BuffManager.Instance.AddBuff(BuffId.Invincible, BuffParamType.None,
-                        target, this, 0, 3000);
+                    Room.Push(AddBuffAction, BuffId.Invincible,
+                        BuffParamType.None, target, this, 0, 3000, false);
                 }
             }
             

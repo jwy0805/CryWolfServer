@@ -70,11 +70,11 @@ public class FlowerPot : Sprout
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         if (_fireResistDown) target.FireResistParam -= 2;
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
         
-        BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+        Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         var drain = Math.Max((int)(TotalAttack * _lostHealAttackParam) - target.TotalDefence, 0);
         target.OnDamaged(this, (int)(TotalAttack * _lostHealAttackParam), Damage.Normal);
         Hp += (int)(drain * DrainParam);
@@ -106,9 +106,11 @@ public class FlowerPot : Sprout
 
     public override void ApplyProjectileEffect2(GameObject target, ProjectileId pid)
     {
+        if (Room == null || AddBuffAction == null) return;
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
         if (_fireResistDown) target.FireResistParam -= 1;
-        BuffManager.Instance.AddBuff(BuffId.Burn, BuffParamType.None, target, this, 0, 5000);
+        
+        Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);        
         var damage = (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam);
         var drain = Math.Max(damage - target.TotalDefence, 0);
         target.OnDamaged(this, damage, Damage.Normal);

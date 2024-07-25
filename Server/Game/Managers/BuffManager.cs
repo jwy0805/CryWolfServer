@@ -3,11 +3,11 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public sealed partial class BuffManager
+public sealed class BuffManager
 {
-    private const int CallCycle = 200;
-    private IJob _job;
-    private readonly Dictionary<BuffId, IBuffFactory> _buffDict = new() 
+    public static BuffManager Instance { get; } = new();
+    
+    public readonly Dictionary<BuffId, IBuffFactory> BuffDict = new() 
     {
         { BuffId.AttackBuff, new AttackBuffFactory() },
         { BuffId.AttackSpeedBuff, new AttackSpeedBuffFactory() },
@@ -27,93 +27,26 @@ public sealed partial class BuffManager
         { BuffId.Fainted, new FaintedFactory() }
     };
     
-    public static BuffManager Instance { get; } = new();
-    public Stopwatch Stopwatch { get; }
-    public GameRoom? Room { get; set; }
-    public HashSet<Buff> Buffs { get; } = new();
-    
-    private BuffManager()
+    public interface IBuffFactory
     {
-        Stopwatch = new Stopwatch();
-        Stopwatch.Start();
-    }
-    
-    public void AddBuff(BuffId buffId, BuffParamType paramType,
-        GameObject master, Creature caster, float param, long duration = 10000, bool nested = false)
-    {
-        if (!_buffDict.TryGetValue(buffId, out var factory)) return;
-        
-        var buff = factory.CreateBuff();
-        buff.Init(paramType, master, caster, param, duration, nested);
-
-        if (master.Invincible && buff.Type == BuffType.Debuff) return;
-        if (buff.Nested == false && master.Buffs.Contains(buff.Id))
-        {
-            Buff? b = Buffs.FirstOrDefault(b => b.Caster == caster && b.Id == buffId);
-            b?.RenewBuff(duration);
-        }
-        else
-        {
-            master.AddBuff(buff);
-        }
-    }
-    
-    public void RemoveBuff(BuffId buffId, Creature master)
-    {
-        var removeBuff = (from buff in Buffs 
-            where buff.Master.Id == master.Id && buff.Id == buffId select buff).FirstOrDefault();
-        if (removeBuff == null) return;
-        master.Buffs.Remove(removeBuff.Id);
-        removeBuff.RemoveBuff();
+        Buff CreateBuff();
     }
 
-    public void RemoveAllBuff(Creature master)
-    {
-        List<Buff> removeBuff = (from buff in Buffs 
-            where buff.Master.Id == master.Id select buff).ToList();
-        master.Buffs.Clear();
-        
-        if (removeBuff.Count != 0)
-        {
-            foreach (var buff in removeBuff)
-            {
-                buff.RemoveBuff();
-                Buffs.Remove(buff);
-            }
-        }
-    }
-
-    public void RemoveAllDebuff(Creature master)
-    {
-        List<Buff> removeDebuff = (from buff in Buffs 
-            where buff.Master.Id == master.Id && buff.Type == BuffType.Debuff select buff).ToList();
-
-        if (removeDebuff.Count != 0)
-        {
-            foreach (var debuff in removeDebuff)
-            {
-                debuff.RemoveBuff();
-                master.Buffs.Remove(debuff.Id);
-                Buffs.Remove(debuff);
-            }
-        }
-    }
-
-    public void Update()
-    {
-        if (Room == null) return;
-        _job = Room.PushAfter(CallCycle, Update);
-        if (Buffs.Count == 0) return;
-        
-        List<Buff> expiredBuff = Buffs.Where(buff => buff.UpdateBuff(Stopwatch.ElapsedMilliseconds)).ToList();
-        if (expiredBuff.Count != 0)
-        {
-            foreach (var buff in expiredBuff)
-            {
-                buff.RemoveBuff();
-                Buffs.Remove(buff);
-            }
-        }
-    }
+    private class AttackBuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackBuff(); }
+    private class AttackSpeedBuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackSpeedBuff(); }
+    private class HealBuffFactory : IBuffFactory { public Buff CreateBuff() => new HealBuff(); }
+    private class HealthBuffFactory : IBuffFactory { public Buff CreateBuff() => new HealthBuff(); }
+    private class DefenceBuffFactory : IBuffFactory { public Buff CreateBuff() => new DefenceBuff(); }
+    private class MoveSpeedBuffFactory : IBuffFactory { public Buff CreateBuff() => new MoveSpeedBuff(); }
+    private class InvincibleFactory : IBuffFactory { public Buff CreateBuff() => new Invincible(); }
+    private class AttackDebuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackDebuff(); }
+    private class AttackSpeedDebuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackSpeedDebuff(); }
+    private class DefenceDebuffFactory : IBuffFactory { public Buff CreateBuff() => new DefenceDebuff(); }
+    private class MoveSpeedDebuffFactory : IBuffFactory { public Buff CreateBuff() => new MoveSpeedDebuff(); }
+    private class CurseFactory : IBuffFactory { public Buff CreateBuff() => new Curse(); }
+    private class AddictedFactory : IBuffFactory { public Buff CreateBuff() => new Addicted(); }
+    private class AggroFactory : IBuffFactory { public Buff CreateBuff() => new Aggro(); }
+    private class BurnFactory : IBuffFactory { public Buff CreateBuff() => new Burn(); }
+    private class FaintedFactory : IBuffFactory { public Buff CreateBuff() => new Fainted(); }
 }
 

@@ -210,17 +210,17 @@ public class Creeper : Lurker
 
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
-        if (Room == null || target == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0 || AddBuffAction == null) return;
         
         if (_poison)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                target, this, 0.05f, 5000);
+            Room.Push(AddBuffAction, BuffId.Addicted,
+                BuffParamType.Percentage, target, this, 0.05f, 5000, false);
         }
         else if (_nestedPoison)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                target, this, 0.05f, 5000, true);
+            Room.Push(AddBuffAction, BuffId.Addicted,
+                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);

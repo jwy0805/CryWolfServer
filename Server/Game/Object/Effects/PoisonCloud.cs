@@ -23,8 +23,9 @@ public class PoisonCloud : Effect
             var parent = (Toadstool)Parent!;
             foreach (var target in targets)
             {
-                BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage,
-                    target, parent, 0.03f, 5000, parent.NestedPoison);
+                Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
+                Room.Push(addBuffAction, BuffId.Addicted,
+                    BuffParamType.Percentage, target, parent, 0.03f, 5000, parent.NestedPoison);
             }
         });
     }

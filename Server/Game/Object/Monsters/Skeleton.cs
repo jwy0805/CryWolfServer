@@ -86,6 +86,8 @@ public class Skeleton : Monster
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         var effectPos = new PositionInfo
         {
             PosX = target.CellPos.X, PosY = target.CellPos.Y + 0.5f, PosZ = target.CellPos.Z
@@ -106,8 +108,8 @@ public class Skeleton : Monster
             }
             else
             {
-                BuffManager.Instance.AddBuff(BuffId.DefenceDebuff, 
-                    BuffParamType.Constant, target, this, DefenceDownParam, 5000);
+                Room.Push(AddBuffAction, BuffId.DefenceDebuff, 
+                    BuffParamType.Constant, target, this, DefenceDownParam, 5000, false);
             }
         }
         

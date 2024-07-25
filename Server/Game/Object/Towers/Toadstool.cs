@@ -89,7 +89,7 @@ public class Toadstool : Fungi
     
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
-        if (Room == null || target == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0 || AddBuffAction == null) return;
         
         if (Mp >= MaxMp && _poisonCloud)
         {
@@ -102,8 +102,8 @@ public class Toadstool : Fungi
         }
         
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.None, 
-            target, this, 0.03f, 5000, NestedPoison);
+        Room.Push(AddBuffAction, BuffId.Addicted,
+            BuffParamType.Percentage, target, this, 0.05f, 5000, NestedPoison);
     }
 
     private void FindMushrooms()

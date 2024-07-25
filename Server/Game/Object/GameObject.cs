@@ -85,7 +85,12 @@ public partial class GameObject : IGameObject
     
     public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
-        if (Room == null) return;
+        if (Room == null)
+        {
+            Console.WriteLine($"Room is null for GameObject with Id {Id}");
+            return;
+        }
+        
         if (Invincible || Targetable == false || Hp <= 0) return;
         var random = new Random();
         
@@ -111,7 +116,7 @@ public partial class GameObject : IGameObject
             ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
-        Room.Broadcast(damagePacket);
+        Room?.Broadcast(damagePacket);
         
         if (Hp <= 0)
         {   // Dead
@@ -161,7 +166,7 @@ public partial class GameObject : IGameObject
         if (Room == null) return;
         if (Invincible && buff.Type is BuffType.Debuff) return;
         Buffs.Add(buff.Id);
-        BuffManager.Instance.Buffs.Add(buff);
+        Room.Buffs.Add(buff);
         buff.TriggerBuff();
     }
     

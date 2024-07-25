@@ -212,6 +212,7 @@ public partial class GameRoom
         tower.Player = player;
         tower.UnitId = (UnitId)unitId;
         tower.Room = this;
+        tower.AddBuffAction = AddBuff;
         tower.Way = MapId == 1 ? SpawnWay.North : tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         tower.Dir = tower.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         tower.Init();
@@ -226,7 +227,8 @@ public partial class GameRoom
         monster.Player = player;
         monster.UnitId = (UnitId)unitId;
         monster.Room = this;
-        monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
+        monster.AddBuffAction = AddBuff;
+        monster.Way = MapId == 1 ? SpawnWay.North : monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         monster.Init();
         return monster;
@@ -245,8 +247,6 @@ public partial class GameRoom
         statue.Init();
         return statue;
     }
-
-    
     
     public Monster SpawnMonster(UnitId unitId, PositionInfo posInfo, Player player)
     {

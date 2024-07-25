@@ -45,11 +45,13 @@ public class TrainingDummy : TargetDummy
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null || Hp <= 0) return;
+            if (Target == null || Target.Targetable == false || AddBuffAction == null) return;
+            
             if (_faint && new Random().Next(100) < _faintProb)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                    Target, this, 0, 2500);
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, Target, this, 0, 2500, false);
             }
             Target.OnDamaged(this, TotalAttack, Damage.Normal);
         });
@@ -59,6 +61,7 @@ public class TrainingDummy : TargetDummy
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
+            if (Room == null || AddBuffAction == null) return;
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             
             // Accuracy Buff
@@ -69,8 +72,8 @@ public class TrainingDummy : TargetDummy
                 foreach (var target in targets)
                 {
                     if (target.Targetable == false || target.Hp <= 0) continue;
-                    BuffManager.Instance.AddBuff(BuffId.AccuracyBuff, BuffParamType.Constant,
-                        target, this, 20, 5000);
+                    Room.Push(AddBuffAction, BuffId.AccuracyBuff,
+                        BuffParamType.Constant, target, this, 20, 5000, false);
                 }
             }
             

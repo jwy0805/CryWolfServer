@@ -105,7 +105,7 @@ public class SkeletonMage : SkeletonGiant
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Target == null || Room == null || Hp <= 0 || AddBuffAction == null) return;
             Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, PosInfo);
             
             // AttackSteal
@@ -145,8 +145,8 @@ public class SkeletonMage : SkeletonGiant
                                  .Where(gameObject => gameObject is { Hp: > 1, Targetable: true })
                                  .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
-                        BuffManager.Instance.AddBuff(BuffId.Curse, BuffParamType.None,
-                            creature, this, 0, 3000);
+                        Room.Push(AddBuffAction, BuffId.Curse,
+                            BuffParamType.None, creature, this, 0, 3000, false);
                     }
                 }
             }

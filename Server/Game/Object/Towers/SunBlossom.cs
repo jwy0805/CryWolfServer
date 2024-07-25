@@ -107,7 +107,7 @@ public class SunBlossom : Tower
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Room == null) return;
+            if (Room == null || AddBuffAction == null) return;
             
             var types = new[] { GameObjectType.Tower };
             
@@ -118,8 +118,8 @@ public class SunBlossom : Tower
                     .MinBy(target => target.Hp / target.MaxHp);
                 if (target != null)
                 {
-                    BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                        target, this, HealParam);
+                    Room.Push(AddBuffAction, BuffId.HealBuff,
+                        BuffParamType.Constant, target, this, HealParam, 1000, false);
                 }
             }
             
@@ -130,8 +130,8 @@ public class SunBlossom : Tower
                     .MaxBy(target => target.CellPos.Z);
                 if (target != null)
                 {
-                    BuffManager.Instance.AddBuff(BuffId.DefenceBuff, BuffParamType.Constant,
-                        target, this, DefenceBuffParam);
+                    Room.Push(AddBuffAction, BuffId.DefenceBuff,
+                        BuffParamType.Constant, target, this, DefenceBuffParam, 5000, false);
                 }
             }
             Mp = 0;

@@ -78,7 +78,7 @@ public class SunflowerFairy : SunBlossom
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Room == null) return;
+            if (Room == null || AddBuffAction == null) return;
             
             var types = new[] { GameObjectType.Tower };
             
@@ -89,8 +89,8 @@ public class SunflowerFairy : SunBlossom
                 .ToList();
             foreach (var target in healTargets)
             {
-                BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                    target, this, HealParam);
+                Room.Push(AddBuffAction, BuffId.HealBuff, 
+                    BuffParamType.Constant, target, this, HealParam, 1000, false);
             }
             
             // Fence Heal
@@ -103,8 +103,8 @@ public class SunflowerFairy : SunBlossom
                     .ToList();
                 foreach (var target in targets)  
                 {
-                    BuffManager.Instance.AddBuff(BuffId.HealBuff, BuffParamType.Constant,
-                        target, this, FenceHealParam);
+                    Room.Push(AddBuffAction, BuffId.HealBuff,
+                        BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
                 }
             }
             

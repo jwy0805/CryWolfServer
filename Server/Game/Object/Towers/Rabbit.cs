@@ -99,11 +99,11 @@ public class Rabbit : Bunny
 
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
-        if (Room == null || target == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0 || AddBuffAction == null) return;
         if (pid == ProjectileId.RabbitAggro)
         {
             if (target is not Creature creature) return;
-            BuffManager.Instance.AddBuff(BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000);
+            Room.Push(AddBuffAction, BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000, false);
         }
         else
         {

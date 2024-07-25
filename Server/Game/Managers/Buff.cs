@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Google.Protobuf.Protocol;
 
 namespace Server.Game;
@@ -52,22 +53,24 @@ public abstract class Buff
     public BuffId Id { get; protected set; }
     public BuffType Type { get; protected set; }
     public BuffParamType ParamType { get; private set; }
+    public GameRoom? Room { get; private set; }
     public GameObject Master { get; private set; } = new();
     public Creature Caster { get; private set; } = new();
     public float Param { get; protected set; }
     public long Duration { get; private set; }
     public bool Nested { get; private set; }
 
-    public virtual void Init(BuffParamType paramType, 
+    public virtual void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
         ParamType = paramType;
+        Room = room;
         Master = master;
         Caster = caster;
         Param = param;
         Duration = duration;
         Nested = nested;
-        StartTime = BuffManager.Instance.Stopwatch.ElapsedMilliseconds;
+        StartTime = room.Stopwatch.ElapsedMilliseconds;
         EndTime = StartTime + Duration;
     }
         
@@ -82,23 +85,25 @@ public abstract class Buff
 
     public virtual void RenewBuff(long duration)
     {
-        EndTime = BuffManager.Instance.Stopwatch.ElapsedMilliseconds + duration;
+        if (Room == null) return;
+        EndTime = Room.Stopwatch.ElapsedMilliseconds + duration;
     }
         
     public virtual void RemoveBuff()
     {
+        if (Room == null) return;
         Master.Buffs.Remove(Id);
-        var buff = BuffManager.Instance.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
-        if (buff != null) BuffManager.Instance.Buffs.Remove(buff);
+        var buff = Room.Buffs.FirstOrDefault(b => b.Master == Master && b.Id == Id);
+        if (buff != null) Room.Buffs.Remove(buff);
     }
 }
 
 public class AttackBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AttackBuff;
         Type = BuffType.Buff;
     }
@@ -133,10 +138,10 @@ public class AttackBuff : Buff
 
 public class AttackSpeedBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AttackSpeedBuff;
         Type = BuffType.Buff;
     }
@@ -171,10 +176,10 @@ public class AttackSpeedBuff : Buff
 
 public class HealBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.HealBuff;
         Type = BuffType.Buff;
     }
@@ -189,7 +194,7 @@ public class HealBuff : Buff
     
     public override void TriggerBuff()
     {
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
         CalculateFactor();
         Master.Hp += (int)Factor;
         RemoveBuff();
@@ -198,10 +203,10 @@ public class HealBuff : Buff
 
 public class HealthBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.HealthBuff;
         Type = BuffType.Buff;
     }
@@ -216,7 +221,7 @@ public class HealthBuff : Buff
     
     public override void TriggerBuff()
     {
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
         CalculateFactor();
         Master.MaxHp += (int)Factor;
         Master.Hp += (int)Factor;
@@ -239,10 +244,10 @@ public class HealthBuff : Buff
 
 public class DefenceBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.DefenceBuff;
         Type = BuffType.Buff;
     }
@@ -277,10 +282,10 @@ public class DefenceBuff : Buff
 
 public class AccuracyBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AccuracyBuff;
         Type = BuffType.Buff;
     }
@@ -315,10 +320,10 @@ public class AccuracyBuff : Buff
 
 public class MoveSpeedBuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.MoveSpeedBuff;
         Type = BuffType.Buff;
     }
@@ -353,17 +358,17 @@ public class MoveSpeedBuff : Buff
 
 public class Invincible : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Invincible;
         Type = BuffType.Buff;
     }
     
     public override void TriggerBuff()
     {
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.HolyAura, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.HolyAura, Master, Master.PosInfo, true, (int)Duration);
         Master.Invincible = true;
     }
  
@@ -376,10 +381,10 @@ public class Invincible : Buff
 
 public class AttackDebuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AttackDebuff;
         Type = BuffType.Debuff;
     }
@@ -412,10 +417,10 @@ public class AttackDebuff : Buff
 
 public class AttackSpeedDebuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AttackSpeedDebuff;
         Type = BuffType.Debuff;
     }
@@ -448,10 +453,10 @@ public class AttackSpeedDebuff : Buff
 
 public class DefenceDebuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.DefenceDebuff;
         Type = BuffType.Debuff;
     }
@@ -484,10 +489,10 @@ public class DefenceDebuff : Buff
 
 public class AccuracyDebuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.AccuracyDebuff;
         Type = BuffType.Debuff;
     }
@@ -520,10 +525,10 @@ public class AccuracyDebuff : Buff
 
 public class MoveSpeedDebuff : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.MoveSpeedDebuff;
         Type = BuffType.Debuff;
     }
@@ -556,17 +561,17 @@ public class MoveSpeedDebuff : Buff
 
 public class Curse : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Curse;
         Type = BuffType.Debuff;
     }
     
     public override void TriggerBuff()
     {
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateCurse, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateCurse, Master, Master.PosInfo, true, (int)Duration);
     }
     
     public override void RemoveBuff()
@@ -581,10 +586,10 @@ public class Addicted : Buff
 {
     private readonly double _dot = 1000;
     private double _dotTime;
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Addicted;
         Type = BuffType.Debuff;
         _dotTime = StartTime;
@@ -599,7 +604,7 @@ public class Addicted : Buff
     
     public override void TriggerBuff()
     {
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StatePoison, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StatePoison, Master, Master.PosInfo, true, (int)Duration);
     }
 
     public override bool UpdateBuff(long deltaTime)
@@ -616,10 +621,10 @@ public class Addicted : Buff
 
 public class Aggro : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Addicted;
         Type = BuffType.Debuff;
     }
@@ -627,16 +632,16 @@ public class Aggro : Buff
     public override void TriggerBuff()
     {
         Master.Target = Caster;
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateAggro, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateAggro, Master, Master.PosInfo, true, (int)Duration);
     }
 }
 
 public class Burn : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Burn;
         Type = BuffType.Debuff;
     }
@@ -644,7 +649,7 @@ public class Burn : Buff
     public override void TriggerBuff()
     {
         Master.Burn = true;
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateBurn, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateBurn, Master, Master.PosInfo, true, (int)Duration);
     }
 
     public override void RemoveBuff()
@@ -656,10 +661,10 @@ public class Burn : Buff
 
 public class Fainted : Buff
 {
-    public override void Init(BuffParamType paramType, 
+    public override void Init(BuffParamType paramType, GameRoom room,
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
-        base.Init(paramType, master, caster, param, duration, nested);
+        base.Init(paramType, room, master, caster, param, duration, nested);
         Id = BuffId.Fainted;
         Type = BuffType.Debuff;
     }
@@ -668,7 +673,7 @@ public class Fainted : Buff
     {
         if (Master is not Creature creature) return;
         creature.OnFaint();
-        BuffManager.Instance.Room?.SpawnEffect(EffectId.StateFaint, creature, creature.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateFaint, creature, creature.PosInfo, true, (int)Duration);
     }
     
     public override void RemoveBuff()

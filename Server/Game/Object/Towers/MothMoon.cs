@@ -130,13 +130,13 @@ public class MothMoon : MothLuna
 
             if (_sheepDebuffRemove)
             {
-                var sheep = BuffManager.Instance.Buffs.Where(buff => buff.Master is Sheep)
+                var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
                     .Select(buff => buff.Master as Sheep)
                     .Distinct()
                     .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
                     .MinBy(_ => Guid.NewGuid());
                 
-                if (sheep is { Room: not null }) BuffManager.Instance.RemoveAllDebuff(sheep);
+                if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
             }
             
             Mp = 0;

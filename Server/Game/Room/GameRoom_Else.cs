@@ -26,7 +26,9 @@ public partial class GameRoom
         {
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
-            FenceSize = GameData.InitFenceSize
+            FenceSize = GameData.InitFenceSize,
+            NorthTower = MapId == 1 ? 8 : 6,
+            NorthMonster = MapId == 1 ? 8 : 6,
         };
         
         StorageLevel = 1;

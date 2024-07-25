@@ -51,7 +51,7 @@ public class MothCelestial : MothMoon
     
     protected override void UpdateIdle()
     {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
@@ -99,7 +99,7 @@ public class MothCelestial : MothMoon
             // Debuff Remove
             if (_debuffRemove)
             {
-                var sheepDebuff = BuffManager.Instance.Buffs.Where(buff => buff.Master is Sheep)
+                var sheepDebuff = Room.Buffs.Where(buff => buff.Master is Sheep)
                     .Select(buff => buff.Master as Sheep)
                     .Distinct()
                     .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
@@ -107,18 +107,18 @@ public class MothCelestial : MothMoon
                 
                 foreach (var sheep in sheepDebuff)
                 {
-                    if (sheep is { Room: not null }) BuffManager.Instance.RemoveAllDebuff(sheep);
+                    if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
                 }
             }
             else
             {
-                var sheep = BuffManager.Instance.Buffs.Where(buff => buff.Master is Sheep)
+                var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
                     .Select(buff => buff.Master as Sheep)
                     .Distinct()
                     .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
                     .MinBy(_ => Guid.NewGuid());
                 
-                if (sheep is { Room: not null }) BuffManager.Instance.RemoveAllDebuff(sheep);
+                if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
             }
             
             // Breed Sheep
@@ -133,9 +133,15 @@ public class MothCelestial : MothMoon
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (Room == null || AddBuffAction == null) return;
+        
         target.OnDamaged(this, TotalAttack, Damage.Normal);
-        if (_poison) BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage,
-            target, this, 0.05f, 5000);
+        
+        if (_poison)
+        {
+            Room.Push(AddBuffAction, BuffId.Addicted, 
+                BuffParamType.Percentage, target, this, 0.05f, 5000, false);
+        }
     }
     
     protected override void SetNextState()

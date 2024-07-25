@@ -118,10 +118,12 @@ public class Horror : Creeper
 
     public override void ApplyProjectileEffect(GameObject? target, ProjectileId pid)
     {
-        if (Room == null || target == null || Hp <= 0) return;
+        if (Room == null || target == null || Hp <= 0 || AddBuffAction == null) return;
         var targetPos = target.CellPos;
-        BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-            target, this, 0.05f, 5000, true);
+
+        Room.Push(AddBuffAction, BuffId.Addicted,
+            BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+        
         target.OnDamaged(this, TotalAttack, Damage.Normal);
         
         if (_poisonSmog == false || Mp < MaxMp) return;
@@ -132,31 +134,34 @@ public class Horror : Creeper
     
     public override void ApplyEffectEffect()
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
         var effectCellPos = new Vector3(_poisonSmogPos.PosX, _poisonSmogPos.PosY, _poisonSmogPos.PosZ);
         var targets = Room.FindTargets(effectCellPos, types, _poisonSmogRange);
         
         foreach (var target in targets)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                target, this, 0.05f, 5000, true);
+            Room.Push(AddBuffAction, BuffId.Addicted,
+                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
         }
     }
 
     protected override void ApplyRollEffect(GameObject? target)
     {
-        if (target == null || Room == null) return;
+        if (target == null || Room == null || AddBuffAction == null) return;
         
         target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
         if (_rollPoison == false) return;
+        
         Room.SpawnEffect(EffectId.HorrorRoll, this, PosInfo);
         var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
         var targets = Room.FindTargetsInAngleRange(this, types, 5, 60);
+        
         foreach (var gameObject in targets)
         {
-            BuffManager.Instance.AddBuff(BuffId.Addicted, BuffParamType.Percentage, 
-                gameObject, this, 0.05f, 5000, true);
+            Room.Push(AddBuffAction, BuffId.Addicted,
+                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+            
             gameObject.OnDamaged(this, TotalSkillDamage / 2, Damage.Normal);
         }
     }

@@ -6,7 +6,6 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    public readonly Stopwatch Stopwatch = new();
     public int StorageLevel
     {
         get => _storageLevel;
@@ -23,14 +22,14 @@ public partial class GameRoom
             // 인구수 증가
             if (_storageLevel == 1)
             {
-                GameInfo.MaxSheep = 5;
-                GameInfo.NorthMaxTower = 6;
+                GameInfo.MaxSheep = 4;
+                GameInfo.NorthMaxTower = MapId == 1 ? 14 : 9;
                 if (MapId != 1) GameInfo.SouthMaxTower = 6;
             }
             else if (_storageLevel == 2)
             {
                 GameInfo.MaxSheep = 8;
-                GameInfo.NorthMaxTower = 9;
+                GameInfo.NorthMaxTower = MapId == 1 ? 14 : 9;
                 GameInfo.SheepYield += 20;
                 if (MapId != 1) GameInfo.SouthMaxTower = 9;
             }
@@ -52,8 +51,6 @@ public partial class GameRoom
         Stopwatch.Start();
         _timeSendTime = Stopwatch.ElapsedMilliseconds;
         BaseInit();
-        BuffManager.Instance.Room = this;
-        BuffManager.Instance.Update();
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)

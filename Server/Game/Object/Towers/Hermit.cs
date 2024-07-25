@@ -111,7 +111,7 @@ public class Hermit : Spike
             foreach (var target in targets.Select(target => target as Creature))
             {
                 if (target is null || target.Hp <= 0) continue;
-                BuffManager.Instance.RemoveBuff(BuffId.Burn, target);
+                Room.Push(Room.RemoveBuff, BuffId.Burn, target);
             }
         }
 
@@ -158,7 +158,7 @@ public class Hermit : Spike
     
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         if (Invincible || Targetable == false || Hp <= 0) return;
         var random = new Random();
 
@@ -203,8 +203,8 @@ public class Hermit : Spike
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
             if (_reflectionFaint && new Random().Next(100) < _reflectionFaintRate && attacker.Targetable)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                    attacker, this, 0, 1000);
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, attacker, this, 0, 1000, false);
             }
         }
     }

@@ -40,7 +40,7 @@ public class Cactus : Cacti
 
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
-        if (Room == null) return;
+        if (Room == null || AddBuffAction == null) return;
         if (Invincible) return;
         var random = new Random();
         var totalDamage = damageType is Damage.Normal or Damage.Magical 
@@ -73,8 +73,8 @@ public class Cactus : Cacti
             attacker.OnDamaged(this, reflectionDamage, damageType, true);
             if (_reflectionFaint && new Random().Next(100) < ReflectionFaintRate && attacker.Targetable)
             {
-                BuffManager.Instance.AddBuff(BuffId.Fainted, BuffParamType.None, 
-                    attacker, this, 0, 1000);
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, attacker, this, 0, 1000, false);
             }
         }
     }
