@@ -62,6 +62,8 @@ public class Tower : Creature, ISkillObserver
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
         
         Targetable = false;

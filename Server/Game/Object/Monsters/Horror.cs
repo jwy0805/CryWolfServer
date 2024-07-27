@@ -123,8 +123,7 @@ public class Horror : Creeper
 
         Room.Push(AddBuffAction, BuffId.Addicted,
             BuffParamType.Percentage, target, this, 0.05f, 5000, true);
-        
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (_poisonSmog == false || Mp < MaxMp) return;
         Mp = 0;
@@ -150,7 +149,7 @@ public class Horror : Creeper
     {
         if (target == null || Room == null || AddBuffAction == null) return;
         
-        target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Normal, false);
         if (_rollPoison == false) return;
         
         Room.SpawnEffect(EffectId.HorrorRoll, this, PosInfo);
@@ -161,8 +160,7 @@ public class Horror : Creeper
         {
             Room.Push(AddBuffAction, BuffId.Addicted,
                 BuffParamType.Percentage, target, this, 0.05f, 5000, true);
-            
-            gameObject.OnDamaged(this, TotalSkillDamage / 2, Damage.Normal);
+            Room.Push(gameObject.OnDamaged, this, TotalSkillDamage / 2, Damage.Normal, false);
         }
     }
     
@@ -199,13 +197,15 @@ public class Horror : Creeper
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }
     }
 
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
         
         Targetable = false;

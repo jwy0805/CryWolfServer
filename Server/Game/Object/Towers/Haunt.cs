@@ -60,7 +60,7 @@ public class Haunt : Soul
             Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
 
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);

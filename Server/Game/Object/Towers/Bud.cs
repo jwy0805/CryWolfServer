@@ -42,6 +42,6 @@ public class Bud : Tower
 
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
 }

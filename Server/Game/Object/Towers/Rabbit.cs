@@ -107,7 +107,7 @@ public class Rabbit : Bunny
         }
         else
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
     }
 

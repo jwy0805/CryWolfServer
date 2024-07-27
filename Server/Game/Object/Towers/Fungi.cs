@@ -59,7 +59,7 @@ public class Fungi : Mushroom
         if (Room == null || AddBuffAction == null) return;
         if (pid == ProjectileId.FungiProjectile)
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
             if (_poison)
             {
                 Room.Push(AddBuffAction, BuffId.Addicted,
@@ -74,6 +74,9 @@ public class Fungi : Mushroom
     
     protected override void OnDead(GameObject? attacker)
     {
+        Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null || AddBuffAction == null) return;
         
         Targetable = false;

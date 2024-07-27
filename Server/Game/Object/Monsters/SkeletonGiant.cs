@@ -152,12 +152,12 @@ public class SkeletonGiant : Skeleton
             target.DefenceParam -= DefenceDownParam;
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         if (target.Hp <= 0) return;
         if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
         if (AdditionalAttackParam > 0)
         {
-            target.OnDamaged(this, AdditionalAttackParam, Damage.Magical);
+            Room.Push(target.OnDamaged, this, AdditionalAttackParam, Damage.Magical, false);
         }
     }
 
@@ -191,6 +191,8 @@ public class SkeletonGiant : Skeleton
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
 
         Targetable = false;

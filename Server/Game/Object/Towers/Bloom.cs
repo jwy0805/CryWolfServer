@@ -60,14 +60,18 @@ public class Bloom : Bud
 
     protected override void UpdateSkill()
     {
+        if (Room == null) return;
+        
         // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
+            Scheduler.CancelEvent(AttackTaskId);
             return;
         }
+        if (IsAttacking) return;
+
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -94,7 +98,7 @@ public class Bloom : Bud
         int damage = TotalAttack;
         int rndInt = new Random().Next(100);
         if (_critical && rndInt < CriticalChance) damage = (int)(TotalAttack * CriticalMultiplier);
-        target.OnDamaged(this, damage, Damage.Normal);
+        Room?.Push(target.OnDamaged, this, damage, Damage.Normal, false);
     }
 
     protected override void SetNextState()

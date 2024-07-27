@@ -357,6 +357,7 @@ public partial class GameRoom
         sheep.Info.PosInfo = sheep.PosInfo;
         sheep.Room = this;
         sheep.Player = player;
+        sheep.AddBuffAction = AddBuff;
         sheep.Init();
         sheep.CellPos = Map.FindSheepSpawnPos(sheep);
 
@@ -375,6 +376,7 @@ public partial class GameRoom
         sheep.Info.PosInfo = sheep.PosInfo;
         sheep.Room = this;
         sheep.Player = player;
+        sheep.AddBuffAction = AddBuff;
         sheep.Init();
         sheep.CellPos = new Vector3(sheep.PosInfo.PosX, sheep.PosInfo.PosY, sheep.PosInfo.PosZ);
         Push(EnterGame, sheep);

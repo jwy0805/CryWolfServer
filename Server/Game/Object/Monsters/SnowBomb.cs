@@ -116,7 +116,8 @@ public class SnowBomb : Bomb
         
         if (pid == ProjectileId.BombProjectile)
         {
-            target?.OnDamaged(this, TotalAttack, Damage.Normal);
+            if (target == null || target.Targetable == false || target.Hp <= 0) return;
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
         else
         {
@@ -128,7 +129,7 @@ public class SnowBomb : Bomb
                 var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);
                 foreach (var gameObject in gameObjects)
                 {
-                    gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+                    Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
                     if (_frostbite == false) continue;
                     Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
                         BuffParamType.Percentage, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
@@ -136,7 +137,8 @@ public class SnowBomb : Bomb
             }
             else
             {
-                target?.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+                if (target == null || target.Targetable == false || target.Hp <= 0) return;
+                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             }
         }
     }
@@ -209,7 +211,7 @@ public class SnowBomb : Bomb
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }
     }
 }

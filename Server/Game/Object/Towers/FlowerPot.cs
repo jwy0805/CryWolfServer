@@ -76,13 +76,13 @@ public class FlowerPot : Sprout
         
         Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         var drain = Math.Max((int)(TotalAttack * _lostHealAttackParam) - target.TotalDefence, 0);
-        target.OnDamaged(this, (int)(TotalAttack * _lostHealAttackParam), Damage.Normal);
+        Room.Push(target.OnDamaged, this, (int)(TotalAttack * _lostHealAttackParam), Damage.Normal, false);
         Hp += (int)(drain * DrainParam);
         
         if (pid == ProjectileId.Sprout3HitFire)
         {
             var additionalDamage = Math.Max((int)(TotalAttack * _lostHealAttackParam) - target.TotalDefence, 0);
-            target.OnDamaged(this, additionalDamage, Damage.Magical);
+            Room.Push(target.OnDamaged, this, additionalDamage, Damage.Magical, false);
             Hp += (int)(additionalDamage * DrainParam);
         }
 
@@ -113,13 +113,13 @@ public class FlowerPot : Sprout
         Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);        
         var damage = (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam);
         var drain = Math.Max(damage - target.TotalDefence, 0);
-        target.OnDamaged(this, damage, Damage.Normal);
+        Room.Push(target.OnDamaged, this, damage, Damage.Normal, false);
         Hp += (int)(drain * DrainParam);
 
         if (pid != ProjectileId.Sprout3HitFire) return;
         var additionalDamage = Math.Max(
             (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam) - target.TotalDefence, 0);
-        target.OnDamaged(this, additionalDamage, Damage.Magical);
+        Room.Push(target.OnDamaged, this, additionalDamage, Damage.Magical, false);
         Hp += (int)(additionalDamage * DrainParam);
     }
 }

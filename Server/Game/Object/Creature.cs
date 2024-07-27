@@ -87,7 +87,9 @@ public class Creature : GameObject
     protected virtual void UpdateIdle() { }
 
     protected virtual void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -116,16 +118,18 @@ public class Creature : GameObject
     
     protected virtual void UpdateAttack()
     {
+        if (Room == null) return;
         // 첫 UpdateAttack Cycle시 아래 코드 실행
-        if (IsAttacking) return;
-
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
+            Scheduler.CancelEvent(AttackTaskId);
             return;
         }
         
+        if (IsAttacking) return;
+
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -133,7 +137,7 @@ public class Creature : GameObject
         };
         
         Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
+        long timeNow = Room.Stopwatch.ElapsedMilliseconds;
         long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
         long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
@@ -151,14 +155,18 @@ public class Creature : GameObject
 
     protected virtual void UpdateSkill()
     {
+        if (Room == null) return;
+        
         // 첫 UpdateSkill Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
+            Scheduler.CancelEvent(AttackTaskId);
             return;
         }
+        if (IsAttacking) return;
+        
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -236,13 +244,13 @@ public class Creature : GameObject
     
     public virtual void ApplyAttackEffect(GameObject target)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
     public virtual void ApplyEffectEffect() { }
     public virtual void ApplyEffectEffect(EffectId eid) { }
     public virtual void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
 
     protected virtual void SetNextState()

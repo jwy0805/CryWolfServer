@@ -53,7 +53,8 @@ public class TrainingDummy : TargetDummy
                 Room.Push(AddBuffAction, BuffId.Fainted,
                     BuffParamType.None, Target, this, 0, 2500, false);
             }
-            Target.OnDamaged(this, TotalAttack, Damage.Normal);
+            
+            Room.Push(Target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         });
     }
     

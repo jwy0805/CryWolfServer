@@ -116,7 +116,7 @@ public partial class GameObject : IGameObject
             ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
-        Room?.Broadcast(damagePacket);
+        Room.Broadcast(damagePacket);
         
         if (Hp <= 0)
         {   // Dead
@@ -127,7 +127,7 @@ public partial class GameObject : IGameObject
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {   // Reflection
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }
     }
     

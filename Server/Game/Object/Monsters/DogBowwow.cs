@@ -91,7 +91,7 @@ public class DogBowwow : DogBark
         if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
         {
             HitCount = 0;
-            target.OnDamaged(this, TotalSkillDamage, Damage.True);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
             if (_smash == false || _smashFaint == false) return;
             var randomInt = new Random().Next(100);
             if (randomInt > 15) return;
@@ -100,7 +100,7 @@ public class DogBowwow : DogBark
         }
         else
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
     }
 

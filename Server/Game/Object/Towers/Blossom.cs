@@ -107,6 +107,8 @@ public class Blossom : Bloom
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
+        if (Room == null) return;
+        
         if (pid == ProjectileId.BlossomProjectile)
         {
             if (_faintCritical)
@@ -115,7 +117,7 @@ public class Blossom : Bloom
                 {
                     var criticalRate = CriticalChance;
                     CriticalChance = 100;
-                    target.OnDamaged(this, TotalAttack, Damage.Normal);
+                    Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
                     CriticalChance = criticalRate;
                     return;
                 }
@@ -123,12 +125,12 @@ public class Blossom : Bloom
 
             if (_powerAttack)
             {
-                target.OnDamaged(this, TotalAttack + _attackRemainder, Damage.Normal);
+                Room.Push(target.OnDamaged, this, TotalAttack * _attackRemainder, Damage.Normal, false);
                 _attackRemainder = 0;
             }
             else
             {
-                target.OnDamaged(this, TotalAttack, Damage.Normal);
+                Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
             }
         }       
         else
@@ -138,7 +140,7 @@ public class Blossom : Bloom
                 _attackRemainder = target.Hp / 2;
             }
             
-            target.OnDamaged(this, 9999, Damage.True);
+            Room.Push(target.OnDamaged, this, 9999, Damage.True, false);
         }
     }
 }

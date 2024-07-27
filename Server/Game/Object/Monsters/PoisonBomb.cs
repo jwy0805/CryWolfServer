@@ -44,6 +44,8 @@ public class PoisonBomb : SnowBomb
 
     protected override void UpdateRush()
     {
+        if (Room == null) return;
+        
         Vector3 flatDestPos = DestPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
@@ -89,10 +91,10 @@ public class PoisonBomb : SnowBomb
 
             foreach (var gameObject in gameObjects)
             {
-                gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+                Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
                 Room.Push(AddBuffAction, BuffId.Addicted,
                     BuffParamType.Percentage, gameObject, this, _poisonParam, 5000, false);
-                if (_mpDown == false) continue;
+                if (_mpDown == false || gameObject.Room == null) continue;
                 gameObject.MaxMp *= _increasingMaxMpParam;
                 gameObject.BroadcastMp();
             }
@@ -121,7 +123,7 @@ public class PoisonBomb : SnowBomb
         
         foreach (var gameObject in gameObjects)
         {
-            gameObject.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
                 BuffParamType.Constant, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
         }
@@ -176,7 +178,7 @@ public class PoisonBomb : SnowBomb
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }
     }
 }

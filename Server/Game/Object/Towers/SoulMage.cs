@@ -145,7 +145,7 @@ public class SoulMage : Haunt
             if (_effectTarget == null || Room == null || AddBuffAction == null) return;
             Room.Push(AddBuffAction, BuffId.Fainted,
                 BuffParamType.None, _effectTarget, this, 0, 1300, false);
-            _effectTarget.OnDamaged(this, (int)(TotalSkillDamage * 0.4), Damage.True);
+            Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.4), Damage.True, false);
         });
     }
     
@@ -162,7 +162,7 @@ public class SoulMage : Haunt
             
             foreach (var target in targets)
             {
-                target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             }
         });
     }
@@ -171,7 +171,8 @@ public class SoulMage : Haunt
     {
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
-            _effectTarget?.OnDamaged(this, (int)(TotalSkillDamage * 0.7), Damage.Magical);
+            if (Room == null || _effectTarget == null) return;
+            Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.7), Damage.Magical, false);
         });
     }
     
@@ -196,7 +197,7 @@ public class SoulMage : Haunt
             types, 2, 7, dir, 2);
         foreach (var target in targets)
         {
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.Fainted, BuffParamType.None, target, this, 0, 1300, false);
         }
     }
@@ -280,7 +281,7 @@ public class SoulMage : Haunt
             if (tanker != null)
             {
                 var halfDamage = (int)(totalDamage * 0.5f);
-                tanker.OnDamaged(attacker, halfDamage, damageType);
+                Room.Push(tanker.OnDamaged, attacker, halfDamage, damageType, false);
                 totalDamage = halfDamage;
             }
         }
@@ -298,7 +299,7 @@ public class SoulMage : Haunt
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }
     }
 

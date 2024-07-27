@@ -82,7 +82,7 @@ public class CactusBoss : Cactus
                 UpdateAttack2();
                 break;
             case State.Attack3:
-                UpdateAttack3();
+                UpdateAttack3();    // 달려간 후 Smash
                 break;
             case State.Skill:
                 UpdateSkill();
@@ -147,8 +147,9 @@ public class CactusBoss : Cactus
 
     protected override void UpdateRush()
     {
+        if (Room == null) return;
+        
         Target = Room.FindClosestTarget(this, Stat.AttackType);
-        Console.WriteLine(Target?.ObjectType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             MoveSpeed -= _rushSpeed;
@@ -183,13 +184,16 @@ public class CactusBoss : Cactus
     
     protected override void UpdateAttack3()
     {
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (IsAttacking) return;
+        // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
+            IsAttacking = false;
+            Scheduler.CancelEvent(AttackTaskId);
             return;
         }
+        
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
@@ -219,7 +223,7 @@ public class CactusBoss : Cactus
                 Dir = Dir, PosX = Target.PosInfo.PosX, PosY = Target.PosInfo.PosY, PosZ = Target.PosInfo.PosZ
             };
             Room.SpawnEffect(EffectId.CactusBossSmashEffect, Target, posInfo);
-            Target.OnDamaged(this, SmashDamage, Damage.Normal);
+            Room.Push(Target.OnDamaged, this, SmashDamage, Damage.Normal, false);
         });
     }
     
@@ -242,7 +246,7 @@ public class CactusBoss : Cactus
         var targetList = Room.FindTargetsInAngleRange(this, types, 80, 90);
         foreach (var target in targetList)
         {
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.Aggro,
                 BuffParamType.None, target, this, 0, 2000, false);
         }
@@ -313,7 +317,7 @@ public class CactusBoss : Cactus
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
             if (new Random().Next(99) < ReflectionFaintRate && attacker.Targetable)
             {
                 Room.Push(AddBuffAction, BuffId.Fainted,

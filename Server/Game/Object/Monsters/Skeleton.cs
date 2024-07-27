@@ -113,7 +113,7 @@ public class Skeleton : Monster
             }
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         if (target.Hp <= 0) return;
         
         if (_additionalDamage)
@@ -122,7 +122,7 @@ public class Skeleton : Monster
             
             if (AdditionalAttackParam > 0)
             {
-                target.OnDamaged(this, AdditionalAttackParam, Damage.Magical);
+                Room.Push(target.OnDamaged, this, AdditionalAttackParam, Damage.Magical, false);
                 if (target.Hp <= 0) return;
             }
             

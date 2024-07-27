@@ -200,7 +200,7 @@ public class Hermit : Spike
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
             if (_reflectionFaint && new Random().Next(100) < _reflectionFaintRate && attacker.Targetable)
             {
                 Room.Push(AddBuffAction, BuffId.Fainted,

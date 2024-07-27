@@ -130,12 +130,12 @@ public class Bomb : Monster
         if (Room == null || target == null || Hp <= 0) return;
         if (pid == ProjectileId.BombProjectile)
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
         else
         {
             Room.SpawnEffect(EffectId.BombSkillExplosion, this, posInfo);
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
         }
     }
 

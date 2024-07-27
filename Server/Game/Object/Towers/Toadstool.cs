@@ -101,7 +101,7 @@ public class Toadstool : Fungi
             Mp = 0;
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         Room.Push(AddBuffAction, BuffId.Addicted,
             BuffParamType.Percentage, target, this, 0.05f, 5000, NestedPoison);
     }

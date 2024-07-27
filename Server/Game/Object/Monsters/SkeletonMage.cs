@@ -157,8 +157,9 @@ public class SkeletonMage : SkeletonGiant
 
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
+        if (Room == null) return;
         
+        var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
         if (PreviousTargetId != target.Id)
         {
             AdditionalAttackParam = 0;
@@ -171,7 +172,7 @@ public class SkeletonMage : SkeletonGiant
         DebuffTargets = targets;
 
         if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
-        target.OnDamaged(this, TotalAttack + AdditionalAttackParam, Damage.Magical);
+        Room.Push(target.OnDamaged, this, TotalAttack + AdditionalAttackParam, Damage.Magical, false);
     }
 
     protected override void SetNextState()
@@ -204,6 +205,8 @@ public class SkeletonMage : SkeletonGiant
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
 
         Targetable = false;

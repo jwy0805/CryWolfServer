@@ -43,13 +43,17 @@ public class MosquitoBug : Monster
 
     protected override void UpdateIdle()
     {
+        if (Room == null) return;
+        
         Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
 
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        // Targeting
         Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -80,7 +84,7 @@ public class MosquitoBug : Monster
     {
         if (Room == null || AddBuffAction == null) return;
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);       
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         if (target is Sheep _ && _faint && new Random().Next(100) < FaintParam)
         {
             Room.Push(AddBuffAction, BuffId.Fainted,

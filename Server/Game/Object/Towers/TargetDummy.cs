@@ -94,14 +94,17 @@ public class TargetDummy : PracticeDummy
     
     protected override void UpdateSkill()
     {
+        if (Room == null) return;
         // 첫 UpdateSkill Cycle시 아래 코드 실행
-        if (IsAttacking) return;
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
             IsAttacking = false;
+            Scheduler.CancelEvent(AttackTaskId);
             return;
         }
+        if (IsAttacking) return;
+
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,

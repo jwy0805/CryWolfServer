@@ -223,26 +223,28 @@ public class Creeper : Lurker
                 BuffParamType.Percentage, target, this, 0.05f, 5000, true);
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
     
     protected virtual void ApplyRollEffect(GameObject? target)
     {
-        if (target == null) return;
+        if (target == null || Room == null) return;
         
         if (_rollDamageUp)
         {
-            target.OnDamaged(this, TotalSkillDamage * 2, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage * 2, Damage.Normal, false);
         }
         else
         {
-            target.OnDamaged(this, TotalSkillDamage, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Normal, false);
         }
     }
     
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
         
         Targetable = false;

@@ -70,7 +70,8 @@ public class Cactus : Cacti
         if (damageType is Damage.Normal && Reflection && reflected == false)
         {
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
-            attacker.OnDamaged(this, reflectionDamage, damageType, true);
+            Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
+            
             if (_reflectionFaint && new Random().Next(100) < ReflectionFaintRate && attacker.Targetable)
             {
                 Room.Push(AddBuffAction, BuffId.Fainted,

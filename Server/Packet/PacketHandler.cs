@@ -179,7 +179,25 @@ public class PacketHandler
         bool canSpawn = room.Map.CanSpawn(cellPos, size);
         
         var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type};
-        room.Broadcast(unitSpawnPacket);
+        player?.Session?.Send(unitSpawnPacket);
+    }
+
+    public static void C_GetRangesHandler(PacketSession session, IMessage packet)
+    {
+        var rangePacket = (C_GetRanges)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        if (room == null) return;
+
+        DataManager.UnitDict.TryGetValue(rangePacket.UnitId, out var unitData);
+        if (unitData == null) return;
+        
+        var sendRangePacket = new S_GetRanges
+        {
+            AttackRange = unitData.stat.AttackRange, SkillRange = unitData.stat.SkillRange
+        };
+        player?.Session?.Send(sendRangePacket);
     }
     
     public static void C_SetTextUIHandler(PacketSession session, IMessage packet)

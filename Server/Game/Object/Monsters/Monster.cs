@@ -27,7 +27,7 @@ public class Monster : Creature, ISkillObserver
 
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
@@ -35,6 +35,8 @@ public class Monster : Creature, ISkillObserver
     protected override void OnDead(GameObject? attacker)
     {
         Player.SkillSubject.RemoveObserver(this);
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
         
         Targetable = false;

@@ -171,8 +171,8 @@ public class SnakeNaga : Snake
             BroadcastHp();
         }
         
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
-        target.OnDamaged(this, TotalAttack, Damage.Normal);        
     }
 
     public override void ApplyEffectEffect()
@@ -183,7 +183,7 @@ public class SnakeNaga : Snake
         var targets = Room.FindTargets(meteorPos, types, _meteorRange, 2);
         foreach (var target in targets)
         {
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         }
     }

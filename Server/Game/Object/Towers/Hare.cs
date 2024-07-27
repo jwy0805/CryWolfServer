@@ -128,7 +128,7 @@ public class Hare : Rabbit
         }
         else
         {
-            target.OnDamaged(this, TotalAttack, Damage.Normal);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
     }
 
@@ -241,7 +241,7 @@ public class HareClone : Rabbit
         {
             if (Target == null || Target.Targetable == false || Room == null || Parent is not { Hp: > 0 }) return;
 
-            Target.OnDamaged(Parent, TotalSkillDamage, Damage.Normal);
+            Room.Push(Target.OnDamaged, Parent, TotalSkillDamage, Damage.Normal, false);
             Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
             Room.Push(addBuffAction, BuffId.Aggro,
                 BuffParamType.None, Target, (Creature)Parent, 0, 2000, false);

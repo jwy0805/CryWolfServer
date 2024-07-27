@@ -135,7 +135,7 @@ public class MothCelestial : MothMoon
     {
         if (Room == null || AddBuffAction == null) return;
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (_poison)
         {

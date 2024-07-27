@@ -95,7 +95,7 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            SetTutorialRound(_round);
+            // SetTutorialRound(_round);
             _tutorialSet = true;
         }
         // Tutorial
@@ -103,7 +103,7 @@ public partial class GameRoom : JobSerializer
         if (_roundTime < 0) 
         {
             InitRound();
-            T_SpawnMonstersInNewRound();
+            // T_SpawnMonstersInNewRound();
             // SpawnMonstersInNewRound();
         }
         

@@ -76,18 +76,20 @@ public class DogBark : DogPup
    
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null) return;
+        
         if (_4Hit)
         {
             HitCount++;
             if (HitCount == 4)
             {
                 HitCount = 0;
-                target.OnDamaged(this, TotalSkillDamage, Damage.True);
+                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
                 return;
             }
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
 
     protected override void SetNextState()

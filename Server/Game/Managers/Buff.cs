@@ -613,7 +613,7 @@ public class Addicted : Buff
         if (!(deltaTime > _dotTime + _dot)) return false;
         _dotTime = deltaTime;
         CalculateFactor();
-        Master.OnDamaged(Caster, (int)Factor, Damage.Poison);
+        Room?.Push(Master.OnDamaged, Caster, (int)Factor, Damage.Poison, false);
 
         return false;
     }

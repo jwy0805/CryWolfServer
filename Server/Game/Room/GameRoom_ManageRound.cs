@@ -25,29 +25,30 @@ public partial class GameRoom
         GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam };
         GameInfo.FenceStartPos = GameInfo.FenceStartPos with { Z = GameInfo.FenceStartPos.Z + _forwardParam };
 
+        var towerCopy = new Dictionary<int, Tower>(_towers);
         var tasks = new List<Task>();
     
         for (int i = 0; i < GameData.NorthFenceMax; i++)
         {
-            var minX = 2 * i - 12;
-            var maxX = 2 * i - 10;
-            var fences = _fences.Values.Where(fence => 
-                fence.CellPos.X >= minX && fence.CellPos.X < maxX).ToList();
-            var towers = _towers.Values.Where(tower => 
-                tower.CellPos.X >= minX && tower.CellPos.X < maxX).ToList();
-
+            var minX = -12 + i * 2;
+            var maxX = -10 + i * 2;
+            var fenceOrder = i;
+            
             tasks.Add(_scheduler.ScheduleEvent(88 * i, () =>
             {
                 try
                 {
-                    foreach (var fence in fences)
-                    {   
-                        var newFenceCellPos = fence.CellPos + new Vector3 { Z = _forwardParam };
-                        var newFenceLv = fence.FenceNum;
-                        LeaveGame(fence.Id);
-                        var newFence = SpawnFence(newFenceCellPos, newFenceLv);
-                        SpawnEffect(EffectId.MoveForwardEffect, newFence);
-                    }
+                    // Move forward fence
+                    var newFenceCellPos = GameInfo.FenceStartPos + new Vector3 { X = fenceOrder * 2 };
+                    var fence = _fences.Values
+                        .FirstOrDefault(fence => fence.CellPos.X >= minX && fence.CellPos.X < maxX);
+                    var newFence = SpawnFence(newFenceCellPos, StorageLevel);
+                    if (fence != null)  LeaveGame(fence.Id);
+                    SpawnEffect(EffectId.MoveForwardEffect, newFence);
+                    
+                    // Move forward towers
+                    var towers = _towers.Values
+                        .Where(tower => tower.CellPos.X >= minX && tower.CellPos.X < maxX).ToList();
                     foreach (var tower in towers)
                     {
                         tower.CellPos += new Vector3 { Z = _forwardParam };
@@ -65,6 +66,17 @@ public partial class GameRoom
         try
         {
             await Task.WhenAll(tasks);
+            
+            var diffTowers = _towers
+                .Where(kv => !towerCopy.ContainsKey(kv.Key))
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+            foreach (var tower in diffTowers.Values)
+            {
+                tower.CellPos += new Vector3 { Z = _forwardParam };
+                tower.BroadcastMoveForward();
+                SpawnEffect(EffectId.MoveForwardEffect, tower);
+            }
+            
         }
         catch (Exception ex)
         {

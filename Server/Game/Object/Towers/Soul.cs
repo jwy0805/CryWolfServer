@@ -49,8 +49,9 @@ public class Soul : Tower
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
+        // Drain
         if (_drain == false) return;
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);

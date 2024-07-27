@@ -45,13 +45,15 @@ public class Wolf : WolfPup
 
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null) return;
+        
         if (_magicalAttack)
         {
-            Room?.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
-            target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
+            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (_drain)
         {

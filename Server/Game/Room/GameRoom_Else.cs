@@ -504,7 +504,7 @@ public partial class GameRoom
 
     private PositionInfo FindMonsterSpawnPos(MonsterStatue statue)
     {
-        PositionInfo posInfo = new PositionInfo()
+        var posInfo = new PositionInfo()
         {
             PosX = statue.PosInfo.PosX,
             PosY = statue.PosInfo.PosY,
@@ -514,11 +514,11 @@ public partial class GameRoom
         
         if (statue.Way == SpawnWay.North)
         {
-            posInfo.PosZ = statue.PosInfo.PosZ - statue.Stat.SizeZ;
+            posInfo.PosZ = statue.PosInfo.PosZ - statue.Stat.SizeZ * 2f;
         }
         else
         {
-            posInfo.PosZ = statue.PosInfo.PosZ + statue.Stat.SizeZ;
+            posInfo.PosZ = statue.PosInfo.PosZ + statue.Stat.SizeZ * 2f;
         }
 
         var pos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);

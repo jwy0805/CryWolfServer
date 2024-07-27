@@ -92,7 +92,7 @@ public class MosquitoStinger : MosquitoPester
     private void StingEffect(GameObject? target)
     {
         if (target is not Sheep sheep) return;
-        sheep.OnDamaged(this, 9999, Damage.True);
+        Room?.Push(sheep.OnDamaged, this, 9999, Damage.True, false);
     }
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
@@ -118,7 +118,7 @@ public class MosquitoStinger : MosquitoPester
             else sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
     }
 
     protected override void SetNextState()

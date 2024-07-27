@@ -187,7 +187,8 @@ public class MoleRatKing : MoleRat
         // TODO : 훔친만큼 DNA 증가
         // some code
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+
         // Steal Attack 처리
         if (target.Room == null || target.Targetable == false || target.Hp <= 0) return;
         if (StolenObjectId == 0)

@@ -64,7 +64,7 @@ public class MosquitoPester : MosquitoBug
                 BuffParamType.None, target, this, 0, 5000, false);
         }
         
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (pid == ProjectileId.MosquitoPesterProjectile)
         {

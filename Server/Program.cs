@@ -34,7 +34,7 @@ public class Program
                 else ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
                 break;
             default:
-                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
                 break;
         }
 

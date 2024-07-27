@@ -109,21 +109,22 @@ public class Werewolf : Wolf
             var damage = Math.Max(TotalSkillDamage - Target.TotalDefence, 0);
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
-            Target.OnDamaged(this, TotalSkillDamage, Damage.Magical);
+            Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             // TODO : DNA
         });
     }
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null) return;
+        
         var magicalParam = (int)(TotalSkillDamage * 0.2f);
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0) 
                      + Math.Max(magicalParam - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
-        Room?.SpawnEffect(EffectId.WerewolfMagicalEffect, this, target.PosInfo, true);
-        
-        target.OnDamaged(this, magicalParam, Damage.Magical);
-        target.OnDamaged(this, TotalAttack, Damage.Normal);
+        Room.SpawnEffect(EffectId.WerewolfMagicalEffect, this, target.PosInfo, true);
+        Room.Push(target.OnDamaged, this, magicalParam, Damage.Magical, false);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         // TODO : DNA
     }
 
