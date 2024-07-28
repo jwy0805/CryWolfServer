@@ -74,7 +74,10 @@ public class GameInfo // 한 판마다 초기화되는 정보
         {
             _northTower = value;
             foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northTower, Max = false});
+            {
+                player.Session?.Send(new S_SetTextUI
+                    { TextUI = CommonTexts.NorthCapacityText, Value = _northTower, Max = false });
+            }        
         }
     }
 

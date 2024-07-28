@@ -4,8 +4,6 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    readonly List<MonsterStatue> _testStatues = new();
-
     private void RenewTowerSlot(TowerSlot slot, Tower tower)
     {
         slot.TowerId = tower.UnitId;
@@ -50,27 +48,13 @@ public partial class GameRoom
         }
     }
     
-    private void T_SpawnMonstersInNewRound()
-    {
-        var slots = _northMonsters.Concat(_southMonsters).ToList();
-        
-        foreach (var slot in slots)
-        {
-            var player = _npc;
-            var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
-            monster.StatueId = slot.Statue.Id;
-            EnterGame(monster);
-        }
-    }
-    
-    private void T_SpawnStatue(UnitId monsterId, PositionInfo pos)
+    // Single game logic
+    private void SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
         var player = _npc;
-        var statue = EnterMonsterStatue((int)monsterId, pos, player);
+        var statue = SpawnMonsterStatue(monsterId, pos, player);
         T_RegisterMonsterStatue(statue);
         EnterGame(statue);
-        _testStatues.Add(statue);
-
         EffectSetting(statue);
     }
 
@@ -100,16 +84,14 @@ public partial class GameRoom
         {
             PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ,
         };
-        var monsterId = (int)statue.UnitId + 1;
+        var monsterId = statue.UnitId + 1;
         var player = _npc;
-        var newStatue = EnterMonsterStatue(monsterId, newPos, player);
+        var newStatue = SpawnMonsterStatue(monsterId, newPos, player);
         T_RenewMonsterStatue(statue, newStatue);
 
-        _testStatues.Remove(statue);
         LeaveGame(oldStatueId);
         Broadcast(new S_Despawn { ObjectIds = { oldStatueId }});
         EnterGame(newStatue);
-        _testStatues.Add(newStatue);
         
         EffectSetting(statue);
     }
@@ -125,15 +107,15 @@ public partial class GameRoom
             case 0: // 북 2
                 PositionInfo pos1 = new() { PosX = -5, PosY = 6, PosZ = 12, State = State.Idle };
                 PositionInfo pos2 = new() { PosX = 3, PosY = 6, PosZ = 12, State = State.Idle };
-                T_SpawnStatue(UnitId.WolfPup, pos1);
-                T_SpawnStatue(UnitId.WolfPup, pos2);
+                SpawnStatue(UnitId.WolfPup, pos1);
+                SpawnStatue(UnitId.WolfPup, pos2);
                 break;
             
             case 1: // 북 4
                 PositionInfo pos3 = new() { PosX = 0, PosY = 6, PosZ = 13, State = State.Idle };
                 PositionInfo pos4 = new() { PosX = -3, PosY = 6, PosZ = 15, State = State.Idle };
-                T_SpawnStatue(UnitId.Lurker, pos3);
-                T_SpawnStatue(UnitId.Snakelet, pos4);
+                SpawnStatue(UnitId.Lurker, pos3);
+                SpawnStatue(UnitId.Snakelet, pos4);
                 break;
             
             case 2:
@@ -143,7 +125,7 @@ public partial class GameRoom
                 T_SkillUpgrade(Skill.LurkerDefence);
                 
                 PositionInfo pos5 = new() { PosX = 1.5f, PosY = 6, PosZ = 13, State = State.Idle };
-                T_SpawnStatue(UnitId.WolfPup, pos5);
+                SpawnStatue(UnitId.WolfPup, pos5);
                 
                 
                 break;
@@ -151,13 +133,13 @@ public partial class GameRoom
             case 4:
                 T_SkillUpgrade(Skill.SnakeletAttack);
                 
-                MonsterStatue? northWolfPup = _testStatues
+                var northWolfPup = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
                 if (northWolfPup != null) T_UnitUpgrade(northWolfPup);
                 break;
             
             case 5: 
-                MonsterStatue? northLurker = _testStatues
+                var northLurker = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Lurker, Way: SpawnWay.North });
                 if (northLurker != null) T_UnitUpgrade(northLurker);
                 break;
@@ -172,16 +154,16 @@ public partial class GameRoom
                 T_SkillUpgrade(Skill.CreeperRoll);
                 
                 PositionInfo pos7 = new() { PosX = -3, PosY = 6, PosZ = 12, State = State.Idle };
-                T_SpawnStatue(UnitId.Werewolf, pos7);
+                SpawnStatue(UnitId.Werewolf, pos7);
                 
-                MonsterStatue? northWolfpup = _testStatues
+                var northWolfpup = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
                 if (northWolfpup != null) T_UnitUpgrade(northWolfpup);
                 break;
             
             case 8:
                 
-                MonsterStatue? northCreeper = _testStatues
+                var northCreeper = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Creeper, Way: SpawnWay.North });
                 if (northCreeper != null) T_UnitUpgrade(northCreeper);
                 break;

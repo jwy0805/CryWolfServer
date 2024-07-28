@@ -100,9 +100,8 @@ public partial class GameRoom
                     SendWarningMessage(player, "인구수를 초과했습니다.");
                     return;
                 }
-                var tower = EnterTower(spawnPacket.Num, spawnPacket.PosInfo, player);
+                var tower = SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
                 if (spawnPacket.Register) RegisterTower(tower);
-                Push(EnterGame, tower);
                 break;
 
             case GameObjectType.Monster:
@@ -124,15 +123,9 @@ public partial class GameRoom
                     SendWarningMessage(player, "인구수를 초과했습니다.");
                     return;
                 }
-                MonsterStatue monsterStatue = EnterMonsterStatue(spawnPacket.Num, spawnPacket.PosInfo, player);
-                RegisterMonsterStatue(monsterStatue);
+                var monsterStatue = SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
+                Push(RegisterMonsterStatue, monsterStatue);
                 Push(EnterGame, monsterStatue);
-                break;
-            
-            case GameObjectType.Sheep:
-                var sheep = EnterSheep(player);
-                Push(EnterGame, sheep);
-                GameInfo.SheepCount++;
                 break;
         }
     }

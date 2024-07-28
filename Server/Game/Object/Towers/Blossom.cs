@@ -125,7 +125,7 @@ public class Blossom : Bloom
 
             if (_powerAttack)
             {
-                Room.Push(target.OnDamaged, this, TotalAttack * _attackRemainder, Damage.Normal, false);
+                Room.Push(target.OnDamaged, this, TotalAttack + _attackRemainder, Damage.Normal, false);
                 _attackRemainder = 0;
             }
             else

@@ -168,20 +168,6 @@ public partial class GameRoom
         return fence;
     }
 
-    private void SpawnMonstersInNewRound()
-    {
-        var slots = _northMonsters.Concat(_southMonsters).ToList();
-        
-        foreach (var slot in slots)
-        {
-            var player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)!;
-            var monster = EnterMonster((int)slot.MonsterId, FindMonsterSpawnPos(slot.Statue), player);
-            monster.StatueId = slot.Statue.Id;
-            Push(EnterGame, monster);
-            player.Session?.Send(new S_RegisterInSlot { ObjectId = monster.Id, UnitId = (int)monster.UnitId });
-        }
-    }
-
     private void SpawnTowersInNewRound()
     {
         // YieldCoin
@@ -203,48 +189,44 @@ public partial class GameRoom
             tower.RoundInit();
         }
     }
-
-    private Tower EnterTower(int unitId, PositionInfo posInfo, Player player)
+    
+    private void SpawnMonstersInNewRound()
     {
-        var tower = ObjectManager.Instance.Create<Tower>((UnitId)unitId);
+        foreach (var statue in _statues.Values)
+        {
+            var monster = SpawnMonster(statue.UnitId, FindMonsterSpawnPos(statue), _npc);
+            monster.StatueId = statue.Id;
+        }
+    }
+
+    private Tower SpawnTower(UnitId unitId, PositionInfo posInfo, Player player)
+    {
+        var tower = ObjectManager.Instance.Create<Tower>(unitId);
         tower.PosInfo = posInfo;
         tower.Info.PosInfo = tower.PosInfo;
         tower.Player = player;
-        tower.UnitId = (UnitId)unitId;
+        tower.UnitId = unitId;
         tower.Room = this;
         tower.AddBuffAction = AddBuff;
         tower.Way = MapId == 1 ? SpawnWay.North : tower.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         tower.Dir = tower.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         tower.Init();
+        Push(EnterGame, tower);
         return tower;
     }
-
-    private Monster EnterMonster(int unitId, PositionInfo posInfo, Player player)
-    {
-        var monster = ObjectManager.Instance.Create<Monster>((UnitId)unitId);
-        monster.PosInfo = posInfo;
-        monster.Info.PosInfo = monster.PosInfo;
-        monster.Player = player;
-        monster.UnitId = (UnitId)unitId;
-        monster.Room = this;
-        monster.AddBuffAction = AddBuff;
-        monster.Way = MapId == 1 ? SpawnWay.North : monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
-        monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
-        monster.Init();
-        return monster;
-    }
     
-    private MonsterStatue EnterMonsterStatue(int unitId, PositionInfo posInfo, Player player)
+    private MonsterStatue SpawnMonsterStatue(UnitId unitId, PositionInfo posInfo, Player player)
     {
         var statue = ObjectManager.Instance.Add<MonsterStatue>();
         statue.PosInfo = posInfo;
         statue.Info.PosInfo = statue.PosInfo;
         statue.Player = player;
-        statue.UnitId = (UnitId)unitId;
+        statue.UnitId = unitId;
         statue.Room = this;
         statue.Way = statue.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         statue.Init();
+        Push(EnterGame, statue);
         return statue;
     }
     
@@ -256,6 +238,7 @@ public partial class GameRoom
         monster.Player = player;
         monster.UnitId = unitId;
         monster.Room = this;
+        monster.AddBuffAction = AddBuff;
         monster.Way = monster.PosInfo.PosZ > 0 ? SpawnWay.North : SpawnWay.South;
         monster.Dir = monster.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         monster.Init();
@@ -288,7 +271,7 @@ public partial class GameRoom
         effect.Parent = parentCopied;
         effect.Duration = duration;
         effect.Init();
-        EnterGameEffect(effect, parentCopied.Id, trailing, duration);
+        Push(EnterGameEffect, effect, parentCopied.Id, trailing, duration);
     }
     
     public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
@@ -316,7 +299,7 @@ public partial class GameRoom
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
-        EnterGameProjectile(projectile, projectile.DestPos, speed, parent.Id);
+        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id);
         return projectile;
     }   
     
@@ -346,26 +329,13 @@ public partial class GameRoom
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
-        EnterGameProjectile(projectile, projectile.DestPos, speed, parent.Id);
+        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id);
         return projectile;
     }
-    
-    private Sheep EnterSheep(Player player)
-    {
-        Sheep sheep = ObjectManager.Instance.Add<Sheep>();
-        sheep.PosInfo = new PositionInfo { State = State.Idle };
-        sheep.Info.PosInfo = sheep.PosInfo;
-        sheep.Room = this;
-        sheep.Player = player;
-        sheep.AddBuffAction = AddBuff;
-        sheep.Init();
-        sheep.CellPos = Map.FindSheepSpawnPos(sheep);
 
-        return sheep;
-    }
-
-    public void EnterSheepByServer(Player player)
+    public void SpawnSheep(Player player)
     {
+        // Enter sheep by summon button or moth celestial skill
         var sheep = ObjectManager.Instance.Add<Sheep>();
         var sheepCellPos = Map.FindSheepSpawnPos(sheep);
         

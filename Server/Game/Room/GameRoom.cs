@@ -95,7 +95,7 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            // SetTutorialRound(_round);
+            SetTutorialRound(_round);
             _tutorialSet = true;
         }
         // Tutorial
@@ -103,8 +103,7 @@ public partial class GameRoom : JobSerializer
         if (_roundTime < 0) 
         {
             InitRound();
-            // T_SpawnMonstersInNewRound();
-            // SpawnMonstersInNewRound();
+            SpawnMonstersInNewRound();
         }
         
         if (_roundTime < 10 && _round != 0) CheckMonsters();
@@ -284,6 +283,7 @@ public partial class GameRoom : JobSerializer
         // }
     }
     
+    // Deprecated from game after dying motion on client.
     public void DieAndLeave(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
@@ -307,6 +307,23 @@ public partial class GameRoom : JobSerializer
                 Map.ApplyLeave(sheep);
                 sheep.Room = null;
                 break;
+            
+            case GameObjectType.MonsterStatue:
+                if (_statues.Remove(objectId, out var statue) == false) return;
+                // TODO : Add destroy motion
+                Map.ApplyLeave(statue);
+                statue.Room = null;
+                break;
+
+            case GameObjectType.Fence:
+                if (_fences.Remove(objectId, out var fence) == false) return;
+                // TODO : Add destroy motion
+                Map.ApplyLeave(fence);
+                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt--;
+                else GameInfo.SouthFenceCnt--;
+                fence.Room = null;
+                break;
+            
             default: return;
         }
     }
@@ -317,6 +334,7 @@ public partial class GameRoom : JobSerializer
         Map.ApplyLeave(tower);
     }
     
+    // Deprecated immediately from game.
     public void LeaveGame(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
@@ -339,32 +357,24 @@ public partial class GameRoom : JobSerializer
                 monster.Room = null;
                 break;
             
-            case GameObjectType.MonsterStatue:
-                if (_statues.Remove(objectId, out var statue) == false) return;
-                Map.ApplyLeave(statue);
-                statue.Room = null;
-                break;
-            
             case GameObjectType.Tower:
                 if (_towers.Remove(objectId, out var tower) == false) return;
                 Map.ApplyLeave(tower);
                 tower.Room = null;
                 break;
             
-            case GameObjectType.Fence:
-                if (_fences.Remove(objectId, out var fence) == false) return;
-                Map.ApplyLeave(fence);
-                
-                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt--;
-                else  GameInfo.SouthFenceCnt--;
-                
-                fence.Room = null;
-                break;
-            
             case GameObjectType.Sheep:
                 if (_sheeps.Remove(objectId, out var sheep) == false) return;
                 Map.ApplyLeave(sheep);
                 sheep.Room = null;
+                break;
+            
+            case GameObjectType.Fence:
+                if (_fences.Remove(objectId, out var fence) == false) return;
+                Map.ApplyLeave(fence);
+                if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt--;
+                else GameInfo.SouthFenceCnt--;
+                fence.Room = null;
                 break;
             
             case GameObjectType.Projectile:

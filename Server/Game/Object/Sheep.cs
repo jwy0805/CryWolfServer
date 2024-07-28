@@ -102,7 +102,7 @@ public class Sheep : Creature, ISkillObserver
             BroadcastPos();
         }
         
-        (Path, Atan) = Room!.Map.Move(this);
+        (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
 

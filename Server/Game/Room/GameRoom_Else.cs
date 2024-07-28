@@ -27,8 +27,8 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            NorthTower = MapId == 1 ? 8 : 6,
-            NorthMonster = MapId == 1 ? 8 : 6,
+            NorthMaxTower = MapId == 1 ? 8 : 6,
+            NorthMaxMonster = MapId == 1 ? 8 : 6,
         };
         
         StorageLevel = 1;
@@ -36,7 +36,7 @@ public partial class GameRoom
         {
             if (player.Session == null) return;
             
-            EnterSheepByServer(player);
+            SpawnSheep(player);
             
             if (player.Camp == Camp.Sheep)
             {

@@ -124,7 +124,7 @@ public class MothCelestial : MothMoon
             // Breed Sheep
             if (_breedSheep && new Random().Next(99) < _breedProb)
             {
-                Room.EnterSheepByServer(Player);
+                Room.SpawnSheep(Player);
             }
 
             Mp = 0;

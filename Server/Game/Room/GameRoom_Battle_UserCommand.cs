@@ -48,7 +48,7 @@ public partial class GameRoom
                 if (lackOfSheepCapacity == false)
                 {
                     GameInfo.SheepResource -= cost;
-                    EnterSheepByServer(player);
+                    SpawnSheep(player);
                 }
                 else
                 {
@@ -157,12 +157,13 @@ public partial class GameRoom
             };
             LeaveGame(id);
             Broadcast(new S_Despawn { ObjectIds = { id } });
-            int towerId = (int)t.UnitId + 1;
-            Tower tower = EnterTower(towerId, newTowerPos, player);
-
-            Push(EnterGame, tower);
+            var towerId = t.UnitId + 1;
+            var tower = SpawnTower(towerId, newTowerPos, player);
             UpgradeTower(t, tower);
-            player.Session?.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = tower.Id, UnitId = towerId });
+            player.Session?.Send(new S_UpgradeSlot
+            {
+                OldObjectId = id, NewObjectId = tower.Id, UnitId = (int)towerId
+            });
         }
         else if (go.ObjectType == GameObjectType.Monster)
         {
@@ -176,12 +177,13 @@ public partial class GameRoom
             };
             LeaveGame(statueId);
             Broadcast(new S_Despawn { ObjectIds = { statueId } });
-            int monsterId = (int)m.UnitId + 1;
-            MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
-
-            Push(EnterGame, monsterStatue);
+            var monsterId = m.UnitId + 1;
+            var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
             UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
-            player.Session.Send(new S_UpgradeSlot { OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = monsterId });
+            player.Session?.Send(new S_UpgradeSlot
+            {
+                OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId
+            });
         }
         else if (go.ObjectType == GameObjectType.MonsterStatue)
         {
@@ -192,23 +194,24 @@ public partial class GameRoom
             };
             LeaveGame(id);
             Broadcast(new S_Despawn { ObjectIds = { id } });
-            int monsterId = (int)ms.UnitId + 1;
-            MonsterStatue monsterStatue = EnterMonsterStatue(monsterId, newStatuePos, player);
-
-            Push(EnterGame, monsterStatue);
+            var monsterId = ms.UnitId + 1;
+            var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
             UpgradeMonsterStatue(ms, monsterStatue);
-            player.Session.Send(new S_UpgradeSlot { OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = monsterId });
+            player.Session?.Send(new S_UpgradeSlot
+            {
+                OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId
+            });
         }
     }
 
     public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
     {
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
-        if (skillData == null) return;
+        if (skillData == null || player == null) return;
 
         var skillInfo = new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
-        player?.Session.Send(popupPacket);
+        player.Session?.Send(popupPacket);
     }
 
     public void HandleSetUpgradeButton(Player? player, C_SetUpgradeButton packet)
@@ -216,7 +219,7 @@ public partial class GameRoom
         if (player == null) return;
         var cost = VerifyUpgradePortrait(player, (UnitId)packet.UnitId);
         S_SetUpgradeButton buttonPacket = new() { UnitId = packet.UnitId, Cost = cost };
-        player.Session.Send(buttonPacket);
+        player.Session?.Send(buttonPacket);
     }
     
     public void HandleDelete(Player? player, C_DeleteUnit deletePacket)

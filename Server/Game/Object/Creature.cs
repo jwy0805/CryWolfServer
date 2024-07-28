@@ -122,8 +122,9 @@ public class Creature : GameObject
         // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
-            State = State.Idle;
-            IsAttacking = false;
+            SetNextState();
+            // State = State.Idle;
+            // IsAttacking = false;
             Scheduler.CancelEvent(AttackTaskId);
             return;
         }

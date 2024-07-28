@@ -151,12 +151,12 @@ public partial class GameObject : IGameObject
         
         if (AlreadyRevived == false && WillRevive)
         {
-            S_Die dieAndRevivePacket = new() { ObjectId = Id, Revive = true };
+            var dieAndRevivePacket = new S_Die { ObjectId = Id, Revive = true };
             Room.Broadcast(dieAndRevivePacket);
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id };
+        var diePacket = new S_Die { ObjectId = Id };
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);
     }

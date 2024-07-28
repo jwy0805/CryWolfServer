@@ -20,28 +20,26 @@ public class Fence : GameObject
         Stat.Hp = fenceData.stat.MaxHp;
     }
 
-    protected override void OnDead(GameObject attacker)
+    protected override void OnDead(GameObject? attacker)
     {
         if (Room == null) return;
-        Targetable = false;
-
-        if (Way == SpawnWay.North) Room.GameInfo.NorthFenceCnt--;
-        else Room.GameInfo.SouthFenceCnt--;
         
-        if (attacker.Target != null)
+        Targetable = false;
+        if (attacker != null)
         {
-            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
             {
-                if (attacker.Parent != null) 
-                    attacker.Parent.Target = null;
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    if (attacker.Parent != null) 
+                        attacker.Parent.Target = null;
+                }
+                attacker.Target = null;
             }
-            attacker.Target = null;
         }
         
-        S_Die diePacket = new S_Die { ObjectId = Id };
-        Room.Broadcast(diePacket);
-
-        GameRoom room = Room;
-        room.LeaveGame(Id);
+        Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.DieAndLeave(Id);
     }
 }

@@ -18,4 +18,26 @@ public class MonsterStatue : GameObject
         Stat.MergeFrom(objectData!.stat);
         Hp = MaxHp;
     }
+
+    protected override void OnDead(GameObject? attacker)
+    {
+        if (Room == null) return;
+        
+        Targetable = false;
+        if (attacker != null)
+        {
+            attacker.KillLog = Id;
+            if (attacker.Target != null)
+            {
+                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
+                {
+                    if (attacker.Parent != null) attacker.Parent.Target = null;
+                }
+                attacker.Target = null;
+            }
+        }
+        
+        Room.Broadcast(new S_Die { ObjectId = Id});
+        Room.DieAndLeave(Id);
+    }
 }

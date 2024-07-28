@@ -11,6 +11,8 @@ public partial class GameRoom
     
     private void CheckMonsters()
     {
+        if (GameInfo.FenceStartPos.Z >= 10) return;
+        
         if (_monsters.Values.Any(monster => monster.Targetable || monster.Hp > 0) == false)
         {
             MoveForwardTowerAndFence();
