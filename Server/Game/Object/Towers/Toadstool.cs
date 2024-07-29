@@ -38,8 +38,6 @@ public class Toadstool : Fungi
     {
         base.Init();
         UnitRole = Role.Ranger;
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonCloud);
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolNestedPoison);
     }
 
     public override void Update()
@@ -107,7 +105,8 @@ public class Toadstool : Fungi
     }
 
     private void FindMushrooms()
-    {   // TotalSkillRange 내 모든 버섯 찾기
+    {   
+        // TotalSkillRange 내 모든 버섯 찾기
         if (Room == null) return;
         var unitIds = new List<UnitId> { UnitId.Mushroom, UnitId.Fungi, UnitId.Toadstool };
         var mushrooms = Room
@@ -117,18 +116,21 @@ public class Toadstool : Fungi
         var newSet = new HashSet<int>(mushrooms
             .Where(mushroom => mushroom.Id != Id)
             .Select(mushroom => mushroom.Id));
+        
         // 추가된 버섯에 버프 적용
         foreach (var mushroomId in newSet.Where(mushroomId => CurrentSet.Contains(mushroomId) == false))
         {
             if (Room.FindGameObjectById(mushroomId) is Creature creature) 
                 creature.AttackParam += _closestAttackAllParam;
         }
+        
         // 제거된 버섯에서 버프 제거
         foreach (var mushroomId in CurrentSet.Where(mushroomId => newSet.Contains(mushroomId) == false))
         {
             if (Room.FindGameObjectById(mushroomId) is Creature creature) 
                 creature.AttackParam -= _closestAttackAllParam;
         }
+        
         // 현재 상태를 새로운 상태로 업데이트
         CurrentSet = newSet;
     }

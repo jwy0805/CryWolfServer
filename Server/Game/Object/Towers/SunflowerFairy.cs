@@ -40,11 +40,6 @@ public class SunflowerFairy : SunBlossom
     {
         base.Init();
         UnitRole = Role.Supporter;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.SunflowerFairyFenceHeal);
-        Player.SkillSubject.SkillUpgraded(Skill.SunflowerFairyShield);
-        Player.SkillSubject.SkillUpgraded(Skill.SunflowerFairyHealParamUp);
-        Player.SkillSubject.SkillUpgraded(Skill.SunflowerFairyDoubleBuff);
     }
     
     protected override void UpdateIdle()

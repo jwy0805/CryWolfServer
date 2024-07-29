@@ -46,9 +46,6 @@ public class Horror : Creeper
     {
         base.Init();
         UnitRole = Role.Ranger;
-        Player.SkillSubject.SkillUpgraded(Skill.HorrorRollPoison);
-        Player.SkillSubject.SkillUpgraded(Skill.HorrorDegeneration);
-        Player.SkillSubject.SkillUpgraded(Skill.HorrorDivision);
     }
     
     public override void Update()

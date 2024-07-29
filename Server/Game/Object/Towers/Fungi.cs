@@ -34,8 +34,6 @@ public class Fungi : Mushroom
     {
         base.Init();
         UnitRole = Role.Ranger;
-        Player.SkillSubject.SkillUpgraded(Skill.FungiPoison);
-        Player.SkillSubject.SkillUpgraded(Skill.FungiClosestHeal);
     }
     
     public override void Update()
@@ -98,7 +96,7 @@ public class Fungi : Mushroom
             var fungus = Room.FindTargetsBySpecies(this, GameObjectType.Tower,
                 new List<UnitId> { UnitId.Mushroom, UnitId.Fungi, UnitId.Toadstool }, _closestHealRange);
             if (fungus.Count == 0) return;
-            foreach (var fungi in fungus)
+            foreach (var fungi in fungus.Where(fungi => fungi.Id != Id))
             {
                 Room.Push(AddBuffAction, BuffId.HealBuff,
                     BuffParamType.Constant, fungi, this, _closestHealParam, 0, false);

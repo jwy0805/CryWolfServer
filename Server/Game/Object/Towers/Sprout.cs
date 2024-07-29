@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class Sprout : Tower
+public class Sprout : Seed
 {
     private bool _drain = false;
     private bool _fire = false;
@@ -33,8 +33,7 @@ public class Sprout : Tower
     public override void Init()
     {
         base.Init();
-        Player.SkillSubject.SkillUpgraded(Skill.SproutDrain);
-        Player.SkillSubject.SkillUpgraded(Skill.SproutFireAttack);
+        UnitRole = Role.Ranger;
     }
 
     protected override void AttackImpactEvents(long impactTime)

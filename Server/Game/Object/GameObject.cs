@@ -85,15 +85,10 @@ public partial class GameObject : IGameObject
     
     public virtual void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {
-        if (Room == null)
-        {
-            Console.WriteLine($"Room is null for GameObject with Id {Id}");
-            return;
-        }
-        
+        if (Room == null) return; 
         if (Invincible || Targetable == false || Hp <= 0) return;
-        var random = new Random();
         
+        var random = new Random();
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
         {   // Evasion
             // TODO: Evasion Effect

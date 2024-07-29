@@ -45,12 +45,6 @@ public class SunfloraPixie : SunflowerFairy
     {
         base.Init();
         UnitRole = Role.Supporter;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieRecoverMp);
-        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieStrongAttack);
-        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieInvincible);
-        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieDebuffRemove);
-        Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieTripleBuff);
     }
     
     protected override void UpdateAttack()

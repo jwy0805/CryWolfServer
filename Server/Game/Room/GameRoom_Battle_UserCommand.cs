@@ -90,7 +90,7 @@ public partial class GameRoom
 
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
-        player.Session.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
+        player.Session?.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
 
     public void HandlePortraitUpgrade(Player? player, C_PortraitUpgrade upgradePacket)
@@ -110,7 +110,7 @@ public partial class GameRoom
         {
             var newUnitId = (UnitId)((int)unitId + 1);
             player.Portraits.Add((int)newUnitId);
-            player.Session.Send(new S_PortraitUpgrade { UnitId = newUnitId });
+            player.Session?.Send(new S_PortraitUpgrade { UnitId = newUnitId });
         }
         else
         {
@@ -122,12 +122,12 @@ public partial class GameRoom
     {
         if (player == null) return;
         var go = FindGameObjectById(upgradePacket.ObjectId);
-        if (go is not Tower towerr) return;
+        if (go is not Tower originTower) return;
         
         // 실제 환경
-        bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)towerr.UnitId+ 1, out _);
-        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)towerr.UnitId);
-        bool lackOfCost = VerifyUnitUpgradeCost((int)towerr.UnitId);
+        bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originTower.UnitId+ 1, out _);
+        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originTower.UnitId);
+        bool lackOfCost = VerifyUnitUpgradeCost((int)originTower.UnitId);
         
         if (evolutionEnded)
         {
@@ -159,7 +159,7 @@ public partial class GameRoom
             Broadcast(new S_Despawn { ObjectIds = { id } });
             var towerId = t.UnitId + 1;
             var tower = SpawnTower(towerId, newTowerPos, player);
-            UpgradeTower(t, tower);
+            Push(UpgradeTower, t, tower);
             player.Session?.Send(new S_UpgradeSlot
             {
                 OldObjectId = id, NewObjectId = tower.Id, UnitId = (int)towerId
@@ -179,7 +179,7 @@ public partial class GameRoom
             Broadcast(new S_Despawn { ObjectIds = { statueId } });
             var monsterId = m.UnitId + 1;
             var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
-            UpgradeMonsterStatue((MonsterStatue)statue, monsterStatue);
+            Push(UpgradeMonsterStatue, (MonsterStatue)statue, monsterStatue);
             player.Session?.Send(new S_UpgradeSlot
             {
                 OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId
@@ -196,7 +196,7 @@ public partial class GameRoom
             Broadcast(new S_Despawn { ObjectIds = { id } });
             var monsterId = ms.UnitId + 1;
             var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
-            UpgradeMonsterStatue(ms, monsterStatue);
+            Push(UpgradeMonsterStatue, ms, monsterStatue);
             player.Session?.Send(new S_UpgradeSlot
             {
                 OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId

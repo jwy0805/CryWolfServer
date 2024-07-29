@@ -36,7 +36,7 @@ public partial class GameRoom
             ObjectType = GameObjectType.Tower,
             Way = towerSlot.Way
         };
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(registerPacket);
+        _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(registerPacket);
     }
     
     private void RegisterMonsterStatue(MonsterStatue statue)
@@ -61,7 +61,8 @@ public partial class GameRoom
             ObjectType = GameObjectType.MonsterStatue,
             Way = monsterSlot.Way
         };
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session.Send(registerPacket);
+        
+        _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session?.Send(registerPacket);
     }
 
     private void UpgradeTower(Tower oldTower, Tower newTower)
@@ -103,7 +104,7 @@ public partial class GameRoom
                 {
                     var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
                     S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(warningPacket);
+                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(warningPacket);
                     return;
                 }
                 _northTowers[index2] = newTowerSlot;
@@ -127,6 +128,7 @@ public partial class GameRoom
         }
     }
     
+    // Run when initialize game and storage upgrade.
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
         Vector3[] fencePos = GameData.GetPos(
@@ -149,6 +151,7 @@ public partial class GameRoom
         }
     }
 
+    // Run when the land is expanded.
     private Fence SpawnFence(Vector3 cellPos, int fenceLv = 0)
     {
         var storageLv = GameInfo.StorageLevel;

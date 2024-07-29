@@ -36,10 +36,6 @@ public class SunBlossom : Tower
     {
         base.Init();
         UnitRole = Role.Supporter;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomHeal);
-        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomSelfDefence);
-        Player.SkillSubject.SkillUpgraded(Skill.SunBlossomDefence);
     }
 
     public override void Update()

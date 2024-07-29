@@ -14,7 +14,7 @@ public class GameManager
             {
                 NorthFenceMax = 12,
                 SouthFenceMax = 0,
-                InitFenceStartPos = new Vector3(-11, 6, -9),
+                InitFenceStartPos = new Vector3(-11, 6, -8),
                 InitFenceCenter = new Vector3(0, 6, -14),
                 InitFenceSize = new Vector3(24, 6, 12),
                 PortalPos = new[] { new Vector3(0, 6, 20) }

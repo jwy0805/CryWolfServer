@@ -22,6 +22,12 @@ public class Seed : Tower
         }
     }
     
+    public override void Init()
+    {
+        base.Init();
+        UnitRole = Role.Ranger;
+    }
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>

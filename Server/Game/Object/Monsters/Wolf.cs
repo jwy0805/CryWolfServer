@@ -40,7 +40,6 @@ public class Wolf : WolfPup
     {
         base.Init();
         UnitRole = Role.Warrior;
-        Player.SkillSubject.SkillUpgraded(Skill.WolfMagicalAttack);
     }
 
     public override void ApplyAttackEffect(GameObject target)

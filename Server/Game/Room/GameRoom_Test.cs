@@ -4,6 +4,7 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
+    // For single game logic
     private void RenewTowerSlot(TowerSlot slot, Tower tower)
     {
         slot.TowerId = tower.UnitId;
@@ -26,7 +27,7 @@ public partial class GameRoom
         }
     }
     
-    private void T_RenewMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
+    private void RenewMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
     {
         if (oldStatue.Way == SpawnWay.North)
         {
@@ -48,36 +49,22 @@ public partial class GameRoom
         }
     }
     
-    // Single game logic
     private void SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
         var player = _npc;
         var statue = SpawnMonsterStatue(monsterId, pos, player);
         T_RegisterMonsterStatue(statue);
-        EnterGame(statue);
-        EffectSetting(statue);
-    }
-
-    private void EffectSetting(GameObject master)
-    {
-        var effect = ObjectManager.Instance.Create<Effect>(EffectId.Upgrade);
-        effect.Room = this;
-        effect.Target = master;
-        effect.PosInfo = master.PosInfo;
-        effect.Info.PosInfo = master.Info.PosInfo;
-        effect.Init();
-        effect.Info.Name = effect.EffectId.ToString();
-        EnterGameParent(effect, master);
+        SpawnEffect(EffectId.Upgrade, statue);
     }
     
-    private void T_SkillUpgrade(Skill skill)
+    private void SkillUpgrade(Skill skill)
     {
         var player = _npc;
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
     }
-
-    private void T_UnitUpgrade(MonsterStatue statue)
+    
+    private void UnitUpgrade(MonsterStatue statue)
     {
         int oldStatueId = statue.Id;
         PositionInfo newPos = new()
@@ -87,13 +74,9 @@ public partial class GameRoom
         var monsterId = statue.UnitId + 1;
         var player = _npc;
         var newStatue = SpawnMonsterStatue(monsterId, newPos, player);
-        T_RenewMonsterStatue(statue, newStatue);
-
         LeaveGame(oldStatueId);
-        Broadcast(new S_Despawn { ObjectIds = { oldStatueId }});
-        EnterGame(newStatue);
-        
-        EffectSetting(statue);
+        RenewMonsterStatue(statue, newStatue);
+        SpawnEffect(EffectId.Upgrade, statue);
     }
     
     private void SetTutorialRound(int round)
@@ -122,54 +105,53 @@ public partial class GameRoom
                 break;
             
             case 3: // 북 4 남 1
-                T_SkillUpgrade(Skill.LurkerDefence);
+                SkillUpgrade(Skill.LurkerDefence);
                 
                 PositionInfo pos5 = new() { PosX = 1.5f, PosY = 6, PosZ = 13, State = State.Idle };
                 SpawnStatue(UnitId.WolfPup, pos5);
                 
-                
                 break;
             
             case 4:
-                T_SkillUpgrade(Skill.SnakeletAttack);
+                SkillUpgrade(Skill.SnakeletAttack);
                 
                 var northWolfPup = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
-                if (northWolfPup != null) T_UnitUpgrade(northWolfPup);
+                if (northWolfPup != null) UnitUpgrade(northWolfPup);
                 break;
             
             case 5: 
                 var northLurker = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Lurker, Way: SpawnWay.North });
-                if (northLurker != null) T_UnitUpgrade(northLurker);
+                if (northLurker != null) UnitUpgrade(northLurker);
                 break;
             
             case 6:
-                T_SkillUpgrade(Skill.SnakeletAttackSpeed);
-                T_SkillUpgrade(Skill.SnakeAccuracy);
+                SkillUpgrade(Skill.SnakeletAttackSpeed);
+                SkillUpgrade(Skill.SnakeAccuracy);
                 
                 break;
             
             case 7:
-                T_SkillUpgrade(Skill.CreeperRoll);
+                SkillUpgrade(Skill.CreeperRoll);
                 
                 PositionInfo pos7 = new() { PosX = -3, PosY = 6, PosZ = 12, State = State.Idle };
                 SpawnStatue(UnitId.Werewolf, pos7);
                 
                 var northWolfpup = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
-                if (northWolfpup != null) T_UnitUpgrade(northWolfpup);
+                if (northWolfpup != null) UnitUpgrade(northWolfpup);
                 break;
             
             case 8:
                 
                 var northCreeper = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Creeper, Way: SpawnWay.North });
-                if (northCreeper != null) T_UnitUpgrade(northCreeper);
+                if (northCreeper != null) UnitUpgrade(northCreeper);
                 break;
             
             case 9:
-                T_SkillUpgrade(Skill.HorrorRollPoison);
+                SkillUpgrade(Skill.HorrorRollPoison);
                 break;
             case 10:
                 break;

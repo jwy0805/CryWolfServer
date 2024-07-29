@@ -41,12 +41,6 @@ public class MothCelestial : MothMoon
     {
         base.Init();
         UnitRole = Role.Supporter;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.MothCelestialSheepHealParamUp);
-        Player.SkillSubject.SkillUpgraded(Skill.MothCelestialPoison);
-        Player.SkillSubject.SkillUpgraded(Skill.MothCelestialAccuracy); 
-        Player.SkillSubject.SkillUpgraded(Skill.MothCelestialBreed);
-        Player.SkillSubject.SkillUpgraded(Skill.MothCelestialSheepDebuffRemove);
     }
     
     protected override void UpdateIdle()
