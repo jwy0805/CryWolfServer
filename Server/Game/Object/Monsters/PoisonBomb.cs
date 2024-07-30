@@ -39,7 +39,6 @@ public class PoisonBomb : SnowBomb
         base.Init();
         UnitRole = Role.Mage;
         SelfExplosionRange = 3.5f;
-        Player.SkillUpgradedList.Add(Skill.PoisonBombSelfDestruct);
     }
 
     protected override void UpdateRush()
@@ -65,7 +64,10 @@ public class PoisonBomb : SnowBomb
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             ApplyAttackEffect(Target);
         });
     }
@@ -74,7 +76,10 @@ public class PoisonBomb : SnowBomb
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.PoisonBombSkill, this, 5f);
         });
     }
@@ -154,12 +159,13 @@ public class PoisonBomb : SnowBomb
 
         if (Hp <= 0)
         {
+            Console.WriteLine("OnDead");
             AttackEnded = true;
-            IsAttacking = false;
             Targetable = false;
             Attacker = attacker;
             if (_selfDestruct)
             {
+                Console.WriteLine("SelfDestruct");
                 var target = Room.FindRandomTarget(
                     this, TotalAttackRange * 3, 0, true);
                 DestPos = target == null 

@@ -40,7 +40,10 @@ public class Sprout : Seed
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(_fire ? ProjectileId.SproutFire : ProjectileId.SeedProjectile, this, 5f);
         });
     }
@@ -61,6 +64,6 @@ public class Sprout : Seed
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
     }
-    
+
     public virtual void ApplyProjectileEffect2(GameObject target, ProjectileId pid) { }
 }

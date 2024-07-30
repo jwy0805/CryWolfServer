@@ -31,15 +31,16 @@ public class Shell : Tower
     {
         base.Init();
         UnitRole = Role.Tanker;
-        
-        Player.SkillUpgradedList.Add(Skill.ShellDefence);
     }
     
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.BasicProjectile3, this, 5f);
         });
     }

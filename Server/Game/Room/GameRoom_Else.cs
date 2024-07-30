@@ -36,7 +36,7 @@ public partial class GameRoom
         {
             if (player.Session == null) return;
             
-            SpawnSheep(player);
+            // SpawnSheep(player);
             
             if (player.Camp == Camp.Sheep)
             {

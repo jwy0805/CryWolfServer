@@ -61,7 +61,6 @@ public class MoleRat : Burrow
             Hp = (int)(MaxHp * ReviveHpRate);
             if (Targetable == false) Targetable = true;
             BroadcastHp();
-            BroadcastPos();
             // 부활 Effect 추가
         }
         

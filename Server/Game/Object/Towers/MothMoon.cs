@@ -10,7 +10,7 @@ public class MothMoon : MothLuna
 {
     private bool _sheepDebuffRemove;
     private bool _sheepHeal;
-    private bool _sheepshield;
+    private bool _sheepShield;
     
     protected int HealParam = 80;
     protected readonly int ShieldParam = 100;
@@ -27,7 +27,7 @@ public class MothMoon : MothLuna
                     _sheepHeal = true;
                     break;
                 case Skill.MothMoonSheepShield:
-                    _sheepshield = true;
+                    _sheepShield = true;
                     break;
                 case Skill.MothMoonSheepDebuffRemove:
                     _sheepDebuffRemove = true;
@@ -53,6 +53,11 @@ public class MothMoon : MothLuna
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
+            if (Mp >= MaxMp && (_sheepShield || _sheepHeal))
+            {
+                State = State.Skill;
+                return;
+            }
         }
         
         switch (State)
@@ -80,9 +85,11 @@ public class MothMoon : MothLuna
     }
     
     protected override void UpdateIdle()
-    {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+    {   
+        // Targeting
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -93,7 +100,7 @@ public class MothMoon : MothLuna
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
 
         if (distance > TotalAttackRange) return;
-        State = (_sheepshield || _sheepHeal) && Mp >= MaxMp ? State.Skill : State.Attack;
+        State = (_sheepShield || _sheepHeal) && Mp >= MaxMp ? State.Skill : State.Attack;
         SyncPosAndDir();
     }
     
@@ -101,7 +108,11 @@ public class MothMoon : MothLuna
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+
             Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
         });
     }
@@ -115,28 +126,31 @@ public class MothMoon : MothLuna
             var types = new[] { GameObjectType.Sheep };
             var sheeps = Room.FindTargets(this, types, TotalSkillRange);
 
-            if (sheeps.Any() == false) return;
-            if (_sheepHeal)
+            if (sheeps.Any())
             {
-                var sheep = sheeps.MinBy(sheep => sheep.Hp);
-                if (sheep != null) sheep.Hp += HealParam;
-            }
+                if (_sheepHeal)
+                {
+                    var sheep = sheeps.MinBy(sheep => sheep.Hp);
+                    if (sheep != null) sheep.Hp += HealParam;
+                }
             
-            if (_sheepshield)
-            {
-                var sheep = sheeps.MinBy(_ => Guid.NewGuid());
-                if (sheep != null) sheep.ShieldAdd += ShieldParam;
-            }
+                if (_sheepShield)
+                {
+                    var sheep = sheeps.MinBy(_ => Guid.NewGuid());
+                    if (sheep != null) sheep.ShieldAdd += ShieldParam;
+                }
 
-            if (_sheepDebuffRemove)
-            {
-                var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
-                    .Select(buff => buff.Master as Sheep)
-                    .Distinct()
-                    .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
-                    .MinBy(_ => Guid.NewGuid());
+                if (_sheepDebuffRemove)
+                {
+                    var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
+                        .Select(buff => buff.Master as Sheep)
+                        .Distinct()
+                        .Where(s => s != null && Vector3.Distance(
+                            s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
+                        .MinBy(_ => Guid.NewGuid());
                 
-                if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
+                    if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
+                }
             }
             
             Mp = 0;
@@ -149,7 +163,6 @@ public class MothMoon : MothLuna
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -161,11 +174,10 @@ public class MothMoon : MothLuna
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {
-            State = Mp >= MaxMp && (_sheepshield || _sheepHeal) ? State.Skill : State.Attack;
+            State = Mp >= MaxMp && (_sheepShield || _sheepHeal) ? State.Skill : State.Attack;
             SyncPosAndDir();
         }
     }

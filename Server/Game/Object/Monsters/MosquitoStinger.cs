@@ -50,6 +50,7 @@ public class MosquitoStinger : MosquitoPester
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -65,6 +66,7 @@ public class MosquitoStinger : MosquitoPester
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -74,7 +76,10 @@ public class MosquitoStinger : MosquitoPester
     {
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.MosquitoStingerProjectile, this, 5f);
         });
     }

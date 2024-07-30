@@ -86,7 +86,7 @@ public class Creeper : Lurker
 
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
         if (_rush && Rushed == false)
@@ -102,6 +102,8 @@ public class Creeper : Lurker
 
     protected override void UpdateRush()
     {
+        if (Room == null) return;
+        
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -109,6 +111,7 @@ public class Creeper : Lurker
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -117,6 +120,7 @@ public class Creeper : Lurker
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
         // Roll 충돌 처리
         if (distance <= /*Stat.SizeX * 0.25 +*/ 1f)
         {
@@ -136,6 +140,8 @@ public class Creeper : Lurker
     
     protected override void UpdateKnockBack()
     {
+        if (Room == null) return;
+        
         Vector3 flatDestPos = DestPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
@@ -158,7 +164,7 @@ public class Creeper : Lurker
             Dest = new DestVector { X = DestPos.X, Y = DestPos.Y - BounceParam, Z = DestPos.Z },
             ObjectId = Id
         };
-        Room.Broadcast(destPacket);
+        Room?.Broadcast(destPacket);
     }
 
     public void OnDivide()
@@ -192,8 +198,10 @@ public class Creeper : Lurker
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) { return; }
-            Room.SpawnProjectile(_poison ?
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;            Room.SpawnProjectile(_poison ?
                 ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5f);            
         });
     }
@@ -262,7 +270,6 @@ public class Creeper : Lurker
         
         if (AlreadyRevived == false && WillRevive)
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
             return;

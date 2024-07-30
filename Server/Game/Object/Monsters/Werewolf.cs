@@ -59,17 +59,22 @@ public class Werewolf : Wolf
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
-            BroadcastPos();
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -85,6 +90,7 @@ public class Werewolf : Wolf
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -129,7 +135,6 @@ public class Werewolf : Wolf
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -141,7 +146,6 @@ public class Werewolf : Wolf
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {

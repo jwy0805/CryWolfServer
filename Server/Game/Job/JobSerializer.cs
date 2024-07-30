@@ -39,7 +39,6 @@ public class JobSerializer
     public void Flush()
     {
         _timer.Flush();
-        
         while (true)
         {
             IJob? job = Pop();

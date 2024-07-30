@@ -98,7 +98,6 @@ public class DogBark : DogPup
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -110,7 +109,6 @@ public class DogBark : DogPup
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
 

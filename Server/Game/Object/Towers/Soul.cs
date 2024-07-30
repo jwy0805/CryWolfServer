@@ -33,23 +33,25 @@ public class Soul : Tower
     public override void Init()
     {
         base.Init();
-        Player.SkillSubject.SkillUpgraded(Skill.SoulAttack);
-        Player.SkillSubject.SkillUpgraded(Skill.SoulAttackSpeed);
-        Player.SkillSubject.SkillUpgraded(Skill.SoulDrain);
+        UnitRole = Role.Mage;
     }
     
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;            
             Room.SpawnProjectile(ProjectileId.SoulProjectile, this, 5f);
         });
     }
     
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
-        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        if (Room == null) return;
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         // Drain
         if (_drain == false) return;

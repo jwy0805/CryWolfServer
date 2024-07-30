@@ -26,7 +26,6 @@ public class SunfloraPixie : SunflowerFairy
                     break;
                 case Skill.SunfloraPixieStrongAttack:
                     _strongAttack = true;
-                    Attack += 40;
                     break;
                 case Skill.SunfloraPixieInvincible:
                     _invincible = true;
@@ -50,47 +49,35 @@ public class SunfloraPixie : SunflowerFairy
     protected override void UpdateAttack()
     {
         if (Room == null) return;
-        
-        Room.SpawnProjectile(_strongAttack ? 
-            ProjectileId.SunfloraPixieFire : ProjectileId.SunfloraPixieProjectile, this, 5f);
+
+        if (_strongAttack)
+        {
+            Room.SpawnProjectile(ProjectileId.SunfloraPixieFire, this, 5f);
+        }
         
         // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
-            State = State.Idle;
-            IsAttacking = false;
+            if (AttackEnded) return;
+            AttackEnded = true;
             Scheduler.CancelEvent(AttackTaskId);
-            return;
+            Scheduler.CancelEvent(EndTaskId);
+            SetNextState();
         }
-        
-        if (IsAttacking) return;
-
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
-        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        AttackImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
-    }   
+    }
     
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.Push(Target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            if (_strongAttack == false)
+            {
+                Room.SpawnProjectile(ProjectileId.SunfloraPixieProjectile, this, 5f);
+            }
         });
     }
     
@@ -153,6 +140,16 @@ public class SunfloraPixie : SunflowerFairy
             Mp = 0;
         });
     }
-    
-    public override void ApplyProjectileEffect(GameObject target, ProjectileId projectileId) { }
+
+    public override void ApplyProjectileEffect(GameObject target, ProjectileId projectileId)
+    {
+        if (projectileId == ProjectileId.SunfloraPixieProjectile)
+        {
+            Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        }
+        else
+        {
+            Room?.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+        }
+    }
 }

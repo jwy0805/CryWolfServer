@@ -43,10 +43,51 @@ public class MothCelestial : MothMoon
         UnitRole = Role.Supporter;
     }
     
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+            if (Mp >= MaxMp)
+            {
+                State = State.Skill;
+                return;
+            }
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
+        }
+    }
+    
     protected override void UpdateIdle()
-    {   // Targeting
+    {   
+        // Targeting
         Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -65,7 +106,11 @@ public class MothCelestial : MothMoon
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;        
+            
             Room.SpawnProjectile(_poison ? ProjectileId.MothCelestialPoison : ProjectileId.MothMoonProjectile,
                 this, 5f);
         });
@@ -80,45 +125,48 @@ public class MothCelestial : MothMoon
             var types = new[] { GameObjectType.Sheep };
             var sheeps = Room.FindTargets(this, types, TotalSkillRange);
 
-            if (sheeps.Any() == false) return;
-            
-            // Heal Sheep
-            var sheepHeal = sheeps.MinBy(sheep => sheep.Hp);
-            if (sheepHeal != null) sheepHeal.Hp += HealParam;
-            
-            // Shield Sheep
-            var sheepShield = sheeps.MinBy(_ => Guid.NewGuid());
-            if (sheepShield != null) sheepShield.ShieldAdd += ShieldParam;
-
-            // Debuff Remove
-            if (_debuffRemove)
+            if (sheeps.Any())
             {
-                var sheepDebuff = Room.Buffs.Where(buff => buff.Master is Sheep)
-                    .Select(buff => buff.Master as Sheep)
-                    .Distinct()
-                    .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
-                    .ToList();
-                
-                foreach (var sheep in sheepDebuff)
+                // Heal Sheep
+                var sheepHeal = sheeps.MinBy(sheep => sheep.Hp);
+                if (sheepHeal != null) sheepHeal.Hp += HealParam;
+            
+                // Shield Sheep
+                var sheepShield = sheeps.MinBy(_ => Guid.NewGuid());
+                if (sheepShield != null) sheepShield.ShieldAdd += ShieldParam;
+
+                // Debuff Remove
+                if (_debuffRemove)
                 {
+                    var sheepDebuff = Room.Buffs.Where(buff => buff.Master is Sheep)
+                        .Select(buff => buff.Master as Sheep)
+                        .Distinct()
+                        .Where(s => s != null && Vector3.Distance(
+                            s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
+                        .ToList();
+                
+                    foreach (var sheep in sheepDebuff)
+                    {
+                        if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
+                    }
+                }
+                else
+                {
+                    var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
+                        .Select(buff => buff.Master as Sheep)
+                        .Distinct()
+                        .Where(s => s != null && Vector3.Distance(
+                            s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
+                        .MinBy(_ => Guid.NewGuid());
+                
                     if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
                 }
-            }
-            else
-            {
-                var sheep = Room.Buffs.Where(buff => buff.Master is Sheep)
-                    .Select(buff => buff.Master as Sheep)
-                    .Distinct()
-                    .Where(s => s != null && Vector3.Distance(s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
-                    .MinBy(_ => Guid.NewGuid());
-                
-                if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
-            }
             
-            // Breed Sheep
-            if (_breedSheep && new Random().Next(99) < _breedProb)
-            {
-                Room.SpawnSheep(Player);
+                // Breed Sheep
+                if (_breedSheep && new Random().Next(99) < _breedProb)
+                {
+                    Room.SpawnSheep(Player);
+                }
             }
 
             Mp = 0;
@@ -144,7 +192,6 @@ public class MothCelestial : MothMoon
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -156,7 +203,6 @@ public class MothCelestial : MothMoon
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {

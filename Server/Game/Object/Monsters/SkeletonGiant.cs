@@ -85,13 +85,17 @@ public class SkeletonGiant : Skeleton
     }
     
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -107,6 +111,7 @@ public class SkeletonGiant : Skeleton
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -130,6 +135,8 @@ public class SkeletonGiant : Skeleton
     
     public override void ApplyAttackEffect(GameObject target)
     {
+        if (Room == null) return;
+        
         var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
         var effectPos = new PositionInfo { PosX = targetPos.X, PosY = targetPos.Y + 0.5f, PosZ = targetPos.Z };
         Room.SpawnEffect(EffectId.SkeletonGiantEffect, target, effectPos, true);
@@ -167,7 +174,6 @@ public class SkeletonGiant : Skeleton
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -179,7 +185,6 @@ public class SkeletonGiant : Skeleton
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {
@@ -209,10 +214,9 @@ public class SkeletonGiant : Skeleton
                 attacker.Target = null;
             }
         }
-
+        
         if (AlreadyRevived == false && (_reviveSelf || WillRevive))
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             
             State = State.Die;
@@ -220,7 +224,7 @@ public class SkeletonGiant : Skeleton
             DieEvents(DeathStandbyTime);
             return;
         }
-
+        
         S_Die diePacket = new() { ObjectId = Id };
         Room.Broadcast(diePacket);
         Room.DieAndLeave(Id);

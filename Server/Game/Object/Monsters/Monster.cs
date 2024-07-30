@@ -40,6 +40,8 @@ public class Monster : Creature, ISkillObserver
         if (Room == null) return;
         
         Targetable = false;
+        State = State.Die;
+        
         if (attacker != null)
         {
             attacker.KillLog = Id;
@@ -55,17 +57,14 @@ public class Monster : Creature, ISkillObserver
         
         if (AlreadyRevived == false && WillRevive)
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             
-            State = State.Die;
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             DieEvents(StdAnimTime * 2);
             return;
         }
 
-        S_Die diePacket = new() { ObjectId = Id };
-        Room.Broadcast(diePacket);
+        Room.Broadcast(new S_Die { ObjectId = Id });
         Room.DieAndLeave(Id);        
     }
 }

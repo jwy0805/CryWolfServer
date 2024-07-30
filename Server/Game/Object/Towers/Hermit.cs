@@ -42,10 +42,6 @@ public class Hermit : Spike
         base.Init();
         UnitRole = Role.Tanker;
         SkillImpactMoment = 0.3f;
-        Player.SkillSubject.SkillUpgraded(Skill.HermitNormalAttackDefence);
-        Player.SkillSubject.SkillUpgraded(Skill.HermitAttackerFaint);
-        Player.SkillSubject.SkillUpgraded(Skill.HermitRecoverBurn);
-        Player.SkillSubject.SkillUpgraded(Skill.HermitShield);
     }
     
     public override void Update() 
@@ -59,7 +55,7 @@ public class Hermit : Spike
             if (Mp >= MaxMp && _normalAttackDefence)
             {
                 State = State.Skill;
-                OnSkill();
+                return;
             }
         }
 
@@ -95,7 +91,10 @@ public class Hermit : Spike
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.HermitProjectile, this, 5f);
         });
     }
@@ -122,6 +121,7 @@ public class Hermit : Spike
     {
         _skillEndTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
+            AttackEnded = true;
             State = State.Idle;
             if (_shield)
             {
@@ -137,18 +137,15 @@ public class Hermit : Spike
         base.SetNextState();
     }
 
-    private void OnSkill()
+    protected override void OnSkill()
     {
         SkillImpactEvents(300);
         SkillEndEvents(3000);
-        IsAttacking = false;
-        AttackEnded = true;
     }
     
     public override void OnFaint()
     {
         State = State.Faint;
-        IsAttacking = false;
         AttackEnded = true;
         Scheduler.CancelEvent(AttackTaskId);
         Scheduler.CancelEvent(EndTaskId);

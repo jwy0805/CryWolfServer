@@ -46,7 +46,9 @@ public class Haunt : Soul
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
             Room.SpawnProjectile(_fire ? ProjectileId.HauntFire : ProjectileId.HauntProjectile, this, 5f);
         });
     }

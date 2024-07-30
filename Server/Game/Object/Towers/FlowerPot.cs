@@ -13,6 +13,7 @@ public class FlowerPot : Sprout
     private short _hitCount;
     private Projectile _projectile = new();
     private Projectile? _projectile2;
+    private readonly int _fireResistDownParam = 2;
     private readonly float _doubleTargetParam = 0.6f;
     
     protected override Skill NewSkill
@@ -49,7 +50,10 @@ public class FlowerPot : Sprout
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             
             _hitCount++;
             if (_hitCount == 3 && _3Hit)
@@ -67,7 +71,7 @@ public class FlowerPot : Sprout
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
     {
         if (Room == null || AddBuffAction == null) return;
-        if (_fireResistDown) target.FireResistParam -= 2;
+        if (_fireResistDown) target.FireResistParam -= _fireResistDownParam;
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
         
         Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
@@ -104,7 +108,7 @@ public class FlowerPot : Sprout
     {
         if (Room == null || AddBuffAction == null) return;
         if (_lostHealthAttack) _lostHealAttackParam = 1 + (1 - target.Hp / (float)target.MaxHp) * 0.5f;
-        if (_fireResistDown) target.FireResistParam -= 1;
+        if (_fireResistDown) target.FireResistParam -= _fireResistDownParam / 2;
         
         Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);        
         var damage = (int)(TotalAttack * _doubleTargetParam * _lostHealAttackParam);

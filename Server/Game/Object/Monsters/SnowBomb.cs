@@ -43,18 +43,20 @@ public class SnowBomb : Bomb
         base.Init();
         UnitRole = Role.Mage;
         SkillImpactMoment2 = 1.0f;
-        Player.SkillUpgradedList.Add(Skill.SnowBombAreaAttack);
-        Player.SkillUpgradedList.Add(Skill.SnowBombFrostArmor);
     }
 
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -70,6 +72,7 @@ public class SnowBomb : Bomb
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -79,7 +82,10 @@ public class SnowBomb : Bomb
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.SnowBombSkill, this, 5f);
             Mp = 0;
         });
@@ -165,7 +171,7 @@ public class SnowBomb : Bomb
             return;
         }
         
-        State =  Mp >= MaxMp ? State.Skill : State.Attack;
+        State = Mp >= MaxMp ? State.Skill : State.Attack;
         SyncPosAndDir();
     }
 

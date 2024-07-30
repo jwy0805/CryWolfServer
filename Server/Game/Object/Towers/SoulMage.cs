@@ -45,10 +45,6 @@ public class SoulMage : Haunt
     {
         base.Init();
         UnitRole = Role.Mage;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.SoulMageDragonPunch);
-        Player.SkillSubject.SkillUpgraded(Skill.SoulMageShareDamage);
-        Player.SkillSubject.SkillUpgraded(Skill.SoulMageMagicPortal);
     }
     
     public override void Update()
@@ -68,6 +64,7 @@ public class SoulMage : Haunt
                 };
                 Room.SpawnEffect(EffectId.GreenGate, this, effectPos, false, 3500);
                 Mp = 0;
+                return;
             }
         }
 
@@ -99,9 +96,11 @@ public class SoulMage : Haunt
     }
     
     protected override void UpdateIdle()
-    {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+    {   
+        // Targeting
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -116,11 +115,20 @@ public class SoulMage : Haunt
         SyncPosAndDir();
     }
     
+    protected override void OnSkill()
+    {
+        base.OnSkill();
+        AttackEnded = false;
+    }
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {   
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.SoulMageProjectile, this, 5f);
         });
     }
@@ -129,6 +137,11 @@ public class SoulMage : Haunt
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            
             var effectPos = new PositionInfo
             { 
                 PosX = CellPos.X, PosY = CellPos.Y, PosZ = CellPos.Z, Dir = Dir
@@ -309,7 +322,6 @@ public class SoulMage : Haunt
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -321,7 +333,6 @@ public class SoulMage : Haunt
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
 

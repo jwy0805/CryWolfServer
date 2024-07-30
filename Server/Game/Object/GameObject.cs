@@ -131,6 +131,8 @@ public partial class GameObject : IGameObject
         if (Room == null) return;
         
         Targetable = false;
+        State = State.Die;
+
         if (attacker != null)
         {
             attacker.KillLog = Id;
@@ -146,13 +148,11 @@ public partial class GameObject : IGameObject
         
         if (AlreadyRevived == false && WillRevive)
         {
-            var dieAndRevivePacket = new S_Die { ObjectId = Id, Revive = true };
-            Room.Broadcast(dieAndRevivePacket);
+            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             return;
         }
 
-        var diePacket = new S_Die { ObjectId = Id };
-        Room.Broadcast(diePacket);
+        Room.Broadcast(new S_Die { ObjectId = Id });
         Room.DieAndLeave(Id);
     }
 
@@ -181,6 +181,8 @@ public partial class GameObject : IGameObject
     protected virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State });
+        var current = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+        Console.WriteLine($"{ObjectType} / {current}");
     }
 
     protected virtual void BroadcastPath()

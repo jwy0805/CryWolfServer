@@ -45,6 +45,29 @@ public class Burrow : Monster
             var preState = PosInfo.State;
             PosInfo.State = value;
             if (preState != PosInfo.State) DistRemainder = 0;
+            
+            switch (value)
+            {
+                case State.Attack:
+                    OnAttack();
+                    break;
+                case State.Attack2:
+                    OnAttack2();
+                    break;
+                case State.Attack3:
+                    OnAttack3();
+                    break;
+                case State.Skill:
+                    OnSkill();
+                    break;
+                case State.Skill2:
+                    OnSkill2();
+                    break;
+                case State.Skill3:
+                    OnSkill3();
+                    break;
+            }
+            
             BroadcastState();
             StateChanged = preState != PosInfo.State;
         }
@@ -56,7 +79,6 @@ public class Burrow : Monster
         UnitRole = Role.Warrior;
         IdleToRushAnimTime = StdAnimTime * 2 / 3;
         RushToIdleAnimTime = StdAnimTime * 5 / 6;
-        Player.SkillSubject.SkillUpgraded(Skill.BurrowHalfBurrow);
     }
 
     public override void Update()
@@ -115,13 +137,17 @@ public class Burrow : Monster
     }
 
     protected override void UpdateRush()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         float distance = Vector3.Distance(DestPos, CellPos);
@@ -133,6 +159,7 @@ public class Burrow : Monster
             State = State.RushToIdle;
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();

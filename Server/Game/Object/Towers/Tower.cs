@@ -28,23 +28,26 @@ public class Tower : Creature, ISkillObserver
     public virtual void RoundInit()
     {
         if (Room == null) return;
+        Hp = MaxHp;
+
+        if (State != State.Die) return;
         Target = null;
         Targetable = true;
         AlreadyRevived = false;
         WillRevive = false;
         AttackEnded = true;
-        IsAttacking = false;
         State = State.Idle;
-        Hp = MaxHp;
         Room.Map.ApplyMap(this, new Vector3(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ));
         Room.Broadcast(new S_State { ObjectId = Id, State = State.Idle });
         Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
     }
     
     protected override void UpdateIdle()
-    {   // Targeting
+    {   
+        // Targeting
         Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -54,19 +57,22 @@ public class Tower : Creature, ISkillObserver
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
 
-        if (distance > TotalAttackRange) return;
-        State = State.Attack;
-        SyncPosAndDir();
+        if (distance <= TotalAttackRange)
+        {
+            State = State.Attack;
+            SyncPosAndDir();
+        }
     }
 
     protected override void OnDead(GameObject? attacker)
     {
-        Player.SkillSubject.RemoveObserver(this);
         Scheduler.CancelEvent(AttackTaskId);
         Scheduler.CancelEvent(EndTaskId);
         if (Room == null) return;
         
         Targetable = false;
+        State = State.Die;
+
         if (attacker != null)
         {
             attacker.KillLog = Id;
@@ -82,10 +88,8 @@ public class Tower : Creature, ISkillObserver
         
         if (AlreadyRevived == false && WillRevive)
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             
-            State = State.Die;
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             DieEvents(StdAnimTime * 2);
             return;

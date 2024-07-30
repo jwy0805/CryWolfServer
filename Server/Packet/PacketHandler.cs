@@ -72,12 +72,7 @@ public class PacketHandler
     
     public static void C_MoveHandler(PacketSession session, IMessage packet)
     {
-        var movePacket = (C_Move)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-
-        room?.Push(room.HandleMove, player, movePacket);
+        
     }
     
     public static void C_StateHandler(PacketSession session, IMessage packet)

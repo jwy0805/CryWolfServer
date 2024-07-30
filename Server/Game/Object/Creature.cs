@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Util;
+// ReSharper disable SwitchStatementMissingSomeEnumCasesNoDefault
 
 namespace Server.Game;
 
@@ -12,9 +13,7 @@ public class Creature : GameObject
     protected readonly Scheduler Scheduler = new();
     protected readonly List<Skill> SkillList = new();
     protected bool StateChanged;
-    protected bool IsAttacking;
     protected bool AttackEnded = true;
-    protected long LastAnimEndTime;
     protected float AttackImpactMoment = 0.5f;
     protected float SkillImpactMoment = 0.5f;
     protected float SkillImpactMoment2 = 0.5f;
@@ -36,6 +35,29 @@ public class Creature : GameObject
             var preState = PosInfo.State;
             PosInfo.State = value;
             if (preState != PosInfo.State) DistRemainder = 0;
+
+            switch (value)
+            {
+                case State.Attack:
+                    OnAttack();
+                    break;
+                case State.Attack2:
+                    OnAttack2();
+                    break;
+                case State.Attack3:
+                    OnAttack3();
+                    break;
+                case State.Skill:
+                    OnSkill();
+                    break;
+                case State.Skill2:
+                    OnSkill2();
+                    break;
+                case State.Skill3:
+                    OnSkill3();
+                    break;
+            }
+            
             BroadcastState();
         }
     }
@@ -89,13 +111,16 @@ public class Creature : GameObject
     protected virtual void UpdateMoving()
     {
         if (Room == null) return;
+        
         // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -111,6 +136,7 @@ public class Creature : GameObject
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -119,36 +145,15 @@ public class Creature : GameObject
     protected virtual void UpdateAttack()
     {
         if (Room == null) return;
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
+        
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
-            IsAttacking = false;
+            if (AttackEnded) return;
+            AttackEnded = true;
             Scheduler.CancelEvent(AttackTaskId);
+            Scheduler.CancelEvent(EndTaskId);
             SetNextState();
-            // State = State.Idle;
-            return;
         }
-        
-        if (IsAttacking) return;
-
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        
-        Room.Broadcast(packet);
-        long timeNow = Room.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
-        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        AttackImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
     }   
     
     protected virtual void UpdateAttack2() { }
@@ -156,48 +161,83 @@ public class Creature : GameObject
 
     protected virtual void UpdateSkill()
     {
-        if (Room == null) return;
-        
-        // 첫 UpdateSkill Cycle시 아래 코드 실행
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            IsAttacking = false;
-            Scheduler.CancelEvent(AttackTaskId);
-            return;
-        }
-        if (IsAttacking) return;
-        
-        var packet = new S_SetAnimSpeed
-        {
-            ObjectId = Id,
-            SpeedParam = TotalAttackSpeed
-        };
-        Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
-        long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
-        long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
-        long impactMomentCorrection = Math.Max(0, LastAnimEndTime - timeNow + impactMoment);
-        long animPlayTimeCorrection = Math.Max(0, LastAnimEndTime - timeNow + animPlayTime);
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        SkillImpactEvents(impactTime);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
-        AttackEnded = false;
-        IsAttacking = true;
+        UpdateAttack();
     }
     
     protected virtual void UpdateSkill2() { }
     protected virtual void UpdateKnockBack() { }
     protected virtual void UpdateRush() { }
     protected virtual void UpdateDie() { }
-    public virtual void RunSkill() { }
+
+    protected virtual void OnAttack()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Hp <= 0) return;
+        
+        Room.Broadcast(new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        });
+        var impactMoment = (long)(StdAnimTime / TotalAttackSpeed * AttackImpactMoment);
+        var animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        AttackImpactEvents(impactMoment);
+        EndEvents(animPlayTime);
+        AttackEnded = false;
+    }
+
+    protected virtual void OnAttack2()
+    {
+        OnAttack();
+    }
+
+    protected virtual void OnAttack3()
+    {
+        OnAttack();
+    }
+    
+    protected virtual void OnSkill()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Hp <= 0) return;
+        
+        Room.Broadcast(new S_SetAnimSpeed
+        {
+            ObjectId = Id,
+            SpeedParam = TotalAttackSpeed
+        });
+        var impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
+        var animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
+        SkillImpactEvents(impactMoment);
+        EndEvents(animPlayTime); 
+    }
+
+    protected virtual void OnSkill2()
+    {
+        OnSkill();
+    }
+
+    protected virtual void OnSkill3()
+    {
+        OnSkill();
+    }
+    
+    public virtual void OnFaint()
+    {
+        State = State.Faint;
+        AttackEnded = true;
+        Scheduler.CancelEvent(AttackTaskId);
+        Scheduler.CancelEvent(EndTaskId);
+    }
     
     protected virtual void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             ApplyAttackEffect(Target);
         });
     }
@@ -208,13 +248,13 @@ public class Creature : GameObject
 
     protected virtual void EndEvents(long animEndTime)
     {
+        Scheduler.CancelEvent(EndTaskId);
         EndTaskId = Scheduler.ScheduleCancellableEvent(animEndTime, () =>
         {
-            if (Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            if (Hp <= 0) return;
+            if (State == State.Faint) return;
             SetNextState();
-            LastAnimEndTime = Room.Stopwatch.ElapsedMilliseconds;
-            IsAttacking = false;
-            AttackEnded = true;
         });
     }
     
@@ -241,7 +281,6 @@ public class Creature : GameObject
             State = State.Idle;
         });
     }
-
     
     public virtual void ApplyAttackEffect(GameObject target)
     {
@@ -260,7 +299,6 @@ public class Creature : GameObject
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -272,7 +310,6 @@ public class Creature : GameObject
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {
@@ -282,15 +319,6 @@ public class Creature : GameObject
     }
 
     public virtual void SetNextState(State state) { }
-    
-    public virtual void OnFaint()
-    {
-        State = State.Faint;
-        IsAttacking = false;
-        AttackEnded = true;
-        Scheduler.CancelEvent(AttackTaskId);
-        Scheduler.CancelEvent(EndTaskId);
-    }
     
     protected virtual void SyncPosAndDir()
     {

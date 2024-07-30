@@ -54,6 +54,7 @@ public class Wolf : WolfPup
         
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
+        // Drain
         if (_drain)
         {
             var damage = _magicalAttack 

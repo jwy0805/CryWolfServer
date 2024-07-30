@@ -36,17 +36,16 @@ public class TrainingDummy : TargetDummy
     {
         base.Init();
         UnitRole = Role.Tanker;
-        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyAccuracy);
-        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyHealth);
-        Player.SkillSubject.SkillUpgraded(Skill.TrainingDummyFaintAttack);
     }
 
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Room == null || Hp <= 0) return;
-            if (Target == null || Target.Targetable == false || AddBuffAction == null) return;
+            if (Room == null || AddBuffAction == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             
             if (_faint && new Random().Next(100) < _faintProb)
             {

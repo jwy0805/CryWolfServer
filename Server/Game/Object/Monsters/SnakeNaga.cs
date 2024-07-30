@@ -8,7 +8,7 @@ public class SnakeNaga : Snake
 {
     private bool _bigFire;
     private bool _drain;
-    private bool _meteor = true;
+    private bool _meteor;
     private readonly float _meteorRange = 2.5f;
     private readonly float _drainParam = 0.2f;
     private PositionInfo _meteorPos = new();
@@ -88,13 +88,17 @@ public class SnakeNaga : Snake
     }
     
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -106,10 +110,11 @@ public class SnakeNaga : Snake
         
         if (distance <= TotalAttackRange)
         {
-            State = Mp >= MaxMp && _meteor ? State.Skill : State.Attack;
+            State = Mp >= MaxMp && _meteor && Target != null ? State.Skill : State.Attack;
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -119,7 +124,10 @@ public class SnakeNaga : Snake
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(_bigFire ? ProjectileId.SnakeNagaFire : ProjectileId.SnakeNagaBigFire,
                 this, 5f);
         });
@@ -194,7 +202,6 @@ public class SnakeNaga : Snake
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -206,11 +213,10 @@ public class SnakeNaga : Snake
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
-        State = _meteor && Mp >= MaxMp ? State.Skill : State.Attack;
+        State = _meteor && Mp >= MaxMp && Target != null ? State.Skill : State.Attack;
         SyncPosAndDir();
     }
 }

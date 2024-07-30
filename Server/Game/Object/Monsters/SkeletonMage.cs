@@ -53,10 +53,6 @@ public class SkeletonMage : SkeletonGiant
     {
         base.Init();
         UnitRole = Role.Supporter;
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageAdjacentRevive);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageKillRecoverMp);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageReviveHealthUp);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonMageCurse);
     }
 
     public override void Update()
@@ -65,13 +61,17 @@ public class SkeletonMage : SkeletonGiant
     }
     
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -87,6 +87,7 @@ public class SkeletonMage : SkeletonGiant
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -96,7 +97,10 @@ public class SkeletonMage : SkeletonGiant
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.SkeletonMageProjectile, this, 5f);
         });
     }
@@ -226,7 +230,6 @@ public class SkeletonMage : SkeletonGiant
         
         if (AlreadyRevived == false || WillRevive)
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             
             State = State.Die;

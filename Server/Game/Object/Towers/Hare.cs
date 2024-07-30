@@ -33,15 +33,53 @@ public class Hare : Rabbit
     {
         base.Init();
         UnitRole = Role.Warrior;
-        Player.SkillSubject.SkillUpgraded(Skill.HarePunch);
-        Player.SkillSubject.SkillUpgraded(Skill.HarePunchDefenceDown);
-        Player.SkillSubject.SkillUpgraded(Skill.HareEvasion);
+    }
+    
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+            if (Mp >= MaxMp && Target != null)
+            {
+                State = State.Skill;
+                return;
+            }
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
     }
     
     protected override void UpdateIdle()
-    {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+    {
+        // Targeting
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -50,23 +88,26 @@ public class Hare : Rabbit
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-        
-        if (_punch && Mp >= MaxMp)
-        {
-            State = State.Skill;
-            return;
-        }
 
         if (distance > TotalAttackRange) return;
         State = State.Attack;
         SyncPosAndDir();
     }
     
+    protected override void OnSkill()
+    {
+        base.OnSkill();
+        AttackEnded = false;
+    }
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.RabbitAggro, this, 5f);
         });
     }
@@ -75,7 +116,9 @@ public class Hare : Rabbit
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
 
             if (_punch)
             {
@@ -158,7 +201,6 @@ public class Hare : Rabbit
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -170,10 +212,9 @@ public class Hare : Rabbit
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
-
+    
         State = _punch && Mp >= MaxMp ? State.Skill : State.Attack;
         SyncPosAndDir();
     }
@@ -195,9 +236,13 @@ public class HareClone : Rabbit
         
         Target = Parent.Target;
         WillRevive = false;
+
+        SkillImpactMoment = 0.35f;
         
         Room.Broadcast(new S_SetAnimSpeed { ObjectId = Id, SpeedParam = TotalAttackSpeed });
         SyncPosAndDir();
+
+        Room.PushAfter(CallCycle, OnSkill);
     }
 
     public override void Update()
@@ -245,15 +290,7 @@ public class HareClone : Rabbit
             Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
             Room.Push(addBuffAction, BuffId.Aggro,
                 BuffParamType.None, Target, (Creature)Parent, 0, 2000, false);
-        });
-    }
-    
-    protected override void EndEvents(long animPlayTime)
-    {
-        AttackTaskId = Scheduler.ScheduleCancellableEvent(animPlayTime, () =>
-        {
-            if (Room == null) return;
-            Room.LeaveGame(Id);
+            Room.PushAfter(800, Room.LeaveGame, Id);
         });
     }
 }

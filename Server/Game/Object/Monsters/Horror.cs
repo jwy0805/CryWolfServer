@@ -90,6 +90,8 @@ public class Horror : Creeper
     
     protected override void UpdateIdle()
     {
+        if (Room == null) return;
+        
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
@@ -108,7 +110,10 @@ public class Horror : Creeper
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.BigPoison, this, 5f);
         });
     }
@@ -221,12 +226,12 @@ public class Horror : Creeper
         
         if (AlreadyRevived == false && WillRevive)
         {
-            if (IsAttacking) IsAttacking = false;
             if (AttackEnded == false) AttackEnded = true;  
             Room.Broadcast(new S_Die { ObjectId = Id, Revive = true});
             return;
         }
 
+        // Degeneration to Creeper
         if (Degeneration)
         {
             Room.Map.ApplyLeave(this);
@@ -238,6 +243,7 @@ public class Horror : Creeper
                 Dir = Dir
             };
 
+            // Division to two Creepers
             if (_division)
             {
                 for (int i = 0; i < _divisionNum; i++)

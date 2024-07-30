@@ -8,6 +8,8 @@ public class Bloom : Bud
 {
     private bool _combo;
     private bool _critical;
+    private Guid _attackTaskId2;
+    private Guid _attackTaskId3;
     
     protected override Skill NewSkill
     {
@@ -42,55 +44,95 @@ public class Bloom : Bud
     }
 
     protected override void UpdateIdle()
-    {   // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+    {
+        // Targeting
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatTargetPos, flatCellPos);
-
+        
         double deltaX = Target.CellPos.X - CellPos.X;
         double deltaZ = Target.CellPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (distance > TotalAttackRange) return;
-        State = _combo ? State.Skill : State.Attack;
+        if (distance <= TotalAttackRange)
+        {
+            State = _combo ? State.Skill : State.Attack;
+            SyncPosAndDir();
+        }
     }
 
     protected override void UpdateSkill()
     {
         if (Room == null) return;
         
-        // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
-            State = State.Idle;
-            IsAttacking = false;
+            if (AttackEnded) return;
+            AttackEnded = true;
             Scheduler.CancelEvent(AttackTaskId);
-            return;
+            Scheduler.CancelEvent(_attackTaskId2);
+            Scheduler.CancelEvent(_attackTaskId3);
+            Scheduler.CancelEvent(EndTaskId);
+            SetNextState();
         }
-        if (IsAttacking) return;
+    }
 
+    protected override void OnSkill()
+    {
+        if (Room == null) return;
+        if (Target == null || Target.Targetable == false || Hp <= 0) return;
+        
         var packet = new S_SetAnimSpeed
         {
             ObjectId = Id,
             SpeedParam = TotalAttackSpeed
         };
         Room.Broadcast(packet);
-        long timeNow = Room!.Stopwatch.ElapsedMilliseconds;
         long impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment * 3 / 2);
         long animPlayTime = (long)(StdAnimTime / TotalAttackSpeed * 3 / 2);
-        long impactMomentCorrection = LastAnimEndTime - timeNow + impactMoment;
-        long animPlayTimeCorrection = LastAnimEndTime - timeNow + animPlayTime;
-        long impactTime = AttackEnded ? impactMoment : Math.Min(impactMomentCorrection, impactMoment);
-        long animEndTime = AttackEnded ? animPlayTime : Math.Min(animPlayTimeCorrection, animPlayTime);
-        AttackImpactEvents(impactTime);
-        AttackImpactEvents(impactTime + impactMoment);
-        AttackImpactEvents(impactTime + impactMoment * 2);
-        EndEvents(animEndTime); // 공격 Animation이 끝나면 _isAttacking == false로 변경
+        SkillImpactEvents(impactMoment);
+        SkillImpactEvents2(impactMoment + impactMoment);
+        SkillImpactEvents3(impactMoment + impactMoment * 2);
+        EndEvents(animPlayTime); 
         AttackEnded = false;
-        IsAttacking = true;
+    }
+
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
+        });            
+    }
+
+    private void SkillImpactEvents2(long impactTime)
+    {
+        _attackTaskId2 =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
+        });     
+    }
+    
+    private void SkillImpactEvents3(long impactTime)
+    {
+        _attackTaskId3 =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            Room.SpawnProjectile(ProjectileId.SeedProjectile, this, 5f);
+        });     
     }
 
     public override void ApplyProjectileEffect(GameObject target, ProjectileId pid)
@@ -107,7 +149,6 @@ public class Bloom : Bud
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
 
@@ -119,12 +160,18 @@ public class Bloom : Bud
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {
             State = _combo ? State.Skill : State.Attack;
             SyncPosAndDir();
         }
+    }
+
+    protected override void OnDead(GameObject? attacker)
+    {
+        Scheduler.CancelEvent(_attackTaskId2);
+        Scheduler.CancelEvent(_attackTaskId3);
+        base.OnDead(attacker);
     }
 }

@@ -95,7 +95,7 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            SetTutorialRound(_round);
+            // SetTutorialRound(_round);
             _tutorialSet = true;
         }
         // Tutorial
@@ -139,7 +139,8 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Tower:
-                Tower tower = (Tower)gameObject;
+                var tower = (Tower)gameObject;
+                if (tower.UnitType == 1) gameObject.PosInfo.PosY += 2;
                 gameObject.Info.Name = Enum.Parse(typeof(UnitId), tower.UnitId.ToString()).ToString();
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
@@ -149,7 +150,8 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Monster:
-                Monster monster = (Monster)gameObject;
+                var monster = (Monster)gameObject;
+                if (monster.UnitType == 1) gameObject.PosInfo.PosY += 2;
                 gameObject.Info.Name = Enum.Parse(typeof(UnitId), monster.UnitId.ToString()).ToString();
                 gameObject.PosInfo.Dir = 180;
                 gameObject.Info.PosInfo = gameObject.PosInfo;

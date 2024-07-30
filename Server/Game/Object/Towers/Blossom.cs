@@ -43,9 +43,11 @@ public class Blossom : Bloom
     }
     
     protected override void UpdateIdle()
-    {   // Targeting
+    {   
+        // Targeting
         Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -57,6 +59,7 @@ public class Blossom : Bloom
         
         if (distance > TotalAttackRange) return;
         State =  State.Attack;
+        SyncPosAndDir();
     }
 
     protected override void SetNextState()
@@ -65,7 +68,6 @@ public class Blossom : Bloom
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
 
@@ -77,7 +79,6 @@ public class Blossom : Bloom
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
         }
         else
         {
@@ -90,7 +91,11 @@ public class Blossom : Bloom
     {
         AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+
             if (_blossomDeath == false)
             {
                 Room.SpawnProjectile(ProjectileId.BlossomProjectile, this, 5f);

@@ -41,7 +41,10 @@ public class DogBowwow : DogBark
     }
 
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        
+        // Targeting
         Target = Room.FindClosestTarget(this);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -110,7 +113,6 @@ public class DogBowwow : DogBark
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
         
@@ -122,7 +124,6 @@ public class DogBowwow : DogBark
         if (distance > TotalAttackRange)
         {
             State = State.Idle;
-            AttackEnded = true;
             return;
         }
 

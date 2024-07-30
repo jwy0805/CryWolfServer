@@ -44,6 +44,10 @@ public class Toadstool : Fungi
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
+        
+        if (_closestAttackAll) FindMushrooms();
+        else FindClosestMushroom();
+        
         if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
@@ -71,16 +75,16 @@ public class Toadstool : Fungi
             case State.Standby:
                 break;
         }
-        
-        if (_closestAttackAll) FindMushrooms();
-        else FindClosestMushroom();
     }
     
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null) return;
+            AttackEnded = true;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.ToadstoolProjectile, this, 5f);
         });
     }
