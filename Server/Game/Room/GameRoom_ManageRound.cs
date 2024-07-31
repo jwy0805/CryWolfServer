@@ -11,7 +11,7 @@ public partial class GameRoom
     
     private void CheckMonsters()
     {
-        if (GameInfo.FenceStartPos.Z >= 8) return;
+        if (GameInfo.FenceStartPos.Z >= 7) return;
         
         if (_monsters.Values.Any(monster => monster.Targetable || monster.Hp > 0) == false)
         {
@@ -88,7 +88,7 @@ public partial class GameRoom
     
     private void InitRound()
     {
-        _roundTime = 24;
+        _roundTime = 19;
         _round++;
         _tutorialSet = false;
         _checked = false;

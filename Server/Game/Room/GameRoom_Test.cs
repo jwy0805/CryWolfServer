@@ -79,7 +79,7 @@ public partial class GameRoom
         SpawnEffect(EffectId.Upgrade, statue);
     }
     
-    private void SetTutorialRound(int round)
+    private void SetTutorialStatues(int round)
     {
         List<MonsterStatue> upgradeStatueList = new();
         if (GameInfo.SheepCount == 0) Broadcast(new S_ShowResultPopup { Win = false });

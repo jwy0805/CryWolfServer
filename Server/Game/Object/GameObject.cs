@@ -159,6 +159,7 @@ public partial class GameObject : IGameObject
     public virtual void AddBuff(Buff buff)
     {
         if (Room == null) return;
+        if (Hp <= 0 || State == State.Die) return;
         if (Invincible && buff.Type is BuffType.Debuff) return;
         Buffs.Add(buff.Id);
         Room.Buffs.Add(buff);
@@ -181,8 +182,6 @@ public partial class GameObject : IGameObject
     protected virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State });
-        var current = DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-        Console.WriteLine($"{ObjectType} / {current}");
     }
 
     protected virtual void BroadcastPath()

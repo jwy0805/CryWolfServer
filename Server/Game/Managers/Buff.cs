@@ -625,7 +625,7 @@ public class Aggro : Buff
         GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
     {
         base.Init(paramType, room, master, caster, param, duration, nested);
-        Id = BuffId.Addicted;
+        Id = BuffId.Aggro;
         Type = BuffType.Debuff;
     }
 
@@ -633,6 +633,7 @@ public class Aggro : Buff
     {
         Master.Target = Caster;
         Room?.SpawnEffect(EffectId.StateAggro, Master, Master.PosInfo, true, (int)Duration);
+        Console.WriteLine($"Target Changed to {Master.Target?.Id}");
     }
 }
 

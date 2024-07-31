@@ -33,8 +33,7 @@ public partial class GameRoom
 
     public void RemoveAllBuffs(Creature master)
     {
-        List<Buff> removeBuff = (from buff in Buffs 
-            where buff.Master.Id == master.Id select buff).ToList();
+        List<Buff> removeBuff = (from buff in Buffs where buff.Master.Id == master.Id select buff).ToList();
         master.Buffs.Clear();
         
         if (removeBuff.Count != 0)

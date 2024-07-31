@@ -141,8 +141,8 @@ public partial class GameRoom
             fence.Info.Name = GameData.FenceNames[storageLv];
             fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
             fence.Room = this;
-            fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
             fence.CellPos = fencePos[i];
+            fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
             fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
             if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
             else GameInfo.SouthFenceCnt++;
@@ -160,8 +160,8 @@ public partial class GameRoom
         fence.Info.Name = GameData.FenceNames[storageLv];
         fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
         fence.Room = this;
-        fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
         fence.CellPos = cellPos;
+        fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
         fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
         if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
         else GameInfo.SouthFenceCnt++;

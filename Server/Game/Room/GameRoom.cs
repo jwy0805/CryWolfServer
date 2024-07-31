@@ -95,7 +95,7 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            // SetTutorialRound(_round);
+            SetTutorialStatues(_round);
             _tutorialSet = true;
         }
         // Tutorial
@@ -104,6 +104,8 @@ public partial class GameRoom : JobSerializer
         {
             InitRound();
             SpawnMonstersInNewRound();
+            Console.WriteLine($"Round {_round} start !");
+            Console.WriteLine($"{GameInfo.NorthFenceCnt} {GameInfo.SouthFenceCnt} {GameInfo.FenceCenter} {GameInfo.FenceStartPos}");
         }
         
         if (_roundTime < 10 && _round != 0) CheckMonsters();
@@ -241,48 +243,6 @@ public partial class GameRoom : JobSerializer
             Object = gameObject.Info, ParentId = parentId, TrailingParent = trailingParent, Duration = duration
         };
         Broadcast(spawnPacket);
-    }
-
-    public void EnterGameParent(GameObject gameObject, GameObject parent)
-    {
-        GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
-
-        switch (type)
-        {
-            case GameObjectType.Effect:
-                Effect effect = (Effect)gameObject;
-                _effects.Add(gameObject.Id, effect);
-                effect.Parent = parent;
-                effect.Room = this;
-                effect.Update();
-                break;
-        }
-
-        // var spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = parent.Id };
-        // Broadcast(spawnPacket);
-    }
-
-    public void EnterGameTarget(GameObject gameObject, GameObject parent, GameObject target)
-    {
-        GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
-
-        switch (type)
-        {
-            case GameObjectType.Effect:
-                Effect effect = (Effect)gameObject;
-                _effects.Add(gameObject.Id, effect);
-                effect.Parent = parent;
-                effect.Target = target;
-                effect.Room = this;
-                effect.Update();
-                break;
-        }
-
-        // S_SpawnParent spawnPacket = new S_SpawnParent { Object = gameObject.Info, ParentId = target.Id };
-        // foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
-        // {
-        //     player.Session.Send(spawnPacket);
-        // }
     }
     
     // Deprecated from game after dying motion on client.

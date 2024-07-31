@@ -145,7 +145,7 @@ public class Creature : GameObject
     protected virtual void UpdateAttack()
     {
         if (Room == null) return;
-        
+
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
         {
             if (AttackEnded) return;
@@ -305,7 +305,7 @@ public class Creature : GameObject
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatTargetPos = targetPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
 
         if (distance > TotalAttackRange)
         {
@@ -352,6 +352,11 @@ public class Creature : GameObject
         
         if (SkillList.Count == 0) return;
         foreach (var skill in SkillList) NewSkill = skill;
+    }
+
+    public void ChangeTarget(GameObject target)
+    {
+        Target = target;
     }
     
     protected virtual State GetRandomState(State state1, State state2)

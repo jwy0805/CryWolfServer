@@ -46,14 +46,35 @@ public class SunfloraPixie : SunflowerFairy
         UnitRole = Role.Supporter;
     }
     
+    protected override void UpdateIdle()
+    {   
+        // Targeting
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
+        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
+        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        
+        double deltaX = Target.CellPos.X - CellPos.X;
+        double deltaZ = Target.CellPos.Z - CellPos.Z;
+        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+
+        if (distance <= TotalAttackRange)
+        {
+            State = State.Attack;
+            SyncPosAndDir();
+        }
+        else
+        {
+            // Target = null;
+        }
+    }
+    
     protected override void UpdateAttack()
     {
         if (Room == null) return;
-
-        if (_strongAttack)
-        {
-            Room.SpawnProjectile(ProjectileId.SunfloraPixieFire, this, 5f);
-        }
         
         // 첫 UpdateAttack Cycle시 아래 코드 실행
         if (Target == null || Target.Targetable == false || Target.Hp <= 0)
@@ -63,6 +84,17 @@ public class SunfloraPixie : SunflowerFairy
             Scheduler.CancelEvent(AttackTaskId);
             Scheduler.CancelEvent(EndTaskId);
             SetNextState();
+            return;
+        }
+        
+        Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
+        Vector3 flatCellPos = CellPos with { Y = 0 };
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
+        if (distance > TotalAttackRange) return;
+        
+        if (_strongAttack)
+        {
+            Room.SpawnProjectile(ProjectileId.SunfloraPixieFire, this, 5f);
         }
     }
     
@@ -136,8 +168,6 @@ public class SunfloraPixie : SunflowerFairy
                         BuffParamType.None, target, this, 0, 3000, false);
                 }
             }
-            
-            Mp = 0;
         });
     }
 

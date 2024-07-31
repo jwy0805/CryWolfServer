@@ -72,6 +72,7 @@ public class Tower : Creature, ISkillObserver
         
         Targetable = false;
         State = State.Die;
+        Room.RemoveAllBuffs(this);
 
         if (attacker != null)
         {

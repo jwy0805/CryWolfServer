@@ -42,10 +42,53 @@ public class SunflowerFairy : SunBlossom
         UnitRole = Role.Supporter;
     }
     
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+            if (Mp >= MaxMp)
+            {
+                State = State.Skill;
+                Mp = 0;
+                return;
+            }
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
+        }
+    }
+    
     protected override void UpdateIdle()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Target.CellPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
@@ -118,8 +161,6 @@ public class SunflowerFairy : SunBlossom
                     target.ShieldAdd = ShieldParam;
                 }
             }
-            
-            Mp = 0;
         });
     }
 }
