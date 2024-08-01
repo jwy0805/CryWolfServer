@@ -39,7 +39,7 @@ public class Rabbit : Bunny
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -96,6 +96,7 @@ public class Rabbit : Bunny
     
     protected override void OnSkill()
     {
+        if (Target == null || Target.Targetable == false) return;
         base.OnSkill();
         AttackEnded = false;
     }

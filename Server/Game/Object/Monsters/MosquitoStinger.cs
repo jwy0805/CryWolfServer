@@ -97,6 +97,7 @@ public class MosquitoStinger : MosquitoPester
     private void StingEffect(GameObject? target)
     {
         if (target is not Sheep sheep) return;
+        AttackEnded = true;
         Room?.Push(sheep.OnDamaged, this, 9999, Damage.True, false);
     }
     

@@ -52,7 +52,7 @@ public class Horror : Creeper
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -171,33 +171,43 @@ public class Horror : Creeper
         if (Room == null) return;
         if (Invincible) return;
         if (damageType is Damage.Poison && _poisonImmunity) return;
-        var random = new Random();
-        var totalDamage = damageType is Damage.Normal or Damage.Magical 
-            ? Math.Max(damage - TotalDefence, 0) : damage;
         
-        if (random.Next(100) < attacker.CriticalChance)
-        {
-            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
-        }
-
+        var random = new Random();
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {
+        {   // Evasion
             // TODO: Evasion Effect
             return;
         }
         
+        // 일반적으로 Normal Damage 만 Critical 가능, Magical이나 True Damage Critical 구현 시 데미지를 넣는 Unit으로부터 자체적으로 계산
+        var totalDamage = random.Next(100) < attacker.CriticalChance && damageType is Damage.Normal
+            ? (int)(damage * attacker.CriticalMultiplier) : damage;
+        
+        if (ShieldRemain > 0)
+        {   
+            // Shield
+            ShieldRemain -= totalDamage;
+            if (ShieldRemain < 0)
+            {
+                totalDamage = Math.Abs(ShieldRemain);
+                ShieldRemain = 0;
+            }
+        }
+
+        totalDamage = damageType is Damage.Normal or Damage.Magical
+            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)
-        {
+        {   // Dead
             OnDead(attacker);
             return;
         }
         
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
-        {
+        {   // Reflection
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
             Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }

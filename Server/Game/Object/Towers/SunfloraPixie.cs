@@ -118,7 +118,8 @@ public class SunfloraPixie : SunflowerFairy
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Room == null || AddBuffAction == null) return;
-            
+
+            AttackEnded = true;
             var types = new[] { GameObjectType.Tower };
             var num = _triple ? 3 : 2;
             

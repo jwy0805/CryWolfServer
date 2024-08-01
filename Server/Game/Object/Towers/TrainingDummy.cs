@@ -63,6 +63,7 @@ public class TrainingDummy : TargetDummy
         {
             if (Room == null || AddBuffAction == null) return;
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            AttackEnded = true;
             
             // Accuracy Buff
             if (_accuracy)
@@ -80,7 +81,6 @@ public class TrainingDummy : TargetDummy
             // Heal -> Inherited from TargetDummy
             Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);
-            Mp = 0;
         });
     }
 }

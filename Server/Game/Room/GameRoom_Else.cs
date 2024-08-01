@@ -78,10 +78,6 @@ public partial class GameRoom
     public GameObject? FindClosestTarget(GameObject gameObject, int attackType = 0)
     {   
         // 어그로 끌린 상태면 리턴
-        foreach (var buff in gameObject.Buffs)
-        {
-            Console.WriteLine(buff);
-        }
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target; 
 
         var targetTypeList = GetTargetType(gameObject, ReachableInFence(gameObject));

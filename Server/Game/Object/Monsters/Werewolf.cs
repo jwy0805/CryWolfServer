@@ -106,6 +106,7 @@ public class Werewolf : Wolf
         await Scheduler.ScheduleEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            AttackEnded = true;
             Room.SpawnEffect(EffectId.LightningStrike, this, Target.PosInfo);
             var damage = Math.Max(TotalSkillDamage - Target.TotalDefence, 0);
             Hp += (int)(damage * DrainParam);

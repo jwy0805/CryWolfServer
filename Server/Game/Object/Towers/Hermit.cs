@@ -48,7 +48,7 @@ public class Hermit : Spike
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -139,6 +139,8 @@ public class Hermit : Spike
 
     protected override void OnSkill()
     {
+        if (Room == null || Hp <= 0) return;
+        
         SkillImpactEvents(300);
         SkillEndEvents(3000);
     }
@@ -177,9 +179,11 @@ public class Hermit : Spike
         if (ShieldRemain > 0)
         {   // Shield
             ShieldRemain -= totalDamage;
-            if (ShieldRemain >= 0) return;
-            totalDamage = Math.Abs(ShieldRemain);
-            ShieldRemain = 0;
+            if (ShieldRemain < 0)
+            {
+                totalDamage = Math.Abs(ShieldRemain);
+                ShieldRemain = 0;
+            }
         }
 
         totalDamage = damageType is Damage.Normal or Damage.Magical

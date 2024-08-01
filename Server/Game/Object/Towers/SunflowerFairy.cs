@@ -46,7 +46,7 @@ public class SunflowerFairy : SunBlossom
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;

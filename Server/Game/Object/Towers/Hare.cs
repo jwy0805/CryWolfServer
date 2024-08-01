@@ -39,7 +39,7 @@ public class Hare : Rabbit
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -96,6 +96,7 @@ public class Hare : Rabbit
     
     protected override void OnSkill()
     {
+        if (Target == null || Target.Targetable == false) return;
         base.OnSkill();
         AttackEnded = false;
     }
@@ -280,9 +281,9 @@ public class HareClone : Rabbit
         UpdateSkill();
     }
     
-    protected override void SkillImpactEvents(long impactTime)
+    protected override async void SkillImpactEvents(long impactTime)
     {
-        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        await Scheduler.ScheduleEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Parent is not { Hp: > 0 }) return;
 

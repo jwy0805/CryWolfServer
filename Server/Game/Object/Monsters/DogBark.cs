@@ -41,7 +41,7 @@ public class DogBark : DogPup
     public override void Update()
     {
         base.Update();
-        if (_attackSpeedUp) FindOtherDogs();
+        if (_attackSpeedUp && State != State.Die) FindOtherDogs();
     }
 
     protected override void UpdateSkill()

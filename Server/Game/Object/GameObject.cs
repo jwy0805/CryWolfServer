@@ -100,11 +100,14 @@ public partial class GameObject : IGameObject
             ? (int)(damage * attacker.CriticalMultiplier) : damage;
         
         if (ShieldRemain > 0)
-        {   // Shield
+        {   
+            // Shield
             ShieldRemain -= totalDamage;
-            if (ShieldRemain >= 0) return;
-            totalDamage = Math.Abs(ShieldRemain);
-            ShieldRemain = 0;
+            if (ShieldRemain < 0)
+            {
+                totalDamage = Math.Abs(ShieldRemain);
+                ShieldRemain = 0;
+            }
         }
 
         totalDamage = damageType is Damage.Normal or Damage.Magical
@@ -114,13 +117,15 @@ public partial class GameObject : IGameObject
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)
-        {   // Dead
+        {   
+            // Dead
             OnDead(attacker);
             return;
         }
         
         if (damageType is Damage.Normal && Reflection && reflected == false && attacker.Targetable)
-        {   // Reflection
+        {   
+            // Reflection
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
             Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
         }

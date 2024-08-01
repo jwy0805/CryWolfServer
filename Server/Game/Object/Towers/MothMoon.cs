@@ -49,7 +49,7 @@ public class MothMoon : MothLuna
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -113,7 +113,7 @@ public class MothMoon : MothLuna
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
 
-            Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
+            Room.SpawnProjectile(ProjectileId.MothCelestialPoison, this, 5f);
         });
     }
 
@@ -122,12 +122,14 @@ public class MothMoon : MothLuna
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Room == null) return;
+            AttackEnded = true;
             
             var types = new[] { GameObjectType.Sheep };
             var sheeps = Room.FindTargets(this, types, TotalSkillRange);
 
             if (sheeps.Any())
             {
+                Console.WriteLine($"{TotalSkillRange}, {Vector3.Distance(CellPos, sheeps.First().CellPos)}");
                 if (_sheepHeal)
                 {
                     var sheep = sheeps.MinBy(sheep => sheep.Hp);
@@ -137,7 +139,10 @@ public class MothMoon : MothLuna
                 if (_sheepShield)
                 {
                     var sheep = sheeps.MinBy(_ => Guid.NewGuid());
-                    if (sheep != null) sheep.ShieldAdd += ShieldParam;
+                    if (sheep != null)
+                    {
+                        sheep.ShieldAdd += sheep.ShieldRemain > 0 ? (int)(ShieldParam * 0.25) : ShieldParam;
+                    }
                 }
 
                 if (_sheepDebuffRemove)
@@ -155,30 +160,5 @@ public class MothMoon : MothLuna
             
             Mp = 0;
         });
-    }
-    
-    protected override void SetNextState()
-    {
-        if (Room == null) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
-        {
-            State = State.Idle;
-            return;
-        }
-        
-        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
-        Vector3 flatTargetPos = targetPos with { Y = 0 };
-        Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
-
-        if (distance > TotalAttackRange)
-        {
-            State = State.Idle;
-        }
-        else
-        {
-            State = Mp >= MaxMp && (_sheepShield || _sheepHeal) ? State.Skill : State.Attack;
-            SyncPosAndDir();
-        }
     }
 }

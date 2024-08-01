@@ -47,13 +47,14 @@ public class MothCelestial : MothMoon
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime  && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
             if (Mp >= MaxMp)
             {
                 State = State.Skill;
+                Mp = 0;
                 return;
             }
         }
@@ -111,7 +112,7 @@ public class MothCelestial : MothMoon
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;        
             
-            Room.SpawnProjectile(_poison ? ProjectileId.MothCelestialPoison : ProjectileId.MothMoonProjectile,
+            Room.SpawnProjectile(_poison ? ProjectileId.MothMoonProjectile : ProjectileId.MothCelestialPoison,
                 this, 5f);
         });
     }
@@ -121,7 +122,8 @@ public class MothCelestial : MothMoon
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Room == null) return;
-            
+
+            AttackEnded = true;
             var types = new[] { GameObjectType.Sheep };
             var sheeps = Room.FindTargets(this, types, TotalSkillRange);
 
@@ -144,7 +146,7 @@ public class MothCelestial : MothMoon
                         .Where(s => s != null && Vector3.Distance(
                             s.CellPos with { Y = 0 }, CellPos with { Y = 0 }) <= TotalSkillRange)
                         .ToList();
-                
+                    
                     foreach (var sheep in sheepDebuff)
                     {
                         if (sheep is { Room: not null }) Room.Push(Room.RemoveAllDebuffs, sheep);
@@ -168,8 +170,6 @@ public class MothCelestial : MothMoon
                     Room.SpawnSheep(Player);
                 }
             }
-
-            Mp = 0;
         });
     }
     
@@ -198,7 +198,7 @@ public class MothCelestial : MothMoon
         Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatTargetPos = targetPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatTargetPos, flatCellPos);  
+        float distance = Vector3.Distance(flatTargetPos, flatCellPos);
 
         if (distance > TotalAttackRange)
         {
@@ -206,7 +206,7 @@ public class MothCelestial : MothMoon
         }
         else
         {
-            State = Mp >= MaxMp ? State.Skill : State.Attack;
+            State = State.Attack;
             SyncPosAndDir();
         }
     }

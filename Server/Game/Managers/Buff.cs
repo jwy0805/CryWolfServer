@@ -633,7 +633,6 @@ public class Aggro : Buff
     {
         Master.Target = Caster;
         Room?.SpawnEffect(EffectId.StateAggro, Master, Master.PosInfo, true, (int)Duration);
-        Console.WriteLine($"Target Changed to {Master.Target?.Id}");
     }
 }
 
@@ -680,7 +679,7 @@ public class Fainted : Buff
     public override void RemoveBuff()
     {
         base.RemoveBuff();
-        if (Master.Targetable == false || Master.Hp <= 0) return;
+        if (Master.Hp <= 0 || Master.State == State.Die) return;
         Master.State = State.Idle;
     }
 }

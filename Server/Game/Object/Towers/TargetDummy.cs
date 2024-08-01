@@ -40,13 +40,14 @@ public class TargetDummy : PracticeDummy
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
             if (Mp >= MaxMp && _heal)
             {
                 State = State.Skill;
+                Mp = 0;
                 return;
             }
         }
@@ -79,10 +80,10 @@ public class TargetDummy : PracticeDummy
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            if (Room == null || Hp <= 0) return;
+            AttackEnded = true;
             Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);
-            Mp = 0;
         });
     }
 }

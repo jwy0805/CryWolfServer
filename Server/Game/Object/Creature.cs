@@ -198,8 +198,11 @@ public class Creature : GameObject
     
     protected virtual void OnSkill()
     {
-        if (Room == null) return;
-        if (Target == null || Target.Targetable == false || Hp <= 0) return;
+        // It is based on the assumption that the skill is a buff skill.
+        // If it is a skill that deals attack, you need to override it.
+        // - Target null check, targetable check.
+        // - AttackEnded check.
+        if (Room == null || Hp <= 0) return;
         
         Room.Broadcast(new S_SetAnimSpeed
         {
@@ -209,7 +212,8 @@ public class Creature : GameObject
         var impactMoment = (long)(StdAnimTime / TotalAttackSpeed * SkillImpactMoment);
         var animPlayTime = (long)(StdAnimTime / TotalAttackSpeed);
         SkillImpactEvents(impactMoment);
-        EndEvents(animPlayTime); 
+        EndEvents(animPlayTime);
+        AttackEnded = false;
     }
 
     protected virtual void OnSkill2()
@@ -253,7 +257,6 @@ public class Creature : GameObject
         {
             if (Room == null) return;
             if (Hp <= 0) return;
-            if (State == State.Faint) return;
             SetNextState();
         });
     }

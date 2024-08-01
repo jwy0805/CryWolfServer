@@ -51,7 +51,7 @@ public class SnakeNaga : Snake
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
@@ -138,6 +138,7 @@ public class SnakeNaga : Snake
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
+            AttackEnded = true;
             var searchType = new List<GameObjectType>
             {
                 GameObjectType.Sheep, GameObjectType.Tower

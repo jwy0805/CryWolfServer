@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Random = System.Random;
 
 namespace Server.Game;
 
@@ -42,21 +43,31 @@ public class Cactus : Cacti
     {
         if (Room == null || AddBuffAction == null) return;
         if (Invincible) return;
+        
         var random = new Random();
-        var totalDamage = damageType is Damage.Normal or Damage.Magical 
-            ? Math.Max(damage - TotalDefence, 0) : damage;
-        
-        if (random.Next(100) < attacker.CriticalChance)
-        {
-            totalDamage = (int)(totalDamage * attacker.CriticalMultiplier);
-        }
-        
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {
+        {   // Evasion
             // TODO: Evasion Effect
             return;
         }
         
+        // 일반적으로 Normal Damage 만 Critical 가능, Magical이나 True Damage Critical 구현 시 데미지를 넣는 Unit으로부터 자체적으로 계산
+        var totalDamage = random.Next(100) < attacker.CriticalChance && damageType is Damage.Normal
+            ? (int)(damage * attacker.CriticalMultiplier) : damage;
+        
+        if (ShieldRemain > 0)
+        {   
+            // Shield
+            ShieldRemain -= totalDamage;
+            if (ShieldRemain < 0)
+            {
+                totalDamage = Math.Abs(ShieldRemain);
+                ShieldRemain = 0;
+            }
+        }
+
+        totalDamage = damageType is Damage.Normal or Damage.Magical
+            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
@@ -72,7 +83,7 @@ public class Cactus : Cacti
             var reflectionDamage = (int)(totalDamage * ReflectionRate / 100);
             Room.Push(attacker.OnDamaged, this, reflectionDamage, damageType, true);
             
-            if (_reflectionFaint && new Random().Next(100) < ReflectionFaintRate && attacker.Targetable)
+            if (_reflectionFaint && random.Next(100) < ReflectionFaintRate && attacker.Targetable)
             {
                 Room.Push(AddBuffAction, BuffId.Fainted,
                     BuffParamType.None, attacker, this, 0, 1000, false);

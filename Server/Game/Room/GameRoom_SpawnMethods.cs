@@ -83,7 +83,7 @@ public partial class GameRoom
                 {
                     var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
                     S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session.Send(warningPacket);
+                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(warningPacket);
                     return;
                 }
 
