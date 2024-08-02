@@ -9,7 +9,7 @@ public class MosquitoBug : Monster
     private bool _faint = false;
 
     protected int FaintParam = 30;
-    protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
+    protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
     
     protected override Skill NewSkill
     {
@@ -45,7 +45,7 @@ public class MosquitoBug : Monster
     {
         if (Room == null) return;
         
-        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType);
+        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
@@ -54,7 +54,7 @@ public class MosquitoBug : Monster
     {
         if (Room == null) return;
         // Targeting
-        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
+        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;

@@ -129,7 +129,6 @@ public class MothMoon : MothLuna
 
             if (sheeps.Any())
             {
-                Console.WriteLine($"{TotalSkillRange}, {Vector3.Distance(CellPos, sheeps.First().CellPos)}");
                 if (_sheepHeal)
                 {
                     var sheep = sheeps.MinBy(sheep => sheep.Hp);

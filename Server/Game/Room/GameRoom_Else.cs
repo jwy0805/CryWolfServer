@@ -87,15 +87,18 @@ public partial class GameRoom
         return MeasureShortestDist(gameObject, targetList, attackType);
     }
     
-    public GameObject? FindClosestTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
-    {   
-        // 어그로 끌린 상태면 리턴
+    public GameObject? FindClosestPriorityTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
+    {
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
 
-        var targetList = new List<GameObject>();
-        foreach (var type in typeList) targetList.AddRange(GetTargets(type));
+        foreach (var type in typeList)
+        {
+            var targetList = GetTargets(type).ToList();
+            var finalTarget = MeasureShortestDist(gameObject, targetList, attackType);
+            if (finalTarget != null) return finalTarget;
+        } 
 
-        return MeasureShortestDist(gameObject, targetList, attackType);
+        return null;
     }
 
     public GameObject? FindRandomTarget(GameObject gameObject, List<GameObjectType> typeList, float dist, int attackType = 0)
@@ -273,51 +276,6 @@ public partial class GameRoom
 
         return objectsInRectangle;
     }
-    
-    // public List<GameObject> FindTargetsInRectangle(IEnumerable<GameObjectType> typeList,
-    //     GameObject gameObject, double width, double height, int attackType = 0)
-    // {
-    //     Map map = Map;
-    //     Pos pos = map.Cell2Pos(map.Vector3To2(gameObject.CellPos));
-    //     
-    //     double halfWidth = width / 2.0f;
-    //     double angle = gameObject.Dir * Math.PI / 180;
-    //
-    //     double x1 = pos.X - halfWidth;
-    //     double x2 = pos.X + halfWidth;
-    //     double z1 = pos.Z - height;
-    //     double z2 = pos.Z;
-    //     Vector2[] corners = new Vector2[4];
-    //     corners[0] = new Vector2((float)x1, (float)z1);
-    //     corners[1] = new Vector2((float)x1, (float)z2);
-    //     corners[2] = new Vector2((float)x2, (float)z2);
-    //     corners[3] = new Vector2((float)x2, (float)z1);
-    //     
-    //     List<GameObject> gameObjects = FindTargets(gameObject, typeList, (float)(height > width ? height : width));
-    //     Vector2[] cornersRotated = RotateRectangle(corners, new Vector2(pos.X, pos.Z), angle);
-    //
-    //     return (from obj in gameObjects 
-    //         where obj.Targetable && attackType == 2 || obj.UnitType == attackType
-    //         let objPos = map.Cell2Pos(map.Vector3To2(obj.CellPos)) 
-    //         let point = new Vector2(objPos.X, objPos.Z) 
-    //         where CheckPointInRectangle(cornersRotated, point, width * height) select obj).ToList();
-    // }
-    //
-    // private Vector2[] RotateRectangle(Vector2[] corners, Vector2 datumPoint, double angle)
-    // {
-    //     for (int i = 0; i < corners.Length; i++)
-    //     {
-    //         Vector2 offset = corners[i] - datumPoint;
-    //         float x = offset.X;
-    //         float z = offset.Y;
-    //         corners[i] = new Vector2(
-    //             datumPoint.X + x * (float)Math.Cos(angle) - z * (float)Math.Sin(angle),
-    //             datumPoint.Y + x * (float)Math.Sin(angle) + z * (float)Math.Cos(angle)
-    //         );
-    //     }
-    //
-    //     return corners;
-    // }
     
     public GameObject? FindDensityTargets(List<GameObjectType> searchType, List<GameObjectType> targetType,
         GameObject gameObject, float range, float impactRange, int attackType = 0)
@@ -532,44 +490,6 @@ public partial class GameRoom
         return posInfo;
     }
     
-    public GameObject? FindMosquitoInFence()
-    {
-        foreach (var monster in _monsters.Values)
-        {
-            if (monster.UnitId is not 
-                (UnitId.MosquitoBug or UnitId.MosquitoPester or UnitId.MosquitoStinger)) continue;
-
-            if (InsideFence(monster))
-            {
-                return monster;
-            }
-        }
-        
-        return null;
-    }
-
-    private Dictionary<int, GameObject> AddTargetType(GameObjectType type)
-    {
-        Dictionary<int, GameObject> targetDict = new();
-        switch (type)
-        {
-            case GameObjectType.Monster:
-                foreach (var (key, value) in _monsters) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Tower:
-                foreach (var (key, value) in _towers) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Fence:
-                foreach (var (key, value) in _fences) targetDict.Add(key, value);
-                break;
-            case GameObjectType.Sheep:
-                foreach (var (key, value) in _sheeps) targetDict.Add(key, value);
-                break;
-        }
-
-        return targetDict.Count != 0 ? targetDict : new Dictionary<int, GameObject>();
-    }
-    
     public GameObject? FindGameObjectById(int id)
     {
         GameObject? go = new GameObject();
@@ -606,25 +526,6 @@ public partial class GameRoom
         }
 
         return go;
-    }
-    
-    private bool InsideFence(GameObject gameObject)
-    {
-        Vector3 cell = gameObject.CellPos;
-        Vector3 center = GameInfo.FenceCenter;
-        Vector3 size = GameInfo.FenceSize;
-
-        float halfWidth = size.X / 2;
-        float minX = center.X - halfWidth;
-        float maxX = center.X + halfWidth;
-        float halfHeight = size.Z / 2;
-        float minZ = center.Z - halfHeight;
-        float maxZ = center.Z + halfHeight;
-
-        bool insideX = minX <= cell.X && maxX >= cell.X;
-        bool insideZ = minZ <= cell.Z && maxZ >= cell.Z;
-        
-        return insideX && insideZ;
     }
 
     public Vector3[] GetSheepBounds()

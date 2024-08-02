@@ -18,8 +18,11 @@ public class Player : GameObject
         ObjectType = GameObjectType.Player;
         
         DataManager.ObjectDict.TryGetValue(PlayerNo, out var playerData);
-        Stat.MergeFrom(playerData!.stat);
-        Stat.MoveSpeed = playerData.stat.MoveSpeed;
+        if (playerData != null)
+        {
+            Stat.MergeFrom(playerData.stat);
+            Stat.MoveSpeed = playerData.stat.MoveSpeed;
+        }
     }
 
     public override void Init()

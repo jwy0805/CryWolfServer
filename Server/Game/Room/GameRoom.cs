@@ -104,8 +104,6 @@ public partial class GameRoom : JobSerializer
         {
             InitRound();
             SpawnMonstersInNewRound();
-            Console.WriteLine($"Round {_round} start !");
-            Console.WriteLine($"{GameInfo.NorthFenceCnt} {GameInfo.SouthFenceCnt} {GameInfo.FenceCenter} {GameInfo.FenceStartPos}");
         }
         
         if (_roundTime < 10 && _round != 0) CheckMonsters();
@@ -378,12 +376,7 @@ public partial class GameRoom : JobSerializer
 
     public Player? FindPlayer(Func<GameObject, bool> condition)
     {
-        foreach (var player in _players.Values)
-        {
-            if (condition.Invoke(player)) return player;
-        }
-
-        return null;
+        return _players.Values.FirstOrDefault(condition.Invoke);
     }
     
     public void Broadcast(IMessage packet)

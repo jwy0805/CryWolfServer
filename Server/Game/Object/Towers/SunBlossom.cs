@@ -149,7 +149,7 @@ public class SunBlossom : Tower
     protected override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0 || Target.Room == null)
         {
             State = State.Idle;
             return;

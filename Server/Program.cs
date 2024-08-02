@@ -8,6 +8,7 @@ using Server.DB;
 using Server.Game;
 using ServerCore;
 using Timer = System.Timers.Timer;
+// ReSharper disable FunctionNeverReturns
 
 namespace Server;
 
@@ -69,6 +70,12 @@ public class Program
             GameLogic.Instance.Update();
             Thread.Sleep(10);
         }
+    }
+
+    // Only for test
+    public static void GameLogicTaskForTest()
+    {
+        
     }
 
     private static void NetworkTask()

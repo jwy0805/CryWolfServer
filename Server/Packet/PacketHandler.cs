@@ -56,8 +56,9 @@ public class PacketHandler
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
-
+        
         room?.Push(room.HandleSpawn, player, spawnPacket);
+        Console.WriteLine($"{spawnPacket.Num}, {spawnPacket.PosInfo}");
     }
     
     public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)

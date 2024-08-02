@@ -1,6 +1,6 @@
 namespace Server.Game;
 
-public class JobSerializer
+public class JobSerializer : IJobSerializer
 {
     private JobTimer _timer = new();
     private Queue<IJob> _jobQueue = new();

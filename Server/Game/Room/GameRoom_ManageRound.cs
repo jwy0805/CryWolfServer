@@ -13,10 +13,15 @@ public partial class GameRoom
     {
         if (GameInfo.FenceStartPos.Z >= 7) return;
         
-        if (_monsters.Values.Any(monster => monster.Targetable || monster.Hp > 0) == false)
+        if (IsThereAnyMonster() == false)
         {
             MoveForwardTowerAndFence();
         }
+    }
+
+    public bool IsThereAnyMonster()
+    {
+        return _monsters.Values.Any(monster => monster.Targetable || monster.Hp > 0);
     }
 
     private async void MoveForwardTowerAndFence()

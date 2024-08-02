@@ -90,10 +90,12 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var sheepPlayer = ObjectManager.Instance.Add<Player>();
+            sheepPlayer.Camp = Camp.Sheep;
             sheepPlayer.Info.Name = $"Player_{packet.SheepUserId}";
             sheepPlayer.Session = SessionManager.Instance.FindByUserId(packet.SheepUserId);
         
             var wolfPlayer = ObjectManager.Instance.Add<Player>();
+            wolfPlayer.Camp = Camp.Wolf;
             wolfPlayer.Info.Name = $"Player_{packet.WolfUserId}";
             wolfPlayer.Session = SessionManager.Instance.FindByUserId(packet.WolfUserId);
             

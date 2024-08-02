@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public class MoleRatKing : MoleRat
 {
-    private List<GameObjectType> _typeList = new() { GameObjectType.Sheep };
+    private List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
     private bool _burrow = false;
     private bool _stealWool = false;
     private readonly float _stealWoolParam = 0.1f;
@@ -40,7 +40,7 @@ public class MoleRatKing : MoleRat
     
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestTarget(this, _typeList);
+        Target = Room?.FindClosestPriorityTarget(this, _typeList);
         if (Target == null) return;
         State = _burrow ? State.IdleToUnderground : State.IdleToRush;
     }
@@ -57,14 +57,18 @@ public class MoleRatKing : MoleRat
     }
 
     protected override void UpdateUnderground()
-    {   // Targeting 우선순위 - Sheep
+    {
+        if (Room == null) return;
+        
+        // Targeting 우선순위 - Sheep
         var targetTypeList = new List<GameObjectType> { GameObjectType.Sheep };
-        Target = Room.FindClosestTarget(this, targetTypeList);
+        Target = Room.FindClosestPriorityTarget(this, targetTypeList);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         float distance = Vector3.Distance(DestPos, CellPos);
@@ -76,6 +80,7 @@ public class MoleRatKing : MoleRat
             State = State.UndergroundToIdle;
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this, false);
         BroadcastPath();
@@ -94,7 +99,7 @@ public class MoleRatKing : MoleRat
     protected override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0 || Target.Room == null)
         {
             State = State.Idle;
             return;

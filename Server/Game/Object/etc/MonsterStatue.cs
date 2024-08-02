@@ -17,6 +17,15 @@ public class MonsterStatue : GameObject
         DataManager.ObjectDict.TryGetValue(3, out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Hp = MaxHp;
+        Targetable = false;
+    }
+
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        
+        Targetable = Room.IsThereAnyMonster();
     }
 
     protected override void OnDead(GameObject? attacker)

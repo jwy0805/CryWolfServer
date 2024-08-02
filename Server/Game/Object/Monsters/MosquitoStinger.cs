@@ -44,7 +44,7 @@ public class MosquitoStinger : MosquitoPester
     {
         if (Room == null) return;
         // Targeting
-        Target = Room.FindClosestTarget(this, _typeList, Stat.AttackType); 
+        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
@@ -130,7 +130,7 @@ public class MosquitoStinger : MosquitoPester
     protected override void SetNextState()
     {
         if (Room == null) return;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        if (Target == null || Target.Targetable == false || Target.Hp <= 0 || Target.Room == null)
         {
             State = State.Idle;
             AttackEnded = true;
