@@ -171,10 +171,10 @@ public class PacketHandler
         Enum.TryParse(unitData.camp, out Camp camp);
         GameObjectType type = camp == Camp.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
         
-        int size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
-        bool canSpawn = room.Map.CanSpawn(cellPos, size);
+        var size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
+        var canSpawn = room.Map.CanSpawn(cellPos, size) && cellPos.Z > room.GameInfo.FenceStartPos.Z;
         
-        var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type};
+        var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type };
         player?.Session?.Send(unitSpawnPacket);
     }
 

@@ -37,7 +37,7 @@ public partial class GameRoom : JobSerializer
     
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
-    public GameInfo GameInfo { get; set; }
+    public GameInfo GameInfo { get; private set; } = new(new Dictionary<int, Player>(), 1);
     public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
     public int RoomId { get; set; }
@@ -307,7 +307,7 @@ public partial class GameRoom : JobSerializer
                 Map.ApplyLeave(player);
                 player.Room = null;
 
-                S_LeaveGame leavePacket = new S_LeaveGame();
+                var leavePacket = new S_LeaveGame();
                 player.Session?.Send(leavePacket);
                 break;
             
@@ -353,11 +353,11 @@ public partial class GameRoom : JobSerializer
                 break;
         }
 
-        S_Despawn despawnPacket = new S_Despawn();
+        var despawnPacket = new S_Despawn();
         despawnPacket.ObjectIds.Add(objectId);
-        foreach (var player in _players.Values)
+        foreach (var player in _players.Values.Where(player => player.Id != objectId))
         {
-            if (player.Id != objectId) player.Session?.Send(despawnPacket);
+            player.Session?.Send(despawnPacket);
         }
     }
 
