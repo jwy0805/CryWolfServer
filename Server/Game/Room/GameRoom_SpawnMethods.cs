@@ -20,12 +20,10 @@ public partial class GameRoom
         
         if (towerSlot.Way == SpawnWay.North)
         {
-            _northTowers.Add(towerSlot);
             GameInfo.NorthTower++;
         }
         else
         {
-            _southTowers.Add(towerSlot);
             GameInfo.SouthTower++;
         }
         
@@ -45,12 +43,10 @@ public partial class GameRoom
 
         if (monsterSlot.Way == SpawnWay.North)
         {
-            _northMonsters.Add(monsterSlot);
             GameInfo.NorthMonster++;
         }
         else
         {
-            _southMonsters.Add(monsterSlot);
             GameInfo.SouthMonster++;
         }
         
@@ -63,69 +59,6 @@ public partial class GameRoom
         };
         
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session?.Send(registerPacket);
-    }
-
-    private void UpgradeTower(Tower oldTower, Tower newTower)
-    {
-        TowerSlot newTowerSlot = new(newTower.UnitId, newTower.PosInfo, newTower.Way, newTower.Id);
-
-        if (newTower.Way == SpawnWay.North)
-        {
-            int index = _northTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-            if (index != -1)
-            {
-                _northTowers[index] = newTowerSlot;
-            }
-            else
-            {
-                int index2 = _southTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-                if (index2 == -1)
-                {
-                    var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
-                    S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(warningPacket);
-                    return;
-                }
-
-                _southTowers[index2] = newTowerSlot;
-            }
-        }
-        else
-        {
-            int index = _southTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-            if (index != -1)
-            {
-                _southTowers[index] = newTowerSlot;
-            }
-            else
-            {
-                int index2 = _northTowers.FindIndex(slot => slot.ObjectId == oldTower.Id);
-                if (index2 == -1)
-                {
-                    var warningMsg = "(이미 죽었습니다)다시 시도해주세요.";
-                    S_SendWarningInGame warningPacket = new() { Warning = warningMsg };
-                    _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(warningPacket);
-                    return;
-                }
-                _northTowers[index2] = newTowerSlot;
-            }
-        }
-    }
-    
-    private void UpgradeMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
-    {
-        MonsterSlot newMonsterSlot = new(newStatue.UnitId, newStatue.Way, newStatue);
-
-        if (newStatue.Way == SpawnWay.North)
-        {
-            int index = _northMonsters.FindIndex(slot => slot.Statue.Id == oldStatue.Id);
-            _northMonsters[index] = newMonsterSlot;
-        }
-        else
-        {
-            int index = _southMonsters.FindIndex(slot => slot.Statue.Id == oldStatue.Id);
-            _southMonsters[index] = newMonsterSlot;
-        }
     }
     
     // Run when initialize game and storage upgrade.

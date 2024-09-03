@@ -4,56 +4,10 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    // For single game logic
-    private void RenewTowerSlot(TowerSlot slot, Tower tower)
-    {
-        slot.TowerId = tower.UnitId;
-        slot.PosInfo = tower.PosInfo;
-        slot.Way = tower.Way;
-        slot.ObjectId = tower.Id;
-    }
-    
-    private void T_RegisterMonsterStatue(MonsterStatue statue)
-    {
-        MonsterSlot monsterSlot = new(statue.UnitId, statue.Way, statue);
-
-        if (monsterSlot.Way == SpawnWay.North)
-        {
-            _northMonsters.Add(monsterSlot);
-        }
-        else
-        {
-            _southMonsters.Add(monsterSlot);
-        }
-    }
-    
-    private void RenewMonsterStatue(MonsterStatue oldStatue, MonsterStatue newStatue)
-    {
-        if (oldStatue.Way == SpawnWay.North)
-        {
-            var oldSlot = _northMonsters.FirstOrDefault(slot => slot.Statue.Id == oldStatue.Id);
-            int index = _northMonsters.IndexOf(oldSlot);
-            if (index != -1)
-            {
-                _northMonsters[index] = new MonsterSlot(newStatue.UnitId, newStatue.Way, newStatue);
-            }
-        }
-        else
-        {
-            var oldSlot = _southMonsters.FirstOrDefault(slot => slot.Statue.Id == oldStatue.Id);
-            int index = _southMonsters.IndexOf(oldSlot);
-            if (index != -1)
-            {
-                _southMonsters[index] = new MonsterSlot(newStatue.UnitId, newStatue.Way, newStatue);
-            }
-        }
-    }
-    
     private void SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
         var player = _npc;
         var statue = SpawnMonsterStatue(monsterId, pos, player);
-        T_RegisterMonsterStatue(statue);
         SpawnEffect(EffectId.Upgrade, statue);
     }
     
@@ -75,7 +29,6 @@ public partial class GameRoom
         var player = _npc;
         var newStatue = SpawnMonsterStatue(monsterId, newPos, player);
         LeaveGame(oldStatueId);
-        RenewMonsterStatue(statue, newStatue);
         SpawnEffect(EffectId.Upgrade, statue);
     }
     

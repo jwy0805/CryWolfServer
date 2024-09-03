@@ -24,11 +24,6 @@ public partial class GameRoom : JobSerializer
     private readonly Dictionary<int, Projectile> _projectiles = new();
     private readonly Dictionary<int, Portal> _portals = new();
     
-    private readonly List<TowerSlot> _northTowers = new();
-    private readonly List<TowerSlot> _southTowers = new();
-    private readonly List<MonsterSlot> _northMonsters = new();
-    private readonly List<MonsterSlot> _southMonsters = new();
-    
     private int _storageLevel = 0;
     private int _roundTime = 19;
     private int _round = 0;
@@ -69,7 +64,7 @@ public partial class GameRoom : JobSerializer
         Flush();
         SetTimeAndRound();
         UpdateBuffs();
-    }
+    } 
 
     private void UnitSizeMapping()
     {
@@ -83,7 +78,7 @@ public partial class GameRoom : JobSerializer
             UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
-    
+     
     private void SetTimeAndRound()
     {
         long time = Stopwatch.ElapsedMilliseconds;
@@ -95,8 +90,8 @@ public partial class GameRoom : JobSerializer
         // Tutorial
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            SetTutorialStatues(_round);
-            _tutorialSet = true;
+            // SetTutorialStatues(_round);
+            // _tutorialSet = true;
         }
         // Tutorial
         
@@ -125,7 +120,7 @@ public partial class GameRoom : JobSerializer
                 var enterPacket = new S_EnterGame { Player = player.Info };
                 player.Session?.Send(enterPacket);
                 {
-                    var spawnPacket = new S_Spawn();
+                    var spawnPacket = new S_Spawn(); 
                     foreach (var p in _players.Values.Where(p => player != p)) 
                         spawnPacket.Objects.Add(p.Info);
                     // 게임 플레이 중간에 player가 접속했을 때 이미 존재하는 objects spawn
@@ -204,36 +199,36 @@ public partial class GameRoom : JobSerializer
                 Portal portal = (Portal)gameObject;
                 _portals.Add(gameObject.Id, portal);
                 portal.Room = this;
-                Map.ApplyMap(portal);
+                Map.ApplyMap(portal); 
                 break;
         }
         // 타인에게 정보 전송
         {
             var spawnPacket = new S_Spawn();
             spawnPacket.Objects.Add(gameObject.Info);
-            foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id))
+            foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id)) 
             {
                 player.Session?.Send(spawnPacket);
             }
         }
     }
 
-    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId)
+    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId) 
     {
         var projectile = (Projectile)gameObject;
         _projectiles.Add(projectile.Id, projectile);
         projectile.Room = this;
         var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y + 0.5f, Z = targetPos.Z };
         var spawnPacket = new S_SpawnProjectile
-        {
-            Object = gameObject.Info, ParentId = parentId, DestPos = destVector, MoveSpeed = speed
+        { 
+            Object = gameObject.Info, ParentId = parentId, DestPos = destVector, MoveSpeed = speed 
         };
         Broadcast(spawnPacket);
     }
 
     private void EnterGameEffect(GameObject gameObject, int parentId, bool trailingParent, int duration = 2000)
     {
-        var effect = (Effect)gameObject;
+        var effect = (Effect)gameObject; 
         _effects.Add(gameObject.Id, effect);
         effect.Room = this;
         var spawnPacket = new S_SpawnEffect

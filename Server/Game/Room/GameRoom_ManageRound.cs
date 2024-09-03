@@ -49,10 +49,19 @@ public partial class GameRoom
                     var newFenceCellPos = GameInfo.FenceStartPos + new Vector3 { X = fenceOrder * 2 };
                     var fence = _fences.Values
                         .FirstOrDefault(fence => fence.CellPos.X >= minX && fence.CellPos.X < maxX);
-                    var newFence = SpawnFence(newFenceCellPos, StorageLevel);
-                    if (fence != null)  LeaveGame(fence.Id);
-                    SpawnEffect(EffectId.MoveForwardEffect, newFence);
                     
+                    if (fence != null)
+                    {
+                        fence.CellPos = newFenceCellPos;
+                        fence.BroadcastMoveForward();
+                    }
+                    else
+                    {
+                        fence = SpawnFence(newFenceCellPos, StorageLevel);
+                    }
+                    
+                    SpawnEffect(EffectId.MoveForwardEffect, fence);
+
                     // Move forward towers
                     var towers = _towers.Values
                         .Where(tower => tower.CellPos.X >= minX && tower.CellPos.X < maxX).ToList();
@@ -83,6 +92,7 @@ public partial class GameRoom
                 tower.BroadcastMoveForward();
                 SpawnEffect(EffectId.MoveForwardEffect, tower);
             }
+            
             
         }
         catch (Exception ex)

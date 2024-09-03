@@ -4,7 +4,7 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer
 {
-    private struct TowerSlot 
+    private record struct TowerSlot 
     {
         public UnitId TowerId;
         public PositionInfo PosInfo;
@@ -20,7 +20,7 @@ public partial class GameRoom : JobSerializer
         }
     }
 
-    private struct MonsterSlot
+    private record struct MonsterSlot
     {
         public readonly UnitId MonsterId;
         public readonly SpawnWay Way;

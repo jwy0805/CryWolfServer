@@ -58,8 +58,10 @@ public partial class GameRoom
             if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
             cost += skillData.cost;
         }
+        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
+        var upgradeCost = (int)(unitData?.stat.RequiredResources! * 0.8f);
         
-        return cost;
+        return cost + upgradeCost;
     }
     
     private bool VerifyCapacityForTower(Player player, int towerId, SpawnWay way)

@@ -45,6 +45,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CPortraitUpgrade, PacketHandler.C_PortraitUpgradeHandler);		
 		_onRecv.Add((ushort)MessageId.CUnitUpgrade, MakePacket<C_UnitUpgrade>);
 		_handler.Add((ushort)MessageId.CUnitUpgrade, PacketHandler.C_UnitUpgradeHandler);		
+		_onRecv.Add((ushort)MessageId.CUnitRepair, MakePacket<C_UnitRepair>);
+		_handler.Add((ushort)MessageId.CUnitRepair, PacketHandler.C_UnitRepairHandler);		
 		_onRecv.Add((ushort)MessageId.CChangeResource, MakePacket<C_ChangeResource>);
 		_handler.Add((ushort)MessageId.CChangeResource, PacketHandler.C_ChangeResourceHandler);		
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
@@ -55,12 +57,18 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CGetRanges, PacketHandler.C_GetRangesHandler);		
 		_onRecv.Add((ushort)MessageId.CSetTextUI, MakePacket<C_SetTextUI>);
 		_handler.Add((ushort)MessageId.CSetTextUI, PacketHandler.C_SetTextUIHandler);		
-		_onRecv.Add((ushort)MessageId.CDeleteUnit, MakePacket<C_DeleteUnit>);
-		_handler.Add((ushort)MessageId.CDeleteUnit, PacketHandler.C_DeleteUnitHandler);		
+		_onRecv.Add((ushort)MessageId.CUnitDelete, MakePacket<C_UnitDelete>);
+		_handler.Add((ushort)MessageId.CUnitDelete, PacketHandler.C_UnitDeleteHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUpgradePopup, MakePacket<C_SetUpgradePopup>);
 		_handler.Add((ushort)MessageId.CSetUpgradePopup, PacketHandler.C_SetUpgradePopupHandler);		
-		_onRecv.Add((ushort)MessageId.CSetUpgradeButton, MakePacket<C_SetUpgradeButton>);
-		_handler.Add((ushort)MessageId.CSetUpgradeButton, PacketHandler.C_SetUpgradeButtonHandler);
+		_onRecv.Add((ushort)MessageId.CSetUpgradeButtonCost, MakePacket<C_SetUpgradeButtonCost>);
+		_handler.Add((ushort)MessageId.CSetUpgradeButtonCost, PacketHandler.C_SetUpgradeButtonCostHandler);		
+		_onRecv.Add((ushort)MessageId.CSetUnitUpgradeCost, MakePacket<C_SetUnitUpgradeCost>);
+		_handler.Add((ushort)MessageId.CSetUnitUpgradeCost, PacketHandler.C_SetUnitUpgradeCostHandler);		
+		_onRecv.Add((ushort)MessageId.CSetUnitDeleteCost, MakePacket<C_SetUnitDeleteCost>);
+		_handler.Add((ushort)MessageId.CSetUnitDeleteCost, PacketHandler.C_SetUnitDeleteCostHandler);		
+		_onRecv.Add((ushort)MessageId.CSetUnitRepairCost, MakePacket<C_SetUnitRepairCost>);
+		_handler.Add((ushort)MessageId.CSetUnitRepairCost, PacketHandler.C_SetUnitRepairCostHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

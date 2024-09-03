@@ -136,6 +136,16 @@ public class PacketHandler
         room?.Push(room.HandleUnitUpgrade, player, upgradePacket);
     }
     
+    public static void C_UnitRepairHandler(PacketSession session, IMessage packet)
+    {
+        var repairPacket = (C_UnitRepair)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        
+    }
+    
     public static void C_ChangeResourceHandler(PacketSession session, IMessage packet)
     {
         var resourcePacket = (C_ChangeResource)packet;
@@ -172,7 +182,7 @@ public class PacketHandler
         GameObjectType type = camp == Camp.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
         
         var size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
-        var canSpawn = room.Map.CanSpawn(cellPos, size) && cellPos.Z > room.GameInfo.FenceStartPos.Z;
+        var canSpawn = room.Map.CanSpawn(cellPos, size);
         
         var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type };
         player?.Session?.Send(unitSpawnPacket);
@@ -205,9 +215,9 @@ public class PacketHandler
         if (uiPacket.Init) room?.InfoInit();
     }
 
-    public static void C_DeleteUnitHandler(PacketSession session, IMessage packet)
+    public static void C_UnitDeleteHandler(PacketSession session, IMessage packet)
     {
-        var deletePacket = (C_DeleteUnit)packet;
+        var deletePacket = (C_UnitDelete)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
@@ -225,13 +235,37 @@ public class PacketHandler
         room?.Push(room.HandleSetUpgradePopup, player, popupPacket);
     }
 
-    public static void C_SetUpgradeButtonHandler(PacketSession session, IMessage packet)
+    public static void C_SetUpgradeButtonCostHandler(PacketSession session, IMessage packet)
     {
-        var buttonPacket = (C_SetUpgradeButton)packet;
+        var buttonPacket = (C_SetUpgradeButtonCost)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
         
-        room?.Push(room.HandleSetUpgradeButton, player, buttonPacket);
+        room?.Push(room.HandleSetCostInUpgradeButton, player, buttonPacket);
+    }
+    
+    public static void C_SetUnitUpgradeCostHandler(PacketSession session, IMessage packet)
+    {
+        var upgradePacket = (C_SetUnitUpgradeCost)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+    }
+    
+    public static void C_SetUnitDeleteCostHandler(PacketSession session, IMessage packet)
+    {
+        var deletePacket = (C_SetUnitDeleteCost)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+    }
+    
+    public static void C_SetUnitRepairCostHandler(PacketSession session, IMessage packet)
+    {
+        var repairPacket = (C_SetUnitRepairCost)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
     }
 }

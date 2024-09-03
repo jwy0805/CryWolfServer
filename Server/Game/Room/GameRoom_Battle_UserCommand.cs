@@ -121,87 +121,81 @@ public partial class GameRoom
     public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
     {
         if (player == null) return;
-        var go = FindGameObjectById(upgradePacket.ObjectId);
-        if (go is not Tower originTower) return;
+        var objectIds = upgradePacket.ObjectId.ToArray();
+        foreach (var objectId in objectIds)
+        {
+            var go = FindGameObjectById(objectId);
+            if (go is not Tower originTower) return;
+            
+            // 실제 환경
+            bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originTower.UnitId+ 1, out _);
+            bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originTower.UnitId);
+            bool lackOfCost = VerifyUnitUpgradeCost((int)originTower.UnitId);
+            
+            if (evolutionEnded)
+            {
+                SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+                return;
+            }
+
+            if (lackOfUpgrade)
+            {
+                SendWarningMessage(player, "먼저 진화가 필요합니다.");
+                return;
+            }
+
+            if (lackOfCost)
+            {
+                SendWarningMessage(player, "골드가 부족합니다.");
+                return;
+            }
+
+            int id = go.Id;
+            if (go.ObjectType == GameObjectType.Tower)
+            {
+                if (go is not Tower tower) return;
+                PositionInfo newTowerPos = new()
+                {
+                    PosX = tower.PosInfo.PosX, PosY = tower.PosInfo.PosY, PosZ = tower.PosInfo.PosZ, State = State.Idle
+                };
+                LeaveGame(id);
+                Broadcast(new S_Despawn { ObjectIds = { id } });
+                var towerId = tower.UnitId + 1;
+                SpawnTower(towerId, newTowerPos, player);
+            }
+            else if (go.ObjectType == GameObjectType.Monster)
+            {
+                if (go is not Monster monster) return;
+                var statueId = monster.StatueId;
+                var statue = FindGameObjectById(statueId);
+                if (statue == null) return;
+                PositionInfo newStatuePos = new()
+                {
+                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
+                };
+                LeaveGame(statueId);
+                Broadcast(new S_Despawn { ObjectIds = { statueId } });
+                var monsterId = monster.UnitId + 1;
+                SpawnMonsterStatue(monsterId, newStatuePos, player);
+            }
+            else if (go.ObjectType == GameObjectType.MonsterStatue)
+            {
+                if (go is not MonsterStatue statue) return;
+                PositionInfo newStatuePos = new()
+                {
+                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
+                };
+                LeaveGame(id);
+                Broadcast(new S_Despawn { ObjectIds = { id } });
+                var monsterId = statue.UnitId + 1;
+                SpawnMonsterStatue(monsterId, newStatuePos, player);
+            }
+        }
+    }
+
+    public void HandleUnitRepair(Player? player, C_UnitRepair packet)
+    {
         
-        // 실제 환경
-        bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originTower.UnitId+ 1, out _);
-        bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originTower.UnitId);
-        bool lackOfCost = VerifyUnitUpgradeCost((int)originTower.UnitId);
-        
-        if (evolutionEnded)
-        {
-            SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
-            return;
-        }
-
-        if (lackOfUpgrade)
-        {
-            SendWarningMessage(player, "먼저 진화가 필요합니다.");
-            return;
-        }
-
-        if (lackOfCost)
-        {
-            SendWarningMessage(player, "골드가 부족합니다.");
-            return;
-        }
-
-        int id = go.Id;
-        if (go.ObjectType == GameObjectType.Tower)
-        {
-            if (go is not Tower t) return;
-            PositionInfo newTowerPos = new()
-            {
-                PosX = t.PosInfo.PosX, PosY = t.PosInfo.PosY, PosZ = t.PosInfo.PosZ, State = State.Idle
-            };
-            LeaveGame(id);
-            Broadcast(new S_Despawn { ObjectIds = { id } });
-            var towerId = t.UnitId + 1;
-            var tower = SpawnTower(towerId, newTowerPos, player);
-            Push(UpgradeTower, t, tower);
-            player.Session?.Send(new S_UpgradeSlot
-            {
-                OldObjectId = id, NewObjectId = tower.Id, UnitId = (int)towerId
-            });
-        }
-        else if (go.ObjectType == GameObjectType.Monster)
-        {
-            if (go is not Monster m) return;
-            int statueId = m.StatueId;
-            var statue = FindGameObjectById(statueId);
-            if (statue == null) return;
-            PositionInfo newStatuePos = new()
-            {
-                PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
-            };
-            LeaveGame(statueId);
-            Broadcast(new S_Despawn { ObjectIds = { statueId } });
-            var monsterId = m.UnitId + 1;
-            var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
-            Push(UpgradeMonsterStatue, (MonsterStatue)statue, monsterStatue);
-            player.Session?.Send(new S_UpgradeSlot
-            {
-                OldObjectId = statueId, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId
-            });
-        }
-        else if (go.ObjectType == GameObjectType.MonsterStatue)
-        {
-            if (go is not MonsterStatue ms) return;
-            PositionInfo newStatuePos = new()
-            {
-                PosX = ms.PosInfo.PosX, PosY = ms.PosInfo.PosY, PosZ = ms.PosInfo.PosZ
-            };
-            LeaveGame(id);
-            Broadcast(new S_Despawn { ObjectIds = { id } });
-            var monsterId = ms.UnitId + 1;
-            var monsterStatue = SpawnMonsterStatue(monsterId, newStatuePos, player);
-            Push(UpgradeMonsterStatue, ms, monsterStatue);
-            player.Session?.Send(new S_UpgradeSlot
-            {
-                OldObjectId = id, NewObjectId = monsterStatue.Id, UnitId = (int)monsterId
-            });
-        }
     }
 
     public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
@@ -214,73 +208,41 @@ public partial class GameRoom
         player.Session?.Send(popupPacket);
     }
 
-    public void HandleSetUpgradeButton(Player? player, C_SetUpgradeButton packet)
+    public void HandleSetCostInUpgradeButton(Player? player, C_SetUpgradeButtonCost packet)
     {
         if (player == null) return;
         var cost = VerifyUpgradePortrait(player, (UnitId)packet.UnitId);
-        S_SetUpgradeButton buttonPacket = new() { UnitId = packet.UnitId, Cost = cost };
+        S_SetUpgradeButtonCost buttonPacket = new() { Cost = cost };
         player.Session?.Send(buttonPacket);
     }
     
-    public void HandleDelete(Player? player, C_DeleteUnit deletePacket)
+    public void HandleUnitUpgradeCost(Player? player, C_SetUnitUpgradeCost packet)
+    {
+        if (player == null) return;
+    }
+    
+    public void HandleUnitDeleteCost(Player? player, C_SetUnitDeleteCost packet)
+    {
+        if (player == null) return;
+    }
+    
+    public void HandleUnitRepairCost(Player? player, C_SetUnitRepairCost packet)
+    {
+        if (player == null) return;
+    }
+    
+    public void HandleDelete(Player? player, C_UnitDelete deletePacket)
     {
         if (player == null) return;
         
-        int objectId = deletePacket.ObjectId;
-        var gameObject = FindGameObjectById(objectId);
-        if (gameObject == null) return;
-        var type = gameObject.ObjectType;
-        
-        switch (type)
+        var objectIds = deletePacket.ObjectId.ToArray();
+        foreach (var objectId in objectIds)
         {
-            case GameObjectType.Tower:
-                if (gameObject.Way == SpawnWay.North)
-                {
-                    TowerSlot? slotToBeDeleted = _northTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
-                    if (slotToBeDeleted is not null) _northTowers.Remove((TowerSlot)slotToBeDeleted);
-                }
-                else if (gameObject.Way == SpawnWay.South)
-                {
-                    TowerSlot? slotToBeDeleted = _southTowers.FirstOrDefault(slot => slot.ObjectId == objectId);
-                    if (slotToBeDeleted is not null) _southTowers.Remove((TowerSlot)slotToBeDeleted);
-                }
-                break;
-            
-            case GameObjectType.Monster:
-                if (gameObject is not Monster monster) return;
-                int statueId = monster.StatueId;
-                if (monster.Way == SpawnWay.North)
-                {
-                    MonsterSlot? slotToBeDeleted = _northMonsters.FirstOrDefault(slot => slot.Statue.Id == statueId);
-                    if (slotToBeDeleted is not null) _northMonsters.Remove((MonsterSlot)slotToBeDeleted);
-                }
-                else if (gameObject.Way == SpawnWay.South)
-                {
-                    MonsterSlot? slotToBeDeleted = _southMonsters.FirstOrDefault(slot => slot.Statue.Id == statueId);
-                    if (slotToBeDeleted is not null) _southMonsters.Remove((MonsterSlot)slotToBeDeleted);
-                }
-                break;
-            
-            case GameObjectType.MonsterStatue:
-                if (gameObject.Way == SpawnWay.North)
-                {
-                    MonsterSlot? slotToBeDeleted = _northMonsters.FirstOrDefault(slot => slot.Statue.Id == objectId);
-                    if (slotToBeDeleted is not null) _northMonsters.Remove((MonsterSlot)slotToBeDeleted);
-                }
-                else if (gameObject.Way == SpawnWay.South)
-                {
-                    MonsterSlot? slotToBeDeleted = _southMonsters.FirstOrDefault(slot => slot.Statue.Id == objectId);
-                    if (slotToBeDeleted is not null) _southMonsters.Remove((MonsterSlot)slotToBeDeleted);
-                }
-                break;
-            
-            default:
-                return;
-        }
+            var gameObject = FindGameObjectById(objectId);
+            if (gameObject == null) return;
         
-        LeaveGame(objectId);
-        Broadcast(new S_Despawn { ObjectIds = { objectId } });
-
-        if (deletePacket.Inactive == false) return;
+            LeaveGame(objectId);
+            Broadcast(new S_Despawn { ObjectIds = { objectId } });    
+        }
     }
 }
