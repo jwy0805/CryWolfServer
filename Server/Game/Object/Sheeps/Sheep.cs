@@ -12,6 +12,8 @@ public class Sheep : Creature, ISkillObserver
     private bool _idle = false;
     private long _idleTime;
     private readonly float _infectionDist = 3f;
+    
+    protected float SheepBoundMargin = 1.0f;
 
     public int YieldIncrement { get; set; }
     public int YieldDecrement { get; set; }
@@ -178,10 +180,10 @@ public class Sheep : Creature, ISkillObserver
         if (Room == null) return new Vector3();
         
         Vector3[] sheepBound = Room.GetSheepBounds();
-        float minX = sheepBound.Select(v => v.X).ToList().Min() + 1.0f;
-        float maxX = sheepBound.Select(v => v.X).ToList().Max() - 1.0f;
-        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1.0f;
-        float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - 1.0f;
+        float minX = sheepBound.Select(v => v.X).ToList().Min() + SheepBoundMargin;
+        float maxX = sheepBound.Select(v => v.X).ToList().Max() - SheepBoundMargin;
+        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1;
+        float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - SheepBoundMargin;
 
         Random random = new();
         do

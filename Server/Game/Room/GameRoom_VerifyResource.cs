@@ -5,7 +5,11 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    private bool VerifyResourceForTower(Player player, int unitId)
+    /*
+     * Verify => Check if the player has enough resources to perform the action
+     * Calc => Calculate the cost of the action and subtract it from the player's resources
+     */
+    private bool VerifyResourceForTowerSpawn(Player player, int unitId)
     {
         if (!DataManager.UnitDict.TryGetValue(unitId, out var towerData)) return true;
         int resource = GameInfo.SheepResource;
@@ -16,7 +20,7 @@ public partial class GameRoom
         return false;
     }
     
-    private bool VerifyResourceForMonster(Player player, int unitId)
+    private bool VerifyResourceForMonsterSpawn(Player player, int unitId)
     {
         int resource = GameInfo.WolfResource;
         if (!DataManager.UnitDict.TryGetValue(unitId, out var monsterData)) return true;
@@ -27,41 +31,40 @@ public partial class GameRoom
         return false;
     }
 
-    private bool CalcUpgradeTowerPortrait(Player player, UnitId unitId)
+    private bool VerifyUpgradeTowerPortrait(Player player, UnitId unitId)
     {
         int resource = GameInfo.SheepResource;
-        int cost = VerifyUpgradePortrait(player, unitId);
+        int cost = CalcUpgradePortrait(player, unitId);
         if (resource < cost) return true;
         GameInfo.SheepResource -= cost;
 
         return false;
     }
     
-    private bool CalcUpgradeMonsterPortrait(Player player, UnitId unitId)
+    private bool VerifyUpgradeMonsterPortrait(Player player, UnitId unitId)
     {
         int resource = GameInfo.WolfResource;
-        int cost = VerifyUpgradePortrait(player, unitId);
+        int cost = CalcUpgradePortrait(player, unitId);
         if (resource < cost) return true;
         GameInfo.WolfResource -= cost;
 
         return false;
     }
-
-    private int VerifyUpgradePortrait(Player player, UnitId unitId)
+    
+    private bool VerifyUnitUpgrade(Player player, int unitId)
     {
-        GameData.OwnSkills.TryGetValue(unitId, out var skills);
-        if (skills == null) return 100000;
-        int cost = 0;
-        foreach (var skill in skills)
-        {
-            if (player.SkillUpgradedList.Contains(skill)) continue;
-            if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
-            cost += skillData.cost;
-        }
-        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
-        var upgradeCost = (int)(unitData?.stat.RequiredResources! * 0.8f);
-        
-        return cost + upgradeCost;
+        if (player.Portraits.Contains(unitId + 1)) return false;
+        return true;
+    }
+
+    private bool VerifyUnitUpgradeCost(int unitId)
+    {
+        var cost = CalcUpgradeCost(unitId);
+
+        if (cost > GameInfo.SheepResource) return true;
+        GameInfo.SheepResource -= cost;
+        return false;
+
     }
     
     private bool VerifyCapacityForTower(Player player, int towerId, SpawnWay way)
@@ -104,7 +107,7 @@ public partial class GameRoom
         return nowCapacity >= maxCapacity;
     }
     
-    private bool VerifyResourceForSkill(Player player, Skill skill)
+    private bool VerifyResourceForSkillUpgrade(Player player, Skill skill)
     {
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
         var cost = skillData.cost;
@@ -122,13 +125,87 @@ public partial class GameRoom
         return !skills.All(item => player.SkillUpgradedList.Contains(item));
     }
 
+    private int CalcUpgradePortrait(Player player, UnitId unitId)
+    {
+        GameData.OwnSkills.TryGetValue(unitId, out var skills);
+        if (skills == null) return 100000;
+        int cost = 0;
+        foreach (var skill in skills)
+        {
+            if (player.SkillUpgradedList.Contains(skill)) continue;
+            if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
+            cost += skillData.cost;
+        }
+        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
+        var upgradeCost = (int)(unitData?.stat.RequiredResources! * 0.8f);
+        
+        return cost + upgradeCost;
+    }
+    
+    private int CalcRepairCost(int[] objectIds, bool all = false)
+    {
+        var fenceDict = all ? _fences : _fences
+            .Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        var damaged = fenceDict.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
+        var cost = (int)(damaged * 0.4);
+        return cost;
+    }
+    
+    private int CalcUnitUpgradeCost(int[] objectIds)
+    {
+        var cost = 0;
+        foreach (var objectId in objectIds)
+        {
+            var gameObject = FindGameObjectById(objectId);
+            var unitId = gameObject switch
+            {
+                MonsterStatue statue => (int)statue.UnitId + 1,
+                Tower tower => (int)tower.UnitId + 1,
+                _ => 0
+            };
+            cost += CalcUpgradeCost(unitId);
+        }
+        
+        return cost;
+    }
+    
+    private int CalcUnitDeleteCost(int[] objectIds)
+    {
+        var cost = 0;
+        foreach (var objectId in objectIds)
+        {
+            var gameObject = FindGameObjectById(objectId);
+            var unitId = gameObject switch
+            {
+                MonsterStatue statue => (int)statue.UnitId,
+                Tower tower => (int)tower.UnitId,
+                _ => 0
+            };
+            cost += CalcUpgradeCost(unitId);
+        }
+        
+        return (int)(cost * 0.5);
+    }
+    
+    private int CalcUpgradeCost(int unitId)
+    {
+        // Unit Level is 3
+        if (unitId % 100 % 3 == 0) return 0;
+        
+        var oldCost = 0;
+        var newCost = 0;
+        if (DataManager.UnitDict.TryGetValue(unitId, out var oldData)) oldCost = oldData.stat.RequiredResources;
+        if (DataManager.UnitDict.TryGetValue(unitId + 1, out var newData)) newCost = newData.stat.RequiredResources;
+        return newCost - oldCost;
+    }
+
     private int CheckBaseSkillCost(Skill skill)
     {
         int cost = 0;
         switch (skill)
         {
             case Skill.FenceRepair:
-                cost = VerifyFenceRepairCost();
+                cost = CalcRepairCost(Array.Empty<int>(), true);
                 break;
             case Skill.StorageLvUp:
                 cost = GameInfo.StorageLevelUpCost;
@@ -143,17 +220,8 @@ public partial class GameRoom
             case Skill.SheepIncrease:
                 cost = (int)(GameInfo.SheepCount * 50 * (1 + GameInfo.SheepCount * 0.25));
                 break;
-            default:
-                break;
         }
         
-        return cost;
-    }
-    
-    private int VerifyFenceRepairCost()
-    {
-        int damaged = _fences.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
-        int cost = (int)(damaged * 0.4);
         return cost;
     }
 
@@ -165,36 +233,10 @@ public partial class GameRoom
             Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
         }
     }
-
-    private bool VerifyUnitUpgrade(Player player, int unitId)
-    {
-        if (player.Portraits.Contains(unitId + 1)) return false;
-        return true;
-    }
-
-    private bool VerifyUnitUpgradeCost(int unitId)
-    {
-        int cost = 0;
-        int cost1 = 0;
-        if (DataManager.UnitDict.TryGetValue(unitId, out var towerData)) cost1 = towerData.stat.RequiredResources;
-        if (DataManager.UnitDict.TryGetValue(unitId + 1, out var towerData2))
-        {
-            var cost2 = towerData2.stat.RequiredResources;
-            cost = cost2 - cost1;
-        }
-
-        if (cost <= GameInfo.SheepResource)
-        {
-            GameInfo.SheepResource -= cost;
-            return false;
-        }
-        
-        return true;
-    }
-
+    
     private void SendWarningMessage(Player player, string msg)
     {
         S_SendWarningInGame warningPacket = new() { Warning = msg };
-        player.Session.Send(warningPacket);
+        player.Session?.Send(warningPacket);
     }
 }

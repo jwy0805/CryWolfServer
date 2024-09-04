@@ -251,6 +251,8 @@ public class PacketHandler
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
+        
+        room?.Push(room.HandleSetUpgradeCostText, player, upgradePacket);
     }
     
     public static void C_SetUnitDeleteCostHandler(PacketSession session, IMessage packet)
@@ -259,6 +261,8 @@ public class PacketHandler
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
+        
+        room?.Push(room.HandleSetDeleteCostText, player, deletePacket);
     }
     
     public static void C_SetUnitRepairCostHandler(PacketSession session, IMessage packet)
@@ -267,5 +271,7 @@ public class PacketHandler
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
+        
+        room?.Push(room.HandleSetRepairCostText, player, repairPacket);
     }
 }

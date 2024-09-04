@@ -76,7 +76,7 @@ public partial class GameRoom
         {
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
-                bool lackOfTowerCost = VerifyResourceForTower(player, spawnPacket.Num);
+                bool lackOfTowerCost = VerifyResourceForTowerSpawn(player, spawnPacket.Num);
                 bool lackOfTowerCapacity = VerifyCapacityForTower(player, spawnPacket.Num, spawnPacket.Way);
                 if (lackOfTowerCost)
                 {
@@ -99,7 +99,7 @@ public partial class GameRoom
             
             case GameObjectType.MonsterStatue:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
-                bool lackOfMonsterCost = VerifyResourceForMonster(player, spawnPacket.Num);
+                bool lackOfMonsterCost = VerifyResourceForMonsterSpawn(player, spawnPacket.Num);
                 bool lackOfMonsterCapacity = VerifyCapacityForMonster(player, spawnPacket.Num, spawnPacket.Way);
                 if (lackOfMonsterCost)
                 {

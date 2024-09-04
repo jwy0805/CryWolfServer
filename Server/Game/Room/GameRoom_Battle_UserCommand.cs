@@ -68,7 +68,7 @@ public partial class GameRoom
         
         // 실제 환경
         lackOfSkill = VerifySkillTree(player, skill);
-        lackOfCost = VerifyResourceForSkill(player, skill);
+        lackOfCost = VerifyResourceForSkillUpgrade(player, skill);
 
         if (player.SkillUpgradedList.Contains(skill))
         {
@@ -103,8 +103,8 @@ public partial class GameRoom
         if(Enum.TryParse(unitData.camp, out Camp camp) == false) return;
         
         var lackOfGold = camp == Camp.Sheep 
-            ? CalcUpgradeTowerPortrait(player, unitId) 
-            : CalcUpgradeMonsterPortrait(player, unitId);
+            ? VerifyUpgradeTowerPortrait(player, unitId) 
+            : VerifyUpgradeMonsterPortrait(player, unitId);
         
         if (lackOfGold == false)
         {
@@ -193,11 +193,6 @@ public partial class GameRoom
         }
     }
 
-    public void HandleUnitRepair(Player? player, C_UnitRepair packet)
-    {
-        
-    }
-
     public void HandleSetUpgradePopup(Player? player, C_SetUpgradePopup packet)
     {
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
@@ -211,24 +206,37 @@ public partial class GameRoom
     public void HandleSetCostInUpgradeButton(Player? player, C_SetUpgradeButtonCost packet)
     {
         if (player == null) return;
-        var cost = VerifyUpgradePortrait(player, (UnitId)packet.UnitId);
+        var cost = CalcUpgradePortrait(player, (UnitId)packet.UnitId);
         S_SetUpgradeButtonCost buttonPacket = new() { Cost = cost };
         player.Session?.Send(buttonPacket);
     }
     
-    public void HandleUnitUpgradeCost(Player? player, C_SetUnitUpgradeCost packet)
+    public void HandleSetUpgradeCostText(Player? player, C_SetUnitUpgradeCost packet)
     {
         if (player == null) return;
+        var ids = packet.ObjectIds.ToArray();
+        var cost = CalcUnitUpgradeCost(ids);
+        var costPacket = new S_SetUnitUpgradeCost { Cost = cost };
+        player.Session?.Send(costPacket);
     }
     
-    public void HandleUnitDeleteCost(Player? player, C_SetUnitDeleteCost packet)
+    public void HandleSetDeleteCostText(Player? player, C_SetUnitDeleteCost packet)
     {
         if (player == null) return;
+        var ids = packet.ObjectIds.ToArray();
+        var cost = CalcUnitDeleteCost(ids);
+        var costPacket = new S_SetUnitDeleteCost { Cost = cost };
+        player.Session?.Send(costPacket);
     }
     
-    public void HandleUnitRepairCost(Player? player, C_SetUnitRepairCost packet)
+    public void HandleSetRepairCostText(Player? player, C_SetUnitRepairCost packet)
     {
         if (player == null) return;
+        var ids = packet.ObjectIds.ToArray();
+        var cost = CalcRepairCost(ids);
+        if (cost == 0) return;
+        var costPacket = new S_SetUnitRepairCost { Cost = cost };
+        player.Session?.Send(costPacket);
     }
     
     public void HandleDelete(Player? player, C_UnitDelete deletePacket)
