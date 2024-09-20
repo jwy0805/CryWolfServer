@@ -13,7 +13,11 @@ public class PacketHandler
         var enterPacket = (C_EnterGame)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
-        if (player != null) player.Camp = enterPacket.IsSheep ? Camp.Sheep : Camp.Wolf;    
+        if (player == null) return;
+
+        player.Camp = enterPacket.IsSheep ? Camp.Sheep : Camp.Wolf;
+        player.CharacterId = (CharacterId)enterPacket.CharacterId;
+        player.AssetId = enterPacket.AssetId;
     }
     
     public static async void C_SetSessionHandler(PacketSession session, IMessage packet)
@@ -273,5 +277,15 @@ public class PacketHandler
         var room = player?.Room;
         
         room?.Push(room.HandleSetRepairCostText, player, repairPacket);
+    }
+    
+    public static void C_SetBaseSkillCostHandler(PacketSession session, IMessage packet)
+    {
+        var costPacket = (C_SetBaseSkillCost)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleSetBaseSkillCost, player, costPacket);
     }
 }

@@ -32,11 +32,16 @@ public partial class GameRoom
         };
         
         StorageLevel = 1;
+        
+        // Spawn Prime Sheep
+        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Sheep);
+        if (sheepPlayer == null) return;
+        SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
+        
+        // Set UI Text
         foreach (var player in _players.Values)
         {
             if (player.Session == null) return;
-            
-            SpawnSheep(player);
             
             if (player.Camp == Camp.Sheep)
             {

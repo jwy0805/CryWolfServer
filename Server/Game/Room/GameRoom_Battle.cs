@@ -146,6 +146,14 @@ public partial class GameRoom
         
         GameInfo.SheepResource += GameInfo.SheepYield;
     }
+
+    private void HandleEnchant(Player? player)
+    {
+        if (GameInfo.EnchantLevel >= 5) return;
+        GameInfo.EnchantLevel++;
+        
+        // var enchant = player?.AssetId
+    }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)
     {

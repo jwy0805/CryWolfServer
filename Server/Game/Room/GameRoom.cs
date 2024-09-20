@@ -73,7 +73,7 @@ public partial class GameRoom : JobSerializer
         foreach (var unitId in unitIds)
         {
             DataManager.UnitDict.TryGetValue(unitId, out var unitData);
-            StatInfo stat = new StatInfo();
+            var stat = new StatInfo();
             stat.MergeFrom(unitData?.stat);
             UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
@@ -87,13 +87,16 @@ public partial class GameRoom : JobSerializer
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
-        // Tutorial
+        CheckPrimeSheep();
+        CheckPortal();
+        
+        // --- Tutorial ---
         if (_roundTime < 15 && _tutorialSet == false)
         {
-            // SetTutorialStatues(_round);
-            // _tutorialSet = true;
+            SetTutorialStatues(_round);
+            _tutorialSet = true;
         }
-        // Tutorial
+        // --- Tutorial ---
         
         if (_roundTime < 0) 
         {
@@ -107,7 +110,7 @@ public partial class GameRoom : JobSerializer
     
     public void EnterGame(GameObject gameObject)
     {
-        GameObjectType type = ObjectManager.GetObjectTypeById(gameObject.Id);
+        var type = ObjectManager.GetObjectTypeById(gameObject.Id);
         
         switch (type)
         {
@@ -157,8 +160,8 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.MonsterStatue:
-                MonsterStatue statue = (MonsterStatue)gameObject;
-                string? monsterName = Enum.Parse(typeof(UnitId), statue.UnitId.ToString()).ToString();
+                var statue = (MonsterStatue)gameObject;
+                var monsterName = Enum.Parse(typeof(UnitId), statue.UnitId.ToString()).ToString();
                 gameObject.Info.Name = string.Concat(monsterName, "Statue");
                 statue.Info = gameObject.Info;
                 _statues.Add(gameObject.Id, statue);
@@ -167,7 +170,7 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Fence:
-                Fence fence = (Fence)gameObject;
+                var fence = (Fence)gameObject;
                 fence.Info = gameObject.Info;
                 _fences.Add(gameObject.Id, fence);
                 fence.Room = this;
@@ -175,9 +178,9 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Sheep:
-                Sheep sheep = (Sheep)gameObject;
+                var sheep = (Sheep)gameObject;
                 gameObject.PosInfo.State = State.Idle;
-                gameObject.Info.Name = "Sheep";
+                gameObject.Info.Name = Enum.Parse(typeof(SheepId), sheep.SheepId.ToString()).ToString();
                 sheep.Info = gameObject.Info;
                 _sheeps.Add(gameObject.Id, sheep);
                 sheep.Room = this;
@@ -186,7 +189,7 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Resource:
-                Resource resource = (Resource)gameObject;
+                var resource = (Resource)gameObject;
                 resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
                 resource.Room = this;
                 resource.Player = gameObject.Player;
@@ -196,20 +199,19 @@ public partial class GameRoom : JobSerializer
                 break;
             
             case GameObjectType.Portal:
-                Portal portal = (Portal)gameObject;
+                var portal = (Portal)gameObject;
                 _portals.Add(gameObject.Id, portal);
                 portal.Room = this;
                 Map.ApplyMap(portal); 
                 break;
         }
+        
         // 타인에게 정보 전송
+        var spawnPacketToBroadcast = new S_Spawn();
+        spawnPacketToBroadcast.Objects.Add(gameObject.Info);
+        foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id)) 
         {
-            var spawnPacket = new S_Spawn();
-            spawnPacket.Objects.Add(gameObject.Info);
-            foreach (var player in _players.Values.Where(player => player.Id != gameObject.Id)) 
-            {
-                player.Session?.Send(spawnPacket);
-            }
+            player.Session?.Send(spawnPacketToBroadcast);
         }
     }
 

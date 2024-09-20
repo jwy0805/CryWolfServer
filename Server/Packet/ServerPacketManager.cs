@@ -68,7 +68,9 @@ class PacketManager
 		_onRecv.Add((ushort)MessageId.CSetUnitDeleteCost, MakePacket<C_SetUnitDeleteCost>);
 		_handler.Add((ushort)MessageId.CSetUnitDeleteCost, PacketHandler.C_SetUnitDeleteCostHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUnitRepairCost, MakePacket<C_SetUnitRepairCost>);
-		_handler.Add((ushort)MessageId.CSetUnitRepairCost, PacketHandler.C_SetUnitRepairCostHandler);
+		_handler.Add((ushort)MessageId.CSetUnitRepairCost, PacketHandler.C_SetUnitRepairCostHandler);		
+		_onRecv.Add((ushort)MessageId.CSetBaseSkillCost, MakePacket<C_SetBaseSkillCost>);
+		_handler.Add((ushort)MessageId.CSetBaseSkillCost, PacketHandler.C_SetBaseSkillCostHandler);
 	}
 
 	public void OnRecvPacket(PacketSession session, ArraySegment<byte> buffer)

@@ -13,7 +13,6 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _southMaxTower = 6;
     private int _southTower = 0;
     private int _maxSheep = 5;
-    private int _sheepCount = 0;
     private int _northMaxMonster = 6;
     private int _northMonster = 0;
     private int _southMaxMonster = 6;
@@ -55,6 +54,8 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int MaxStorageLevel => 2;
     public int StorageLevel { get; set; } = 0;
     public int StorageLevelUpCost => 400;
+    public int SheepCount { get; set; } = 0;
+    public int EnchantLevel { get; set; } = 0;
     
     public int NorthMaxTower
     {
@@ -113,18 +114,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _maxSheep, Max = true});
         }
     }
-
-    public int SheepCount
-    {
-        get => _sheepCount;
-        set
-        {
-            _sheepCount = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
-                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = _sheepCount, Max = false});
-        }
-    } 
-
+    
     public int NorthMaxMonster 
     { 
         get => _northMaxMonster;

@@ -19,41 +19,50 @@ public partial class GameRoom
         
         switch (skill)
         {
-            case Skill.FenceRepair:
+            case Skill.RepairSheep:
                 GameInfo.SheepResource -= cost;
-                FenceRepair();
+                RepairAllFences();
                 break;
             
-            case Skill.StorageLvUp:
-                GameInfo.SheepResource -= cost;
-                StorageLevel = 2;
+            case Skill.RepairWolf:
+                GameInfo.WolfResource -= cost;
+                RepairAllStatues();
+                break;
+                
+            case Skill.UpgradeSheep:
+                if (StorageLevel <= 3)
+                {
+                    GameInfo.SheepResource -= cost;
+                    StorageLevel++;
+                }
                 break;
             
-            case Skill.GoldIncrease:
+            case Skill.UpgradeWolf:
+                if (StorageLevel <= 3)
+                {
+                    GameInfo.WolfResource -= cost;
+                    StorageLevel++;
+                }
+                break;
+            
+            case Skill.ResourceSheep:
                 GameInfo.SheepResource -= cost;
                 GameInfo.SheepYield *= 2;
                 break;
             
-            case Skill.SheepHealth:
-                GameInfo.SheepResource -= cost;
-                foreach (var sheep in _sheeps.Values)
-                {
-                    sheep.MaxHp *= 2;
-                    sheep.Hp += sheep.MaxHp / 2;
-                }
+            case Skill.ResourceWolf:
+                GameInfo.WolfResource -= cost;
+                GameInfo.WolfYield *= 2;
                 break;
             
-            case Skill.SheepIncrease:
-                bool lackOfSheepCapacity = GameInfo.SheepCount >= GameInfo.MaxSheep;
-                if (lackOfSheepCapacity == false)
-                {
-                    GameInfo.SheepResource -= cost;
-                    SpawnSheep(player);
-                }
-                else
-                {
-                    SendWarningMessage(player, "인구수를 초과했습니다.");
-                }
+            case Skill.AssetSheep:
+                GameInfo.SheepResource -= cost;
+                SpawnSheep(player);
+                break;
+            
+            case Skill.AssetWolf:
+                // TODO: Enchant implementation
+                HandleEnchant(player);
                 break;
         }
     }
@@ -233,9 +242,40 @@ public partial class GameRoom
     {
         if (player == null) return;
         var ids = packet.ObjectIds.ToArray();
-        var cost = CalcRepairCost(ids);
+        var cost = CalcFenceRepairCost(ids);
         if (cost == 0) return;
         var costPacket = new S_SetUnitRepairCost { Cost = cost };
+        player.Session?.Send(costPacket);
+    }
+    
+    public void HandleSetBaseSkillCost(Player? player, C_SetBaseSkillCost packet)
+    {
+        if (player == null) return;
+        
+        var costArray = new int[4];
+        if (packet.Camp == Camp.Sheep)
+        {
+            costArray[0] = CheckBaseSkillCost(Skill.UpgradeSheep);
+            costArray[1] = CheckBaseSkillCost(Skill.RepairSheep);
+            costArray[2] = CheckBaseSkillCost(Skill.ResourceSheep);
+            costArray[3] = CheckBaseSkillCost(Skill.AssetSheep);
+        }
+        else
+        {
+            costArray[0] = CheckBaseSkillCost(Skill.UpgradeWolf);
+            costArray[1] = CheckBaseSkillCost(Skill.RepairWolf);
+            costArray[2] = CheckBaseSkillCost(Skill.ResourceWolf);
+            costArray[3] = CheckBaseSkillCost(Skill.AssetWolf);
+        }
+
+        var costPacket = new S_SetBaseSkillCost
+        {
+            UpgradeCost = costArray[0],
+            RepairCost = costArray[1],
+            ResourceCost = costArray[2],
+            AssetCost = costArray[3]
+        };
+        
         player.Session?.Send(costPacket);
     }
     

@@ -5,7 +5,9 @@ namespace Server.Game;
 
 public class Player : GameObject
 {
-    public int PlayerNo;
+    public int PlayerId { get; set; }
+    public CharacterId CharacterId { get; set; }
+    public int AssetId { get; set; }
     public HashSet<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public SkillSubject SkillSubject = new();
     public HashSet<int> Portraits = new ();
@@ -17,7 +19,7 @@ public class Player : GameObject
     {
         ObjectType = GameObjectType.Player;
         
-        DataManager.ObjectDict.TryGetValue(PlayerNo, out var playerData);
+        DataManager.ObjectDict.TryGetValue(PlayerId, out var playerData);
         if (playerData != null)
         {
             Stat.MergeFrom(playerData.stat);

@@ -1,6 +1,4 @@
 using Google.Protobuf.Protocol;
-using Server.Game.etc;
-using Server.Game.Object.etc;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -67,6 +65,16 @@ public sealed partial class ObjectManager
         { UnitId.Skeleton, new SkeletonFactory() },
         { UnitId.SkeletonGiant, new SkeletonGiantFactory() },
         { UnitId.SkeletonMage, new SkeletonMageFactory() }
+    };
+
+    private readonly Dictionary<SheepId, IFactory<Sheep>> _sheepDict = new()
+    {
+        { SheepId.PrimeSheepWhite, new PrimeSheepWhiteFactory() },
+        { SheepId.SheepWhite, new SheepWhiteFactory() },
+        { SheepId.PrimeSheepPink, new PrimeSheepPinkFactory() },
+        { SheepId.SheepPink, new SheepPinkFactory() },
+        { SheepId.PrimeSheepBlack, new PrimeSheepBlackFactory() },
+        { SheepId.SheepBlack, new SheepBlackFactory() }
     };
     
     private readonly Dictionary<ProjectileId, IFactory<Projectile>> _projectileDict = new()
@@ -168,6 +176,7 @@ public sealed partial class ObjectManager
     public class FenceFactory { public Fence CreateFence() => new(); }
     public class SheepFactory { }
     
+    // Towers
     public class BunnyFactory : IFactory<Bunny> { public Bunny Create() => new(); }
     public class RabbitFactory : IFactory<Rabbit> { public Rabbit Create() => new(); }
     public class HareFactory : IFactory<Hare> { public Hare Create() => new(); }
@@ -195,6 +204,8 @@ public sealed partial class ObjectManager
     public class SoulFactory : IFactory<Soul> { public Soul Create() => new(); }
     public class HauntFactory : IFactory<Haunt> { public Haunt Create() => new(); }
     public class SoulMageFactory : IFactory<SoulMage> { public SoulMage Create() => new(); }
+    
+    // Monsters
     public class DogPupFactory : IFactory<DogPup> { public DogPup Create() => new(); }
     public class DogBarkFactory : IFactory<DogBark> { public DogBark Create() => new(); }
     public class DogBowwowFactory : IFactory<DogBowwow> { public DogBowwow Create() => new(); }
@@ -222,6 +233,16 @@ public sealed partial class ObjectManager
     public class SkeletonFactory : IFactory<Skeleton> { public Skeleton Create() => new(); }
     public class SkeletonGiantFactory : IFactory<SkeletonGiant> { public SkeletonGiant Create() => new(); }
     public class SkeletonMageFactory : IFactory<SkeletonMage> { public SkeletonMage Create() => new(); }
+    
+    // Sheeps
+    public class PrimeSheepWhiteFactory : IFactory<PrimeSheepWhite> { public PrimeSheepWhite Create() => new(); }
+    public class SheepWhiteFactory : IFactory<SheepWhite> { public SheepWhite Create() => new(); }
+    public class PrimeSheepPinkFactory : IFactory<PrimeSheepPink> { public PrimeSheepPink Create() => new(); }
+    public class SheepPinkFactory : IFactory<SheepPink> { public SheepPink Create() => new(); }
+    public class PrimeSheepBlackFactory : IFactory<PrimeSheepBlack> { public PrimeSheepBlack Create() => new(); }
+    public class SheepBlackFactory : IFactory<SheepBlack> { public SheepBlack Create() => new(); }
+    
+    // Projectiles
     public class BasicProjectileFactory : IFactory<BasicProjectile> { public BasicProjectile Create() => new(); }
     public class SnakeFireFactory : IFactory<SnakeFire> { public SnakeFire Create() => new(); }
     public class SnakeNagaFireFactory : IFactory<SnakeNagaFire> { public SnakeNagaFire Create() => new(); }
@@ -257,6 +278,8 @@ public sealed partial class ObjectManager
     public class FungiProjectileFactory : IFactory<FungiProjectile> { public FungiProjectile Create() => new(); }
     public class ToadstoolProjectileFactory : IFactory<ToadstoolProjectile> { public ToadstoolProjectile Create() => new(); }
     public class Sprout3HitFireFactory : IFactory<Sprout3HitFire> { public Sprout3HitFire Create() => new(); }
+    
+    // Effects
     public class LightningStrikeFactory : IFactory<LightningStrike> { public LightningStrike Create() => new(); }
     public class PoisonBeltFactory : IFactory<PoisonBelt> { public PoisonBelt Create() => new(); }
     public class HolyAuraFactory : IFactory<HolyAura> { public HolyAura Create() => new(); }

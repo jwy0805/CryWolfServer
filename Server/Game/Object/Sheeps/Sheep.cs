@@ -8,13 +8,14 @@ namespace Server.Game;
 
 public class Sheep : Creature, ISkillObserver
 {
-    private readonly int _sheepNo = 1;
     private bool _idle = false;
     private long _idleTime;
     private readonly float _infectionDist = 3f;
+    private readonly long _yieldTime = 5000;
     
     protected float SheepBoundMargin = 1.0f;
 
+    public SheepId SheepId { get; set; }
     public int YieldIncrement { get; set; }
     public int YieldDecrement { get; set; }
     public bool YieldStop { get; set; }
@@ -28,17 +29,26 @@ public class Sheep : Creature, ISkillObserver
     public override void Init()
     {
         base.Init();
-        DataManager.ObjectDict.TryGetValue(_sheepNo ,out var objectData);
+        DataManager.ObjectDict.TryGetValue((int)SheepId ,out var objectData);
         Stat.MergeFrom(objectData!.stat);
         Hp = objectData.stat.MaxHp;
         
         State = State.Idle;
+        if (Room == null) return;
+        Time = Room.Stopwatch.ElapsedMilliseconds + _yieldTime;
     }
 
     public override void Update()
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
+        
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + _yieldTime && State != State.Die)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            YieldCoin(Room.GameInfo.SheepYield + YieldIncrement - YieldDecrement);
+        }
+        
         switch (State)
         {
             case State.Die:
@@ -94,9 +104,10 @@ public class Sheep : Creature, ISkillObserver
                 }
             }
         }
+        
         // 이동
         Vector3 position = CellPos;
-        float distance = (float)Math.Sqrt(new Vector3().SqrMagnitude(DestPos - CellPos));
+        float distance = Vector3.Distance(DestPos, CellPos);
         if (distance <= 0.5f)
         {
             CellPos = position;
@@ -115,18 +126,18 @@ public class Sheep : Creature, ISkillObserver
         
         switch (yield)
         {
-            case < 100:
+            case < 50:
                 resource = ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver);
                 break;
-            case < 10000:
+            case < 100:
                 resource = ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden);
                 break;
-            // case < 200:
-            //     resource = ObjectManager.Instance.CreateResource(ResourceId.PouchGreen);
-            //     break;
-            // case < 300:
-            //     resource = ObjectManager.Instance.CreateResource(ResourceId.PouchRed);
-            //     break;
+            case < 200:
+                resource = ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen);
+                break;
+            case < 300:
+                resource = ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed);
+                break;
             default:
                 resource = ObjectManager.Instance.Create<Resource>(ResourceId.ChestGold);
                 break;

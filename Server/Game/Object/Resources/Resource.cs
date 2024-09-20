@@ -1,13 +1,14 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game.Resources;
 
 public class Resource : GameObject
 {
-    private long _activeTime;
-    private readonly float _dist = 8f;
+    protected readonly float WaitTime = 1.0f;
+    protected readonly Scheduler Scheduler = new();
     
     public int ResourceNum { get; set; }
     public ResourceId ResourceId { get; set; }
@@ -20,44 +21,38 @@ public class Resource : GameObject
 
     public override void Init()
     {
-        if (Room != null) _activeTime = Room.Stopwatch.ElapsedMilliseconds + 400;
-    }
-
-    public override void Update()
-    {
-        base.Update();
-        if (Room!.Stopwatch.ElapsedMilliseconds < _activeTime) return;
-
-        switch (State)
-        {
-            case State.Idle:
-                UpdateIdle();
-                break;
-            case State.Moving:
-                UpdateMoving();
-                break;
-        }
-    }
-
-    protected virtual void UpdateIdle()
-    {
-        double dist = Math.Sqrt(new Vector3().SqrMagnitude(Player.CellPos - CellPos));
-        if ((float)dist < _dist)
-        {
-            State = State.Moving;
-            BroadcastPos();
-        }
-    }
-
-    protected virtual void UpdateMoving()
-    {
+        if (Room == null) return;
         DestPos = Player.CellPos;
-        DestVector destVector = new DestVector { X = DestPos.X, Y = DestPos.Y, Z = DestPos.Z };
-        Room?.Broadcast(new S_SetDestResource
+        MoveSpeed = 8;
+        CalculateYieldTime();
+    }
+
+    private void CalculateYieldTime()
+    {
+        var distance = Vector3.Distance(DestPos, CellPos);
+        long yieldTime = (long)(distance / MoveSpeed * 1000);
+        IncreaseResource(yieldTime);
+    }
+    
+    protected virtual async void IncreaseResource(long time)
+    {
+        if (Room == null) return;
+        await Scheduler.ScheduleEvent(time, () =>
         {
-            ObjectId = Id,
-            Yield = Yield,
-            Dest = destVector
+            Room.Push(() =>
+            {
+                if (Room == null) return;
+                if (Player.Camp == Camp.Sheep)
+                {
+                    Room.GameInfo.SheepResource += Yield;
+                }
+                else
+                {
+                    Room.GameInfo.WolfResource += Yield;
+                }
+            });
+            
+            Room.Push(Room.LeaveGame, Id);
         });
     }
 }

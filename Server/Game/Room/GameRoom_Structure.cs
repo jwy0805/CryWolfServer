@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public partial class GameRoom : JobSerializer
+public partial class GameRoom
 {
     private record struct TowerSlot 
     {

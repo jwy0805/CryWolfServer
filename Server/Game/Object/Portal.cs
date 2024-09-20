@@ -12,7 +12,7 @@ public class Portal : GameObject
 
     public override void Init()
     {
-        DataManager.ObjectDict.TryGetValue(2, out var objectData);
+        DataManager.ObjectDict.TryGetValue(601, out var objectData);
         if (objectData == null) return;
         Stat.MergeFrom(objectData.stat);
     }

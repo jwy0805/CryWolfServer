@@ -39,7 +39,7 @@ public class GameManager
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;
         public Vector3 Center => new(0, 6.0f, 0);
-        public int[] StorageLvUpCost = { 0, 600, 2000 };
+        public int[] BaseUpgradeCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
         
         public int[] ZCoordinatesOfMap { get; init; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
@@ -260,7 +260,7 @@ public class GameManager
             { Skill.MothLunaRange, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.MothMoonSheepHeal, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.MothMoonSheepShield, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.MothMoonSheepDebuffRemove, new HashSet<Skill> { Skill.SheepHealth, Skill.MothMoonSheepShield } },
+            { Skill.MothMoonSheepDebuffRemove, new HashSet<Skill> { Skill.MothMoonSheepHeal, Skill.MothMoonSheepShield } },
             { Skill.MothMoonAttackSpeed, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.MothCelestialSheepHealParamUp, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.MothCelestialBreed, new HashSet<Skill> { Skill.MothCelestialSheepHealParamUp } },

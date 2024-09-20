@@ -8,6 +8,33 @@ public partial class GameRoom
     private bool _checked;
     private readonly int _forwardParam = 4;
     private readonly Scheduler _scheduler = new();
+
+    private void CheckPrimeSheep()
+    {
+        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Sheep);
+        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Wolf);
+        if (sheepPlayer == null || wolfPlayer == null) return;
+        
+        var assetId = (SheepId)sheepPlayer.AssetId;
+        var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
+        
+        if (primeSheep == null)
+        {
+            // Sheep Defeated
+            sheepPlayer.Session?.Send(new S_ShowResultPopup { Win = false });
+            
+            // Wolf Win
+            wolfPlayer.Session?.Send(new S_ShowResultPopup { Win = true });
+            
+            // Game Over
+            GameOver();
+        }
+    }
+
+    private void CheckPortal()
+    {
+        
+    }
     
     private void CheckMonsters()
     {
@@ -92,8 +119,6 @@ public partial class GameRoom
                 tower.BroadcastMoveForward();
                 SpawnEffect(EffectId.MoveForwardEffect, tower);
             }
-            
-            
         }
         catch (Exception ex)
         {
@@ -109,5 +134,10 @@ public partial class GameRoom
         _checked = false;
         
         SpawnTowersInNewRound();
+    }
+
+    private void GameOver()
+    {
+        RoomActivated = false;
     }
 }

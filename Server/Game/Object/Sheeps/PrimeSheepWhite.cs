@@ -2,7 +2,7 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game;
 
-public class PrimeSheep : Sheep
+public class PrimeSheepWhite : Sheep
 {
     public override void Init()
     {

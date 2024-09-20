@@ -1,7 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
-using Server.Game.etc;
 
 namespace Server.Game;
 
@@ -9,7 +8,7 @@ public partial class GameRoom
 {
     private void RegisterTower(Tower tower)
     {
-        PositionInfo posInfo = new PositionInfo
+        var posInfo = new PositionInfo
         {
             PosX = tower.PosInfo.PosX,
             PosY = tower.PosInfo.PosY,
@@ -34,6 +33,7 @@ public partial class GameRoom
             ObjectType = GameObjectType.Tower,
             Way = towerSlot.Way
         };
+        
         _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(registerPacket);
     }
     
@@ -111,7 +111,6 @@ public partial class GameRoom
         {
             if (sheep.YieldStop == false)
             {
-                sheep.YieldCoin(GameInfo.SheepYield + sheep.YieldIncrement - sheep.YieldDecrement);
                 sheep.YieldIncrement = 0;
                 sheep.YieldDecrement = 0;
             }
@@ -134,7 +133,7 @@ public partial class GameRoom
             monster.StatueId = statue.Id;
         }
     }
-
+    
     private Tower SpawnTower(UnitId unitId, PositionInfo posInfo, Player player)
     {
         var tower = ObjectManager.Instance.Create<Tower>(unitId);
@@ -269,9 +268,24 @@ public partial class GameRoom
         return projectile;
     }
 
+    public void SpawnPrimeSheep(SheepId sheepId, Player player)
+    {
+        var sheep = ObjectManager.Instance.Create<Sheep>(sheepId);
+        var pos = GameData.InitFenceCenter;
+        sheep.PosInfo = new PositionInfo { PosX = pos.X, PosY = pos.Y, PosZ = pos.Z, State = State.Idle };
+        sheep.Info.PosInfo = sheep.PosInfo;
+        sheep.Player = player;
+        sheep.AddBuffAction = AddBuff;
+        sheep.SheepId = sheepId;
+        sheep.Room = this;
+        sheep.Init();
+        Push(EnterGame, sheep);
+        GameInfo.SheepCount++;
+    }
+
+    // Enter sheep by summon button or moth celestial skill
     public void SpawnSheep(Player player)
     {
-        // Enter sheep by summon button or moth celestial skill
         var sheep = ObjectManager.Instance.Add<Sheep>();
         var sheepCellPos = Map.FindSheepSpawnPos(sheep);
         

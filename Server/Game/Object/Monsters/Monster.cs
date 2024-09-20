@@ -20,7 +20,7 @@ public class Monster : Creature, ISkillObserver
         Player.SkillSubject.AddObserver(this);
         DataManager.UnitDict.TryGetValue((int)UnitId, out var unitData);
         Stat.MergeFrom(unitData?.stat);
-
+        
         StatInit();
         SkillInit();
     }

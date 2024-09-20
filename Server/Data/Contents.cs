@@ -8,27 +8,11 @@ public class UnitData
     public int id;
     public string name;
     public string camp;
-    public List<string> unitRole;
-    public StatInfo stat;
-}
-
-[Serializable]
-public class MonsterData
-{
-    public int id;
-    public int no;
-    public string name;
-    public List<string> unitRole;
-    public StatInfo stat;
-}
-
-[Serializable]
-public class TowerData
-{
-    public int id;
-    public int no;
-    public string name;
-    public List<string> unitRole;
+    public Role unitRole;
+    public UnitClass unitClass;
+    public Species unitSpecies;
+    public UnitRegion unitRegion;
+    public string recommendedLocation;
     public StatInfo stat;
 }
 
@@ -44,7 +28,7 @@ public class FenceData
 [Serializable]
 public class ObjectData
 {
-    public int no;
+    public int id;
     public StatInfo stat;
 }
 
@@ -85,7 +69,7 @@ public class ObjectLoader : ILoader<int, ObjectData>
     
     public Dictionary<int, ObjectData> MakeDict()
     {
-        return objects.ToDictionary(player => player.no);
+        return objects.ToDictionary(player => player.id);
     }
 }
 

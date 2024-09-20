@@ -34,10 +34,9 @@ public partial class GameRoom
     
     private void SetTutorialStatues(int round)
     {
-        List<MonsterStatue> upgradeStatueList = new();
-        if (GameInfo.SheepCount == 0) Broadcast(new S_ShowResultPopup { Win = false });
-        else if (round == 11) Broadcast(new S_ShowResultPopup { Win = true });
-
+        // if (GameInfo.SheepCount == 0) Broadcast(new S_ShowResultPopup { Win = false });
+        // else if (round == 11) Broadcast(new S_ShowResultPopup { Win = true });
+        
         switch (round)
         {
             case 0: // 북 2

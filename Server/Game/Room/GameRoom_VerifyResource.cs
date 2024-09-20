@@ -142,11 +142,20 @@ public partial class GameRoom
         return cost + upgradeCost;
     }
     
-    private int CalcRepairCost(int[] objectIds, bool all = false)
+    private int CalcFenceRepairCost(int[] objectIds, bool all = false)
     {
         var fenceDict = all ? _fences : _fences
             .Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
         var damaged = fenceDict.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
+        var cost = (int)(damaged * 0.4);
+        return cost;
+    }
+
+    private int CalcStatueRepairCost(int[] objectIds, bool all = false)
+    {
+        var statueDict = all ? _statues : _statues
+            .Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        var damaged = statueDict.Sum(statue => statue.Value.MaxHp - statue.Value.Hp);
         var cost = (int)(damaged * 0.4);
         return cost;
     }
@@ -204,33 +213,49 @@ public partial class GameRoom
         int cost = 0;
         switch (skill)
         {
-            case Skill.FenceRepair:
-                cost = CalcRepairCost(Array.Empty<int>(), true);
+            case Skill.RepairSheep:
+                cost = CalcFenceRepairCost(Array.Empty<int>());
                 break;
-            case Skill.StorageLvUp:
+            case Skill.RepairWolf:
+                cost = CalcStatueRepairCost(Array.Empty<int>());
+                break;
+            case Skill.UpgradeSheep:
+            case Skill.UpgradeWolf:
                 cost = GameInfo.StorageLevelUpCost;
                 break;
-            case Skill.GoldIncrease:
+            case Skill.ResourceSheep:
                 cost = GameInfo.SheepYield * 3;
                 break;
-            case Skill.SheepHealth:
-                DataManager.ObjectDict.TryGetValue(1, out var sheepData);
-                cost = (int)(sheepData!.stat.MaxHp * 2.5);
+            case Skill.ResourceWolf:
+                cost = GameInfo.WolfYield * 3;
                 break;
-            case Skill.SheepIncrease:
+            case Skill.AssetSheep:
                 cost = (int)(GameInfo.SheepCount * 50 * (1 + GameInfo.SheepCount * 0.25));
+                break;
+            case Skill.AssetWolf:
+                // TODO: Implement Wolf's skill cost
+                
                 break;
         }
         
         return cost;
     }
-
-    private void FenceRepair()
+    
+    private void RepairAllFences()
     {
         foreach (var fence in _fences)
         {
             fence.Value.Hp = fence.Value.MaxHp;
             Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
+        }
+    }
+    
+    private void RepairAllStatues()
+    {
+        foreach (var statue in _statues)
+        {
+            statue.Value.Hp = statue.Value.MaxHp;
+            Broadcast(new S_ChangeHp { ObjectId = statue.Key, Hp = statue.Value.Hp });
         }
     }
     

@@ -40,7 +40,8 @@ public partial class GameObject
     }
     
     public int ShieldAdd
-    {   // 더해지는 쉴드 양(쉴드 추가시 사용) - 쉴드에는 방어, 독 저항 등 적용되지 않으며 반사 또한 적용 x
+    {   
+        // 더해지는 쉴드 양(쉴드 추가시 사용) - 쉴드에는 방어, 독 저항 등 적용되지 않으며 반사 또한 적용 x
         get => _shieldAdd;
         set
         {
@@ -51,7 +52,8 @@ public partial class GameObject
     }
 
     public int ShieldRemain
-    {   // 남아있는 쉴드 양(데미지를 받아 쉴드가 깎일 때 사용)
+    {   
+        // 남아있는 쉴드 양(데미지를 받아 쉴드가 깎일 때 사용)
         get => _shieldRemain;
         set
         {
