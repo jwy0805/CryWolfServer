@@ -89,7 +89,7 @@ public partial class GameRoom
                     return;
                 }
                 var tower = SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
-                if (spawnPacket.Register) RegisterTower(tower);
+                // if (spawnPacket.Register) RegisterTower(tower);
                 break;
 
             case GameObjectType.Monster:
@@ -112,8 +112,7 @@ public partial class GameRoom
                     return;
                 }
                 var monsterStatue = SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
-                Push(RegisterMonsterStatue, monsterStatue);
-                Push(EnterGame, monsterStatue);
+                // Push(RegisterMonsterStatue, monsterStatue);
                 break;
         }
     }
@@ -145,14 +144,6 @@ public partial class GameRoom
         foreach (var p in _players.Values.Where(p => p.Id != objectId)) p.Session.Send(despawnPacket);
         
         GameInfo.SheepResource += GameInfo.SheepYield;
-    }
-
-    private void HandleEnchant(Player? player)
-    {
-        if (GameInfo.EnchantLevel >= 5) return;
-        GameInfo.EnchantLevel++;
-        
-        // var enchant = player?.AssetId
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)

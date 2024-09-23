@@ -6,14 +6,26 @@ namespace Server.Game;
 public sealed class EnchantManager
 {
     public static EnchantManager Instance { get; } = new();
-
-    public readonly Dictionary<EnchantId, IEnchantFactory> EnchantDict = new();
     
-    public interface IEnchantFactory
+    private readonly Dictionary<EnchantId, IEnchantFactory> _enchantDict = new()
     {
-        IEnchant CreateEnchant();
+        { EnchantId.WindRoad, new WindRoadFactory() },
+        { EnchantId.FireRoad, new FireRoadFactory() },
+        { EnchantId.EarthRoad, new EarthRoadFactory() }
+    };
+
+    private interface IEnchantFactory
+    {
+        Enchant CreateEnchant();
     }
     
-    private class WindRoadFactory : IEnchantFactory { public IEnchant CreateEnchant() => new WindRoad(); }
-    private class FireRoadFactory : IEnchantFactory { public IEnchant CreateEnchant() => new FireRoad(); }
+    private class WindRoadFactory : IEnchantFactory { public Enchant CreateEnchant() => new WindRoad(); }
+    private class FireRoadFactory : IEnchantFactory { public Enchant CreateEnchant() => new FireRoad(); }
+    private class EarthRoadFactory : IEnchantFactory { public Enchant CreateEnchant() => new EarthRoad(); }
+    
+    public Enchant CreateEnchant(EnchantId enchantId)
+    {
+        var factory = _enchantDict[enchantId];
+        return factory.CreateEnchant();
+    }
 }

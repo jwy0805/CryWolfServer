@@ -61,8 +61,8 @@ public partial class GameRoom
                 break;
             
             case Skill.AssetWolf:
-                // TODO: Enchant implementation
-                HandleEnchant(player);
+                if (Enchant is not { EnchantLevel: < 5 }) return;
+                Enchant.EnchantLevel++;
                 break;
         }
     }

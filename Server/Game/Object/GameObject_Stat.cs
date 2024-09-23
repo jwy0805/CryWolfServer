@@ -1,21 +1,111 @@
+using Google.Protobuf.Protocol;
+using Server.Game.Enchants;
+
 namespace Server.Game;
 
 public partial class GameObject
 {
     private int _shieldAdd;
     private int _shieldRemain;
-    
-    public int TotalAttack => Math.Max(Attack + AttackParam, 0);
-    public float TotalAttackSpeed => Math.Max(AttackSpeed + AttackSpeedParam, 0);
-    public int TotalSkillDamage => Math.Max(SkillDamage + SkillParam, 0);
-    public int TotalDefence => Math.Max(Defence + DefenceParam, 0);
-    public int TotalFireResist => Math.Max(FireResist + FireResistParam, 0);
-    public int TotalPoisonResist => Math.Max(PoisonResist + PoisonResistParam, 0);
-    public float TotalMoveSpeed => Math.Max(MoveSpeed + MoveSpeedParam, 0);
-    public float TotalAttackRange => Math.Max(AttackRange + AttackRangeParam, 0);
-    public float TotalSkillRange => Math.Max(SkillRange + SkillRangeParam, 0);
-    public int TotalAccuracy => Math.Max(Accuracy + AccuracyParam, 0);
-    public int TotalEvasion => Math.Max(Evasion + EvasionParam, 0);
+
+    public int TotalAttack
+    {
+        get
+        {
+            var attack = Math.Max(Attack + AttackParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.Attack, attack) ?? attack;
+        }
+    }
+
+    public float TotalAttackSpeed
+    {
+        get
+        {
+            var attackSpeed = Math.Max(AttackSpeed + AttackSpeedParam, 0);
+            return Room?.Enchant?.GetModifier(Player, StatType.AttackSpeed, attackSpeed) ?? attackSpeed;
+        }
+    }
+
+    public int TotalSkillDamage
+    {
+        get
+        {
+            var skillDamage = Math.Max(SkillDamage + SkillParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.Skill, skillDamage) ?? skillDamage;
+        }
+    }
+
+    public int TotalDefence
+    {
+        get
+        {
+            var defence = Math.Max(Defence + DefenceParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.Defence, defence) ?? defence;
+        }
+    }
+
+    public int TotalFireResist
+    {
+        get
+        {
+            var fireResist = Math.Max(FireResist + FireResistParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.FireResist, fireResist) ?? fireResist;
+        }
+    }
+
+    public int TotalPoisonResist
+    {
+        get
+        {
+            var poisonResist = Math.Max(PoisonResist + PoisonResistParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.PoisonResist, poisonResist) ?? poisonResist;
+        }
+    }
+
+    public float TotalMoveSpeed
+    {
+        get
+        {
+            var moveSpeed = Math.Max(MoveSpeed + MoveSpeedParam, 0);
+            return Room?.Enchant?.GetModifier(Player, StatType.MoveSpeed, moveSpeed) ?? moveSpeed;
+        }
+    }
+
+    public float TotalAttackRange
+    {
+        get
+        {
+            var attackRange = Math.Max(AttackRange + AttackRangeParam, 0);
+            return Room?.Enchant?.GetModifier(Player, StatType.AttackRange, attackRange) ?? attackRange;
+        }
+    }
+
+    public float TotalSkillRange
+    {
+        get
+        {
+            var skillRange = Math.Max(SkillRange + SkillRangeParam, 0);
+            return Room?.Enchant?.GetModifier(Player, StatType.SkillRange, skillRange) ?? skillRange;
+        }
+    }
+
+    public int TotalAccuracy
+    {
+        get
+        {
+            var accuracy = Math.Max(Accuracy + AccuracyParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.Accuracy, accuracy) ?? accuracy;
+        }
+    }
+
+    public int TotalEvasion
+    {
+        get
+        {
+            var evasion = Math.Max(Evasion + EvasionParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.Evasion, evasion) ?? evasion;
+        }
+    }
     
     public int MpRecovery { get; set; } = 10;
 

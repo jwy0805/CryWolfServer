@@ -11,7 +11,7 @@ public partial class GameRoom
     private void BaseInit()
     {
         // Spawn Portal
-        Portal northPortal = ObjectManager.Instance.Add<Portal>();
+        var northPortal = ObjectManager.Instance.Add<Portal>();
         northPortal.Init();
         northPortal.Way = SpawnWay.North;
         northPortal.Info.Name = "Portal#6Red";
@@ -35,8 +35,19 @@ public partial class GameRoom
         
         // Spawn Prime Sheep
         var sheepPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Sheep);
-        if (sheepPlayer == null) return;
-        SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
+        if (sheepPlayer != null)
+        {
+            SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
+        }
+        
+        // Set Enchant
+        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Wolf);
+        if (wolfPlayer != null)
+        {
+            Enchant = EnchantManager.Instance.CreateEnchant((EnchantId)wolfPlayer.AssetId);
+            Enchant.Room = this;
+            Enchant.Update();
+        }
         
         // Set UI Text
         foreach (var player in _players.Values)
@@ -46,8 +57,6 @@ public partial class GameRoom
             if (player.Camp == Camp.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
                 if (MapId != 1)
@@ -59,8 +68,6 @@ public partial class GameRoom
             else
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.WolfResource, Max = false});
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.MaxSheep, Max = true });
-                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SubResourceText, Value = GameInfo.SheepCount, Max = false });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
                 if (MapId != 1)
@@ -393,7 +400,8 @@ public partial class GameRoom
     #endregion
     public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, 
         IEnumerable<GameObjectType> typeList, float skillDist = 100, float angle = 30, int attackType = 0)
-    {   // 1. 타겟 리스트 생성
+    {   
+        // 1. 타겟 리스트 생성
         var targetList = typeList.SelectMany(GetTargets).ToList();
         if (targetList.Count == 0) return new List<GameObject>();
         
@@ -406,8 +414,10 @@ public partial class GameRoom
 
         // 4. 각 목표물에 대해 조건 검사
         foreach (var obj in targetList)
-        {   // 4.1 타겟팅 가능한지와 공격 타입이 맞는지 확인
+        {   
+            // 4.1 타겟팅 가능한지와 공격 타입이 맞는지 확인
             if (obj.Targetable == false || (attackType != 2 && obj.UnitType != attackType)) continue;
+           
             // 4.2 거리와 각도를 계산
             Vector3 dirVector = obj.CellPos - gameObject.CellPos;
             float distance = Vector3.Distance(obj.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 });
@@ -415,9 +425,11 @@ public partial class GameRoom
                 (Math.Atan2(forward.Z, forward.X) - Math.Atan2(dirVector.Z, dirVector.X))
                 * 180 / Math.PI;
             if (angleToTarget > 180) angleToTarget -= 360;
+            
             // 4.3 조건에 맞는지 확인
             if (distance < skillDist && Math.Abs(angleToTarget) <= angle / 2)
-            {   // 조건에 맞으면 리스트에 추가
+            {   
+                // 조건에 맞으면 리스트에 추가
                 objectsInAngleRange.Add(obj);
             }
         }

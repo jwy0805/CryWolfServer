@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Game.Enchants;
 using Server.Game.Resources;
 
 namespace Server.Game;
@@ -155,7 +156,22 @@ public sealed partial class ObjectManager
         { EffectId.HareCloneEffect, new HareCloneEffectFactory() },
         { EffectId.PoisonCloud, new PoisonCloudFactory() },
         { EffectId.HermitRecoverBurn, new HermitRecoverBurnFactory() },
-        { EffectId.MoveForwardEffect, new MoveForwardEffectFactory() }
+        { EffectId.MoveForwardEffect, new MoveForwardEffectFactory() },
+        { EffectId.WindRoadEffect1, new WindRoadEffect1Factory() },
+        { EffectId.WindRoadEffect2, new WindRoadEffect2Factory() },
+        { EffectId.WindRoadEffect3, new WindRoadEffect3Factory() },
+        { EffectId.WindRoadEffect4, new WindRoadEffect4Factory() },
+        { EffectId.WindRoadEffect5, new WindRoadEffect5Factory() },
+        { EffectId.FireRoadEffect1, new FireRoadEffect1Factory() },
+        { EffectId.FireRoadEffect2, new FireRoadEffect2Factory() },
+        { EffectId.FireRoadEffect3, new FireRoadEffect3Factory() },
+        { EffectId.FireRoadEffect4, new FireRoadEffect4Factory() },
+        { EffectId.FireRoadEffect5, new FireRoadEffect5Factory() },
+        { EffectId.EarthRoadEffect1, new EarthRoadEffect1Factory() },
+        { EffectId.EarthRoadEffect2, new EarthRoadEffect2Factory() },
+        { EffectId.EarthRoadEffect3, new EarthRoadEffect3Factory() },
+        { EffectId.EarthRoadEffect4, new EarthRoadEffect4Factory() },
+        { EffectId.EarthRoadEffect5, new EarthRoadEffect5Factory() },
     };
     
     private readonly Dictionary<ResourceId, IFactory<Resource>> _resourceDict = new()
@@ -318,6 +334,23 @@ public sealed partial class ObjectManager
     public class PoisonCloudFactory : IFactory<PoisonCloud> { public PoisonCloud Create() => new(); }
     public class HermitRecoverBurnFactory : IFactory<HermitRecoverBurn> { public HermitRecoverBurn Create() => new(); }
     public class MoveForwardEffectFactory : IFactory<MoveForwardEffect> { public MoveForwardEffect Create() => new(); }
+    public class WindRoadEffect1Factory : IFactory<WindRoadEffect1> { public WindRoadEffect1 Create() => new(); }
+    public class WindRoadEffect2Factory : IFactory<WindRoadEffect2> { public WindRoadEffect2 Create() => new(); }
+    public class WindRoadEffect3Factory : IFactory<WindRoadEffect3> { public WindRoadEffect3 Create() => new(); }
+    public class WindRoadEffect4Factory : IFactory<WindRoadEffect4> { public WindRoadEffect4 Create() => new(); }
+    public class WindRoadEffect5Factory : IFactory<WindRoadEffect5> { public WindRoadEffect5 Create() => new(); }
+    public class FireRoadEffect1Factory : IFactory<FireRoadEffect1> { public FireRoadEffect1 Create() => new(); }
+    public class FireRoadEffect2Factory : IFactory<FireRoadEffect2> { public FireRoadEffect2 Create() => new(); }
+    public class FireRoadEffect3Factory : IFactory<FireRoadEffect3> { public FireRoadEffect3 Create() => new(); }
+    public class FireRoadEffect4Factory : IFactory<FireRoadEffect4> { public FireRoadEffect4 Create() => new(); }
+    public class FireRoadEffect5Factory : IFactory<FireRoadEffect5> { public FireRoadEffect5 Create() => new(); }
+    public class EarthRoadEffect1Factory : IFactory<EarthRoadEffect1> { public EarthRoadEffect1 Create() => new(); }
+    public class EarthRoadEffect2Factory : IFactory<EarthRoadEffect2> { public EarthRoadEffect2 Create() => new(); }
+    public class EarthRoadEffect3Factory : IFactory<EarthRoadEffect3> { public EarthRoadEffect3 Create() => new(); }
+    public class EarthRoadEffect4Factory : IFactory<EarthRoadEffect4> { public EarthRoadEffect4 Create() => new(); }
+    public class EarthRoadEffect5Factory : IFactory<EarthRoadEffect5> { public EarthRoadEffect5 Create() => new(); }
+    
+    // Resources
     public class CoinStarSilverFactory : IFactory<CoinStarSilver> { public CoinStarSilver Create() => new(); }
     public class CoinStarGoldenFactory : IFactory<CoinStarGolden> { public CoinStarGolden Create() => new(); }
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }

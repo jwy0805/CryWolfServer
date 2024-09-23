@@ -6,61 +6,6 @@ namespace Server.Game;
 
 public partial class GameRoom 
 {
-    private void RegisterTower(Tower tower)
-    {
-        var posInfo = new PositionInfo
-        {
-            PosX = tower.PosInfo.PosX,
-            PosY = tower.PosInfo.PosY,
-            PosZ = tower.PosInfo.PosZ,
-            State = State.Idle
-        };
-        TowerSlot towerSlot = new(tower.UnitId, posInfo, tower.Way, tower.Id);
-        
-        if (towerSlot.Way == SpawnWay.North)
-        {
-            GameInfo.NorthTower++;
-        }
-        else
-        {
-            GameInfo.SouthTower++;
-        }
-        
-        S_RegisterInSlot registerPacket = new()
-        {
-            ObjectId = towerSlot.ObjectId,
-            UnitId = (int)towerSlot.TowerId,
-            ObjectType = GameObjectType.Tower,
-            Way = towerSlot.Way
-        };
-        
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)?.Session?.Send(registerPacket);
-    }
-    
-    private void RegisterMonsterStatue(MonsterStatue statue)
-    {
-        MonsterSlot monsterSlot = new(statue.UnitId, statue.Way, statue);
-
-        if (monsterSlot.Way == SpawnWay.North)
-        {
-            GameInfo.NorthMonster++;
-        }
-        else
-        {
-            GameInfo.SouthMonster++;
-        }
-        
-        S_RegisterInSlot registerPacket = new()
-        {
-            ObjectId = monsterSlot.Statue.Id,
-            UnitId = (int)monsterSlot.MonsterId,
-            ObjectType = GameObjectType.MonsterStatue,
-            Way = monsterSlot.Way
-        };
-        
-        _players.Values.FirstOrDefault(p => p.Camp == Camp.Wolf)?.Session?.Send(registerPacket);
-    }
-    
     // Run when initialize game and storage upgrade.
     private void SpawnFence(int storageLv = 1, int fenceLv = 0)
     {
@@ -286,7 +231,7 @@ public partial class GameRoom
     // Enter sheep by summon button or moth celestial skill
     public void SpawnSheep(Player player)
     {
-        var sheep = ObjectManager.Instance.Add<Sheep>();
+        var sheep = ObjectManager.Instance.Create<Sheep>((SheepId)(player.AssetId + 1));
         var sheepCellPos = Map.FindSheepSpawnPos(sheep);
         
         sheep.PosInfo = new PositionInfo
@@ -294,9 +239,10 @@ public partial class GameRoom
             State = State.Idle, PosX = sheepCellPos.X, PosY = sheepCellPos.Y, PosZ = sheepCellPos.Z
         };
         sheep.Info.PosInfo = sheep.PosInfo;
-        sheep.Room = this;
         sheep.Player = player;
         sheep.AddBuffAction = AddBuff;
+        sheep.SheepId = (SheepId)(player.AssetId + 1);
+        sheep.Room = this;
         sheep.Init();
         sheep.CellPos = new Vector3(sheep.PosInfo.PosX, sheep.PosInfo.PosY, sheep.PosInfo.PosZ);
         Push(EnterGame, sheep);

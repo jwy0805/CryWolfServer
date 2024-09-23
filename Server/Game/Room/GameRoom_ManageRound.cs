@@ -134,6 +134,7 @@ public partial class GameRoom
         _checked = false;
         
         SpawnTowersInNewRound();
+        SpawnMonstersInNewRound();
     }
 
     private void GameOver()

@@ -26,7 +26,6 @@ public partial class GameObject : IGameObject
     }
     public Player Player { get; set; }
     public List<BuffId> Buffs { get; set; } = new();
-    public IEnchant Enchant { get; set; }
     public GameObject? Target { get; set; }
     public GameObject? Parent { get; set; }
     public SpawnWay Way { get; set; }
