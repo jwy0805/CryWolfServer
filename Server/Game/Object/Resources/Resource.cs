@@ -42,7 +42,7 @@ public class Resource : GameObject
             Room.Push(() =>
             {
                 if (Room == null) return;
-                if (Player.Camp == Camp.Sheep)
+                if (Player.Faction == Faction.Sheep)
                 {
                     Room.GameInfo.SheepResource += Yield;
                 }

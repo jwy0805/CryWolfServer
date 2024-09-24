@@ -32,6 +32,19 @@ public class GameManager
             }
         }
     };
+
+    public int CalcDamage(GameObject gameObject, Damage damageType, int damage)
+    {
+        var totalDamage = damageType switch
+        {
+            Damage.Normal => (damage - gameObject.TotalDefence) * (100 / (float)(100 + gameObject.TotalDefence)),
+            Damage.Magical => /* TODO: Magical Damage Calculation */ damage * (100 / (float)(100 + gameObject.TotalDefence)),
+            Damage.Poison => damage * (100 - gameObject.TotalPoisonResist) / (float)100,
+            _ => 0
+        };
+
+        return (int)totalDamage >= 0 ? (int)totalDamage : 0; 
+    }
     
     public class GameData
     {   // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
@@ -49,6 +62,8 @@ public class GameManager
         public Vector3 InitFenceCenter { get; init; } = new();
         public Vector3 InitFenceSize { get; init; } = new();
         public Vector3[] PortalPos { get; set; }
+        public readonly float MinZ = -20;
+        public readonly float MaxZ = 20;
         
         public Vector3[] GetPos(int cnt, int row, Vector3 startPos)
         {

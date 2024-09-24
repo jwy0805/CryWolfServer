@@ -9,7 +9,7 @@ public class FireRoad : Enchant
     
     public override float GetModifier(Player player, StatType statType, float baseValue)
     {
-        if (player.Camp == Camp.Sheep) return baseValue;
+        if (player.Faction == Faction.Sheep) return baseValue;
         
         if (statType == StatType.Attack)
         {

@@ -14,16 +14,16 @@ public class WindRoad : Enchant
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             
-            var parent = Room.FindPlayer(player => player is Player { Camp: Camp.Wolf });
+            var parent = Room.FindPlayer(player => player is Player { Faction: Faction.Wolf });
             var effectPos = new PositionInfo { PosX = 0, PosY = 6.1f, PosZ = 15 };
             var effectName = (EffectId)Enum.Parse(typeof(EffectId), $"WindRoadEffect{EnchantLevel}");
             Room.SpawnEffect(effectName, parent, effectPos, false, 5000);
         }   
     }
     
-    public override float GetModifier(Player player, StatType statType, float baseValue)
+    public override float GetModifier(Player? player, StatType statType, float baseValue)
     {
-        if (player.Camp == Camp.Sheep || EnchantLevel == 0) return baseValue;
+        if (player?.Faction == Faction.Sheep || EnchantLevel == 0) return baseValue;
         
         return statType switch
         {

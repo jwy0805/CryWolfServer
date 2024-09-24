@@ -194,8 +194,7 @@ public class Horror : Creeper
             }
         }
 
-        totalDamage = damageType is Damage.Normal or Damage.Magical
-            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
+        totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);

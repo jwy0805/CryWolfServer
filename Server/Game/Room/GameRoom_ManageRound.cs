@@ -11,8 +11,8 @@ public partial class GameRoom
 
     private void CheckPrimeSheep()
     {
-        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Sheep);
-        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Wolf);
+        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
+        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
         if (sheepPlayer == null || wolfPlayer == null) return;
         
         var assetId = (SheepId)sheepPlayer.AssetId;

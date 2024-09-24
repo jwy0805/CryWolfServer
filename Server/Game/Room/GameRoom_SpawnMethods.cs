@@ -17,7 +17,7 @@ public partial class GameRoom
             var fence = ObjectManager.Instance.Add<Fence>();
             fence.Init();
             fence.Info.Name = GameData.FenceNames[storageLv];
-            fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+            fence.Player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep)!;
             fence.Room = this;
             fence.CellPos = fencePos[i];
             fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;
@@ -36,7 +36,7 @@ public partial class GameRoom
         var fence = ObjectManager.Instance.Add<Fence>();
         fence.Init();
         fence.Info.Name = GameData.FenceNames[storageLv];
-        fence.Player = _players.Values.FirstOrDefault(p => p.Camp == Camp.Sheep)!;
+        fence.Player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep)!;
         fence.Room = this;
         fence.CellPos = cellPos;
         fence.Way = fence.CellPos.Z > GameInfo.FenceCenter.Z ? SpawnWay.North : SpawnWay.South;

@@ -10,7 +10,7 @@ public class Player : GameObject
     public readonly HashSet<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public readonly SkillSubject SkillSubject = new();
     public readonly HashSet<int> Portraits = new ();
-    public Camp Camp { get; set; }
+    public Faction Faction { get; set; }
     
     public ClientSession? Session { get; set; }
 

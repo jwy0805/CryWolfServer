@@ -15,7 +15,7 @@ public class PacketHandler
         var player = clientSession.MyPlayer;
         if (player == null) return;
 
-        player.Camp = enterPacket.IsSheep ? Camp.Sheep : Camp.Wolf;
+        player.Faction = enterPacket.IsSheep ? Faction.Sheep : Faction.Wolf;
         player.CharacterId = (CharacterId)enterPacket.CharacterId;
         player.AssetId = enterPacket.AssetId;
     }
@@ -27,7 +27,7 @@ public class PacketHandler
         
         if (sessionPacket.Test)
         {
-            var playerPos = sessionPacket.Camp == Camp.Sheep 
+            var playerPos = sessionPacket.Faction == Faction.Sheep 
                 ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 } 
                 : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
             
@@ -62,7 +62,6 @@ public class PacketHandler
         var room = player?.Room;
         
         room?.Push(room.HandleSpawn, player, spawnPacket);
-        Console.WriteLine($"{spawnPacket.Num}, {spawnPacket.PosInfo}");
     }
     
     public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)
@@ -182,11 +181,13 @@ public class PacketHandler
         Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
         Vector2Int cellPos = room.Map.Vector3To2(vector);
         if (DataManager.UnitDict.TryGetValue(spawnPacket.UnitId, out var unitData) == false) return;
-        Enum.TryParse(unitData.camp, out Camp camp);
-        GameObjectType type = camp == Camp.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
+        Enum.TryParse(unitData.faction, out Faction faction);
+        GameObjectType type = faction == Faction.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
         
         var size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
-        var canSpawn = room.Map.CanSpawn(cellPos, size);
+        var canSpawn = room.Map.CanSpawn(cellPos, size)
+                       && room.Map.Vector2To3(cellPos).Z >= room.GameInfo.GetSpawnRangeMinZ(room, faction) 
+                       && room.Map.Vector2To3(cellPos).Z <= room.GameInfo.GetSpawnRangeMaxZ(room, faction);
         
         var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type };
         player?.Session?.Send(unitSpawnPacket);
@@ -208,6 +209,22 @@ public class PacketHandler
             AttackRange = unitData.stat.AttackRange, SkillRange = unitData.stat.SkillRange
         };
         player?.Session?.Send(sendRangePacket);
+    }
+
+    public static void C_GetSpawnableBoundsHandler(PacketSession session, IMessage packet)
+    {
+        var boundsPacket = (C_GetSpawnableBounds)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        if (room == null) return;
+
+        var sendBoundsPacket = new S_GetSpawnableBounds
+        {
+            MinZ = room.GameInfo.GetSpawnRangeMinZ(room, boundsPacket.Faction),
+            MaxZ = room.GameInfo.GetSpawnRangeMaxZ(room, boundsPacket.Faction)
+        };
+        player?.Session?.Send(sendBoundsPacket);
     }
     
     public static void C_SetTextUIHandler(PacketSession session, IMessage packet)

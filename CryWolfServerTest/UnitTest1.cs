@@ -13,8 +13,8 @@ public class GenerateGameRoomByTwoPlayersTest
     [SetUp]
     public void SetUp()
     {
-        _sheepPlayer.Camp = Camp.Sheep;
-        _wolfPlayer.Camp = Camp.Wolf;
+        _sheepPlayer.Faction = Faction.Sheep;
+        _wolfPlayer.Faction = Faction.Wolf;
     }
 
     [Test]
@@ -25,8 +25,8 @@ public class GenerateGameRoomByTwoPlayersTest
         room.Push(room.EnterGame, _wolfPlayer);
         room.Flush();
         
-        var sheepPlayer = room.FindPlayer(player => player is Player { Camp: Camp.Sheep });
-        var wolfPlayer = room.FindPlayer(player => player is Player { Camp: Camp.Wolf });
+        var sheepPlayer = room.FindPlayer(player => player is Player { Faction: Faction.Sheep });
+        var wolfPlayer = room.FindPlayer(player => player is Player { Faction: Faction.Wolf });
         
         Console.WriteLine($"{room.RoomId}, {sheepPlayer!.Id}, {wolfPlayer!.Id}");
         Assert.Pass();

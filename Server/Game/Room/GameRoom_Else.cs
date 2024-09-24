@@ -34,14 +34,14 @@ public partial class GameRoom
         StorageLevel = 1;
         
         // Spawn Prime Sheep
-        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Sheep);
+        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
         if (sheepPlayer != null)
         {
             SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
         }
         
         // Set Enchant
-        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Camp == Camp.Wolf);
+        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
         if (wolfPlayer != null)
         {
             Enchant = EnchantManager.Instance.CreateEnchant((EnchantId)wolfPlayer.AssetId);
@@ -54,7 +54,7 @@ public partial class GameRoom
         {
             if (player.Session == null) return;
             
-            if (player.Camp == Camp.Sheep)
+            if (player.Faction == Faction.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource, Max = false});
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });

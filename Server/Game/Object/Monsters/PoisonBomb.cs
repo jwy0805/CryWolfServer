@@ -161,8 +161,7 @@ public class PoisonBomb : SnowBomb
             }
         }
 
-        totalDamage = damageType is Damage.Normal or Damage.Magical
-            ? Math.Max(totalDamage - TotalDefence, 0) : damage;
+        totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
@@ -176,11 +175,13 @@ public class PoisonBomb : SnowBomb
             {
                 var target = Room.FindRandomTarget(
                     this, TotalAttackRange * 3, 0, true);
-                DestPos = target == null 
-                    ? new Vector3(CellPos.X, CellPos.Y, CellPos.Z) 
-                    : new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
-                MoveSpeed = 16;
-                State = State.Rush;
+                if (target != null)
+                {
+                    CellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
+                    BroadcastPos();
+                }
+                State = State.Explode;
+                ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
             }
             else
             {

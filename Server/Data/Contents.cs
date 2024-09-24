@@ -7,7 +7,7 @@ public class UnitData
 {
     public int id;
     public string name;
-    public string camp;
+    public string faction;
     public Role unitRole;
     public UnitClass unitClass;
     public Species unitSpecies;

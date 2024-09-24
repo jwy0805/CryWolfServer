@@ -61,7 +61,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _northMaxTower = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxTower, Max = true});
         }
     }
@@ -72,7 +72,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _northTower = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
             {
                 player.Session?.Send(new S_SetTextUI
                     { TextUI = CommonTexts.NorthCapacityText, Value = _northTower, Max = false });
@@ -86,7 +86,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _southMaxTower = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxTower, Max = true});
         }
     }
@@ -97,20 +97,18 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _southTower = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southTower, Max = false});
         }
     }
-
-    public int MaxSheep { get; set; } = 5;
-
+    
     public int NorthMaxMonster 
     { 
         get => _northMaxMonster;
         set
         {
             _northMaxMonster = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMaxMonster, Max = true});
         } 
     }
@@ -121,7 +119,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _northMonster = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = _northMonster, Max = false});      
         }
     }
@@ -132,7 +130,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _southMaxMonster = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMaxMonster, Max = true});
         }
     }
@@ -143,7 +141,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _southMonster = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = _southMonster, Max = false});
         }
     } 
@@ -154,7 +152,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _sheepResource = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Sheep))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource});
         }
     }
@@ -165,15 +163,12 @@ public class GameInfo // 한 판마다 초기화되는 정보
         set
         {
             _wolfResource = value;
-            foreach (var player in _players.Values.Where(player => player.Camp == Camp.Wolf))
+            foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource});
         }
     }
     
     public int WolfYield { get; set; } = 8;
-
-    public bool NorthPortal { get; set; } = false;
-    public bool SouthPortal { get; set; } = false;
     
     public GameInfo(Dictionary<int, Player> players, int mapId)
     {
@@ -199,5 +194,17 @@ public class GameInfo // 한 판마다 초기화되는 정보
             new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z - FenceSize.Z / 2 + 2),
             new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z + FenceSize.Z / 2 - 2)
         };
+    }
+
+    public float GetSpawnRangeMinZ(GameRoom? room, Faction faction)
+    {
+        if (room == null) return 0;
+        return faction == Faction.Sheep ? room.GameData.MinZ : FenceBounds.Max(v => v.Z);
+    }
+
+    public float GetSpawnRangeMaxZ(GameRoom? room, Faction faction)
+    {
+        if (room == null) return 0;
+        return faction == Faction.Sheep ? FenceBounds.Max(v => v.Z) + 3 : room.GameData.MaxZ;
     }
 }

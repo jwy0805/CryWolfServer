@@ -109,9 +109,9 @@ public partial class GameRoom
         var unitId = upgradePacket.UnitId;
         DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
         if (unitData == null) return;
-        if(Enum.TryParse(unitData.camp, out Camp camp) == false) return;
+        if(Enum.TryParse(unitData.faction, out Faction faction) == false) return;
         
-        var lackOfGold = camp == Camp.Sheep 
+        var lackOfGold = faction == Faction.Sheep 
             ? VerifyUpgradeTowerPortrait(player, unitId) 
             : VerifyUpgradeMonsterPortrait(player, unitId);
         
@@ -253,7 +253,7 @@ public partial class GameRoom
         if (player == null) return;
         
         var costArray = new int[4];
-        if (packet.Camp == Camp.Sheep)
+        if (packet.Faction == Faction.Sheep)
         {
             costArray[0] = CheckBaseSkillCost(Skill.UpgradeSheep);
             costArray[1] = CheckBaseSkillCost(Skill.RepairSheep);
