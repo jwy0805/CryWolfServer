@@ -46,7 +46,7 @@ public class Sheep : Creature, ISkillObserver
         if (Room.Stopwatch.ElapsedMilliseconds > Time + _yieldTime && State != State.Die)
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
-            YieldCoin(Room.GameInfo.SheepYield + YieldIncrement - YieldDecrement);
+            Room.YieldCoin(this, Room.GameInfo.SheepYield + YieldIncrement - YieldDecrement);
         }
         
         switch (State)
@@ -119,37 +119,7 @@ public class Sheep : Creature, ISkillObserver
         BroadcastPath();
     }
 
-    public void YieldCoin(int yield)
-    {
-        if (Room == null) return;
-        Resource resource;
-        
-        switch (yield)
-        {
-            case < 50:
-                resource = ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver);
-                break;
-            case < 100:
-                resource = ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden);
-                break;
-            case < 200:
-                resource = ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen);
-                break;
-            case < 300:
-                resource = ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed);
-                break;
-            default:
-                resource = ObjectManager.Instance.Create<Resource>(ResourceId.ChestGold);
-                break;
-        }
 
-        resource.Yield = yield;
-        resource.CellPos = CellPos + new Vector3(0, 0.5f, 0);
-        resource.Player = Player;
-        resource.Init();
-        GameObject go = resource;
-        Room.Push(Room.EnterGame, go);
-    }
     
     public override void OnSkillUpgrade(Skill skill)
     {

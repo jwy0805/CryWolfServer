@@ -180,7 +180,12 @@ public sealed partial class ObjectManager
         { ResourceId.CoinStarGolden, new CoinStarGoldenFactory() },
         { ResourceId.PouchGreen, new PouchGreenFactory() },
         { ResourceId.PouchRed, new PouchRedFactory() },
-        { ResourceId.ChestGold, new ChestGoldFactory() }
+        { ResourceId.ChestGold, new ChestGoldFactory() },
+        { ResourceId.Cell, new CellFactory() },
+        { ResourceId.MoleculeDouble, new MoleculeDoubleFactory() },
+        { ResourceId.MoleculeTriple, new MoleculeTripleFactory() },
+        { ResourceId.MoleculeQuadruple, new MoleculeQuadrupleFactory() },
+        { ResourceId.Dna, new DnaFactory() },
     };
 
     public interface IFactory<out T> where T : GameObject
@@ -356,4 +361,9 @@ public sealed partial class ObjectManager
     public class PouchGreenFactory : IFactory<PouchGreen> { public PouchGreen Create() => new(); }
     public class PouchRedFactory : IFactory<PouchRed> { public PouchRed Create() => new(); }
     public class ChestGoldFactory : IFactory<ChestGold> { public ChestGold Create() => new(); }
+    public class CellFactory : IFactory<Cell> { public Cell Create() => new(); }
+    public class MoleculeDoubleFactory : IFactory<MoleculeDouble> { public MoleculeDouble Create() => new(); }
+    public class MoleculeTripleFactory : IFactory<MoleculeTriple> { public MoleculeTriple Create() => new(); }
+    public class MoleculeQuadrupleFactory : IFactory<MoleculeQuadruple> { public MoleculeQuadruple Create() => new(); }
+    public class DnaFactory : IFactory<Dna> { public Dna Create() => new(); }
 }   

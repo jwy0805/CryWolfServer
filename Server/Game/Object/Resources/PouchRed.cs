@@ -8,6 +8,5 @@ public class PouchRed: Resource
     {
         base.Init();
         ResourceId = ResourceId.PouchRed;
-        ResourceNum = (int)ResourceId;
     }
 }

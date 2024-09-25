@@ -23,8 +23,10 @@ public class Fence : GameObject
     protected override void OnDead(GameObject? attacker)
     {
         if (Room == null) return;
-        
+
+        var yield = 0;
         Targetable = false;
+        
         if (attacker != null)
         {
             attacker.KillLog = Id;
@@ -32,8 +34,10 @@ public class Fence : GameObject
             {
                 if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
                 {
-                    if (attacker.Parent != null) 
+                    if (attacker.Parent != null)
+                    {
                         attacker.Parent.Target = null;
+                    }
                 }
                 attacker.Target = null;
             }

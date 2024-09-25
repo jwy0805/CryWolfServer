@@ -10,7 +10,6 @@ public class Resource : GameObject
     protected readonly float WaitTime = 1.0f;
     protected readonly Scheduler Scheduler = new();
     
-    public int ResourceNum { get; set; }
     public ResourceId ResourceId { get; set; }
     public int Yield { get; set; }
     

@@ -8,6 +8,5 @@ public class CoinStarSilver: Resource
     {
         base.Init();
         ResourceId = ResourceId.CoinStarSilver;
-        ResourceNum = (int)ResourceId;
     }
 }

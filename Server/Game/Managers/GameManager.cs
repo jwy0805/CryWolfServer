@@ -37,8 +37,8 @@ public class GameManager
     {
         var totalDamage = damageType switch
         {
-            Damage.Normal => (damage - gameObject.TotalDefence) * (100 / (float)(100 + gameObject.TotalDefence)),
-            Damage.Magical => /* TODO: Magical Damage Calculation */ damage * (100 / (float)(100 + gameObject.TotalDefence)),
+            Damage.Normal => damage * (100 / (float)(100 + gameObject.TotalDefence)) - gameObject.TotalDefence,
+            Damage.Magical =>  damage * (100 / (float)(100 + gameObject.TotalMagicalDefence)),
             Damage.Poison => damage * (100 - gameObject.TotalPoisonResist) / (float)100,
             _ => 0
         };
@@ -47,7 +47,8 @@ public class GameManager
     }
     
     public class GameData
-    {   // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
+    {   
+        // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
         public int RoundTime => 20000;
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;
@@ -55,7 +56,8 @@ public class GameManager
         public int[] BaseUpgradeCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
         
-        public int[] ZCoordinatesOfMap { get; init; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; // Vector2Int, Vector3 * 4
+        // Vector2Int, Vector3 * 4
+        public int[] ZCoordinatesOfMap { get; init; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; 
         public int NorthFenceMax { get; init; }
         public int SouthFenceMax { get; init; }
         public Vector3 InitFenceStartPos { get; init; }
@@ -67,12 +69,15 @@ public class GameManager
         
         public Vector3[] GetPos(int cnt, int row, Vector3 startPos)
         {
-            Vector3[] posArr = new Vector3[cnt];
+            var posArr = new Vector3[cnt];
 
-            for (int i = 0; i < row; i++)
+            for (var i = 0; i < row; i++)
             {
-                posArr[i] = startPos with { X = startPos.X + i * 2, Z = startPos.Z}; // north fence
-                if (SouthFenceMax != 0)posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = -startPos.Z }; // south fence
+                // north fence
+                posArr[i] = startPos with { X = startPos.X + i * 2, Z = startPos.Z}; 
+                
+                // south fence
+                if (SouthFenceMax != 0)posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = -startPos.Z }; 
             }
         
             return posArr;

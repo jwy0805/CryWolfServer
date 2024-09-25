@@ -2,11 +2,11 @@ using Google.Protobuf.Protocol;
 
 namespace Server.Game.Resources;
 
-public class ChestGold: Resource
+public class Cell : Resource
 {
     public override void Init()
     {
         base.Init();
-        ResourceId = ResourceId.ChestGold;
+        ResourceId = ResourceId.Cell;   
     }
 }

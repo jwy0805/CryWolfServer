@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Game.Resources;
 
 namespace Server.Game;
 
@@ -132,6 +133,42 @@ public partial class GameRoom
         effect.PacketReceived = true;
     }
     
+    public void YieldCoin(GameObject gameObject, int yield)
+    {
+        var resource = yield switch
+        {
+            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver),
+            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden),
+            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen),
+            < 300 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed),
+            _ => ObjectManager.Instance.Create<Resource>(ResourceId.ChestGold)
+        };
+
+        resource.Yield = yield;
+        resource.CellPos = gameObject.CellPos + new Vector3(0, 0.5f, 0);
+        resource.Player = gameObject.Player;
+        resource.Init();
+        Push(EnterGame, resource);
+    }
+
+    public void YieldDna(GameObject gameObject, int yield)
+    {
+        var resource = yield switch
+        {
+            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.Cell),
+            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeDouble),
+            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeTriple),
+            < 300 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeQuadruple),
+            _ => ObjectManager.Instance.Create<Resource>(ResourceId.Dna)
+        };
+        
+        resource.Yield = yield;
+        resource.CellPos = gameObject.CellPos + new Vector3(0, 0.5f, 0);
+        resource.Player = _players.FirstOrDefault(pair => pair.Value.Faction == Faction.Wolf).Value;
+        resource.Init();
+        Push(EnterGame, resource);
+    }
+    
     public void HandleChangeResource(Player? player, C_ChangeResource resourcePacket)
     {
         if (player == null) return;
@@ -139,7 +176,7 @@ public partial class GameRoom
         S_Despawn despawnPacket = new S_Despawn();
         int objectId = resourcePacket.ObjectId;
         despawnPacket.ObjectIds.Add(objectId);
-        foreach (var p in _players.Values.Where(p => p.Id != objectId)) p.Session.Send(despawnPacket);
+        foreach (var p in _players.Values.Where(p => p.Id != objectId)) p.Session?.Send(despawnPacket);
         
         GameInfo.SheepResource += GameInfo.SheepYield;
     }

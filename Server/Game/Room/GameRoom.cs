@@ -191,7 +191,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Resource:
                 var resource = (Resource)gameObject;
-                resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceNum.ToString()).ToString();
+                resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceId.ToString()).ToString();
                 resource.Room = this;
                 resource.Player = gameObject.Player;
                 resource.Info = gameObject.Info;

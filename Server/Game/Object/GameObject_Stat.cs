@@ -44,6 +44,15 @@ public partial class GameObject
         }
     }
 
+    public int TotalMagicalDefence
+    {
+        get
+        {
+            var magicalDefence = Math.Max(MagicalDefence + MagicalDefenceParam, 0);
+            return (int?)Room?.Enchant?.GetModifier(Player, StatType.MagicalDefence, magicalDefence) ?? magicalDefence;
+        }
+    }
+
     public int TotalFireResist
     {
         get
@@ -190,6 +199,12 @@ public partial class GameObject
         get => Stat.Defence;
         set => Stat.Defence = value;
     }
+    
+    public int MagicalDefence
+    {
+        get => Stat.MagicalDefence;
+        set => Stat.MagicalDefence = value;
+    }
 
     public int FireResist
     {
@@ -303,6 +318,7 @@ public partial class GameObject
     public float AttackSpeedParam { get; set; }
     public int SkillParam { get; set; }
     public int DefenceParam { get; set; }
+    public int MagicalDefenceParam { get; set; }
     public int FireResistParam { get; set; }
     public int PoisonResistParam { get; set; }
     public float MoveSpeedParam { get; set; }

@@ -111,7 +111,7 @@ public partial class GameObject : IGameObject
             }
         }
 
-        totalDamage = GameManager.Instance.CalcDamage(this, damageType, damage);
+        totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
         var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
@@ -183,12 +183,12 @@ public partial class GameObject : IGameObject
             ObjectId = Id, Dest = new DestVector { X = CellPos.X, Y = CellPos.Y, Z = CellPos.Z }
         });
     }
-
+    
     protected virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State });
     }
-
+    
     protected virtual void BroadcastPath()
     {   // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (Path == null || Path.Count == 0) return;
@@ -206,7 +206,7 @@ public partial class GameObject : IGameObject
     {
         Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp});
     }
-
+    
     public virtual void BroadcastShield()
     {
         Room?.Broadcast(new S_ChangeShield { ObjectId = Id, ShieldRemain = ShieldRemain, ShieldAdd = ShieldAdd});
