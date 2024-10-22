@@ -44,6 +44,10 @@ public class FlowerPot : Sprout
     {
         base.Init();
         UnitRole = Role.Ranger;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.FlowerPot3Hit);
+        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotFireResistDown);
+        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotDoubleTargets);
     }
     
     protected override void AttackImpactEvents(long impactTime)
@@ -59,11 +63,11 @@ public class FlowerPot : Sprout
             if (_hitCount == 3 && _3Hit)
             {
                 _hitCount = 0;
-                _projectile = Room.SpawnProjectile(ProjectileId.Sprout3HitFire, this, 5f);
+                _projectile = Room.SpawnProjectile(ProjectileId.Sprout3HitFire, this, 5);
             }
             else
             {
-                _projectile = Room.SpawnProjectile(ProjectileId.SproutFire, this, 5f);
+                _projectile = Room.SpawnProjectile(ProjectileId.SproutFire, this, 5);
             }
         });
     }

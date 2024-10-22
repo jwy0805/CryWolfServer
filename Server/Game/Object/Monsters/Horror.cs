@@ -6,10 +6,10 @@ namespace Server.Game;
 
 public class Horror : Creeper
 {
-    private bool _poisonImmunity = false;
-    private bool _rollPoison = false;
-    private bool _poisonSmog = false;
-    private bool _division = false;
+    private bool _poisonImmunity;
+    private bool _rollPoison;
+    private bool _poisonSmog;
+    private bool _division;
     private readonly int _divisionNum = 2;
     private readonly float _poisonSmogRange = 3;
     private PositionInfo _poisonSmogPos = new();
@@ -57,7 +57,7 @@ public class Horror : Creeper
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
         }
-        
+
         switch (State)
         {
             case State.Die:
@@ -125,12 +125,12 @@ public class Horror : Creeper
 
         Room.Push(AddBuffAction, BuffId.Addicted,
             BuffParamType.Percentage, target, this, 0.05f, 5000, true);
-        Room.Push(OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (_poisonSmog == false || Mp < MaxMp) return;
         Mp = 0;
         _poisonSmogPos = new PositionInfo { PosX = targetPos.X, PosY = targetPos.Y + 0.5f, PosZ = targetPos.Z };
-        Room.SpawnEffect(EffectId.PoisonSmog, this, _poisonSmogPos, false, 4000);
+        Room.SpawnEffect(EffectId.PoisonSmog, this, this, _poisonSmogPos, false, 4000);
     }
     
     public override void ApplyEffectEffect()
@@ -154,9 +154,9 @@ public class Horror : Creeper
         Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Normal, false);
         if (_rollPoison == false) return;
         
-        Room.SpawnEffect(EffectId.HorrorRoll, this, PosInfo);
+        Room.SpawnEffect(EffectId.HorrorRoll, this, this, PosInfo);
         var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
-        var targets = Room.FindTargetsInAngleRange(this, types, 5, 60);
+        var targets = Room.FindTargetsInAngleRange(this, SavedDir, types, 5, 60);
         
         foreach (var gameObject in targets)
         {
@@ -220,16 +220,17 @@ public class Horror : Creeper
         if (Room == null) return;
         
         Targetable = false;
+        State = State.Die;
+        Room.RemoveAllBuffs(this);
+        
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-                attacker.Target = null;
+                attacker.Parent.Target = null;
             }
         }
         
@@ -251,7 +252,7 @@ public class Horror : Creeper
                 State = State.Divide,
                 Dir = Dir
             };
-
+            
             // Division to two Creepers
             if (_division)
             {

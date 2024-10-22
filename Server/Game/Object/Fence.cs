@@ -24,22 +24,22 @@ public class Fence : GameObject
     {
         if (Room == null) return;
 
-        var yield = 0;
         Targetable = false;
-        
+
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            var monster = attacker as Monster ?? attacker.Parent as Monster;
+            if (monster != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null)
-                    {
-                        attacker.Parent.Target = null;
-                    }
-                }
-                attacker.Target = null;
+                Room.YieldDna(this, monster.DnaYield);
+            }
+
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
+            {
+                attacker.Parent.Target = null;
             }
         }
         

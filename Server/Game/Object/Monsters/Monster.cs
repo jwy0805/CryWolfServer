@@ -51,17 +51,16 @@ public class Monster : Creature, ISkillObserver
         
         Targetable = false;
         State = State.Die;
+        Room.RemoveAllBuffs(this);
         
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-                attacker.Target = null;
+                attacker.Parent.Target = null;
             }
         }
         

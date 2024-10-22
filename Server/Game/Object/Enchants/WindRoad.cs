@@ -1,4 +1,6 @@
 using Google.Protobuf.Protocol;
+using Server.Util;
+
 namespace Server.Game.Enchants;
 
 public class WindRoad : Enchant
@@ -16,8 +18,8 @@ public class WindRoad : Enchant
             
             var parent = Room.FindPlayer(player => player is Player { Faction: Faction.Wolf });
             var effectPos = new PositionInfo { PosX = 0, PosY = 6.1f, PosZ = 15 };
-            var effectName = (EffectId)Enum.Parse(typeof(EffectId), $"WindRoadEffect{EnchantLevel}");
-            Room.SpawnEffect(effectName, parent, effectPos, false, 5000);
+            var effectName = $"WindRoadEffect{EnchantLevel}".ToEnum<EffectId>();
+            Room.SpawnEffect(effectName, parent, parent, effectPos, false, 5000);
         }   
     }
     

@@ -124,7 +124,7 @@ public class SkeletonGiant : Skeleton
             if (Target == null || Room == null || Hp <= 0) return;
             AttackEnded = true;
             Mp = 0;
-            Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, PosInfo);
+            Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, this, PosInfo);
             
             foreach (var target in DebuffTargets)
             {
@@ -140,7 +140,7 @@ public class SkeletonGiant : Skeleton
         
         var targetPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
         var effectPos = new PositionInfo { PosX = targetPos.X, PosY = targetPos.Y + 0.5f, PosZ = targetPos.Z };
-        Room.SpawnEffect(EffectId.SkeletonGiantEffect, target, effectPos, true);
+        Room.SpawnEffect(EffectId.SkeletonGiantEffect, this, target, effectPos, true);
         
         if (PreviousTargetId != target.Id)
         {
@@ -205,14 +205,17 @@ public class SkeletonGiant : Skeleton
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            var monster = attacker as Monster ?? attacker.Parent as Monster;
+            if (monster != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-
-                attacker.Target = null;
+                Room.YieldDna(this, monster.DnaYield);
+            }
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
+            {
+                attacker.Parent.Target = null;
             }
         }
         

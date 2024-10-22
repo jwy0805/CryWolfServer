@@ -104,7 +104,7 @@ public class Hermit : Spike
         if (Room == null) return;
         if (_recoverBurn)
         {
-            Room.SpawnEffect(EffectId.HermitRecoverBurn, this, PosInfo, true, 2700);
+            Room.SpawnEffect(EffectId.HermitRecoverBurn, this, this, PosInfo, true, 2700);
             var types = new[] { GameObjectType.Tower };
             var targets = Room.FindTargets(this, types, _recoverBurnRange);
             foreach (var target in targets.Select(target => target as Creature))

@@ -45,6 +45,12 @@ public class SnakeNaga : Snake
     {
         base.Init();
         UnitRole = Role.Mage;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaBigFire);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaDrain);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaCritical);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaSuperAccuracy);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaMeteor);
     }
     
     public override void Update()
@@ -128,7 +134,7 @@ public class SnakeNaga : Snake
             AttackEnded = true;
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
-            Room.SpawnProjectile(_bigFire ? ProjectileId.SnakeNagaFire : ProjectileId.SnakeNagaBigFire,
+            Room.SpawnProjectile(_bigFire ? ProjectileId.SnakeNagaBigFire : ProjectileId.SnakeNagaFire,
                 this, 5f);
         });
     }
@@ -164,7 +170,7 @@ public class SnakeNaga : Snake
                 };
             }
            
-            Room.SpawnEffect(EffectId.Meteor, this, _meteorPos, false, 5000);
+            Room.SpawnEffect(EffectId.Meteor, this, this, _meteorPos, false, 5000);
             Mp = 0;
         });
     }

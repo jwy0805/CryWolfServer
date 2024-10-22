@@ -241,7 +241,7 @@ public partial class Map
         int x = (int)((x1 + x2) / 2);
         
         var center = new Vector2Int(x, (int)((n1 + n2) / 2));
-        if (CanGo(go, center, true)) return center;
+        if (CanGo(go, center)) return center;
 
         var centerAdjusted = go.Target != null 
             ? Vector3To2(GetClosestPoint(Vector2To3(center), go.Target)) : center;
@@ -275,7 +275,8 @@ public partial class Map
 
 	public List<Vector3> FindPath(
         GameObject gameObject, Vector2Int startCellPos, Vector2Int destCellPos, bool checkObjects = true)
-    {   // 점수 매기기
+    {   
+        // 점수 매기기
 		// F = G + H
 		// F = 최종 점수 (작을 수록 좋음, 경로에 따라 달라짐)
 		// G = 시작점에서 해당 좌표까지 이동하는데 드는 비용 (작을 수록 좋음, 경로에 따라 달라짐)
@@ -298,7 +299,11 @@ public partial class Map
 
 		while (pq.Count > 0)
 		{
-            if (pq.Count > 250) return new List<Vector3>();                                                             // 길찾기 실패 (경로가 존재하지 않음)
+            if (pq.Count > 160)
+            {
+                // 길찾기 실패 (경로가 존재하지 않음)
+                return new List<Vector3>();
+            }                                                           
             
 			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
 			Pos node = new Pos(pqNode.Z, pqNode.X);
@@ -311,8 +316,9 @@ public partial class Map
 				Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 
 				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
-                {   // 벽으로 막혀서 갈 수 없으면 스킵
-                    if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) continue; // CellPos
+                {   
+                    // 벽으로 막혀서 갈 수 없으면 스킵
+                    if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) { continue; } 
                 }
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
@@ -383,7 +389,24 @@ public partial class Map
 
     public Vector3 GetClosestPoint(Vector3 cellPos, GameObject target)
     {
-        Vector3 targetCellPos = target.CellPos;
+        Vector3 destVector = GetClosestVector(cellPos, target);
+        // List<Vector3> path = FindPath();
+        //
+        // if (path.Count == 0)
+        // {
+        //        
+        // }
+        // else
+        // {
+        //     return destVector;
+        // }
+
+        return destVector;
+    }
+
+    private Vector3 GetClosestVector(Vector3 cellPos, GameObject target)
+    {
+        Vector3 targetCellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
         Vector3 destVector;
         
         double sizeX = 0.25 * (target.Stat.SizeX - 1);
@@ -403,7 +426,7 @@ public partial class Map
 
             switch (theta)
             {
-                case >= 45 and <= 135:          // up (target is upper than object)
+                case >= 45 and <= 135:          // up (target is above object)
                     z = targetCellPos.Z - sizeZ;
                     x = (z - zIntercept) / slope;
                     destVector = Util.Util.NearestCell(new Vector3((float)x, (float)y, (float)z));            // 0.27 이런좌표를 0.25로 변환 

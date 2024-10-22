@@ -146,7 +146,7 @@ public partial class GameRoom
 
         resource.Yield = yield;
         resource.CellPos = gameObject.CellPos + new Vector3(0, 0.5f, 0);
-        resource.Player = gameObject.Player;
+        resource.Player = _players.FirstOrDefault(pair => pair.Value.Faction == Faction.Sheep).Value;
         resource.Init();
         Push(EnterGame, resource);
     }

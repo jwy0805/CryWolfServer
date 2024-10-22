@@ -45,6 +45,10 @@ public class CactusBoss : Cactus
         base.Init();
         UnitRole = Role.Tanker;
         ReflectionRate = 10;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossRush);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossBreath);
+        Player.SkillSubject.SkillUpgraded(Skill.CactusBossHeal);
     }
 
     public override void Update()
@@ -149,11 +153,13 @@ public class CactusBoss : Cactus
         
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             MoveSpeed -= _rushSpeed;
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(CellPos, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -162,6 +168,7 @@ public class CactusBoss : Cactus
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        
         if (distance <= TotalAttackRange)
         {   
             // Attack3 = SMASH Animation
@@ -209,7 +216,7 @@ public class CactusBoss : Cactus
             {
                 Dir = Dir, PosX = Target.PosInfo.PosX, PosY = Target.PosInfo.PosY, PosZ = Target.PosInfo.PosZ
             };
-            Room.SpawnEffect(EffectId.CactusBossSmashEffect, Target, posInfo);
+            Room.SpawnEffect(EffectId.CactusBossSmashEffect, this, Target, posInfo);
             Room.Push(Target.OnDamaged, this, SmashDamage, Damage.Normal, false);
         });
     }
@@ -219,7 +226,7 @@ public class CactusBoss : Cactus
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
-            Room.SpawnEffect(EffectId.CactusBossBreathEffect, this);
+            Room.SpawnEffect(EffectId.CactusBossBreathEffect, this, this);
             ApplyBreathEffect();
             Mp = 0;
         });
@@ -230,8 +237,8 @@ public class CactusBoss : Cactus
         if (Room == null || AddBuffAction == null) return;
         
         var types = new List<GameObjectType> { GameObjectType.Tower, GameObjectType.Sheep };
-        var targetList = Room.FindTargetsInAngleRange(this, types, 80, 90);
-        foreach (var target in targetList)
+        var targets = Room.FindTargetsInAngleRange(this, Dir, types, 5, 90);
+        foreach (var target in targets)
         {
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             
@@ -247,7 +254,7 @@ public class CactusBoss : Cactus
         if (_breathHeal)
         {
             Room.Push(AddBuffAction, BuffId.HealBuff, 
-                BuffParamType.Constant, this, this, HealParam * targetList.Count, 1000, true);
+                BuffParamType.Constant, this, this, HealParam * targets.Count, 1000, true);
         }
     }
 

@@ -36,10 +36,6 @@ public class Haunt : Soul
     {
         base.Init();
         UnitRole = Role.Mage;
-        Player.SkillSubject.SkillUpgraded(Skill.HauntFireResist);
-        Player.SkillSubject.SkillUpgraded(Skill.HauntPoisonResist);
-        Player.SkillSubject.SkillUpgraded(Skill.HauntFire);
-        Player.SkillSubject.SkillUpgraded(Skill.HauntRange);
     }
     
     protected override void AttackImpactEvents(long impactTime)

@@ -40,7 +40,7 @@ public class GameManager
             Damage.Normal => damage * (100 / (float)(100 + gameObject.TotalDefence)) - gameObject.TotalDefence,
             Damage.Magical =>  damage * (100 / (float)(100 + gameObject.TotalMagicalDefence)),
             Damage.Poison => damage * (100 - gameObject.TotalPoisonResist) / (float)100,
-            _ => 0
+            _ => damage
         };
 
         return (int)totalDamage >= 0 ? (int)totalDamage : 0; 
@@ -51,7 +51,7 @@ public class GameManager
         // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
         public int RoundTime => 20000;
         public float GroundHeight => 6.0f;
-        public float AirHeight => 8.0f;
+        public float AirHeight => 8.0f;  
         public Vector3 Center => new(0, 6.0f, 0);
         public int[] BaseUpgradeCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };

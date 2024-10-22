@@ -87,7 +87,7 @@ public partial class GameRoom
                         fence = SpawnFence(newFenceCellPos, StorageLevel);
                     }
                     
-                    SpawnEffect(EffectId.MoveForwardEffect, fence);
+                    SpawnEffect(EffectId.MoveForwardEffect, fence, fence);
 
                     // Move forward towers
                     var towers = _towers.Values
@@ -96,7 +96,7 @@ public partial class GameRoom
                     {
                         tower.CellPos += new Vector3 { Z = _forwardParam };
                         tower.BroadcastMoveForward();
-                        SpawnEffect(EffectId.MoveForwardEffect, tower);
+                        SpawnEffect(EffectId.MoveForwardEffect, tower, tower);
                     }
                 }
                 catch (Exception ex)
@@ -117,7 +117,7 @@ public partial class GameRoom
             {
                 tower.CellPos += new Vector3 { Z = _forwardParam };
                 tower.BroadcastMoveForward();
-                SpawnEffect(EffectId.MoveForwardEffect, tower);
+                SpawnEffect(EffectId.MoveForwardEffect, tower, tower);
             }
         }
         catch (Exception ex)

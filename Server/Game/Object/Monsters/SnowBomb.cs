@@ -106,7 +106,7 @@ public class SnowBomb : Bomb
     {
         if (Room == null || AddBuffAction == null) return;
         
-        Room.SpawnEffect(EffectId.SnowBombExplosion, this, PosInfo);
+        Room.SpawnEffect(EffectId.SnowBombExplosion, this, this, PosInfo);
         var targetList = new[] { GameObjectType.Monster };
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
@@ -129,7 +129,7 @@ public class SnowBomb : Bomb
         {
             if (_areaAttack)
             {
-                Room.SpawnEffect(EffectId.SnowBombExplosion, this, posInfo);
+                Room.SpawnEffect(EffectId.SnowBombExplosion, this, this, posInfo);
                 var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
                 var cellPos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
                 var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);

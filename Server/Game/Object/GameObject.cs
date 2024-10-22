@@ -91,7 +91,8 @@ public partial class GameObject : IGameObject
         
         var random = new Random();
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {   // Evasion
+        {   
+            // Evasion
             // TODO: Evasion Effect
             return;
         }
@@ -141,13 +142,11 @@ public partial class GameObject : IGameObject
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-                attacker.Target = null;
+                attacker.Parent.Target = null;
             }
         }
         
@@ -190,7 +189,8 @@ public partial class GameObject : IGameObject
     }
     
     protected virtual void BroadcastPath()
-    {   // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+    {   
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (Path == null || Path.Count == 0) return;
         var pathPacket = new S_SetPath { ObjectId = Id , MoveSpeed = TotalMoveSpeed };
         for (var i = 0; i < Path.Count; i++)

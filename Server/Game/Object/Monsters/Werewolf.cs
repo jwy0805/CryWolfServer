@@ -60,7 +60,7 @@ public class Werewolf : Wolf
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
         
-        Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
+        // Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
@@ -107,7 +107,7 @@ public class Werewolf : Wolf
         {
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             AttackEnded = true;
-            Room.SpawnEffect(EffectId.LightningStrike, this, Target.PosInfo);
+            Room.SpawnEffect(EffectId.LightningStrike, this, this, Target.PosInfo);
             var damage = Math.Max(TotalSkillDamage - Target.TotalDefence, 0);
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
@@ -124,7 +124,7 @@ public class Werewolf : Wolf
         var damage = Math.Max(TotalAttack - target.TotalDefence, 0) 
                      + Math.Max(magicalParam - target.TotalDefence, 0);
         Hp += (int)(damage * DrainParam);
-        Room.SpawnEffect(EffectId.WerewolfMagicalEffect, this, target.PosInfo, true);
+        Room.SpawnEffect(EffectId.WerewolfMagicalEffect, this, this, target.PosInfo, true);
         Room.Push(target.OnDamaged, this, magicalParam, Damage.Magical, false);
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         // TODO : DNA

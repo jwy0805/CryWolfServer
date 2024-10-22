@@ -37,4 +37,9 @@ public static class Extension
     //         return false;
     //     }
     // }
+    
+    public static T ToEnum<T>(this string enumString) where T : Enum
+    {
+        return (T)Enum.Parse(typeof(T), enumString);
+    } 
 }

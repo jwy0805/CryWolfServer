@@ -79,7 +79,7 @@ public class TrainingDummy : TargetDummy
             }
             
             // Heal -> Inherited from TargetDummy
-            Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
+            Room.SpawnEffect(EffectId.StateHeal, this, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);
         });
     }

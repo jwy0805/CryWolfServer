@@ -38,6 +38,11 @@ public class Toadstool : Fungi
     {
         base.Init();
         UnitRole = Role.Ranger;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolClosestAttackAll);
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonResist);
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolNestedPoison);
+        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonCloud);
     }
 
     public override void Update()
@@ -53,7 +58,8 @@ public class Toadstool : Fungi
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
         }
-        
+
+        // Console.WriteLine(State);
         switch (State)
         {
             case State.Die:
@@ -99,7 +105,7 @@ public class Toadstool : Fungi
             {
                 PosX = target.CellPos.X, PosY = target.CellPos.Y, PosZ = target.CellPos.Z
             };
-            Room.SpawnEffect(EffectId.PoisonCloud, this, effectPos, false, 3000);
+            Room.SpawnEffect(EffectId.PoisonCloud, this, this, effectPos, false, 3000);
             Mp = 0;
         }
         

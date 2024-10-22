@@ -168,7 +168,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         }
     }
     
-    public int WolfYield { get; set; } = 8;
+    public int WolfYield { get; set; } = 800;
     public int WolfYieldKillTower => WolfYield * 8;
     public int WolfYieldKillFence => WolfYield * 10;
     public int WolfYieldKillSheep => WolfYield * 20;

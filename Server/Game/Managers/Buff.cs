@@ -194,7 +194,7 @@ public class HealBuff : Buff
     
     public override void TriggerBuff()
     {
-        Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        Room?.SpawnEffect(EffectId.StateHeal, Caster, Master, Master.PosInfo, true);
         CalculateFactor();
         Master.Hp += (int)Factor;
         RemoveBuff();
@@ -221,7 +221,7 @@ public class HealthBuff : Buff
     
     public override void TriggerBuff()
     {
-        Room?.SpawnEffect(EffectId.StateHeal, Master, Master.PosInfo, true);
+        Room?.SpawnEffect(EffectId.StateHeal, Caster, Master, Master.PosInfo, true);
         CalculateFactor();
         Master.MaxHp += (int)Factor;
         Master.Hp += (int)Factor;
@@ -368,7 +368,7 @@ public class Invincible : Buff
     
     public override void TriggerBuff()
     {
-        Room?.SpawnEffect(EffectId.HolyAura, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.HolyAura, Caster, Master, Master.PosInfo, true, (int)Duration);
         Master.Invincible = true;
     }
  
@@ -571,7 +571,7 @@ public class Curse : Buff
     
     public override void TriggerBuff()
     {
-        Room?.SpawnEffect(EffectId.StateCurse, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateCurse, Caster, Master, Master.PosInfo, true, (int)Duration);
     }
     
     public override void RemoveBuff()
@@ -604,7 +604,7 @@ public class Addicted : Buff
     
     public override void TriggerBuff()
     {
-        Room?.SpawnEffect(EffectId.StatePoison, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StatePoison, Caster, Master, Master.PosInfo, true, (int)Duration);
     }
 
     public override bool UpdateBuff(long deltaTime)
@@ -632,7 +632,7 @@ public class Aggro : Buff
     public override void TriggerBuff()
     {
         Master.Target = Caster;
-        Room?.SpawnEffect(EffectId.StateAggro, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateAggro, Caster, Master, Master.PosInfo, true, (int)Duration);
     }
 }
 
@@ -649,7 +649,7 @@ public class Burn : Buff
     public override void TriggerBuff()
     {
         Master.Burn = true;
-        Room?.SpawnEffect(EffectId.StateBurn, Master, Master.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateBurn, Caster, Master, Master.PosInfo, true, (int)Duration);
     }
 
     public override void RemoveBuff()
@@ -673,7 +673,7 @@ public class Fainted : Buff
     {
         if (Master is not Creature creature) return;
         creature.OnFaint();
-        Room?.SpawnEffect(EffectId.StateFaint, creature, creature.PosInfo, true, (int)Duration);
+        Room?.SpawnEffect(EffectId.StateFaint, Caster, creature, creature.PosInfo, true, (int)Duration);
     }
     
     public override void RemoveBuff()

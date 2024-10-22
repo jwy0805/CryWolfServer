@@ -111,7 +111,7 @@ public class SkeletonMage : SkeletonGiant
         {
             if (Target == null || Room == null || Hp <= 0 || AddBuffAction == null) return;
             AttackEnded = true;
-            Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, PosInfo);
+            Room.SpawnEffect(EffectId.SkeletonGiantSkill, this, this, PosInfo);
             
             // AttackSteal
             foreach (var target in DebuffTargets)
@@ -132,7 +132,7 @@ public class SkeletonMage : SkeletonGiant
                                  .Where(gameObject => gameObject.Id != Id)
                                  .OrderBy(_ => Guid.NewGuid()).Take(1))
                     {
-                        Room.SpawnEffect(EffectId.WillRevive, creature, creature.PosInfo, true, 1000000);
+                        Room.SpawnEffect(EffectId.WillRevive, this, creature, creature.PosInfo, true, 1000000);
                         creature.WillRevive = true;
                         if (_reviveHealthUp) creature.ReviveHpRate = 0.6f;
                     }
@@ -218,14 +218,11 @@ public class SkeletonMage : SkeletonGiant
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-
-                attacker.Target = null;
+                attacker.Parent.Target = null;
             }
         }
         

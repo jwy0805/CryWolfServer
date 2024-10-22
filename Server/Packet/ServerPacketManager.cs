@@ -25,6 +25,8 @@ class PacketManager
 	{		
 		_onRecv.Add((ushort)MessageId.CEnterGame, MakePacket<C_EnterGame>);
 		_handler.Add((ushort)MessageId.CEnterGame, PacketHandler.C_EnterGameHandler);		
+		_onRecv.Add((ushort)MessageId.CEnterGameNpc, MakePacket<C_EnterGameNpc>);
+		_handler.Add((ushort)MessageId.CEnterGameNpc, PacketHandler.C_EnterGameNpcHandler);		
 		_onRecv.Add((ushort)MessageId.CSetSession, MakePacket<C_SetSession>);
 		_handler.Add((ushort)MessageId.CSetSession, PacketHandler.C_SetSessionHandler);		
 		_onRecv.Add((ushort)MessageId.CSpawn, MakePacket<C_Spawn>);

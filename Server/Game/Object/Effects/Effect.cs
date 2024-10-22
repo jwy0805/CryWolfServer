@@ -4,13 +4,24 @@ namespace Server.Game;
 
 public class Effect : GameObject
 {
+    private int _killLog;
+
+    protected readonly Scheduler Scheduler = new();
+    
     public EffectId EffectId { get; set; }
     public long Duration { get; set; } = 2000;
     public bool PacketReceived { get; set; } = false;
-    protected bool IsHit = false;
-    
-    protected readonly Scheduler Scheduler = new();
 
+    public override int KillLog
+    {
+        get => _killLog;
+        set
+        {
+            _killLog = value;
+            if (Parent != null) Parent.KillLog = value;
+        }
+    }
+    
     protected Effect()
     {
         ObjectType = GameObjectType.Effect;

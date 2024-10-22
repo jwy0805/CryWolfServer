@@ -48,7 +48,7 @@ public class Wolf : WolfPup
         
         if (_magicalAttack)
         {
-            Room.SpawnEffect(EffectId.WolfMagicalEffect, this, target.PosInfo, true);
+            Room.SpawnEffect(EffectId.WolfMagicalEffect, this, this, target.PosInfo, true);
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
         }
         

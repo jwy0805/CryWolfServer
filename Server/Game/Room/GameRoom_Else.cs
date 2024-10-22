@@ -211,8 +211,11 @@ public partial class GameRoom
         {
             if (target.Targetable == false || target.Id == gameObject.Id
                 || (target.UnitType != attackType && attackType != 2)) continue;
-            var pos = target.PosInfo;
-            var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
+            // var pos = target.PosInfo;
+            // var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
+            var targetPos = Map.GetClosestPoint(gameObject.CellPos, target);
+            targetPos = targetPos with { Y = 0 };
+            Console.WriteLine($"TargetPos: {targetPos}, <{target.CellPos.X}, {target.CellPos.Z}>");
             var cellPos = gameObject.CellPos with { Y = 0 };
             var distance = Vector3.Distance(targetPos, cellPos);
             if (distance < closestDistSq == false) continue;
@@ -398,7 +401,7 @@ public partial class GameRoom
     /// <param name="attackType">The specific target type to search for</param>
     /// <returns>List of GameObjects within the angle range</returns>
     #endregion
-    public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, 
+    public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, float dir,
         IEnumerable<GameObjectType> typeList, float skillDist = 100, float angle = 30, int attackType = 0)
     {   
         // 1. 타겟 리스트 생성
@@ -406,7 +409,7 @@ public partial class GameRoom
         if (targetList.Count == 0) return new List<GameObject>();
         
         // 2. 현재 위치와 전방 벡터 계산
-        double radians = gameObject.Dir * (Math.PI / 180);
+        double radians = dir * (Math.PI / 180);
         Vector3 forward = new Vector3((int)Math.Round(Math.Sin(radians)), 0, (int)Math.Round(Math.Cos(radians)));
       
         // 3. 필터링할 목표물 리스트 초기화

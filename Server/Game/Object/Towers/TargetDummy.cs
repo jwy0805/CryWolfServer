@@ -82,7 +82,7 @@ public class TargetDummy : PracticeDummy
         {
             if (Room == null || Hp <= 0) return;
             AttackEnded = true;
-            Room.SpawnEffect(EffectId.StateHeal, this, PosInfo, true);
+            Room.SpawnEffect(EffectId.StateHeal, this, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);
         });
     }

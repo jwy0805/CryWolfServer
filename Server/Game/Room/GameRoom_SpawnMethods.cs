@@ -125,15 +125,15 @@ public partial class GameRoom
         Push(EnterGame, monster);
         return monster;
     }
-
-    public void SpawnEffect(EffectId effectId, GameObject? parent, 
+    
+    public void SpawnEffect(EffectId effectId, GameObject? caster , GameObject? master, 
         PositionInfo? effectPos = null, bool trailing = false, int duration = 2000)
     {
         if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
-        if (parent == null) return;
+        if (master == null) return;
         
         var effect = ObjectManager.Instance.Create<Effect>(effectId);
-        effectPos ??= parent.PosInfo;
+        effectPos ??= master.PosInfo;
         var position = new PositionInfo
         {   
             Dir = effectPos.Dir, 
@@ -141,17 +141,16 @@ public partial class GameRoom
             PosY = effectPos.PosY + 0.05f, 
             PosZ = effectPos.PosZ
         };
-        var parentCopied = FindGameObjectById(parent.Id);
-        if (parentCopied == null) return;
+        
         effect.Room = this;
         effect.PosInfo = position;
         effect.Info.PosInfo = effect.PosInfo;
         effect.Info.Name = effectId.ToString();
         effect.EffectId = effectId;
-        effect.Parent = parentCopied;
+        effect.Parent = caster;
         effect.Duration = duration;
         effect.Init();
-        Push(EnterGameEffect, effect, parentCopied.Id, trailing, duration);
+        Push(EnterGameEffect, effect, master.Id, trailing, duration);
     }
     
     public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)

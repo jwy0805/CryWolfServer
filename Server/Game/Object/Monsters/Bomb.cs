@@ -150,7 +150,7 @@ public class Bomb : Monster
         }
         else
         {
-            Room.SpawnEffect(EffectId.BombSkillExplosion, this, posInfo);
+            Room.SpawnEffect(EffectId.BombSkillExplosion, this, this, posInfo);
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
         }
     }

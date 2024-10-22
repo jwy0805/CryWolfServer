@@ -13,6 +13,7 @@ public class Creeper : Lurker
     private readonly int _divideDuration = 800;
     
     protected bool Rushed = false;
+    protected float SavedDir;
     protected readonly int RushSpeed = 4;
     protected readonly float BounceParam = 1f;
     
@@ -44,6 +45,7 @@ public class Creeper : Lurker
     {
         base.Init();
         UnitRole = Role.Ranger;
+        Player.SkillSubject.SkillUpgraded(Skill.CreeperPoison);
     }
     
     public override void Update()
@@ -106,7 +108,8 @@ public class Creeper : Lurker
         
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {  
+            // Target이 없거나 타겟팅이 불가능한 경우
             MoveSpeed -= RushSpeed;
             State = State.Idle;
             return;
@@ -120,6 +123,7 @@ public class Creeper : Lurker
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
+        if (deltaX != 0 || deltaZ != 0) SavedDir = Dir;
         
         // Roll 충돌 처리
         if (distance <= /*Stat.SizeX * 0.25 +*/ 1f)
@@ -201,8 +205,8 @@ public class Creeper : Lurker
             if (Room == null) return;
             AttackEnded = true;
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
-            if (State == State.Faint) return;            Room.SpawnProjectile(_poison ?
-                ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5f);            
+            if (State == State.Faint) return;            
+            Room.SpawnProjectile(_poison ? ProjectileId.SmallPoison : ProjectileId.BasicProjectile, this, 5);            
         });
     }
 
@@ -255,16 +259,17 @@ public class Creeper : Lurker
         if (Room == null) return;
         
         Targetable = false;
+        State = State.Die;
+        Room.RemoveAllBuffs(this);
+        
         if (attacker != null)
         {
             attacker.KillLog = Id;
-            if (attacker.Target != null)
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
-                if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile)
-                {
-                    if (attacker.Parent != null) attacker.Parent.Target = null;
-                }
-                attacker.Target = null;
+                attacker.Parent.Target = null;
             }
         }
         

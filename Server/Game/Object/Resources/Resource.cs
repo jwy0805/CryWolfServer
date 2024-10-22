@@ -21,7 +21,8 @@ public class Resource : GameObject
     public override void Init()
     {
         if (Room == null) return;
-        DestPos = Player.CellPos;
+        if (Player == null) return;
+        DestPos = new Vector3(Player.PosInfo.PosX, Player.PosInfo.PosY, Player.PosInfo.PosZ);
         MoveSpeed = 8;
         CalculateYieldTime();
     }

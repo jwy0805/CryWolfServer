@@ -62,7 +62,7 @@ public class SoulMage : Haunt
                 { 
                     PosX = CellPos.X, PosY = CellPos.Y + 4, PosZ = CellPos.Z, Dir = Dir
                 };
-                Room.SpawnEffect(EffectId.GreenGate, this, effectPos, false, 3500);
+                Room.SpawnEffect(EffectId.GreenGate, this, this, effectPos, false, 3500);
                 Mp = 0;
                 return;
             }
@@ -148,7 +148,7 @@ public class SoulMage : Haunt
                 PosX = CellPos.X, PosY = CellPos.Y, PosZ = CellPos.Z, Dir = Dir
             };
                 
-            Room?.SpawnEffect(EffectId.SoulMagePunch, this, effectPos);
+            Room?.SpawnEffect(EffectId.SoulMagePunch, this, this, effectPos);
         });
     }
 
@@ -239,20 +239,20 @@ public class SoulMage : Haunt
         switch (random)
         {
             case 0:
-                Room.SpawnEffect(EffectId.NaturalTornado, _effectTarget, effectPos, true, 3000);
+                Room.SpawnEffect(EffectId.NaturalTornado, this, _effectTarget, effectPos, true, 3000);
                 NaturalTornadoEvents(100);
                 NaturalTornadoEvents(800);
                 NaturalTornadoEvents(1500);
                 NaturalTornadoEvents(2200);
                 break;
             case 1:
-                Room.SpawnEffect(EffectId.StarFall, this, effectPos, false, 3000);
+                Room.SpawnEffect(EffectId.StarFall, this, this, effectPos, false, 3000);
                 StarFallEvents(500, effectPos);
                 StarFallEvents(1000, effectPos);
                 StarFallEvents(1500, effectPos);
                 break;
             default:
-                Room.SpawnEffect(EffectId.PurpleBeam, _effectTarget, effectPos, true, 4000);
+                Room.SpawnEffect(EffectId.PurpleBeam, this, _effectTarget, effectPos, true, 4000);
                 PurpleBeamEvents(900);
                 PurpleBeamEvents(1150);
                 PurpleBeamEvents(1400);

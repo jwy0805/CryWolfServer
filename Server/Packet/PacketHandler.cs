@@ -19,6 +19,22 @@ public class PacketHandler
         player.CharacterId = (CharacterId)enterPacket.CharacterId;
         player.AssetId = enterPacket.AssetId;
     }
+
+    public static void C_EnterGameNpcHandler(PacketSession session, IMessage packet)
+    {
+        var enterPacket = (C_EnterGameNpc)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        if (player == null) return;
+        
+        var faction = enterPacket.IsSheep ? Faction.Sheep : Faction.Wolf;
+        var npc = player.Room?.FindPlayer(go => go is Player npc && npc.Id != player.Id);
+        if (npc == null) return;
+        
+        npc.Faction = faction;
+        npc.CharacterId = (CharacterId)enterPacket.CharacterId;
+        npc.AssetId = enterPacket.AssetId;
+    }
     
     public static async void C_SetSessionHandler(PacketSession session, IMessage packet)
     {
@@ -34,11 +50,24 @@ public class PacketHandler
             clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
             clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.ObjectId}";
             clientSession.MyPlayer.Info.PosInfo = playerPos;
+            clientSession.MyPlayer.PosInfo = playerPos;
             clientSession.MyPlayer.Session = clientSession;
         
             GameLogic.Instance.Push(() =>
             {
                 var room = GameLogic.Instance.CreateGameRoom(1, true);
+                
+                // Enter NPC player
+                var npcPlayer = ObjectManager.Instance.Add<Player>();
+                var npaPlayerPos = sessionPacket.Faction == Faction.Sheep 
+                    ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 } 
+                    : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 };
+                npcPlayer.Info.Name = $"NPC_{npcPlayer.Info.ObjectId}";
+                npcPlayer.Info.PosInfo = npaPlayerPos;
+                npcPlayer.PosInfo = npaPlayerPos;
+                room.Push(room.EnterGame, npcPlayer);
+                
+                // Enter player
                 room.Push(room.EnterGame, clientSession.MyPlayer);
             });
         }

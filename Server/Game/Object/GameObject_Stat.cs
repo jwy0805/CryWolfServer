@@ -314,6 +314,24 @@ public partial class GameObject
         set => Stat.Resource = value;
     }
     
+    public int SizeX
+    {
+        get => Stat.SizeX;
+        set => Stat.SizeX = value;
+    }
+    
+    // public int SizeY
+    // {
+    //     get => Stat.SizeY;
+    //     set => Stat.SizeY = value;
+    // }
+    
+    public int SizeZ
+    {
+        get => Stat.SizeZ;
+        set => Stat.SizeZ = value;
+    }
+    
     public int AttackParam { get; set; }
     public float AttackSpeedParam { get; set; }
     public int SkillParam { get; set; }

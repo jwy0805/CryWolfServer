@@ -149,8 +149,7 @@ public class Hare : Rabbit
                     }
                 
                     SpawnClone(posInfo, Player);
-                    Room.SpawnEffect(EffectId.HareEffect, 
-                        this, PosInfo, false, (int)(StdAnimTime / TotalAttackSpeed));
+                    Room.SpawnEffect(EffectId.HareEffect, this, this, PosInfo, false, (int)(StdAnimTime / TotalAttackSpeed));
                 }
             }
             else
@@ -193,7 +192,7 @@ public class Hare : Rabbit
         tower.Parent = this;
         tower.Init();
         Room?.Push(Room.EnterGame, tower);
-        Room?.SpawnEffect(EffectId.HareCloneEffect, this, clonePos);
+        Room?.SpawnEffect(EffectId.HareCloneEffect, this, this, clonePos);
     }
 
     protected override void SetNextState()

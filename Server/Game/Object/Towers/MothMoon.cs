@@ -113,7 +113,7 @@ public class MothMoon : MothLuna
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
 
-            Room.SpawnProjectile(ProjectileId.MothCelestialPoison, this, 5f);
+            Room.SpawnProjectile(ProjectileId.MothMoonProjectile, this, 5f);
         });
     }
 

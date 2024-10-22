@@ -5,6 +5,7 @@ using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Game.Enchants;
 using Server.Game.Resources;
+using Server.Util;
 
 namespace Server.Game;
 
@@ -140,7 +141,7 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Tower:
                 var tower = (Tower)gameObject;
                 if (tower.UnitType == 1) gameObject.PosInfo.PosY += 2;
-                gameObject.Info.Name = Enum.Parse(typeof(UnitId), tower.UnitId.ToString()).ToString();
+                gameObject.Info.Name = tower.UnitId.ToString();
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
                 _towers.Add(gameObject.Id, tower);
@@ -151,7 +152,7 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Monster:
                 var monster = (Monster)gameObject;
                 if (monster.UnitType == 1) gameObject.PosInfo.PosY += 2;
-                gameObject.Info.Name = Enum.Parse(typeof(UnitId), monster.UnitId.ToString()).ToString();
+                gameObject.Info.Name = monster.UnitId.ToString();
                 gameObject.PosInfo.Dir = 180;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
@@ -162,7 +163,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.MonsterStatue:
                 var statue = (MonsterStatue)gameObject;
-                var monsterName = Enum.Parse(typeof(UnitId), statue.UnitId.ToString()).ToString();
+                var monsterName = statue.UnitId.ToString();
                 gameObject.Info.Name = string.Concat(monsterName, "Statue");
                 statue.Info = gameObject.Info;
                 _statues.Add(gameObject.Id, statue);
@@ -181,7 +182,7 @@ public partial class GameRoom : JobSerializer
             case GameObjectType.Sheep:
                 var sheep = (Sheep)gameObject;
                 gameObject.PosInfo.State = State.Idle;
-                gameObject.Info.Name = Enum.Parse(typeof(SheepId), sheep.SheepId.ToString()).ToString();
+                gameObject.Info.Name = sheep.SheepId.ToString();
                 sheep.Info = gameObject.Info;
                 _sheeps.Add(gameObject.Id, sheep);
                 sheep.Room = this;
@@ -191,7 +192,7 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.Resource:
                 var resource = (Resource)gameObject;
-                resource.Info.Name = Enum.Parse(typeof(ResourceId), resource.ResourceId.ToString()).ToString();
+                resource.Info.Name = resource.ResourceId.ToString();
                 resource.Room = this;
                 resource.Player = gameObject.Player;
                 resource.Info = gameObject.Info;

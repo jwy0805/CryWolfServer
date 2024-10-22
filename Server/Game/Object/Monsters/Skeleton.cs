@@ -126,11 +126,11 @@ public class Skeleton : Monster
                 if (target.Hp <= 0) return;
             }
             
-            Room.SpawnEffect(EffectId.SkeletonAdditionalEffect, target, effectPos, true, duration);
+            Room.SpawnEffect(EffectId.SkeletonAdditionalEffect, this, target, effectPos, true, duration);
         }
         else
         {
-            Room.SpawnEffect(EffectId.SkeletonEffect, target, effectPos, true, duration);
+            Room.SpawnEffect(EffectId.SkeletonEffect, this, target, effectPos, true, duration);
         }
     }
 

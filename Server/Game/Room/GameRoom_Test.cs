@@ -8,7 +8,7 @@ public partial class GameRoom
     {
         var player = _npc;
         var statue = SpawnMonsterStatue(monsterId, pos, player);
-        SpawnEffect(EffectId.Upgrade, statue);
+        SpawnEffect(EffectId.Upgrade, statue, statue);
     }
     
     private void SkillUpgrade(Skill skill)
@@ -29,7 +29,7 @@ public partial class GameRoom
         var player = _npc;
         var newStatue = SpawnMonsterStatue(monsterId, newPos, player);
         LeaveGame(oldStatueId);
-        SpawnEffect(EffectId.Upgrade, statue);
+        SpawnEffect(EffectId.Upgrade, statue, statue);
     }
     
     private void SetTutorialStatues(int round)

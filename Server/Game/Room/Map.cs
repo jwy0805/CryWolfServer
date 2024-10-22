@@ -16,13 +16,13 @@ public partial class Map
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
         if (gameObject.Room.Map != this) return false;
-       
+        
         StatInfo stat = gameObject.Stat;
         Vector2Int v = Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
         
         if (gameObject.ObjectType != GameObjectType.Fence)
         {
-            bool canGo = CanGo(gameObject, v, checkObjects, gameObject.Stat.SizeX);
+            bool canGo = CanGo(gameObject, v, checkObjects);
             if (canGo == false)
             {
                 gameObject.BroadcastPos();
@@ -174,7 +174,7 @@ public partial class Map
         return cnt == 0;
     }
     
-    public bool CanGo(GameObject go, Vector2Int cellPos, bool checkObjects = true, int size = 1)
+    public bool CanGo(GameObject go, Vector2Int cellPos, bool checkObjects = true)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
         if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
@@ -183,6 +183,7 @@ public partial class Map
         Pos pos = Cell2Pos(cellPos);
         int x = pos.X;
         int z = pos.Z;
+        int size = go.SizeX;
         
         int cnt = 0;
         for (int i = x - (size - 1); i <= x + (size - 1); i++)
@@ -210,13 +211,17 @@ public partial class Map
         int startRegionId = GetRegionByVector(startCell);
         int destRegionId = GetRegionByVector(destCell);
         List<int> regionPath = RegionPath(startRegionId, destRegionId);
+        
         // Path 추출
         List<Vector2Int> center = new List<Vector2Int>();
         foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
         List<double> arctan = new List<double>();
         Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
         List<Vector3> path = FindPath(go, startCell, destCellVector, checkObjects).Distinct().ToList();
-        // if (path.Count == 0) return (new List<Vector3>(), new List<double>());
+        
+        // Find new destination if the path is blocked
+        if (path.Count == 0) return (new List<Vector3>(), new List<double>());
+        
         // Dir(유닛이 어느 방향을 쳐다보는지) 추출
         for (int i = 0; i < path.Count - 1; i++)
         {
@@ -299,7 +304,8 @@ public partial class Map
     }
     
     public (List<Vector3>, List<double>) KnockBack(GameObject go, double d, bool checkObjects = false)
-    {   // KnockBack은 이동과 다르게 충돌체크 없이 순수 이동경로를 구한 후 이동 중 충돌하면 IDLE로 상태 변화
+    {   
+        // KnockBack은 이동과 다르게 충돌체크 없이 순수 이동경로를 구한 후 이동 중 충돌하면 IDLE로 상태 변화
         Vector2Int startCell = Vector3To2(go.CellPos);
         Vector2Int destCell = Vector3To2(go.DestPos);
         List<Vector3> path = FindPath(go, startCell, destCell, checkObjects).Distinct().ToList();
@@ -392,7 +398,7 @@ public partial class Map
             float z = (float)(random.Next(minZ, maxZ) * (double)1 / _cellCnt);
             cell = new Vector3(x, 6, z);
             
-            if (CanGo(gameObject, Vector3To2(cell), true, gameObject.Stat.SizeX))
+            if (CanGo(gameObject, Vector3To2(cell)))
                 canSpawn = true;
         }
 

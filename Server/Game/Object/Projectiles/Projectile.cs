@@ -6,8 +6,21 @@ namespace Server.Game;
 
 public class Projectile : GameObject
 {
-    protected readonly Scheduler Scheduler = new();   
+    private int _killLog;
+    
+    protected readonly Scheduler Scheduler = new();  
+    
     public ProjectileId ProjectileId { get; set; }
+
+    public override int KillLog
+    {
+        get => _killLog;
+        set
+        {
+            _killLog = value;
+            if (Parent != null) Parent.KillLog = value;
+        }
+    }
     
     public Projectile()
     {
@@ -22,7 +35,7 @@ public class Projectile : GameObject
             Room.Push(Room.LeaveGame, Id);
             return;
         }
-        
+
         CalculateAttackTime();
     }
 
