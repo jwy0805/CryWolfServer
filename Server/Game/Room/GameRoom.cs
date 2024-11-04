@@ -44,6 +44,12 @@ public partial class GameRoom : JobSerializer
     public int MapId { get; set; }
     public GameManager.GameData GameData { get; set; } = new();
     
+    public struct TargetDistance
+    {
+        public GameObject Target;
+        public float Distance;
+    }
+    
     public void Init(int mapId)
     {
         GameData = GameManager.Instance.GameDataCache[mapId];

@@ -79,14 +79,12 @@ public partial class GameRoom
         }
     }
 
-    #region Summary
     /// <summary>
     /// Find a Nearest Target.
     /// </summary>
     /// <param name="gameObject"></param>
     /// <param name="attackType"></param>
     /// <returns>a Nearest Target GameObject</returns>
-    #endregion
     public GameObject? FindClosestTarget(GameObject gameObject, int attackType = 0)
     {   
         // 어그로 끌린 상태면 리턴
@@ -164,17 +162,7 @@ public partial class GameRoom
     {
         var type = go.ObjectType;
         if (type is GameObjectType.Tower or GameObjectType.Sheep) return true;
-        
-        if (go.Way == SpawnWay.North)
-        {
-            if (GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt) return true;
-        }
-        else
-        {
-            if (GameInfo.SouthFenceCnt < GameInfo.SouthMaxFenceCnt) return true;
-        }
-
-        return false;
+        return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt;
     }
     
     private IEnumerable<GameObject> GetTargets(GameObjectType type)
@@ -204,26 +192,22 @@ public partial class GameRoom
     
     private GameObject? MeasureShortestDist(GameObject gameObject, List<GameObject> targets, int attackType)
     {
-        GameObject? closest = null;
-        var closestDistSq = float.MaxValue;
-
+        PriorityQueue<TargetDistance, float> pq = new();
+        
         foreach (var target in targets)
         {
             if (target.Targetable == false || target.Id == gameObject.Id
                 || (target.UnitType != attackType && attackType != 2)) continue;
-            // var pos = target.PosInfo;
-            // var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
-            var targetPos = Map.GetClosestPoint(gameObject.CellPos, target);
+            
+            var targetPos = Map.Vector2To3(Map.FindNearestEmptySpace(
+                Map.Vector3To2(Map.GetClosestPoint(gameObject, target)), gameObject));
             targetPos = targetPos with { Y = 0 };
-            Console.WriteLine($"TargetPos: {targetPos}, <{target.CellPos.X}, {target.CellPos.Z}>");
             var cellPos = gameObject.CellPos with { Y = 0 };
             var distance = Vector3.Distance(targetPos, cellPos);
-            if (distance < closestDistSq == false) continue;
-            closest = target;
-            closestDistSq = distance;
+            pq.Enqueue(new TargetDistance { Target = target, Distance = distance }, distance);
         }
 
-        return closest;
+        return pq.Count > 0 ? pq.Dequeue().Target : null;
     }
     
     private GameObject? GetRandomTarget(GameObject gameObject, List<GameObject> targets, float dist, int attackType)
@@ -341,7 +325,6 @@ public partial class GameRoom
         return target;
     }
 
-    #region Summary
     /// <summary>
     /// Find multiple targets in the range of dist from GameObject
     /// </summary>
@@ -350,7 +333,6 @@ public partial class GameRoom
     /// <param name="dist"></param>
     /// <param name="attackType"></param>
     /// <returns>"plural targets in the range."</returns>
-    #endregion
     public List<GameObject> FindTargets(
         GameObject gameObject, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
@@ -366,7 +348,6 @@ public partial class GameRoom
         return objectsInDist;
     }
 
-    #region Summary
     /// <summary>
     /// Find multiple targets in the range of dist from specific CellPos
     /// </summary>
@@ -375,7 +356,6 @@ public partial class GameRoom
     /// <param name="dist"></param>
     /// <param name="attackType"></param>
     /// <returns>"plural targets in the range."</returns>
-    #endregion
     public List<GameObject> FindTargets(
         Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
@@ -390,7 +370,6 @@ public partial class GameRoom
         return objectsInDist;
     }
     
-    #region Summary
     /// <summary>
     /// Find multiple targets within a certain angle range from the GameObject
     /// </summary>
@@ -400,7 +379,6 @@ public partial class GameRoom
     /// <param name="angle">The half-angle range (in degrees) to search for targets</param>
     /// <param name="attackType">The specific target type to search for</param>
     /// <returns>List of GameObjects within the angle range</returns>
-    #endregion
     public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, float dir,
         IEnumerable<GameObjectType> typeList, float skillDist = 100, float angle = 30, int attackType = 0)
     {   
@@ -439,9 +417,7 @@ public partial class GameRoom
 
         return objectsInAngleRange;
     }
-
-    #region Summary
-
+    
     /// <summary>
     /// Find multiple targets with specific unitIds or species in the range of dist from GameObject
     /// </summary>
@@ -450,8 +426,6 @@ public partial class GameRoom
     /// <param name="unitIds"></param>
     /// <param name="dist"></param>
     /// <returns></returns>
-
-    #endregion
     public List<GameObject> FindTargetsBySpecies(GameObject gameObject, 
         GameObjectType type, IEnumerable<UnitId> unitIds, float dist = 100)
     {

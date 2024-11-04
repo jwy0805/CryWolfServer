@@ -2,7 +2,8 @@ namespace ServerCore;
 
 public class PriorityQueue<T> where T : IComparable<T>
 {
-    private List<T> _heap = new List<T>();
+    // Max Heap
+    private readonly List<T> _heap = new();
     public int Count => _heap.Count;
     
     public void Push(T data)
@@ -50,7 +51,6 @@ public class PriorityQueue<T> where T : IComparable<T>
 
     public T Peek()
     {
-        if (_heap.Count == 0) return default(T);
-        return _heap[0];
+        return _heap.Count == 0 ? default(T) : _heap[0];
     }
 }

@@ -67,10 +67,10 @@ public partial class Map
         switch (stat.UnitType)
         {
             case 0: // 0 -> ground
-                ClearObjects(coordinates, _objects);
+                ClearObjects(gameObject, coordinates, _objects);
                 break;
             case 1: // 1 -> air
-                ClearObjects(coordinates, _objectsAir);
+                ClearObjects(gameObject, coordinates, _objectsAir);
                 break;
             case 2: // 2 -> player
                 foreach (var tuple in coordinates) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
@@ -131,14 +131,19 @@ public partial class Map
     {
         foreach (var (i, j) in coordinates)
         {
+            // grid[i, j] ??= go;
             grid[i, j] = go;
         }
     }
 
-    private void ClearObjects(List<(int, int)> coordinates, GameObject?[,] grid)
+    private void ClearObjects(GameObject gameObject, List<(int, int)> coordinates, GameObject?[,] grid)
     {
         foreach (var (i, j) in coordinates)
         {
+            // if (grid[i, j] != null)
+            // {
+            //     if (grid[i, j]?.Id == gameObject.Id) grid[i, j] = null;
+            // }
             grid[i, j] = null;
         }
     }
@@ -200,24 +205,8 @@ public partial class Map
 
     public (List<Vector3>, List<double>) Move(GameObject go, bool checkObjects = true)
     {
-        Vector2Int startCell = Vector3To2(go.CellPos);
-        Vector2Int destCell = Vector3To2(go.DestPos);
-        if (CanGo(go, destCell, checkObjects) == false)
-        {
-            Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
-            destCell = newDestCell;
-        }
-        
-        int startRegionId = GetRegionByVector(startCell);
-        int destRegionId = GetRegionByVector(destCell);
-        List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        
-        // Path 추출
-        List<Vector2Int> center = new List<Vector2Int>();
-        foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
+        List<Vector3> path = GetPath(go, checkObjects);
         List<double> arctan = new List<double>();
-        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
-        List<Vector3> path = FindPath(go, startCell, destCellVector, checkObjects).Distinct().ToList();
         
         // Find new destination if the path is blocked
         if (path.Count == 0) return (new List<Vector3>(), new List<double>());
@@ -261,23 +250,7 @@ public partial class Map
 
     public List<Vector3> MoveIgnoreCollision(GameObject go)
     {
-        Vector2Int startCell = Vector3To2(go.CellPos);
-        Vector2Int destCell = Vector3To2(go.DestPos);
-        if (CanGo(go, destCell, false) == false)
-        {
-            Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
-            destCell = newDestCell;
-        }
-        
-        int startRegionId = GetRegionByVector(startCell);
-        int destRegionId = GetRegionByVector(destCell);
-        List<int> regionPath = RegionPath(startRegionId, destRegionId);
-        // Path 추출
-        List<Vector2Int> center = new List<Vector2Int>();
-        foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
-        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
-        List<Vector3> path = FindPath(go, startCell, destCellVector, false).Distinct().ToList();
-        
+        List<Vector3> path = GetPath(go, false);
         int moveTick = (int)(go.TotalMoveSpeed * _cellCnt * go.CallCycle / 1000 * 100 + go.DistRemainder);
         int index = 0;
         while (moveTick >= 100 && index + 1 < path.Count)
@@ -338,6 +311,27 @@ public partial class Map
         ApplyMap(go, go.CellPos);
         go.State = State.Idle;
         return new ValueTuple<List<Vector3>, List<double>>();
+    }
+
+    public List<Vector3> GetPath(GameObject go, bool checkObjects = true)
+    {
+        Vector2Int startCell = Vector3To2(go.CellPos);
+        Vector2Int destCell = Vector3To2(go.DestPos);
+        if (CanGo(go, destCell, false) == false)
+        {
+            Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
+            destCell = newDestCell;
+        }
+        
+        int startRegionId = GetRegionByVector(startCell);
+        int destRegionId = GetRegionByVector(destCell);
+        List<int> regionPath = RegionPath(startRegionId, destRegionId);
+        
+        // Path 추출
+        List<Vector2Int> center = new List<Vector2Int>();
+        foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
+        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
+        return FindPath(go, startCell, destCellVector, checkObjects).Distinct().ToList();
     }
 
     public void LoadMap(int mapId = 1)

@@ -101,7 +101,7 @@ public class DogBark : DogPup
             return;
         }
         
-        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 targetPos = Room.Map.GetClosestPoint(this, Target);
         Vector3 flatTargetPos = targetPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatTargetPos, flatCellPos);  

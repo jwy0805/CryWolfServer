@@ -68,6 +68,12 @@ public struct Vector2Int
     }
 }
 
+public struct ClosestVectorInfo
+{
+    public Vector3 Vector3;
+    public float Distance;
+}
+
 public struct Region
 {
     public readonly int Id;
@@ -244,7 +250,7 @@ public partial class Map
         if (CanGo(go, center)) return center;
 
         var centerAdjusted = go.Target != null 
-            ? Vector3To2(GetClosestPoint(Vector2To3(center), go.Target)) : center;
+            ? Vector3To2(GetClosestPoint(go, go.Target)) : center;
         
         return centerAdjusted;
     }
@@ -288,12 +294,15 @@ public partial class Map
 		// 발견O => F = G + H
 		Dictionary<Pos, int> openList = new Dictionary<Pos, int>();
 		Dictionary<Pos, Pos> parent = new Dictionary<Pos, Pos>();
-		PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();                                                          // 오픈리스트에 있는 정보들 중에서 가장 좋은 후보를 빠르게 뽑아오기 위한 도구
+		PriorityQueue<PQNode> pq = new PriorityQueue<PQNode>();                                                         
 
 		Pos pos = Cell2Pos(startCellPos);
 		Pos dest = Cell2Pos(destCellPos);
         
-		openList.Add(pos, 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)));                                   // 시작점 발견 (예약 진행)
+        int sizeX = gameObject.SizeX - 1;
+        int sizeZ = gameObject.SizeZ - 1;
+        
+		openList.Add(pos, 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)));                                  
 		pq.Push(new PQNode { F = 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)), G = 0, Z = pos.Z, X = pos.X });
 		parent.Add(pos, pos);
 
@@ -305,20 +314,33 @@ public partial class Map
                 return new List<Vector3>();
             }                                                           
             
-			PQNode pqNode = pq.Pop();                                                                                    // 제일 좋은 후보를 찾는다
-			Pos node = new Pos(pqNode.Z, pqNode.X);
-			if (closeList.Add(node) == false) continue;                                                                      // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
             // 제일 좋은 후보를 찾는다
-            if (node.Z == dest.Z && node.X == dest.X) break;                                                             // 목적지 도착했으면 바로 종료
+			PQNode pqNode = pq.Pop();                                                                                    
+			Pos node = new Pos(pqNode.Z, pqNode.X);
+            
+            // 동일한 좌표를 여러 경로로 찾아서, 더 빠른 경로로 인해서 이미 방문(closed)된 경우 스킵
+			if (closeList.Add(node) == false) continue;    
+            
+            // 목적지 도착했으면 바로 종료
+            // if (Math.Abs(node.Z - dest.Z) <= sizeZ && Math.Abs(node.X - dest.X) <= sizeX) break;                                                            
+            if (node.Z == dest.Z && node.X == dest.X) break;                                                            
             
 			for (int i = 0; i < _deltaZ.Length; i++)                                                                     // 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
 			{
 				Pos next = new Pos(node.Z + _deltaZ[i], node.X + _deltaX[i]);
                 
-				if (next.Z != dest.Z || next.X != dest.X)                                                                // 유효 범위를 벗어났으면 스킵
+				if (next.Z != dest.Z || next.X != dest.X)                                                               
                 {   
-                    // 벽으로 막혀서 갈 수 없으면 스킵
-                    if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) { continue; } 
+                    // GameObject Size 범위에서는 checkObjects를 사용하지 않음, 유효 범위를 벗어났으면 스킵
+                    if (Math.Abs(next.Z - pos.Z) <= sizeZ && Math.Abs(next.X - pos.X) <= sizeX)
+                    {
+                        if (CanGo(gameObject, Pos2Cell(next)) == false) { continue; }
+                    }
+                    else
+                    {
+                        // 벽으로 막혀서 갈 수 없으면 스킵
+                        if (CanGo(gameObject, Pos2Cell(next), checkObjects) == false) { continue; } 
+                    }
                 }
 				if (closeList.Contains(next)) continue;                                                                  // 이미 방문한 곳이면 스킵
 
@@ -358,10 +380,8 @@ public partial class Map
         Pos pos = Cell2Pos(vector);
         int cnt = 0;
         int move = 0;
-        int sizeX = gameObject.Stat.SizeX;
-        int sizeZ = gameObject.Stat.SizeZ;
-        sizeZ--;
-        sizeX--;
+        int sizeX = gameObject.SizeX - 1;
+        int sizeZ = gameObject.SizeZ - 1;
 
         do
         {
@@ -387,23 +407,30 @@ public partial class Map
         } while (true);
     }
 
-    public Vector3 GetClosestPoint(Vector3 cellPos, GameObject target)
+    public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
     {
-        Vector3 destVector = GetClosestVector(cellPos, target);
-        // List<Vector3> path = FindPath();
+        // Vector3 startCell = gameObject.CellPos;
+        // PriorityQueue<ClosestVectorInfo, float> distances = GetVectors(gameObject, target);
         //
-        // if (path.Count == 0)
+        // while (distances.Count > 0)
         // {
-        //        
+        //     ClosestVectorInfo vectorInfo = distances.Dequeue();
+        //     Vector2Int startCellV2 = Vector3To2(startCell);
+        //     Vector2Int destVectorV2 = Vector3To2(vectorInfo.Vector3);
+        //     List<Vector3> path = FindPath(gameObject, startCellV2, destVectorV2).Distinct().ToList();
+        //
+        //     if (path.Count != 0)
+        //     {
+        //         return vectorInfo.Vector3;
+        //     }
         // }
-        // else
-        // {
-        //     return destVector;
-        // }
+        //
+        // return target.CellPos;
 
+        Vector3 destVector = GetClosestVector(gameObject.CellPos, target);
         return destVector;
     }
-
+    
     private Vector3 GetClosestVector(Vector3 cellPos, GameObject target)
     {
         Vector3 targetCellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
@@ -464,5 +491,54 @@ public partial class Map
         }
 
         return destVector;
+    }
+        
+    private PriorityQueue<ClosestVectorInfo, float> GetVectors(GameObject gameObject, GameObject target)
+    {
+        PriorityQueue<ClosestVectorInfo, float> distances = new();
+        Vector3 startPos = gameObject.CellPos with { Y = 0 };
+        Vector3 targetPos = target.CellPos with { Y = 0 };
+        int sizeX = target.SizeX - 1;
+        int sizeZ = target.SizeZ - 1;
+        int collisionLengthX = sizeX * 2 + 1;
+        int collisionLengthZ = sizeZ * 2 + 1;
+
+        // Traverse the upper side of the target collision box
+        for (int i = 0; i < collisionLengthX; i++)
+        {
+            Vector3 targetVector = targetPos + new Vector3((i - sizeX) * 0.25f, 0, sizeZ * 0.25f);
+            float distance = Vector3.Distance(startPos, targetVector);
+            ClosestVectorInfo info = new() { Vector3 = targetVector, Distance = distance };
+            distances.Enqueue(info, distance);
+        }
+        
+        // Right side
+        for (int i = 1; i < collisionLengthZ - 1; i++)
+        {
+            Vector3 targetVector = targetPos + new Vector3(sizeX * 0.25f, 0, (i - sizeZ) * 0.25f);
+            float distance = Vector3.Distance(startPos, targetVector);
+            ClosestVectorInfo info = new() { Vector3 = targetVector, Distance = distance };
+            distances.Enqueue(info, distance);
+        }
+        
+        // Lower side
+        for (int i = collisionLengthX - 1; i >= 0; i--)
+        {
+            Vector3 targetVector = targetPos + new Vector3((i - sizeX) * 0.25f, 0, sizeZ * -0.25f);
+            float distance = Vector3.Distance(startPos, targetVector);
+            ClosestVectorInfo info = new() { Vector3 = targetVector, Distance = distance };
+            distances.Enqueue(info, distance);
+        }
+        
+        // Left side
+        for (int i = collisionLengthZ - 2; i > 0; i--)
+        {
+            Vector3 targetVector = targetPos + new Vector3(sizeX * -0.25f, 0, (i - sizeZ) * 0.25f);
+            float distance = Vector3.Distance(startPos, targetVector);
+            ClosestVectorInfo info = new() { Vector3 = targetVector, Distance = distance };
+            distances.Enqueue(info, distance);
+        }
+
+        return distances;
     }
 }

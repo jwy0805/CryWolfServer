@@ -97,7 +97,7 @@ public class SkeletonGiant : Skeleton
         }
         
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        DestPos = Room.Map.GetClosestPoint(this, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatDestPos, flatCellPos);
@@ -178,7 +178,7 @@ public class SkeletonGiant : Skeleton
             return;
         }
         
-        Vector3 targetPos = Room.Map.GetClosestPoint(CellPos, Target);
+        Vector3 targetPos = Room.Map.GetClosestPoint(this, Target);
         Vector3 flatTargetPos = targetPos with { Y = 0 };
         Vector3 flatCellPos = CellPos with { Y = 0 };
         float distance = Vector3.Distance(flatTargetPos, flatCellPos);  

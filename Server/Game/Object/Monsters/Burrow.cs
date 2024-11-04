@@ -149,7 +149,7 @@ public class Burrow : Monster
         }
         
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        DestPos = Room.Map.GetClosestPoint(CellPos, Target);
+        DestPos = Room.Map.GetClosestPoint(this, Target);
         float distance = Vector3.Distance(DestPos, CellPos);
         double deltaX = DestPos.X - CellPos.X;
         double deltaZ = DestPos.Z - CellPos.Z;

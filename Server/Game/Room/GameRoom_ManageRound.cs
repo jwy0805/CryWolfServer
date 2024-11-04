@@ -18,17 +18,17 @@ public partial class GameRoom
         var assetId = (SheepId)sheepPlayer.AssetId;
         var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
         
-        if (primeSheep == null)
-        {
-            // Sheep Defeated
-            sheepPlayer.Session?.Send(new S_ShowResultPopup { Win = false });
-            
-            // Wolf Win
-            wolfPlayer.Session?.Send(new S_ShowResultPopup { Win = true });
-            
-            // Game Over
-            GameOver();
-        }
+        // if (primeSheep == null)
+        // {
+        //     // Sheep Defeated
+        //     sheepPlayer.Session?.Send(new S_ShowResultPopup { Win = false });
+        //     
+        //     // Wolf Win
+        //     wolfPlayer.Session?.Send(new S_ShowResultPopup { Win = true });
+        //     
+        //     // Game Over
+        //     GameOver();
+        // }
     }
 
     private void CheckPortal()
