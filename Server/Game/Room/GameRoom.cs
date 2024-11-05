@@ -100,11 +100,11 @@ public partial class GameRoom : JobSerializer
         CheckPortal();
         
         // --- Tutorial ---
-        // if (_roundTime < 15 && _tutorialSet == false)
-        // {
-        //     SetTutorialStatues(_round);
-        //     _tutorialSet = true;
-        // }
+        if (_roundTime < 15 && _tutorialSet == false)
+        {
+            SetTutorialStatues(_round);
+            _tutorialSet = true;
+        }
         // --- Tutorial ---
         
         if (_roundTime < 0) 
