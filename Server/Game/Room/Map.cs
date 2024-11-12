@@ -330,7 +330,7 @@ public partial class Map
         // Path 추출
         List<Vector2Int> center = new List<Vector2Int>();
         foreach (var region in regionPath) center.Add(GetCenter(region, go, startCell, destCell));
-        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[1];
+        Vector2Int destCellVector = regionPath.Count <= 1 ? destCell : center[0];
         return FindPath(go, startCell, destCellVector, checkObjects).Distinct().ToList();
     }
 

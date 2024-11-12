@@ -34,6 +34,39 @@ public partial class GameRoom
     
     private void SetTutorialStatues(int round)
     {
+        TestCase0(round);
+    }
+
+    private void TestCase0(int round)
+    {
+        switch (round)
+        {
+            case 0:
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -5, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -3, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -1, PosY = 6, PosZ = 12 });
+                break;
+        }
+    }
+    
+    private void TestCase1(int round)
+    {
+        switch (round)
+        {
+            case 0:
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -5, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -3, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = -1, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = 1, PosY = 6, PosZ = 12 });
+                SpawnStatue(UnitId.Wolf, new PositionInfo { PosX = 3, PosY = 6, PosZ = 12 });
+                break;
+            default:
+                break;
+        }
+    }
+    
+    private void TestCase2(int round)
+    {
         switch (round)
         {
             case 0: // 북 2

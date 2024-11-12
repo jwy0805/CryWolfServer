@@ -232,23 +232,17 @@ public partial class Map
 
         return int.MaxValue;
     }
-
+    
     private Vector2Int GetCenter(int regionId, GameObject go, Vector2Int start, Vector2Int dest)
     {   
         var region = _regionGraph.FirstOrDefault(region => region.Id == regionId);
         if (region.ZCoordinates == null) return new Vector2Int();
         
-        double m = (double)(dest.Z - start.Z) / (dest.X - start.X);
-        double b = start.Z - m * start.X;
         double n1 = region.ZCoordinates.Min();
         double n2 = region.ZCoordinates.Max();
-        double x1 = (n1 - b) / m;
-        double x2 = (n2 - b) / m;
-        int x = (int)((x1 + x2) / 2);
+        var center = new Vector2Int(start.X, (int)((n1 + n2) / 2));
         
-        var center = new Vector2Int(x, (int)((n1 + n2) / 2));
         if (CanGo(go, center)) return center;
-
         var centerAdjusted = go.Target != null 
             ? Vector3To2(GetClosestPoint(go, go.Target)) : center;
         
@@ -322,7 +316,6 @@ public partial class Map
 			if (closeList.Add(node) == false) continue;    
             
             // 목적지 도착했으면 바로 종료
-            // if (Math.Abs(node.Z - dest.Z) <= sizeZ && Math.Abs(node.X - dest.X) <= sizeX) break;                                                            
             if (node.Z == dest.Z && node.X == dest.X) break;                                                            
             
 			for (int i = 0; i < _deltaZ.Length; i++)                                                                     // 상하좌우 등 이동할 수 있는 좌표인지 확인해서 예약(open)한다
@@ -346,7 +339,7 @@ public partial class Map
 
 				int g = pqNode.G + _cost[i];                                                                             // 비용 계산 : node.G + _cost[i];
                 int h = 10 * (Math.Abs(dest.Z - next.Z) + Math.Abs(dest.X - next.X));
-				int value = openList.GetValueOrDefault(next, Int32.MaxValue);                                            // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
+				int value = openList.GetValueOrDefault(next, int.MaxValue);                                              // 다른 경로에서 더 빠른 길 이미 찾았으면 스킵
                 if (value < g + h) continue;
                 
 				if (openList.TryAdd(next, g + h) == false) openList[next] = g + h;                                       // 예약 진행
@@ -407,31 +400,13 @@ public partial class Map
         } while (true);
     }
 
-    public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
-    {
-        // Vector3 startCell = gameObject.CellPos;
-        // PriorityQueue<ClosestVectorInfo, float> distances = GetVectors(gameObject, target);
-        //
-        // while (distances.Count > 0)
-        // {
-        //     ClosestVectorInfo vectorInfo = distances.Dequeue();
-        //     Vector2Int startCellV2 = Vector3To2(startCell);
-        //     Vector2Int destVectorV2 = Vector3To2(vectorInfo.Vector3);
-        //     List<Vector3> path = FindPath(gameObject, startCellV2, destVectorV2).Distinct().ToList();
-        //
-        //     if (path.Count != 0)
-        //     {
-        //         return vectorInfo.Vector3;
-        //     }
-        // }
-        //
-        // return target.CellPos;
-
-        Vector3 destVector = GetClosestVector(gameObject.CellPos, target);
-        return destVector;
-    }
+    // public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
+    // {
+    //     Vector3 destVector = GetClosestVector(gameObject.CellPos, target);
+    //     return destVector;
+    // }
     
-    private Vector3 GetClosestVector(Vector3 cellPos, GameObject target)
+    public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
     {
         Vector3 targetCellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
         Vector3 destVector;
@@ -439,8 +414,8 @@ public partial class Map
         double sizeX = 0.25 * (target.Stat.SizeX - 1);
         double sizeZ = 0.25 * (target.Stat.SizeZ - 1);
         
-        double deltaX = targetCellPos.X - cellPos.X; // P2 cellPos , P1 targetCellPos
-        double deltaZ = targetCellPos.Z - cellPos.Z;
+        double deltaX = targetCellPos.X - gameObject.CellPos.X; // P2 cellPos , P1 targetCellPos
+        double deltaZ = targetCellPos.Z - gameObject.CellPos.Z;
         double theta = Math.Round(Math.Atan2(deltaZ, deltaX) * (180 / Math.PI), 2);
         double x;
         double y = target.UnitType == 0 ? GameData!.GroundHeight : GameData!.AirHeight;

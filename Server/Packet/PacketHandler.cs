@@ -35,53 +35,73 @@ public class PacketHandler
         npc.CharacterId = (CharacterId)enterPacket.CharacterId;
         npc.AssetId = enterPacket.AssetId;
     }
-    
-    public static async void C_SetSessionHandler(PacketSession session, IMessage packet)
+
+    public static void C_StartGameSceneHandler(PacketSession session, IMessage packet)
     {
-        var sessionPacket = (C_SetSession)packet;
+        var startPacket = (C_StartGameScene)packet;
         var clientSession = (ClientSession)session;
-        
-        if (sessionPacket.Test)
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        if (room == null || player == null)
         {
-            var playerPos = sessionPacket.Faction == Faction.Sheep 
-                ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 } 
-                : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-            
-            clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
-            clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.ObjectId}";
-            clientSession.MyPlayer.Info.PosInfo = playerPos;
-            clientSession.MyPlayer.PosInfo = playerPos;
-            clientSession.MyPlayer.Session = clientSession;
-        
-            GameLogic.Instance.Push(() =>
-            {
-                var room = GameLogic.Instance.CreateGameRoom(1, true);
-                
-                // Enter NPC player
-                var npcPlayer = ObjectManager.Instance.Add<Player>();
-                var npaPlayerPos = sessionPacket.Faction == Faction.Sheep 
-                    ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 } 
-                    : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 };
-                npcPlayer.Info.Name = $"NPC_{npcPlayer.Info.ObjectId}";
-                npcPlayer.Info.PosInfo = npaPlayerPos;
-                npcPlayer.PosInfo = npaPlayerPos;
-                room.Push(room.EnterGame, npcPlayer);
-                
-                // Enter player
-                room.Push(room.EnterGame, clientSession.MyPlayer);
-            });
+            Console.WriteLine("Room or player is null");
+            return;
         }
-        else
-        {
-            var webPacket = new GetUserIdPacketRequired { UserAccount = sessionPacket.UserAccount };
-            var task = NetworkManager.Instance.GetUserIdFromApiServer<GetUserIdPacketResponse>(
-                "/GetUserIdByAccount", webPacket);
-        
-            await task;
-            if (task.Result == null) return;
-            clientSession.UserId = task.Result.UserId;
-        }
+
+        Console.WriteLine("start game");
+
+        room.Push(room.EnterGame, player);
     }
+    
+    // public static async void C_SetSessionHandler(PacketSession session, IMessage packet)
+    // {
+    //     // Enter player, set initial game settings
+    //     // Each player has a unique session, sends a packet to the server to set the session
+    //     var sessionPacket = (C_SetSession)packet;
+    //     var clientSession = (ClientSession)session;
+    //     
+    //     if (sessionPacket.Test)
+    //     {
+    //         var playerPos = sessionPacket.Faction == Faction.Sheep 
+    //             ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 } 
+    //             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+    //         
+    //         clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
+    //         clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.ObjectId}";
+    //         clientSession.MyPlayer.Info.PosInfo = playerPos;
+    //         clientSession.MyPlayer.PosInfo = playerPos;
+    //         clientSession.MyPlayer.Session = clientSession;
+    //     
+    //         GameLogic.Instance.Push(() =>
+    //         {
+    //             var room = GameLogic.Instance.CreateGameRoom(1, true);
+    //             
+    //             // Enter NPC player
+    //             var npcPlayer = ObjectManager.Instance.Add<Player>();
+    //             var npaPlayerPos = sessionPacket.Faction == Faction.Sheep 
+    //                 ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 } 
+    //                 : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 };
+    //             npcPlayer.Info.Name = $"NPC_{npcPlayer.Info.ObjectId}";
+    //             npcPlayer.Info.PosInfo = npaPlayerPos;
+    //             npcPlayer.PosInfo = npaPlayerPos;
+    //             room.Push(room.EnterGame, npcPlayer);
+    //             
+    //             // Enter player
+    //             room.Push(room.EnterGame, clientSession.MyPlayer);
+    //         });
+    //     }
+    //     else
+    //     {
+    //         // Get user id from the server to display the user's name on match making screen
+    //         var webPacket = new GetUserIdPacketRequired { UserAccount = sessionPacket.UserAccount };
+    //         var task = NetworkManager.Instance.GetUserIdFromApiServer<GetUserIdPacketResponse>(
+    //             "/GetUserIdByAccount", webPacket);
+    //     
+    //         await task;
+    //         if (task.Result == null) return;
+    //         clientSession.UserId = task.Result.UserId;
+    //     }
+    // }
     
     public static void C_SpawnHandler(PacketSession session, IMessage packet)
     {

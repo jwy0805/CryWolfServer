@@ -69,7 +69,7 @@ public partial class GameRoom : JobSerializer
         {
             return;
         }
-        
+
         Flush();
         SetTimeAndRound();
         UpdateBuffs();

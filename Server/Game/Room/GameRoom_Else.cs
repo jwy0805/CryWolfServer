@@ -206,8 +206,30 @@ public partial class GameRoom
             var distance = Vector3.Distance(targetPos, cellPos);
             pq.Enqueue(new TargetDistance { Target = target, Distance = distance }, distance);
         }
+        
+        if (pq.Count == 0 || gameObject is not Creature creature) return null;
+        
+        while (pq.Count > 0)
+        {
+            var target = pq.Dequeue().Target;
+            if (creature.UnreachableIds.Contains(target.Id))
+            {
+                Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
+                Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
+                var path = Map.FindPath(gameObject, startCell, destCell);
+                if (path.Count != 0)
+                {
+                    creature.UnreachableIds.Clear();
+                    return target;
+                }
+            }
+            else
+            {
+                return target;
+            }
+        }
 
-        return pq.Count > 0 ? pq.Dequeue().Target : null;
+        return null;
     }
     
     private GameObject? GetRandomTarget(GameObject gameObject, List<GameObject> targets, float dist, int attackType)

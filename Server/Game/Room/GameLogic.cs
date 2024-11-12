@@ -17,10 +17,10 @@ public class GameLogic : JobSerializer
         }
     }
 
-    public GameRoom CreateGameRoom(int mapId, bool test = false)
+    public GameRoom CreateGameRoom(int mapId)
     {
         GameRoom gameRoom = new GameRoom();
-        if (test) gameRoom.RoomActivated = true;
+        
         gameRoom.Push(gameRoom.Init, mapId);
         gameRoom.RoomId = _roomId;
         _rooms.Add(_roomId, gameRoom);

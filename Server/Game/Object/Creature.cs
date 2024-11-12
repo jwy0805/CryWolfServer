@@ -10,8 +10,6 @@ public class Creature : GameObject
 {
     protected virtual Skill NewSkill { get; set; }
     protected Skill Skill;
-    protected readonly Scheduler Scheduler = new();
-    protected readonly List<Skill> SkillList = new();
     protected bool StateChanged;
     protected bool AttackEnded = true;
     protected float AttackImpactMoment = 0.5f;
@@ -19,9 +17,12 @@ public class Creature : GameObject
     protected float SkillImpactMoment2 = 0.5f;
     protected Guid AttackTaskId;
     protected Guid EndTaskId;
+    protected readonly Scheduler Scheduler = new();
+    protected readonly List<Skill> SkillList = new();
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
     
+    public List<int> UnreachableIds = new();
     public Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool>? AddBuffAction { get; set; }
     public UnitId UnitId { get; set; }
     public Role UnitRole { get; protected set; }
@@ -144,6 +145,7 @@ public class Creature : GameObject
         {
             State = State.Idle;
             BroadcastPos();
+            UnreachableIds.Add(Target.Id);
             return;
         }
         BroadcastPath();
@@ -306,6 +308,8 @@ public class Creature : GameObject
     protected virtual void SetNextState()
     {
         if (Room == null) return;
+        UnreachableIds.Clear();
+        
         if (Target == null || Target.Targetable == false || Target.Hp <= 0 || Target.Room == null)
         {
             State = State.Idle;
