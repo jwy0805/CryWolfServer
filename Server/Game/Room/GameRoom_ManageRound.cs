@@ -17,23 +17,21 @@ public partial class GameRoom
         
         var assetId = (SheepId)sheepPlayer.AssetId;
         var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
-        
-        // if (primeSheep == null)
-        // {
-        //     // Sheep Defeated
-        //     sheepPlayer.Session?.Send(new S_ShowResultPopup { Win = false });
-        //     
-        //     // Wolf Win
-        //     wolfPlayer.Session?.Send(new S_ShowResultPopup { Win = true });
-        //     
-        //     // Game Over
-        //     GameOver();
-        // }
+
+        if (primeSheep != null) return;
+        if (sheepPlayer.Session == null) return;
+        GameOver(sheepPlayer.Session.UserId);
     }
 
     private void CheckPortal()
     {
-        
+        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
+        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
+        if (sheepPlayer == null || wolfPlayer == null) return;
+
+        if (_portals.Values.Count > 0) return;
+        if (wolfPlayer.Session == null) return;
+        GameOver(wolfPlayer.Session.UserId);
     }
     
     private void CheckMonsters()
@@ -137,8 +135,25 @@ public partial class GameRoom
         SpawnMonstersInNewRound();
     }
 
-    private void GameOver()
+    public void GameOver(int loserId)
     {
+        var loserPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == loserId) ?? new Player();
+        var winnerPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId != loserId) ?? new Player();
+        
+        var loserPacket = new S_ShowResultPopup
+        {
+            Win = false, RankPointValue = loserPlayer.LoseRankPoint, RankPoint = loserPlayer.RankPoint
+        };
+        
+        var winnerPacket = new S_ShowResultPopup
+        {
+            Win = true, RankPointValue = winnerPlayer.WinRankPoint, RankPoint = winnerPlayer.RankPoint
+        };
+        
+        loserPlayer.Session?.Send(loserPacket);
+        winnerPlayer.Session?.Send(winnerPacket);
+        
+        Console.WriteLine($"Game Over: {winnerPlayer?.Session?.UserId} wins!");
         RoomActivated = false;
     }
 }

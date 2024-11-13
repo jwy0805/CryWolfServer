@@ -13,6 +13,9 @@ public class Player : GameObject
     public Faction Faction { get; set; }
     
     public ClientSession? Session { get; set; }
+    public int WinRankPoint { get; set; }
+    public int LoseRankPoint { get; set; }
+    public int RankPoint { get; set; }
 
     public Player()
     {

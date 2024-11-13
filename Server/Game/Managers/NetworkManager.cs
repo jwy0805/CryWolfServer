@@ -35,36 +35,22 @@ public class NetworkManager
 
             try
             {
-                if (request.Url?.AbsolutePath != "/match")
-                {
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                    response.Close();
-                    continue;
-                }
+                string responseString;
 
-                if (request.HttpMethod != "POST")
+                switch (request.Url?.AbsolutePath)
                 {
-                    response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-                    response.Close();
-                    continue;
+                    case "/match":
+                        responseString = await HandleMatchRequest(request);
+                        break;
+                    case "/surrender":
+                        responseString = await HandleSurrenderRequest(request);
+                        break;
+                    default:
+                        response.StatusCode = (int)HttpStatusCode.NotFound;
+                        response.Close();
+                        continue;
                 }
                 
-                using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
-                var requestBody = await reader.ReadToEndAsync();
-                
-                var matchRequest = JsonConvert.DeserializeObject<MatchSuccessPacketRequired>(requestBody);
-                if (matchRequest == null)
-                {
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    response.Close();
-                    continue;
-                }
-
-                var task = StartGameAsync(matchRequest);
-                await task;
-                
-                var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task.Result };
-                var responseString = JsonConvert.SerializeObject(matchResponse);
                 byte[] buffer = Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
                 response.StatusCode = (int)HttpStatusCode.OK;
@@ -81,7 +67,49 @@ public class NetworkManager
             }
         }
     }
+
+    private async Task<string> HandleMatchRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var matchRequest = JsonConvert.DeserializeObject<MatchSuccessPacketRequired>(requestBody);
+        if (matchRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+
+        var task = await StartGameAsync(matchRequest);
+        var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task };
+        return JsonConvert.SerializeObject(matchResponse);
+    }
     
+    private async Task<string> HandleSurrenderRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var surrenderRequest = JsonConvert.DeserializeObject<GameResultPacketRequired>(requestBody);
+        if (surrenderRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+
+        var task = await SurrenderGameAsync(surrenderRequest);
+        var surrenderResponse = new GameResultPacketResponse { GetGameResultOk = task };
+        return JsonConvert.SerializeObject(surrenderResponse);
+    }
+
+    # region StartGame
+
     private async Task<bool> StartGameAsync(MatchSuccessPacketRequired packet, DateTime? startTime = null)
     {
         startTime ??= DateTime.UtcNow;
@@ -96,8 +124,8 @@ public class NetworkManager
             else
             {
                 var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-                var sheepPlayer = CreatePlayer(room, packet.SheepUserId, packet.SheepSessionId, Faction.Sheep);
-                var wolfPlayer = CreatePlayer(room, packet.WolfUserId, packet.WolfSessionId, Faction.Wolf);
+                var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
+                var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
 
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
@@ -117,11 +145,21 @@ public class NetworkManager
             }
             tcs.SetResult(true);
         });
+        
+        var sendPacket = new SendMatchInfoPacketRequired
+        {
+            SheepUserId = packet.SheepUserId,
+            SheepSessionId = packet.SheepSessionId,
+            WolfUserId = packet.WolfUserId,
+            WolfSessionId = packet.WolfSessionId,
+        };
+        
+        await SendRequestToApiAsync<SendMatchInfoPacketResponse>("Match/SetMatchInfo", sendPacket, HttpMethod.Post);
 
         return await tcs.Task;
     }
-
-    private Player CreatePlayer(GameRoom room, int userId, int sessionId, Faction faction)
+    
+    private Player CreatePlayer(GameRoom room, MatchSuccessPacketRequired required, Faction faction)
     {
         var player = ObjectManager.Instance.Add<Player>();
         var position = faction == Faction.Sheep 
@@ -130,19 +168,24 @@ public class NetworkManager
         
         player.Room = room;
         player.Faction = faction;
-        player.Info.Name = $"Player_{userId}";
+        player.Info.Name = faction == Faction.Sheep ? $"Player_{required.SheepUserName}" : $"Player_{required.WolfUserName}";
         player.PosInfo = position;
         player.Info.PosInfo = position;
-        player.Session = SessionManager.Instance.Find(sessionId);
+        player.WinRankPoint = faction == Faction.Sheep ? required.WinPointSheep : required.WinPointWolf;
+        player.LoseRankPoint = faction == Faction.Sheep ? required.LosePointSheep : required.LosePointWolf;
+        player.RankPoint = faction == Faction.Sheep ? required.SheepRankPoint : required.WolfRankPoint;
+        player.Session = faction == Faction.Sheep 
+            ? SessionManager.Instance.Find(required.SheepSessionId)
+            : SessionManager.Instance.Find(required.WolfSessionId);
 
         if (player.Session == null)
         {
-            Console.WriteLine($"Session not found for user : {userId} / session : {sessionId}");
+            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
             return player;
         }
         
         player.Session.MyPlayer = player;
-        player.Session.UserId = userId;
+        player.Session.UserId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
 
         return player;
     }
@@ -174,7 +217,7 @@ public class NetworkManager
     {
         var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
         var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-        var player = CreatePlayer(room, packet.SheepUserId, packet.SheepSessionId, faction);
+        var player = CreatePlayer(room, packet, faction);
         var npc = CreateNpc(player);
         var matchPacket = new S_MatchMakingSuccess
         {
@@ -242,8 +285,41 @@ public class NetworkManager
         var result = await StartGameAsync(packet, startTime);
         tcs.TrySetResult(result);
     }
+
+    #endregion
+
+    #region Surrender
+
+    private async Task<bool> SurrenderGameAsync(GameResultPacketRequired packet)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        GameLogic.Instance.Push(() =>
+        {
+            var room = GameLogic.Instance.FindByUserId(packet.UserId);
+            if (room == null) return;
+            room.GameOver(packet.UserId);
+        });
+
+        return await tcs.Task;
+    }
+
+    #endregion
     
-    public async Task<T?> GetUserIdFromApiServer<T>(string url, object? obj)
+    public async Task OnSessionDisconnected(int sessionId)
+    {
+        var session = SessionManager.Instance.Find(sessionId);
+        if (session == null) return;
+        
+        var packet = new SessionDisconnectPacketRequired
+        {
+            UserId = session.UserId,
+            SessionId = sessionId
+        };
+        
+        await SendRequestToApiAsync<SessionDisconnectPacketResponse>("Match/SessionDisconnect", packet, HttpMethod.Post);
+    }
+    
+    public async Task<T?> SendRequestToApiAsync<T>(string url, object? obj, HttpMethod method)
     {
         var sendUrl = $"{BaseUrl}/{url}";
         byte[]? jsonBytes = null;
@@ -253,7 +329,7 @@ public class NetworkManager
             jsonBytes = Encoding.UTF8.GetBytes(jsonStr);
         }
         
-        var request = new HttpRequestMessage(HttpMethod.Post, sendUrl)
+        var request = new HttpRequestMessage(method, sendUrl)
         {
             Content = new ByteArrayContent(jsonBytes ?? Array.Empty<byte>())
         };

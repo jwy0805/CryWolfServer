@@ -36,14 +36,39 @@ public class MatchSuccessPacketResponse
 
 #region For API Server
 
-public class GetUserIdPacketRequired
+public class SendMatchInfoPacketRequired
 {
-    public string UserAccount { get; set; }
+    public int SheepUserId { get; set; }
+    public int SheepSessionId { get; set; }
+    public int WolfUserId { get; set; }
+    public int WolfSessionId { get; set; }
 }
 
-public class GetUserIdPacketResponse
+public class SendMatchInfoPacketResponse
+{
+    public bool SendMatchInfoOk { get; set; }
+}
+
+public class GameResultPacketRequired
 {
     public int UserId { get; set; }
+    public bool IsWin { get; set; }
+}
+
+public class GameResultPacketResponse
+{
+    public bool GetGameResultOk { get; set; }
+}
+
+public class SessionDisconnectPacketRequired
+{
+    public int UserId { get; set; }
+    public int SessionId { get; set; }
+}
+
+public class SessionDisconnectPacketResponse
+{
+    public bool SessionDisconnectOk { get; set; }
 }
 
 #endregion

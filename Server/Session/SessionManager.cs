@@ -47,7 +47,7 @@ public class SessionManager
         }
     }
 
-    public ClientSession Find(int id)
+    public ClientSession? Find(int id)
     {
         lock (_lock)
         {

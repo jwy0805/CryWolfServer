@@ -38,4 +38,10 @@ public class GameLogic : JobSerializer
     {
         return _rooms.GetValueOrDefault(roomId);
     }
+    
+    public GameRoom? FindByUserId(int userId)
+    {
+        return _rooms.Values.FirstOrDefault(room => 
+            room.FindPlayer(go => go is Player player && player.Session?.UserId == userId ) != null);
+    }
 }
