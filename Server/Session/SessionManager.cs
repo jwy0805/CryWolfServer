@@ -35,13 +35,14 @@ public class SessionManager
     }
     
     public ClientSession Generate()
-    {   // 클라이언트의 Connector에서 연결을 요청하고 서버에서 수락한 이후 호출됨 
+    {   
+        // 클라이언트의 Connector에서 연결을 요청하고 서버에서 수락한 이후 호출됨 
         lock (_lock)
         {
             var sessionId = ++_sessionId;
             var session = new ClientSession { SessionId = sessionId };
             _sessions.Add(sessionId, session);
-            Console.WriteLine($"Connected : {sessionId}");
+            // Console.WriteLine($"Connected : {sessionId}");
 
             return session;
         }

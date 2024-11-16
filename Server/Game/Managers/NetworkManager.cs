@@ -114,7 +114,7 @@ public class NetworkManager
     {
         startTime ??= DateTime.UtcNow;
         var tcs = new TaskCompletionSource<bool>();
-
+        
         GameLogic.Instance.Push(() =>
         {
             if (packet.WolfUserId == packet.SheepUserId)
@@ -126,7 +126,7 @@ public class NetworkManager
                 var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
                 var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
                 var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
-
+        
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
                     if ((DateTime.UtcNow - startTime.Value).TotalMilliseconds > 5000)
@@ -135,27 +135,29 @@ public class NetworkManager
                         tcs.SetResult(false);
                         return;
                     }
-
+        
                     Console.WriteLine("Session is not ready yet.");
                     GameLogic.Instance.PushAfter(400, () => _ = RetryStartGameAsync(packet, startTime, tcs));
                     return;
                 }
-
+        
                 SendStartGamePacket(sheepPlayer, wolfPlayer, packet);
             }
+            
+            var sendPacket = new SendMatchInfoPacketRequired
+            {
+                SheepUserId = packet.SheepUserId,
+                SheepSessionId = packet.SheepSessionId,
+                WolfUserId = packet.WolfUserId,
+                WolfSessionId = packet.WolfSessionId,
+            };
+        
+#pragma warning disable CS4014 // 이 호출을 대기하지 않으므로 호출이 완료되기 전에 현재 메서드가 계속 실행됩니다.
+            SendRequestToApiAsync<SendMatchInfoPacketResponse>("Match/SetMatchInfo", sendPacket, HttpMethod.Post);
+#pragma warning restore CS4014 // 이 호출을 대기하지 않으므로 호출이 완료되기 전에 현재 메서드가 계속 실행됩니다.
             tcs.SetResult(true);
         });
         
-        var sendPacket = new SendMatchInfoPacketRequired
-        {
-            SheepUserId = packet.SheepUserId,
-            SheepSessionId = packet.SheepSessionId,
-            WolfUserId = packet.WolfUserId,
-            WolfSessionId = packet.WolfSessionId,
-        };
-        
-        await SendRequestToApiAsync<SendMatchInfoPacketResponse>("Match/SetMatchInfo", sendPacket, HttpMethod.Post);
-
         return await tcs.Task;
     }
     
@@ -296,10 +298,19 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.FindByUserId(packet.UserId);
-            if (room == null) return;
-            room.GameOver(packet.UserId);
+            if (room == null)
+            {
+                Console.WriteLine("Room not found.");
+                tcs.SetResult(false);
+            }
+            else
+            {
+                room.GameOver(packet.UserId);
+                tcs.SetResult(true);
+            }
         });
 
+        Console.WriteLine("SurrenderGameAsync");
         return await tcs.Task;
     }
 

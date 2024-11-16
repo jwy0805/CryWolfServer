@@ -135,25 +135,59 @@ public partial class GameRoom
         SpawnMonstersInNewRound();
     }
 
-    public void GameOver(int loserId)
+    public async void GameOver(int loserId)
     {
         var loserPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == loserId) ?? new Player();
         var winnerPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId != loserId) ?? new Player();
+        var rewardPacket = new GameRewardPacketRequired
+        {
+            WinUserId = winnerPlayer.Session?.UserId ?? -1,
+            WinRankPoint = winnerPlayer.WinRankPoint,
+            LoseUserId = loserPlayer.Session?.UserId ?? -1,
+            LoseRankPoint = loserPlayer.LoseRankPoint
+        };
+
+        var task = NetworkManager.Instance
+            .SendRequestToApiAsync<GameRewardPacketResponse>("Match/RankGameReward", rewardPacket, HttpMethod.Put);
+        await task;
+        
+        if (task.Result == null)
+        {
+            Console.WriteLine("Game Over: Error in GameRewardPacketResponse");
+            return;
+        }
         
         var loserPacket = new S_ShowResultPopup
         {
             Win = false, RankPointValue = loserPlayer.LoseRankPoint, RankPoint = loserPlayer.RankPoint
         };
+
+        foreach (var rewardInfo in task.Result.LoserRewards)
+        {
+            loserPacket.Rewards.Add(new Reward
+            {
+                ItemId = rewardInfo.ItemId, ProductType = rewardInfo.ProductType, Count = rewardInfo.Count
+            });
+        }
         
         var winnerPacket = new S_ShowResultPopup
         {
             Win = true, RankPointValue = winnerPlayer.WinRankPoint, RankPoint = winnerPlayer.RankPoint
         };
         
+        foreach (var rewardInfo in task.Result.WinnerRewards)
+        {
+            winnerPacket.Rewards.Add(new Reward
+            {
+                ItemId = rewardInfo.ItemId, ProductType = rewardInfo.ProductType, Count = rewardInfo.Count
+            });
+        }
+
+        Console.WriteLine($"{loserPlayer.Session?.UserId} vs {winnerPlayer.Session?.UserId}");
+        
         loserPlayer.Session?.Send(loserPacket);
         winnerPlayer.Session?.Send(winnerPacket);
         
-        Console.WriteLine($"Game Over: {winnerPlayer?.Session?.UserId} wins!");
         RoomActivated = false;
     }
 }

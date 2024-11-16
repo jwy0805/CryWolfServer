@@ -35,7 +35,7 @@ public class PacketHandler
         npc.CharacterId = (CharacterId)enterPacket.CharacterId;
         npc.AssetId = enterPacket.AssetId;
     }
-
+    
     public static void C_StartGameSceneHandler(PacketSession session, IMessage packet)
     {
         var startPacket = (C_StartGameScene)packet;

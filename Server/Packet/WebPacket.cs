@@ -2,6 +2,13 @@ namespace Google.Protobuf.Protocol;
 
 #region For Match Making Server
 
+public class RewardInfo
+{
+    public int ItemId { get; set; }
+    public ProductType ProductType { get; set; }
+    public int Count { get; set; }
+}
+
 public class MatchSuccessPacketRequired
 {
     public int SheepUserId { get; set; }
@@ -58,6 +65,21 @@ public class GameResultPacketRequired
 public class GameResultPacketResponse
 {
     public bool GetGameResultOk { get; set; }
+}
+
+public class GameRewardPacketRequired
+{
+    public int WinUserId { get; set; }
+    public int WinRankPoint { get; set; }
+    public int LoseUserId { get; set; }
+    public int LoseRankPoint { get; set; }
+}
+
+public class GameRewardPacketResponse
+{
+    public bool GetGameRewardOk { get; set; }
+    public List<RewardInfo> WinnerRewards { get; set; }
+    public List<RewardInfo> LoserRewards { get; set; }
 }
 
 public class SessionDisconnectPacketRequired
