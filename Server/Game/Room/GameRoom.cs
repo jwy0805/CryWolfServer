@@ -12,7 +12,6 @@ namespace Server.Game;
 public partial class GameRoom : JobSerializer
 {
     private bool _tutorialSet;
-    private Player _npc = new();
     
     private readonly object _lock = new();
     
@@ -32,6 +31,7 @@ public partial class GameRoom : JobSerializer
     private readonly long _interval = 1000;
     private long _timeSendTime;
     
+    public Player? Npc { get; set; }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }

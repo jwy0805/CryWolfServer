@@ -8,34 +8,6 @@ using ServerCore;
 
 public class PacketHandler
 {
-    public static void C_EnterGameHandler(PacketSession session, IMessage packet)
-    {
-        var enterPacket = (C_EnterGame)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        if (player == null) return;
-
-        player.Faction = enterPacket.IsSheep ? Faction.Sheep : Faction.Wolf;
-        player.CharacterId = (CharacterId)enterPacket.CharacterId;
-        player.AssetId = enterPacket.AssetId;
-    }
-
-    public static void C_EnterGameNpcHandler(PacketSession session, IMessage packet)
-    {
-        var enterPacket = (C_EnterGameNpc)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        if (player == null) return;
-        
-        var faction = enterPacket.IsSheep ? Faction.Sheep : Faction.Wolf;
-        var npc = player.Room?.FindPlayer(go => go is Player npc && npc.Id != player.Id);
-        if (npc == null) return;
-        
-        npc.Faction = faction;
-        npc.CharacterId = (CharacterId)enterPacket.CharacterId;
-        npc.AssetId = enterPacket.AssetId;
-    }
-    
     public static void C_StartGameSceneHandler(PacketSession session, IMessage packet)
     {
         var startPacket = (C_StartGameScene)packet;
@@ -48,8 +20,12 @@ public class PacketHandler
             return;
         }
 
-        Console.WriteLine("start game");
-
+        var npc = room.Npc;
+        if (npc != null)
+        {
+            room.Push(room.EnterGame, npc);
+        }
+        
         room.Push(room.EnterGame, player);
     }
     

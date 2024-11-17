@@ -74,7 +74,8 @@ public partial class GameRoom
     {
         foreach (var statue in _statues.Values)
         {
-            var monster = SpawnMonster(statue.UnitId, FindMonsterSpawnPos(statue), _npc);
+            if (Npc == null) return;
+            var monster = SpawnMonster(statue.UnitId, FindMonsterSpawnPos(statue), Npc);
             monster.StatueId = statue.Id;
         }
     }
@@ -95,8 +96,9 @@ public partial class GameRoom
         return tower;
     }
     
-    private MonsterStatue SpawnMonsterStatue(UnitId unitId, PositionInfo posInfo, Player player)
+    private MonsterStatue SpawnMonsterStatue(UnitId unitId, PositionInfo posInfo, Player? player)
     {
+        if (player == null) return new MonsterStatue();
         var statue = ObjectManager.Instance.Add<MonsterStatue>();
         statue.PosInfo = posInfo;
         statue.Info.PosInfo = statue.PosInfo;

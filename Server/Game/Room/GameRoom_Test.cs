@@ -6,14 +6,15 @@ public partial class GameRoom
 {
     private void SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
-        var player = _npc;
+        var player = Npc;
         var statue = SpawnMonsterStatue(monsterId, pos, player);
         SpawnEffect(EffectId.Upgrade, statue, statue);
     }
     
     private void SkillUpgrade(Skill skill)
     {
-        var player = _npc;
+        var player = Npc;
+        if (player == null) return;
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
     }
@@ -26,7 +27,7 @@ public partial class GameRoom
             PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ,
         };
         var monsterId = statue.UnitId + 1;
-        var player = _npc;
+        var player = Npc;
         var newStatue = SpawnMonsterStatue(monsterId, newPos, player);
         LeaveGame(oldStatueId);
         SpawnEffect(EffectId.Upgrade, statue, statue);
