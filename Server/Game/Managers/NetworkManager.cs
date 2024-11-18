@@ -145,7 +145,7 @@ public class NetworkManager
             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
         }
         
-        var testResponse = new MatchSuccessPacketResponse { IsSuccess = testRequest.Test };
+        var testResponse = new TestApiToSocketResponse { TestOk = testRequest.Test };
         
         return JsonConvert.SerializeObject(testResponse);
     }
