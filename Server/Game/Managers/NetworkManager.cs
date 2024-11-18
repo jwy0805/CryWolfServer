@@ -11,7 +11,24 @@ public class NetworkManager
     private HttpListener? _httpListener;
     private readonly HttpClient _httpClient = new();
     private const int ApiPortLocal = 5281;
-    private string BaseUrl => $"http://localhost:{ApiPortLocal}/api";
+    
+    public Env Environment => System.Environment.GetEnvironmentVariable("ENVIRONMENT") switch
+    {
+        "Local" => Env.Local,
+        "Dev" => Env.Dev,
+        "Stage" => Env.Stage,
+        "Prod" => Env.Prod,
+        _ => Env.Local
+    };
+    
+    private string BaseUrl => Environment switch
+    {
+        Env.Local => $"http://localhost:{ApiPortLocal}/api",
+        Env.Dev => "http://crywolf-api/api",
+        Env.Stage => "http://crywolf-api/api",
+        Env.Prod => "http://crywolf-api/api",
+        _ => throw new ArgumentOutOfRangeException()
+    };
 
     public static NetworkManager Instance { get; } = new();
 
@@ -20,7 +37,7 @@ public class NetworkManager
         _httpListener = new HttpListener();
         _httpListener.Prefixes.Add("http://*:8081/");
         _httpListener.Start();
-        Console.WriteLine("HTTP Server Started");
+        Console.WriteLine("HTTP Server Started at 8081");
         Task.Run(HandleHttpRequests);
     }
     
@@ -44,6 +61,9 @@ public class NetworkManager
                         break;
                     case "/surrender":
                         responseString = await HandleSurrenderRequest(request);
+                        break;
+                    case "/test":
+                        responseString = await HandleTestRequest(request);
                         break;
                     default:
                         response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -84,7 +104,8 @@ public class NetworkManager
         }
 
         var task = await StartGameAsync(matchRequest);
-        var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task };
+        var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task }; 
+        
         return JsonConvert.SerializeObject(matchResponse);
     }
     
@@ -105,7 +126,28 @@ public class NetworkManager
 
         var task = await SurrenderGameAsync(surrenderRequest);
         var surrenderResponse = new GameResultPacketResponse { GetGameResultOk = task };
+        
         return JsonConvert.SerializeObject(surrenderResponse);
+    }
+    
+    private async Task<string> HandleTestRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var testRequest = JsonConvert.DeserializeObject<TestApiToSocketRequired>(requestBody);
+        if (testRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+        
+        var testResponse = new MatchSuccessPacketResponse { IsSuccess = testRequest.Test };
+        
+        return JsonConvert.SerializeObject(testResponse);
     }
 
     # region StartGame

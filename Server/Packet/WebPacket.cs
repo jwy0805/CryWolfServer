@@ -1,5 +1,16 @@
 namespace Google.Protobuf.Protocol;
 
+public class TestApiToSocketRequired
+{
+    public bool Test { get; set; }
+}
+
+public class TestApiToSocketResponse
+{
+    public bool TestOk { get; set; }
+}
+
+
 #region For Match Making Server
 
 public class RewardInfo

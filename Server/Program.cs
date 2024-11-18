@@ -12,45 +12,45 @@ using Timer = System.Timers.Timer;
 
 namespace Server;
 
-public class Program
+public static class Program
 {
     private static readonly Listener Listener = new();
-    private static HttpListener? _httpListener;
-    private static int _environment = 0; // 0: local, 1: docker
-    public static int Port { get; set; } = 7777;
+    private static readonly int Port = 7777;
 
     private static void Main(string[] args)
     {
         DataManager.LoadData();
-        
+
         // DNS
-        var host = Dns.GetHostName();
-        var ipHost = Dns.GetHostEntry(host);
         IPAddress? ipAddress;
-        switch (_environment)
+        if (NetworkManager.Instance.Environment == Env.Local)
         {
-            case 1:
-                var ipStr = Environment.GetEnvironmentVariable("SERVER_IP");
-                if (ipStr != null && IPAddress.TryParse(ipStr, out var ipAdr)) ipAddress = ipAdr;
-                else ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
-                break;
-            default:
-                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
-                break;
-        }
+            var host = Dns.GetHostName();
+            var ipHost = Dns.GetHostEntry(host);
+            ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
 
-        Console.WriteLine(ipAddress);
-
-        if (ipAddress != null)
-        {
-            var endPoint = new IPEndPoint(ipAddress, Port);
-            Listener.Init(endPoint, () =>
+            if (ipAddress == null)
             {
-                var session = SessionManager.Instance.Generate();
-                return session;
-            });
-            Console.WriteLine($"Listening... {endPoint}");
+                Console.WriteLine("Failed to find a local IP address. Check your configuration.");
+                return;
+            }
         }
+        else
+        {
+            const string host = "crywolf-socket";
+            var ipHost = Dns.GetHostEntry(host);
+            ipAddress = ipHost.AddressList.FirstOrDefault();
+
+            if (ipAddress == null)
+            {
+                Console.WriteLine($"Failed to resolve DNS for host: {host}");
+                return;
+            }
+        }
+        
+        var endPoint = new IPEndPoint(ipAddress, Port);
+        Listener.Init(endPoint, () => SessionManager.Instance.Generate());
+        Console.WriteLine($"Listening... {endPoint}");
         
         NetworkManager.Instance.StartHttpServer();
 
