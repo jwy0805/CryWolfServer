@@ -141,17 +141,24 @@ public partial class GameRoom
             case GameObjectType.Monster:
                 if ((bool)reachableInFence)
                 {
-                    targetTypeList = new List<GameObjectType> 
-                        { GameObjectType.Tower, GameObjectType.Sheep };
+                    targetTypeList = new List<GameObjectType>
+                    {
+                        GameObjectType.Tower, GameObjectType.Sheep
+                    };
                 }
                 else
                 {
                     targetTypeList = new List<GameObjectType>
-                        { GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence };
+                    {
+                        GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence
+                    };
                 }
                 break;
             case GameObjectType.Tower:
-                targetTypeList = new List<GameObjectType> { GameObjectType.Monster, GameObjectType.MonsterStatue };
+                targetTypeList = new List<GameObjectType>
+                {
+                    GameObjectType.Monster, GameObjectType.MonsterStatue, GameObjectType.Portal
+                };
                 break;
         }
         
@@ -184,6 +191,9 @@ public partial class GameRoom
                 break;
             case GameObjectType.Fence:
                 targets = _fences.Values.Cast<GameObject>().ToList();
+                break;
+            case GameObjectType.Portal:
+                targets = _portals.Values.Cast<GameObject>().ToList();
                 break;
         }
 

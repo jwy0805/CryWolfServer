@@ -7,8 +7,6 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    public Vector3 RelativePosition => Room != null ? CellPos - Room.GameInfo.FenceStartPos : CellPos;
-
     protected Tower()
     {
         ObjectType = GameObjectType.Tower;

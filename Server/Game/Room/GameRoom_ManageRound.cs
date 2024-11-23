@@ -9,7 +9,7 @@ public partial class GameRoom
     private readonly int _forwardParam = 4;
     private readonly Scheduler _scheduler = new();
 
-    private void CheckPrimeSheep()
+    private void CheckWinner()
     {
         var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
         var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
@@ -17,21 +17,16 @@ public partial class GameRoom
         
         var assetId = (SheepId)sheepPlayer.AssetId;
         var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
-
-        if (primeSheep != null) return;
-        if (sheepPlayer.Session == null) return;
-        GameOver(sheepPlayer.Session.UserId);
-    }
-
-    private void CheckPortal()
-    {
-        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
-        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
-        if (sheepPlayer == null || wolfPlayer == null) return;
-
-        if (_portals.Values.Count > 0) return;
-        if (wolfPlayer.Session == null) return;
-        GameOver(wolfPlayer.Session.UserId);
+        
+        if (primeSheep != null && _portals.Values.Count > 0) return;
+        if (primeSheep == null)
+        {
+            GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
+        }
+        if (_portals.Values.Count == 0)
+        {
+            GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
+        }
     }
     
     private void CheckMonsters()
@@ -66,7 +61,7 @@ public partial class GameRoom
             var maxX = -10 + i * 2;
             var fenceOrder = i;
             
-            tasks.Add(_scheduler.ScheduleEvent(88 * i, () =>
+            tasks.Add(_scheduler.ScheduleEvent(30 * i, () =>
             {
                 try
                 {
@@ -135,10 +130,10 @@ public partial class GameRoom
         SpawnMonstersInNewRound();
     }
 
-    public async void GameOver(int loserId)
+    public async void GameOver(int winnerId, int loserId)
     {
         var loserPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == loserId) ?? new Player();
-        var winnerPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId != loserId) ?? new Player();
+        var winnerPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == winnerId) ?? new Player();
         var rewardPacket = new GameRewardPacketRequired
         {
             WinUserId = winnerPlayer.Session?.UserId ?? -1,
@@ -150,7 +145,7 @@ public partial class GameRoom
         var task = NetworkManager.Instance
             .SendRequestToApiAsync<GameRewardPacketResponse>("Match/RankGameReward", rewardPacket, HttpMethod.Put);
         await task;
-        
+
         if (task.Result == null)
         {
             Console.WriteLine("Game Over: Error in GameRewardPacketResponse");
@@ -189,5 +184,10 @@ public partial class GameRoom
         winnerPlayer.Session?.Send(winnerPacket);
         
         RoomActivated = false;
+    }
+
+    public async void GameOverSingle(int loserId)
+    {
+        
     }
 }

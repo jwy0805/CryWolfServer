@@ -20,20 +20,6 @@ public partial class GameRoom
         }
     }
 
-    private record struct MonsterSlot
-    {
-        public readonly UnitId MonsterId;
-        public readonly SpawnWay Way;
-        public readonly MonsterStatue Statue;
-        
-        public MonsterSlot(UnitId unitId, SpawnWay way, MonsterStatue statue)
-        {
-            MonsterId = unitId;
-            Way = way;
-            Statue = statue;
-        }
-    }
-
     public struct UnitSize
     {
         public readonly UnitId UnitId;

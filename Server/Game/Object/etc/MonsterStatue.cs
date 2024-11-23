@@ -25,7 +25,7 @@ public class MonsterStatue : GameObject
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        Targetable = Room.IsThereAnyMonster();
+        Targetable = !Room.IsThereAnyMonster();
     }
 
     protected override void OnDead(GameObject? attacker)

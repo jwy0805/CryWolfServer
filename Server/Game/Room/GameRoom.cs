@@ -92,12 +92,10 @@ public partial class GameRoom : JobSerializer
     {
         long time = Stopwatch.ElapsedMilliseconds;
         if (time < _timeSendTime + _interval || time < 1000) return;
-
+        
+        CheckWinner();
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
-        
-        CheckPrimeSheep();
-        CheckPortal();
         
         // --- Tutorial ---
         if (_roundTime < 15 && _tutorialSet == false)
@@ -278,6 +276,12 @@ public partial class GameRoom : JobSerializer
                 // TODO : Add destroy motion
                 Map.ApplyLeave(statue);
                 statue.Room = null;
+                break;
+            
+            case GameObjectType.Portal:
+                if (_portals.Remove(objectId, out var portal) == false) return;
+                Map.ApplyLeave(portal);
+                portal.Room = null;
                 break;
 
             case GameObjectType.Fence:

@@ -16,4 +16,25 @@ public class Portal : GameObject
         if (objectData == null) return;
         Stat.MergeFrom(objectData.stat);
     }
+
+    protected override void OnDead(GameObject? attacker)
+    {
+        if (Room == null) return;
+        
+        Targetable = false;
+        
+        if (attacker != null)
+        {
+            attacker.KillLog = Id;
+            attacker.Target = null;
+            
+            if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
+            {
+                attacker.Parent.Target = null;
+            }
+        }
+        
+        Room.Broadcast(new S_Die { ObjectId = Id});
+        Room.DieAndLeave(Id);
+    }
 }

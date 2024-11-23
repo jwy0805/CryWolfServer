@@ -13,7 +13,7 @@ public class Sheep : Creature, ISkillObserver
     private readonly float _infectionDist = 3f;
     private readonly long _yieldTime = 5000;
     
-    protected float SheepBoundMargin = 1.0f;
+    protected float SheepBoundMargin = 2.0f;
 
     public SheepId SheepId { get; set; }
     public int YieldIncrement { get; set; }
@@ -118,8 +118,6 @@ public class Sheep : Creature, ISkillObserver
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
     }
-
-
     
     public override void OnSkillUpgrade(Skill skill)
     {
@@ -163,7 +161,7 @@ public class Sheep : Creature, ISkillObserver
         Vector3[] sheepBound = Room.GetSheepBounds();
         float minX = sheepBound.Select(v => v.X).ToList().Min() + SheepBoundMargin;
         float maxX = sheepBound.Select(v => v.X).ToList().Max() - SheepBoundMargin;
-        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + 1;
+        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + SheepBoundMargin;
         float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - SheepBoundMargin;
 
         Random random = new();
