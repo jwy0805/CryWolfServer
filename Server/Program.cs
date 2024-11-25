@@ -37,8 +37,13 @@ public static class Program
         }
         else
         {
+            Console.WriteLine("Environment: " + NetworkManager.Instance.Environment);
             const string host = "crywolf-socket";
             var ipHost = Dns.GetHostEntry(host);
+            foreach (var address in ipHost.AddressList)
+            {
+                Console.WriteLine($"Address: {address}");
+            }
             ipAddress = ipHost.AddressList.FirstOrDefault();
 
             if (ipAddress == null)
