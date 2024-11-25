@@ -185,9 +185,4 @@ public partial class GameRoom
         
         RoomActivated = false;
     }
-
-    public async void GameOverSingle(int loserId)
-    {
-        
-    }
 }

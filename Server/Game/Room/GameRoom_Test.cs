@@ -35,7 +35,7 @@ public partial class GameRoom
     
     private void SetTutorialStatues(int round)
     {
-        TestCaseSheep0(round);
+        // TestCaseSheep0(round);
     }
 
     private void TestCaseSheep0(int round)
@@ -127,7 +127,6 @@ public partial class GameRoom
                 break;
             
             case 8:
-                
                 var northCreeper = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Creeper, Way: SpawnWay.North });
                 if (northCreeper != null) UnitUpgrade(northCreeper);

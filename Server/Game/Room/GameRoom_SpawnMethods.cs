@@ -74,8 +74,7 @@ public partial class GameRoom
     {
         foreach (var statue in _statues.Values)
         {
-            if (Npc == null) return;
-            var monster = SpawnMonster(statue.UnitId, FindMonsterSpawnPos(statue), Npc);
+            var monster = SpawnMonster(statue.UnitId, FindMonsterSpawnPos(statue), statue.Player);
             monster.StatueId = statue.Id;
         }
     }
