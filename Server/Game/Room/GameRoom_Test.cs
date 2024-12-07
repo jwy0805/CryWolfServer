@@ -10,6 +10,14 @@ public partial class GameRoom
         var statue = SpawnMonsterStatue(monsterId, pos, player);
         SpawnEffect(EffectId.Upgrade, statue, statue);
     }
+
+    private void SpawnTower(UnitId towerId, PositionInfo pos)
+    {
+        var player = Npc;
+        var tower = SpawnTower(towerId, pos, player);
+        SpawnEffect(EffectId.Upgrade, tower, tower);
+
+    }
     
     private void SkillUpgrade(Skill skill)
     {
@@ -36,6 +44,7 @@ public partial class GameRoom
     private void SetTutorialStatues(int round)
     {
         // TestCaseSheep0(round);
+        TestCaseWolf0(round);
     }
 
     private void TestCaseSheep0(int round)
@@ -140,6 +149,18 @@ public partial class GameRoom
             case 11:
                 break;
             default: return;
+        }
+    }
+
+    private void TestCaseWolf0(int round)
+    {
+        var fencePosZ = GameInfo.FenceStartPos.Z;
+        switch (round)
+        {
+            case 0:
+                PositionInfo pos1 = new() { PosX = 0, PosY = 6, PosZ = fencePosZ - 1 };
+                SpawnTower(UnitId.Bloom, pos1);
+                break;
         }
     }
 }

@@ -134,29 +134,55 @@ public partial class GameRoom
         foreach (var objectId in objectIds)
         {
             var go = FindGameObjectById(objectId);
-            if (go is not Tower originTower) return;
-            
-            // 실제 환경
-            bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originTower.UnitId+ 1, out _);
-            bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originTower.UnitId);
-            bool lackOfCost = VerifyUnitUpgradeCost((int)originTower.UnitId);
-            
-            if (evolutionEnded)
+
+            if (go is Tower originalTower)
             {
-                SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
-                return;
+                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalTower.UnitId+ 1, out _);
+                bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalTower.UnitId);
+                bool lackOfCost = VerifyUnitUpgradeCost((int)originalTower.UnitId);
+            
+                if (evolutionEnded)
+                {
+                    SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+                    return;
+                }
+
+                if (lackOfUpgrade)
+                {
+                    SendWarningMessage(player, "먼저 진화가 필요합니다.");
+                    return;
+                }
+
+                if (lackOfCost)
+                {
+                    SendWarningMessage(player, "골드가 부족합니다.");
+                    return;
+                }
             }
 
-            if (lackOfUpgrade)
+            if (go is MonsterStatue originalStatue)
             {
-                SendWarningMessage(player, "먼저 진화가 필요합니다.");
-                return;
-            }
+                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalStatue.UnitId+ 1, out _);
+                bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalStatue.UnitId);
+                bool lackOfCost = VerifyUnitUpgradeCost((int)originalStatue.UnitId);
+            
+                if (evolutionEnded)
+                {
+                    SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+                    return;
+                }
 
-            if (lackOfCost)
-            {
-                SendWarningMessage(player, "골드가 부족합니다.");
-                return;
+                if (lackOfUpgrade)
+                {
+                    SendWarningMessage(player, "먼저 진화가 필요합니다.");
+                    return;
+                }
+
+                if (lackOfCost)
+                {
+                    SendWarningMessage(player, "골드가 부족합니다.");
+                    return;
+                }
             }
 
             int id = go.Id;

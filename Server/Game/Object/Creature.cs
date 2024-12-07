@@ -22,7 +22,7 @@ public class Creature : GameObject
     protected const long MpTime = 1000;
     protected const long StdAnimTime = 1000;
     
-    public List<int> UnreachableIds = new();
+    public readonly List<int> UnreachableIds = new();
     public Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool>? AddBuffAction { get; set; }
     public UnitId UnitId { get; set; }
     public Role UnitRole { get; protected set; }

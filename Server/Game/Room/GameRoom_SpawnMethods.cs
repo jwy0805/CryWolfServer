@@ -79,7 +79,7 @@ public partial class GameRoom
         }
     }
     
-    private Tower SpawnTower(UnitId unitId, PositionInfo posInfo, Player player)
+    private Tower SpawnTower(UnitId unitId, PositionInfo posInfo, Player? player)
     {
         var tower = ObjectManager.Instance.Create<Tower>(unitId);
         tower.PosInfo = posInfo;

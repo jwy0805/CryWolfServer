@@ -27,7 +27,7 @@ public static class Program
         {
             var host = Dns.GetHostName();
             var ipHost = Dns.GetHostEntry(host);
-            ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+            ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("127."));
 
             if (ipAddress == null)
             {

@@ -107,6 +107,13 @@ public class Bomb : Monster
         
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
+        if (Path.Count == 0)
+        {
+            State = State.Idle;
+            BroadcastPos();
+            UnreachableIds.Add(Target.Id);
+            return;
+        }
         BroadcastPath();
     }
 
