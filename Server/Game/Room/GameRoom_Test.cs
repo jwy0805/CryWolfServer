@@ -43,8 +43,8 @@ public partial class GameRoom
     
     private void SetTutorialStatues(int round)
     {
-        // TestCaseSheep0(round);
-        TestCaseWolf0(round);
+        TestCaseSheep0(round);
+        // TestCaseWolf0(round);
     }
 
     private void TestCaseSheep0(int round)

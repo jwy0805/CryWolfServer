@@ -22,6 +22,7 @@ public class RewardInfo
 
 public class MatchSuccessPacketRequired
 {
+    public bool IsTestGame { get; set; }
     public int SheepUserId { get; set; }
     public int SheepSessionId { get; set; }
     public string SheepUserName { get; set; }

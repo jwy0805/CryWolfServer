@@ -31,6 +31,7 @@ public partial class GameRoom : JobSerializer
     private readonly long _interval = 1000;
     private long _timeSendTime;
     
+    public bool IsTestGame { get; set; }
     public Player? Npc { get; set; }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();

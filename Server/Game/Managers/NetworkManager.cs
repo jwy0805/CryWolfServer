@@ -159,7 +159,7 @@ public class NetworkManager
         
         GameLogic.Instance.Push(() =>
         {
-            if (packet.WolfUserId == packet.SheepUserId)
+            if (packet.IsTestGame)
             {
                 StartTestGame(packet);
             }
@@ -168,7 +168,7 @@ public class NetworkManager
                 var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
                 var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
                 var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
-        
+                
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
                     if ((DateTime.UtcNow - startTime.Value).TotalMilliseconds > 5000)
@@ -277,6 +277,7 @@ public class NetworkManager
         };
 
         room.Npc = npc;
+        room.IsTestGame = true;
         
         foreach (var unitId in required.SheepUnitIds)
         {
