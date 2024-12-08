@@ -21,10 +21,12 @@ public partial class GameRoom
         if (primeSheep != null && _portals.Values.Count > 0) return;
         if (primeSheep == null)
         {
+            Console.WriteLine("Sheep is dead");
             GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
         }
         if (_portals.Values.Count == 0)
         {
+            Console.WriteLine("Portals are destroyed");
             GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
         }
     }
