@@ -93,8 +93,7 @@ public partial class GameRoom : JobSerializer
     {
         long time = Stopwatch.ElapsedMilliseconds;
         if (time < _timeSendTime + _interval || time < 1000) return;
-        
-        CheckWinner();
+        if (_round > 0) CheckWinner();
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
