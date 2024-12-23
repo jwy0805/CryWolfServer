@@ -43,7 +43,7 @@ public partial class GameRoom
     
     private void SetTutorialStatues(int round)
     {
-        TestCaseSheep0(round);
+        // TestCaseSheep2(round);
         // TestCaseWolf0(round);
     }
 
@@ -158,8 +158,26 @@ public partial class GameRoom
         switch (round)
         {
             case 0:
-                PositionInfo pos1 = new() { PosX = 0, PosY = 6, PosZ = fencePosZ - 1 };
-                SpawnTower(UnitId.Bloom, pos1);
+                PositionInfo pos1 = new() { PosX = 0, PosY = 6, PosZ = fencePosZ + 2 };
+                SpawnTower(UnitId.TargetDummy, pos1);
+                break;
+        }
+    }
+
+    private void TestCaseWolf1(int round)
+    {
+        var fencePosZ = GameInfo.FenceStartPos.Z;
+        switch (round)
+        {
+            case 0:
+                PositionInfo pos1 = new() { PosX = 0, PosY = 6, PosZ = fencePosZ + 2 };
+                PositionInfo pos2 = new() { PosX = 4, PosY = 6, PosZ = fencePosZ + 2 };
+                PositionInfo pos3 = new() { PosX = -4, PosY = 6, PosZ = fencePosZ + 2 };
+                PositionInfo pos4 = new() { PosX = 0, PosY = 6, PosZ = fencePosZ -1 };
+                SpawnTower(UnitId.TrainingDummy, pos1);
+                SpawnTower(UnitId.TrainingDummy, pos2);
+                SpawnTower(UnitId.TrainingDummy, pos3);
+                SpawnTower(UnitId.Bloom, pos4);
                 break;
         }
     }

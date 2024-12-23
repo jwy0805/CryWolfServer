@@ -27,8 +27,6 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            NorthMaxTower = MapId == 1 ? 8 : 6,
-            NorthMaxMonster = MapId == 1 ? 8 : 6,
         };
         
         StorageLevel = 1;
@@ -52,7 +50,7 @@ public partial class GameRoom
         // Set UI Text
         foreach (var player in _players.Values)
         {
-            if (player.Session == null) return;
+            if (player.Session == null) continue;
             
             if (player.Faction == Faction.Sheep)
             {
@@ -74,7 +72,7 @@ public partial class GameRoom
                 {
                     player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
                     player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMonster, Max = false });
-                } 
+                }
             }
         }
     }
@@ -165,10 +163,18 @@ public partial class GameRoom
         return targetTypeList;
     }
 
-    private bool ReachableInFence(GameObject go)
+    private bool ReachableInFence(GameObject gameObject)
     {
-        var type = go.ObjectType;
+        var type = gameObject.ObjectType;
         if (type is GameObjectType.Tower or GameObjectType.Sheep) return true;
+        if (type is GameObjectType.Monster && gameObject.Stat.UnitType == 1) return true;
+
+        // var sheep = FindNearestSheep(gameObject);
+        // if (sheep == null) return false;
+        // var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
+        // var path = Map.GetPath(gameObject, true, destCell);
+        // Console.WriteLine(path.Count);
+        // return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt && path.Count != 0;
         return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt;
     }
     
@@ -325,6 +331,23 @@ public partial class GameRoom
         }
 
         return target;
+    }
+
+    public GameObject? FindNearestSheep(GameObject gameObject)
+    {
+        PriorityQueue<TargetDistance, float> pq = new();
+
+        foreach (var sheep in _sheeps.Values)
+        {
+            var sheepPos = Map.Vector2To3(Map.FindNearestEmptySpace(
+                Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep)), gameObject));
+            sheepPos = sheepPos with { Y = 0 };
+            var cellPos = gameObject.CellPos with { Y = 0 };
+            var distance = Vector3.Distance(sheepPos, cellPos);
+            pq.Enqueue(new TargetDistance { Target = sheep, Distance = distance }, distance);
+        }
+
+        return pq.Count == 0 ? null : pq.Dequeue().Target;
     }
     
     public GameObject? FindNearestTower(List<UnitId> unitIdList)

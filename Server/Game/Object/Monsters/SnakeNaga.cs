@@ -9,7 +9,7 @@ public class SnakeNaga : Snake
     private bool _bigFire;
     private bool _drain;
     private bool _meteor;
-    private readonly float _meteorRange = 2.5f;
+    private readonly float _meteorRange = 3f;
     private readonly float _drainParam = 0.2f;
     private PositionInfo _meteorPos = new();
     
@@ -46,11 +46,7 @@ public class SnakeNaga : Snake
         base.Init();
         UnitRole = Role.Mage;
         
-        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaBigFire);
-        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaDrain);
-        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaCritical);
-        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaSuperAccuracy);
-        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaMeteor);
+        // Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaBigFire);
     }
     
     public override void Update()
@@ -99,8 +95,10 @@ public class SnakeNaga : Snake
         
         // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
+        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
@@ -123,6 +121,13 @@ public class SnakeNaga : Snake
         
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
+        if (Path.Count == 0)
+        {
+            State = State.Idle;
+            BroadcastPos();
+            UnreachableIds.Add(Target.Id);
+            return;
+        }
         BroadcastPath();
     }
 

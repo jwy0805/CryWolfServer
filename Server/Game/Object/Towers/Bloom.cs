@@ -103,7 +103,7 @@ public class Bloom : Bud
 
     protected override void SkillImpactEvents(long impactTime)
     {
-        AttackTaskId =  Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Room == null) return;
             if (Target == null || Target.Targetable == false || Hp <= 0) return;

@@ -11,9 +11,9 @@ public class Sheep : Creature, ISkillObserver
     private bool _idle = false;
     private long _idleTime;
     private readonly float _infectionDist = 3f;
-    private readonly long _yieldTime = 5000;
     
     protected float SheepBoundMargin = 2.0f;
+    protected readonly long YieldTime = 5000;
 
     public SheepId SheepId { get; set; }
     public int YieldIncrement { get; set; }
@@ -35,7 +35,7 @@ public class Sheep : Creature, ISkillObserver
         
         State = State.Idle;
         if (Room == null) return;
-        Time = Room.Stopwatch.ElapsedMilliseconds + _yieldTime;
+        Time = Room.Stopwatch.ElapsedMilliseconds + YieldTime;
     }
 
     public override void Update()
@@ -43,10 +43,11 @@ public class Sheep : Creature, ISkillObserver
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
         
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + _yieldTime && State != State.Die)
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + YieldTime && State != State.Die)
         {
+            var param = Room.GameInfo.TotalSheepYield + YieldIncrement - YieldDecrement;
             Time = Room.Stopwatch.ElapsedMilliseconds;
-            Room.YieldCoin(this, Room.GameInfo.SheepYield + YieldIncrement - YieldDecrement);
+            Room.YieldCoin(this, Math.Clamp(param, 0, param));
         }
         
         switch (State)
@@ -173,7 +174,7 @@ public class Sheep : Creature, ISkillObserver
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
             bool canGo = map.CanGo(this, map.Vector3To2(dest));
             float dist = Vector3.Distance(CellPos, dest);
-            if (canGo && dist > 3f) return dest;
+            if (canGo && dist > 1.5f) return dest;
         } while (true);
     }
 }

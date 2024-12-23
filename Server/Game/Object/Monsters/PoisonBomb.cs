@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Game.Resources;
 
 namespace Server.Game;
 
@@ -178,7 +179,7 @@ public class PoisonBomb : SnowBomb
                 if (target != null)
                 {
                     CellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
-                    BroadcastPos();
+                    BroadcastInstantMove();
                 }
                 State = State.Explode;
                 ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));

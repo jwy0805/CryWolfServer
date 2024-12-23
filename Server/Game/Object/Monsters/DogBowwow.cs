@@ -51,6 +51,7 @@ public class DogBowwow : DogBark
             State = State.Idle;
             return;
         }
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(this, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -66,6 +67,7 @@ public class DogBowwow : DogBark
             SyncPosAndDir();
             return;
         }
+        
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
         BroadcastPath();
@@ -91,20 +93,37 @@ public class DogBowwow : DogBark
         if (Room == null || AddBuffAction == null) return;
         
         HitCount++;
-        if ((_smash && HitCount == 3) || (_smash == false && HitCount == 4))
-        {
-            HitCount = 0;
-            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
-            if (_smash == false || _smashFaint == false) return;
-            var randomInt = new Random().Next(100);
-            if (randomInt > 15) return;
-            Room.Push(AddBuffAction, BuffId.Fainted,
-                BuffParamType.None, target, this, 0, 1000, false);
-        }
-        else
-        {
+        if ((_smash && HitCount < 3) || (_smash == false && HitCount < 4))
             Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
-        }
+    }
+
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
+        {
+            if (Room == null || AddBuffAction == null) return;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            if (_smash)
+            {
+                Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+                if (_smashFaint)
+                {
+                    var randomInt = new Random().Next(100);
+                    if (randomInt <= 15)
+                    {
+                        Room.Push(AddBuffAction, 
+                            BuffId.Fainted, BuffParamType.None, Target, this, 0, 1000, false);
+                    }
+                }
+            }
+            else
+            {
+                Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+            }
+            
+            HitCount = 0;
+        });
     }
 
     protected override void SetNextState()
@@ -125,10 +144,10 @@ public class DogBowwow : DogBark
         {
             State = State.Idle;
             return;
-        }
+        } 
 
-        if (_smash) State = HitCount == 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
-        else State = HitCount == 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
+        if (_smash) State = HitCount >= 2 ? State.Skill2 : GetRandomState(State.Attack, State.Attack2);
+        else State = HitCount >= 3 ? State.Skill : GetRandomState(State.Attack, State.Attack2);
         SyncPosAndDir();
     }
 }

@@ -19,18 +19,23 @@ public partial class GameRoom
                 return;
             }
             GameInfo.StorageLevel = _storageLevel;
-            
-            // 인구수 증가
-            if (_storageLevel == 1)
+
+            switch (_storageLevel)
             {
-                GameInfo.NorthMaxTower = MapId == 1 ? 14 : 9;
-                if (MapId != 1) GameInfo.SouthMaxTower = 6;
-            }
-            else if (_storageLevel == 2)
-            {
-                GameInfo.NorthMaxTower = MapId == 1 ? 14 : 9;
-                GameInfo.SheepYield += 20;
-                if (MapId != 1) GameInfo.SouthMaxTower = 9;
+                case 1:
+                    GameInfo.NorthMaxTower = 8;
+                    GameInfo.NorthMaxMonster = 8;
+                    break;
+                case 2:
+                    GameInfo.NorthMaxTower = 12;
+                    GameInfo.NorthMaxMonster = 12;
+                    GameInfo.SheepYield += 20;
+                    break;
+                case 3: // 최대 레벨
+                    GameInfo.NorthMaxTower = 16;
+                    GameInfo.NorthMaxMonster = 16;
+                    GameInfo.SheepYield += 40;
+                    break;
             }
             
             // 울타리 생성
@@ -76,7 +81,7 @@ public partial class GameRoom
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
                 bool lackOfTowerCost = VerifyResourceForTowerSpawn(player, spawnPacket.Num);
-                bool lackOfTowerCapacity = VerifyCapacityForTower(player, spawnPacket.Num, spawnPacket.Way);
+                bool lackOfTowerCapacity = VerifyCapacityForTower(spawnPacket.Num, spawnPacket.Way);
                 if (lackOfTowerCost)
                 {
                     SendWarningMessage(player, "골드가 부족합니다.");
@@ -87,8 +92,8 @@ public partial class GameRoom
                     SendWarningMessage(player, "인구수를 초과했습니다.");
                     return;
                 }
-                var tower = SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
-                // if (spawnPacket.Register) RegisterTower(tower);
+                SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
+                GameInfo.NorthTower++;
                 break;
 
             case GameObjectType.Monster:
@@ -99,7 +104,7 @@ public partial class GameRoom
             case GameObjectType.MonsterStatue:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
                 bool lackOfMonsterCost = VerifyResourceForMonsterSpawn(player, spawnPacket.Num);
-                bool lackOfMonsterCapacity = VerifyCapacityForMonster(player, spawnPacket.Num, spawnPacket.Way);
+                bool lackOfMonsterCapacity = VerifyCapacityForMonster(spawnPacket.Num, spawnPacket.Way);
                 if (lackOfMonsterCost)
                 {
                     SendWarningMessage(player, "골드가 부족합니다.");
@@ -110,8 +115,8 @@ public partial class GameRoom
                     SendWarningMessage(player, "인구수를 초과했습니다.");
                     return;
                 }
-                var monsterStatue = SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
-                // Push(RegisterMonsterStatue, monsterStatue);
+                SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
+                GameInfo.NorthMonster++;
                 break;
         }
     }
@@ -178,7 +183,7 @@ public partial class GameRoom
         despawnPacket.ObjectIds.Add(objectId);
         foreach (var p in _players.Values.Where(p => p.Id != objectId)) p.Session?.Send(despawnPacket);
         
-        GameInfo.SheepResource += GameInfo.SheepYield;
+        GameInfo.SheepResource += GameInfo.TotalSheepYield;
     }
     
     public void HandleLeave(Player? player, C_Leave leavePacket)

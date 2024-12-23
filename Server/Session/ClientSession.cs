@@ -61,14 +61,9 @@ public class ClientSession : PacketSession
     
     public override void OnDisconnected(EndPoint endPoint)
     {
-        // GameLogic.Instance.Push(() =>
-        // {
-        //     GameRoom? room = GameLogic.Instance.FindByUserId(UserId);
-        //     room?.Push(room.LeaveGame, MyPlayer.Info.ObjectId);
-        // });
-        NetworkManager.Instance.OnSessionDisconnected(SessionId);
+        _ =  NetworkManager.Instance.OnSessionDisconnected(SessionId);
         SessionManager.Instance.Remove(this);
-        Console.WriteLine($"OnDisconnected : {endPoint}");
+        Console.WriteLine($"OnDisconnected : {SessionId} / {endPoint}");
     }
 
     public override void OnSend(int numOfBytes)

@@ -38,7 +38,11 @@ public class Monster : Creature, ISkillObserver
     protected override void UpdateIdle()
     {
         Target = Room?.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        {
+            return;
+        }
+        
         State = State.Moving;
     }
     

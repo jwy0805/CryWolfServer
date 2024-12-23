@@ -33,7 +33,7 @@ public partial class GameRoom
     
     private void CheckMonsters()
     {
-        if (GameInfo.FenceStartPos.Z >= 7) return;
+        if (GameInfo.FenceStartPos.Z >= 10) return;
         
         if (IsThereAnyMonster() == false)
         {
@@ -74,8 +74,8 @@ public partial class GameRoom
                     
                     if (fence != null)
                     {
-                        fence.CellPos = newFenceCellPos;
-                        fence.BroadcastMoveForward();
+                        Map.ApplyMap(fence, newFenceCellPos);
+                        fence.BroadcastInstantMove();
                     }
                     else
                     {
@@ -89,8 +89,8 @@ public partial class GameRoom
                         .Where(tower => tower.CellPos.X >= minX && tower.CellPos.X < maxX).ToList();
                     foreach (var tower in towers)
                     {
-                        tower.CellPos += new Vector3 { Z = _forwardParam };
-                        tower.BroadcastMoveForward();
+                        Map.ApplyMap(tower, tower.CellPos + new Vector3 { Z = _forwardParam });
+                        tower.BroadcastInstantMove();
                         SpawnEffect(EffectId.MoveForwardEffect, tower, tower);
                     }
                 }
@@ -105,13 +105,14 @@ public partial class GameRoom
         {
             await Task.WhenAll(tasks);
             
-            var diffTowers = _towers
+            var remainTowers = _towers
                 .Where(kv => !towerCopy.ContainsKey(kv.Key))
                 .ToDictionary(kv => kv.Key, kv => kv.Value);
-            foreach (var tower in diffTowers.Values)
+            foreach (var tower in remainTowers.Values)
             {
-                tower.CellPos += new Vector3 { Z = _forwardParam };
-                tower.BroadcastMoveForward();
+                Map.ApplyMap(tower, tower.CellPos + new Vector3 { Z = _forwardParam });
+                // tower.CellPos += new Vector3 { Z = _forwardParam };
+                tower.BroadcastInstantMove();
                 SpawnEffect(EffectId.MoveForwardEffect, tower, tower);
             }
         }
@@ -134,8 +135,15 @@ public partial class GameRoom
 
     public async void GameOver(int winnerId, int loserId)
     {
-        var loserPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == loserId) ?? new Player();
-        var winnerPlayer = _players.Values.FirstOrDefault(player => player.Session?.UserId == winnerId) ?? new Player();
+        var loserPlayer = _players.Values
+            .Where(player => player.Session?.UserId == loserId)
+            .OrderByDescending(player => player.Session?.SessionId)
+            .FirstOrDefault() ?? new Player();    
+        var winnerPlayer = _players.Values
+            .Where(player => player.Session?.UserId == winnerId)
+            .OrderByDescending(player => player.Session?.SessionId)
+            .FirstOrDefault() ?? new Player();
+
         var rewardPacket = new GameRewardPacketRequired
         {
             WinUserId = winnerPlayer.Session?.UserId ?? -1,
@@ -185,6 +193,11 @@ public partial class GameRoom
         loserPlayer.Session?.Send(loserPacket);
         winnerPlayer.Session?.Send(winnerPacket);
         
+        LeaveGame(loserPlayer.Id);
+        LeaveGame(winnerPlayer.Id);
+        
         RoomActivated = false;
+        
+        GameLogic.Instance.RemoveGameRoom(RoomId);
     }
 }

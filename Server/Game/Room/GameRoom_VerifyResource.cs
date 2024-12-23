@@ -67,7 +67,7 @@ public partial class GameRoom
 
     }
     
-    private bool VerifyCapacityForTower(Player player, int towerId, SpawnWay way)
+    private bool VerifyCapacityForTower(int towerId, SpawnWay way)
     {
         if (!DataManager.UnitDict.TryGetValue(towerId, out _)) return true;
         int maxCapacity = 0;
@@ -87,7 +87,7 @@ public partial class GameRoom
         return nowCapacity >= maxCapacity;
     }
     
-    private bool VerifyCapacityForMonster(Player player, int monsterId, SpawnWay way)
+    private bool VerifyCapacityForMonster(int monsterId, SpawnWay way)
     {
         if (!DataManager.UnitDict.TryGetValue(monsterId, out _)) return true;
         int maxCapacity = 0;
@@ -224,17 +224,16 @@ public partial class GameRoom
                 cost = GameInfo.StorageLevelUpCost;
                 break;
             case Skill.ResourceSheep:
-                cost = GameInfo.SheepYield * 3;
+                cost = GameInfo.SheepYieldUpgradeCost;
                 break;
             case Skill.ResourceWolf:
                 cost = GameInfo.WolfYield * 3;
                 break;
             case Skill.AssetSheep:
-                cost = (int)(GameInfo.SheepCount * 50 * (1 + GameInfo.SheepCount * 0.25));
+                cost = GameInfo.SheepCount * 150;
                 break;
             case Skill.AssetWolf:
                 // TODO: Implement Wolf's skill cost
-                
                 break;
         }
         

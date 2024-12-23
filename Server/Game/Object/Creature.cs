@@ -26,7 +26,7 @@ public class Creature : GameObject
     public Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool>? AddBuffAction { get; set; }
     public UnitId UnitId { get; set; }
     public Role UnitRole { get; protected set; }
-    public virtual bool Degeneration { get; set; }
+    public bool Degeneration { get; set; }
 
     public override State State
     {

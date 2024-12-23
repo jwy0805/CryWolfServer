@@ -4,8 +4,9 @@ public class GameLogic : JobSerializer
 {
     public static GameLogic Instance { get; } = new();
 
-    private Dictionary<int, GameRoom> _rooms = new();
+    private readonly Dictionary<int, GameRoom> _rooms = new();
     private int _roomId = 1;
+    private object _lock = new();
 
     public void Update()
     { 
@@ -28,10 +29,24 @@ public class GameLogic : JobSerializer
 
         return gameRoom;
     }
-
-    public bool Remove(int roomId)
+    
+    public void RemoveGameRoom(int roomId)
     {
-        return _rooms.Remove(roomId);
+        lock (_lock)
+        {
+            if (_rooms.TryGetValue(roomId, out var gameRoom) == false) return;
+
+            try
+            {
+                gameRoom.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            _rooms.Remove(gameRoom.RoomId);
+        }
     }
 
     public GameRoom? Find(int roomId)

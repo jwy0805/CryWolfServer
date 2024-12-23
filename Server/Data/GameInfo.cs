@@ -18,7 +18,11 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _southMonster = 0;
     private int _sheepResource = 100000;
     private int _wolfResource = 100000;
-    public int SheepYield { get; set; } = 80;
+
+    public int SheepYieldUpgradeCost { get; set; } = 260;
+    public int SheepYield { get; set; } = 100;
+    public float SheepYieldParam { get; set; } = 1;
+    public int TotalSheepYield => (int)Math.Round(SheepYield * SheepYieldParam);
     public int NorthFenceCnt { get; set; }
     public int SouthFenceCnt { get; set; }
     public int NorthMaxFenceCnt { get; set; }
@@ -177,7 +181,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
     {
         _players = players;
         _mapId = mapId;
-        NorthMaxFenceCnt = _mapId == 1 ? 12 : 8;
+        NorthMaxFenceCnt = 12;
     }
     
     private void UpdateBounds()

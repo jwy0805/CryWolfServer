@@ -224,6 +224,7 @@ public class NetworkManager
             ? SessionManager.Instance.Find(required.SheepSessionId)
             : SessionManager.Instance.Find(required.WolfSessionId);
 
+        Console.WriteLine($"{required.SheepSessionId} : {required.WolfSessionId}");
         if (player.Session == null)
         {
             Console.WriteLine($"Session not found for user : {player.Session?.UserId}");

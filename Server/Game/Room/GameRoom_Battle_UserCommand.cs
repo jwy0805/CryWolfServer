@@ -47,7 +47,8 @@ public partial class GameRoom
             
             case Skill.ResourceSheep:
                 GameInfo.SheepResource -= cost;
-                GameInfo.SheepYield *= 2;
+                GameInfo.SheepYieldParam *= 1.3f;
+                GameInfo.SheepYieldUpgradeCost = (int)(GameInfo.SheepYieldUpgradeCost * 1.5f);
                 break;
             
             case Skill.ResourceWolf:
@@ -134,6 +135,7 @@ public partial class GameRoom
         foreach (var objectId in objectIds)
         {
             var go = FindGameObjectById(objectId);
+            if (go == null) return;
 
             if (go is Tower originalTower)
             {

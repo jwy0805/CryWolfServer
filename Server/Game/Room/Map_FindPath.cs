@@ -1,4 +1,5 @@
 using System.Numerics;
+using Google.Protobuf.Protocol;
 using Server.Data;
 using ServerCore;
 
@@ -57,6 +58,9 @@ public struct Vector2Int
         Z = z;
     }
 
+    public static Vector2Int Zero => new Vector2Int(0, 0);
+    public static Vector2Int One => new Vector2Int(1, 1);
+    
     public static Vector2Int operator +(Vector2Int v1, Vector2Int v2)
     {
         return new Vector2Int(v1.X + v2.X, v1.Z + v2.Z);
@@ -181,7 +185,7 @@ public partial class Map
             for (int i = 0; i < _regionGraph.Count; i++)
             {
                 if (visited[i]) continue;
-                if (distance[i] == Int32.MaxValue || distance[i] >= closest) continue;
+                if (distance[i] == int.MaxValue || distance[i] >= closest) continue;
                 
                 closest = distance[i];
                 now = i;
@@ -300,11 +304,12 @@ public partial class Map
 		pq.Push(new PQNode { F = 10 * (Math.Abs(dest.Z - pos.Z) + Math.Abs(dest.X - pos.X)), G = 0, Z = pos.Z, X = pos.X });
 		parent.Add(pos, pos);
 
-		while (pq.Count > 0)
+        while (pq.Count > 0)
 		{
-            if (pq.Count > 160)
+            if (parent.Count > 800)
             {
                 // 길찾기 실패 (경로가 존재하지 않음)
+                Console.WriteLine("Pathfinding failed");
                 return new List<Vector3>();
             }                                                           
             
@@ -348,6 +353,7 @@ public partial class Map
 			}
 		}
 
+        // if (gameObject.ObjectType == GameObjectType.Monster) Console.WriteLine($"{parent.Count}");
         return gameObject.UnitType == 0 
             ? CalcCellPathFromParent(parent, dest) : CalcCellPathFromParent(parent, dest, 9.0f);
     }

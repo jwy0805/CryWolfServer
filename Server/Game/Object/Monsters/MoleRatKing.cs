@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public class MoleRatKing : MoleRat
 {
-    private List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
+    private readonly List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
     private bool _burrow = false;
     private bool _stealWool = false;
     private readonly float _stealWoolParam = 0.1f;
@@ -64,7 +64,8 @@ public class MoleRatKing : MoleRat
         var targetTypeList = new List<GameObjectType> { GameObjectType.Sheep };
         Target = Room.FindClosestPriorityTarget(this, targetTypeList);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
@@ -182,13 +183,11 @@ public class MoleRatKing : MoleRat
         {
             if (target is Sheep sheep)
             {
-                var stealWool = (int)(Room.GameInfo.SheepYield * _stealWoolParam);
+                var stealWool = (int)(Room.GameInfo.TotalSheepYield * _stealWoolParam);
                 sheep.YieldDecrement += stealWool;
+                Room.GameInfo.WolfResource += stealWool;
             }
         }
-        
-        // TODO : 훔친만큼 DNA 증가
-        // some code
         
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
 

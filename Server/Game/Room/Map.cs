@@ -313,10 +313,10 @@ public partial class Map
         return new ValueTuple<List<Vector3>, List<double>>();
     }
 
-    public List<Vector3> GetPath(GameObject go, bool checkObjects = true)
+    public List<Vector3> GetPath(GameObject go, bool checkObjects = true, Vector2Int? destVector = null)
     {
         Vector2Int startCell = Vector3To2(go.CellPos);
-        Vector2Int destCell = Vector3To2(go.DestPos);
+        Vector2Int destCell = destVector ?? Vector3To2(go.DestPos);
         if (CanGo(go, destCell, false) == false)
         {
             Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);

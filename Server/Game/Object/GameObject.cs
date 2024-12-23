@@ -170,14 +170,14 @@ public partial class GameObject : IGameObject
         buff.TriggerBuff();
     }
     
-    public virtual void BroadcastPos()
+    public virtual void BroadcastPos() 
     {
         Room?.Broadcast(new S_Move { ObjectId = Id, PosInfo = PosInfo });
     }
-
-    public virtual void BroadcastMoveForward()
+    
+    public virtual void BroadcastInstantMove()
     {
-        Room?.Broadcast(new S_MoveForwardObject
+        Room?.Broadcast(new S_InstantMove
         {
             ObjectId = Id, Dest = new DestVector { X = CellPos.X, Y = CellPos.Y, Z = CellPos.Z }
         });

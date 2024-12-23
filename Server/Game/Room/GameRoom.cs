@@ -9,7 +9,7 @@ using Server.Util;
 
 namespace Server.Game;
 
-public partial class GameRoom : JobSerializer
+public partial class GameRoom : JobSerializer, IDisposable
 {
     private bool _tutorialSet;
     
@@ -273,7 +273,6 @@ public partial class GameRoom : JobSerializer
             
             case GameObjectType.MonsterStatue:
                 if (_statues.Remove(objectId, out var statue) == false) return;
-                // TODO : Add destroy motion
                 Map.ApplyLeave(statue);
                 statue.Room = null;
                 break;
@@ -324,6 +323,12 @@ public partial class GameRoom : JobSerializer
                 if (_monsters.Remove(objectId, out var monster) == false) return;
                 Map.ApplyLeave(monster);
                 monster.Room = null;
+                break;
+            
+            case GameObjectType.MonsterStatue:
+                if (_statues.Remove(objectId, out var statue) == false) return;
+                Map.ApplyLeave(statue);
+                statue.Room = null;
                 break;
             
             case GameObjectType.Tower:
@@ -397,5 +402,85 @@ public partial class GameRoom : JobSerializer
                 p.Session?.Send(packet);
             }
         }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+        
+        foreach (var player in _players.Values)
+        {
+            player.OnLeaveGame();
+            player.Room = null;
+        }
+        
+        foreach (var monster in _monsters.Values)
+        {
+            monster.Room = null;
+        }
+        
+        foreach (var tower in _towers.Values)
+        {
+            tower.Room = null;
+        }
+        
+        foreach (var sheep in _sheeps.Values)
+        {
+            sheep.Room = null;
+        }
+        
+        foreach (var fence in _fences.Values)
+        {
+            fence.Room = null;
+        }
+        
+        foreach (var effect in _effects.Values)
+        {
+            effect.Room = null;
+        }
+        
+        foreach (var projectile in _projectiles.Values)
+        {
+            projectile.Room = null;
+        }
+        
+        foreach (var portal in _portals.Values)
+        {
+            portal.Room = null;
+        }
+        
+        _players.Clear();
+        _monsters.Clear();
+        _towers.Clear();
+        _sheeps.Clear();
+        _fences.Clear();
+        _effects.Clear();
+        _projectiles.Clear();
+        _portals.Clear();
+        _statues.Clear();
+        Buffs.Clear();
+        GameInfo = new GameInfo(new Dictionary<int, Player>(), 1);
+        Map.Room = null;
+        GameData = new GameManager.GameData();
+        _tutorialSet = false;
+        _roundTime = 19;
+        _round = 0;
+        _storageLevel = 0;
+        _timeSendTime = 0;
+        RoomActivated = false;
+        IsTestGame = false;
+        Npc = null;
+        Enchant = null;
+    }
+    
+    ~GameRoom()
+    {
+        Dispose(false);
     }
 }

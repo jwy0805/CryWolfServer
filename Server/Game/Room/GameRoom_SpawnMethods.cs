@@ -81,6 +81,7 @@ public partial class GameRoom
     
     private Tower SpawnTower(UnitId unitId, PositionInfo posInfo, Player? player)
     {
+        if (player == null) return new Tower();
         var tower = ObjectManager.Instance.Create<Tower>(unitId);
         tower.PosInfo = posInfo;
         tower.Info.PosInfo = tower.PosInfo;

@@ -7,7 +7,7 @@ namespace Server.Game;
 
 public class Tower : Creature, ISkillObserver
 {
-    protected Tower()
+    public Tower()
     {
         ObjectType = GameObjectType.Tower;
     }

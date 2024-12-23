@@ -86,7 +86,6 @@ public class Werewolf : Wolf
         
         if (distance <= TotalAttackRange)
         {
-            Console.WriteLine(_thunder);
             State = _thunder ? GetRandomState(State.Skill, State.Skill2) : State.Attack;
             SyncPosAndDir();
             return;

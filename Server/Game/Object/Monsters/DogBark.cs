@@ -72,24 +72,26 @@ public class DogBark : DogPup
         }
         // 현재 상태를 새로운 상태로 업데이트
         _currentSet = newSet;
+        Console.WriteLine($"{newSet.Count}");
     }
    
     public override void ApplyAttackEffect(GameObject target)
     {
-        if (Room == null) return;
-        
-        if (_4Hit)
+        HitCount++;
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+    }
+
+    protected override void SkillImpactEvents(long impactTime)
+    {
+        AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
-            HitCount++;
-            if (HitCount == 4)
-            {
-                HitCount = 0;
-                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
-                return;
-            }
-        }
-        
-        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            if (Room == null) return;
+            if (Target == null || Target.Targetable == false || Hp <= 0) return;
+            if (State == State.Faint) return;
+            
+            Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+            HitCount = 0;
+        });
     }
 
     protected override void SetNextState()
