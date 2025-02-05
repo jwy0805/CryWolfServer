@@ -40,32 +40,32 @@ public class Stage5001 : Stage
                 Room.UpgradeUnit(_towers[2], npc);
                 Room.UpgradeUnit(_towers[4], npc);
                 break;
-            case 4:
+            case 5:
                 var tower5 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-4.5f, 0, 1));
                 var tower6 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(4.5f, 0, 1));
                 _towers.Add(5, tower5);
                 _towers.Add(6, tower6);
                 break;
-            case 5:
+            case 6:
                 Room.UpgradeUnit(_towers[5], npc);
                 Room.UpgradeUnit(_towers[6], npc);
                 break;
-            case 6:
+            case 7:
                 Room.UpgradeSkill(Skill.RabbitAggro);
                 break;
-            case 7:
+            case 8:
                 Room.UpgradeSkill(Skill.RabbitDefence);
                 break;
-            case 8:
+            case 9:
                 Room.UpgradeSkill(Skill.RabbitEvasion);
                 break;
-            case 10:
+            case 12:
                 Room.UpgradeUnit(_towers[0], npc);
                 Room.UpgradeUnit(_towers[2], npc);
                 Room.UpgradeUnit(_towers[4], npc);
                 Room.UpgradeUnit(_towers[6], npc);
                 break;
-            case 11:
+            case 13:
                 Room.UpgradeUnit(_towers[1], npc);
                 Room.UpgradeUnit(_towers[3], npc);
                 Room.UpgradeUnit(_towers[5], npc);

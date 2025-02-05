@@ -35,30 +35,30 @@ public class Stage1001 : Stage
                 break;
             case 3:
                 Room.UpgradeUnit(_statues[1], npc);
-                Room.UpgradeUnit(_statues[2], npc);
-                Room.UpgradeUnit(_statues[3], npc);
-                break;
-            case 4:
-                Room.UpgradeUnit(_statues[0], npc);
-                Room.UpgradeUnit(_statues[4], npc);
-                Room.UpgradeSkill(Skill.DogBarkAdjacentAttackSpeed);
                 break;
             case 5:
+                Room.UpgradeUnit(_statues[2], npc);
+                Room.UpgradeUnit(_statues[3], npc);
+                Room.UpgradeUnit(_statues[0], npc);
+                Room.UpgradeUnit(_statues[4], npc);
+                break;
+            case 6:
+                Room.UpgradeSkill(Skill.DogBarkAdjacentAttackSpeed);
                 Room.UpgradeSkill(Skill.DogBarkFireResist);
                 Room.UpgradeSkill(Skill.DogBarkFourthAttack);
                 break;
-            case 8:
+            case 9:
                 var statue5 = Room.SpawnStatue(UnitId.DogBowwow, new PositionInfo { PosX = -2, PosY = 6, PosZ = 13 });
                 var statue6 = Room.SpawnStatue(UnitId.DogBowwow, new PositionInfo { PosX = 2, PosY = 6, PosZ = 13 });
                 _statues.Add(5, statue5);
                 _statues.Add(6, statue6);
                 break;
-            case 10:
+            case 11:
                 Room.UpgradeUnit(_statues[1], npc);
                 Room.UpgradeUnit(_statues[2], npc);
                 Room.UpgradeUnit(_statues[3], npc);
                 break;
-            case 12:
+            case 13:
                 Room.UpgradeUnit(_statues[0], npc);
                 Room.UpgradeUnit(_statues[4], npc);
                 break;

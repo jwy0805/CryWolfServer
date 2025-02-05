@@ -38,7 +38,62 @@ public class Stage1002 : Stage
                 Room.UpgradeSkill(Skill.DogPupAttackSpeed);
                 break;
             case 3:
-                
+                Room.UpgradeSkill(Skill.SnakeletAttackSpeed);
+                Room.UpgradeSkill(Skill.SnakeletAttack);
+                break;
+            case 4:
+                Room.UpgradeSkill(Skill.SnakeletEvasion);
+                Room.UpgradeUnit(_statues[1], npc);
+                break;
+            case 5:
+                Room.UpgradeUnit(_statues[0], npc);
+                Room.UpgradeUnit(_statues[2], npc);
+                Room.UpgradeUnit(_statues[3], npc);
+                break;
+            case 6:
+                Room.UpgradeSkill(Skill.DogBarkAdjacentAttackSpeed);
+                Room.UpgradeSkill(Skill.DogBarkFireResist);
+                Room.UpgradeSkill(Skill.DogBarkFourthAttack);
+                break;
+            case 7:
+                Room.UpgradeBaseSkill(Skill.AssetWolf, npc);
+                Room.UpgradeUnit(_statues[4], npc);
+                break;
+            case 8:
+                Room.UpgradeSkill(Skill.SnakeFire);
+                Room.UpgradeSkill(Skill.SnakeAccuracy);
+                break;
+            case 9:
+                Room.UpgradeSkill(Skill.SnakeFireResist);
+                Room.UpgradeSkill(Skill.SnakeSpeed);
+                break;
+            case 10:
+                Room.UpgradeUnit(_statues[5], npc);
+                Room.UpgradeUnit(_statues[6], npc);
+                break;
+            case 11:
+                Room.UpgradeUnit(_statues[0], npc);
+                Room.UpgradeUnit(_statues[1], npc);
+                Room.UpgradeUnit(_statues[2], npc);
+                Room.UpgradeUnit(_statues[3], npc);
+                break;
+            case 12:
+                Room.UpgradeSkill(Skill.DogBowwowSmash);
+                Room.UpgradeSkill(Skill.DogBowwowSmashFaint);
+                Room.UpgradeUnit(_statues[5], npc);
+                break;
+            case 13:
+                Room.UpgradeBaseSkill(Skill.AssetWolf, npc);
+                break;
+            case 14:
+                Room.UpgradeUnit(_statues[4], npc);
+                Room.UpgradeUnit(_statues[6], npc);
+                break;
+            case 15:
+                Room.UpgradeSkill(Skill.SnakeAccuracy);
+                Room.UpgradeSkill(Skill.SnakeFire);
+                Room.UpgradeSkill(Skill.SnakeFireResist);
+                Room.UpgradeSkill(Skill.SnakeSpeed);
                 break;
         }
     }

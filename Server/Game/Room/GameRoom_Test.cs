@@ -46,6 +46,8 @@ public partial class GameRoom
 
     public void UpgradeBaseSkill(Skill skill, Player player)
     {
+        if (_storage == null || _portal == null) return;
+        
         switch (skill)
         {
             case Skill.RepairSheep:
@@ -55,8 +57,10 @@ public partial class GameRoom
                 RepairStatues(_statues.Values.ToList());
                 break;
             case Skill.BaseUpgradeSheep:
+                _storage.LevelUp();
                 break;
             case Skill.BaseUpgradeWolf:
+                _portal.LevelUp();
                 break;
             case Skill.ResourceSheep:
                 break;
