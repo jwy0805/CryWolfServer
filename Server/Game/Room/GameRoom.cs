@@ -3,6 +3,7 @@ using System.Numerics;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Data.SinglePlayScenario;
 using Server.Game.Enchants;
 using Server.Game.Resources;
 using Server.Util;
@@ -11,7 +12,7 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer, IDisposable
 {
-    private bool _tutorialSet;
+    private bool _singlePlayFlag;
     
     private readonly object _lock = new();
     
@@ -23,15 +24,19 @@ public partial class GameRoom : JobSerializer, IDisposable
     private readonly Dictionary<int, Fence> _fences = new();
     private readonly Dictionary<int, Effect> _effects = new();
     private readonly Dictionary<int, Projectile> _projectiles = new();
-    private readonly Dictionary<int, Portal> _portals = new();
+    // private readonly Dictionary<int, Portal> _portals = new();
     
     private int _storageLevel = 0;
+    private int _portalLevel = 0;
     private int _roundTime = 19;
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
+    private Storage? _storage;
+    private Portal? _portal;
+    private Stage? _stageWaveModule;
     
-    public bool IsTestGame { get; set; }
+    public GameMode GameMode { get; set; }
     public Player? Npc { get; set; }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
@@ -44,6 +49,9 @@ public partial class GameRoom : JobSerializer, IDisposable
     public Map Map { get; private set; } = new();
     public int MapId { get; set; }
     public GameManager.GameData GameData { get; set; } = new();
+    
+    // Single Play Properties
+    public int StageId { get; set; }
     
     public struct TargetDistance
     {
@@ -97,13 +105,16 @@ public partial class GameRoom : JobSerializer, IDisposable
         Broadcast(new S_Time { Time = _roundTime, Round = _round});
         _roundTime--;
         
-        // --- Tutorial ---
-        if (_roundTime < 15 && _tutorialSet == false)
+        // --- Single Play ---
+        if (_roundTime < 15 && _singlePlayFlag == false)
         {
-            SetTutorialStatues(_round);
-            _tutorialSet = true;
+            if (GameMode == GameMode.Single)
+            {
+                _stageWaveModule.Spawn(_round);
+                _singlePlayFlag = true;
+            }
         }
-        // --- Tutorial ---
+        // --- Single Play ---
         
         if (_roundTime < 0) 
         {
@@ -137,7 +148,8 @@ public partial class GameRoom : JobSerializer, IDisposable
                     foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
                     foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                     foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
-                    foreach (var r in _portals.Values) spawnPacket.Objects.Add(r.Info);
+                    spawnPacket.Objects.Add(_portal?.Info);
+                    spawnPacket.Objects.Add(_storage?.Info);
                     player.Session?.Send(spawnPacket);
                 }
                 break;
@@ -206,9 +218,16 @@ public partial class GameRoom : JobSerializer, IDisposable
             
             case GameObjectType.Portal:
                 var portal = (Portal)gameObject;
-                _portals.Add(gameObject.Id, portal);
                 portal.Room = this;
-                Map.ApplyMap(portal); 
+                _portal = portal;
+                Map.ApplyMap(_portal); 
+                break;
+            
+            case GameObjectType.Storage:
+                var storage = (Storage)gameObject;
+                storage.Room = this;
+                _storage = storage;
+                _storage.Init();
                 break;
         }
         
@@ -278,9 +297,10 @@ public partial class GameRoom : JobSerializer, IDisposable
                 break;
             
             case GameObjectType.Portal:
-                if (_portals.Remove(objectId, out var portal) == false) return;
-                Map.ApplyLeave(portal);
-                portal.Room = null;
+                if (_portal == null) return;
+                Map.ApplyLeave(_portal);
+                _portal.Room = null;
+                _portal = null;
                 break;
 
             case GameObjectType.Fence:
@@ -362,8 +382,9 @@ public partial class GameRoom : JobSerializer, IDisposable
                 break;
             
             case GameObjectType.Portal:
-                if (_portals.Remove(objectId, out var portal) == false) return;
-                portal.Room = null;
+                if (_portal == null) return;
+                _portal.Room = null;
+                _portal = null;
                 break;
         }
 
@@ -450,9 +471,16 @@ public partial class GameRoom : JobSerializer, IDisposable
             projectile.Room = null;
         }
         
-        foreach (var portal in _portals.Values)
+        if (_portal != null)
         {
-            portal.Room = null;
+            _portal.Room = null;
+            _portal = null;
+        }
+        
+        if (_storage != null)
+        {
+            _storage.Room = null;
+            _storage = null;
         }
         
         _players.Clear();
@@ -462,19 +490,17 @@ public partial class GameRoom : JobSerializer, IDisposable
         _fences.Clear();
         _effects.Clear();
         _projectiles.Clear();
-        _portals.Clear();
         _statues.Clear();
         Buffs.Clear();
         GameInfo = new GameInfo(new Dictionary<int, Player>(), 1);
         Map.Room = null;
         GameData = new GameManager.GameData();
-        _tutorialSet = false;
+        _singlePlayFlag = false;
         _roundTime = 19;
         _round = 0;
         _storageLevel = 0;
         _timeSendTime = 0;
         RoomActivated = false;
-        IsTestGame = false;
         Npc = null;
         Enchant = null;
     }

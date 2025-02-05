@@ -4,22 +4,6 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    private record struct TowerSlot 
-    {
-        public UnitId TowerId;
-        public PositionInfo PosInfo;
-        public SpawnWay Way;
-        public int ObjectId;
-        
-        public TowerSlot(UnitId unitId, PositionInfo positionInfo, SpawnWay way, int objectId = 0)
-        {
-            TowerId = unitId;
-            PosInfo = positionInfo;
-            Way = way;
-            ObjectId = objectId;
-        }
-    }
-
     public struct UnitSize
     {
         public readonly UnitId UnitId;

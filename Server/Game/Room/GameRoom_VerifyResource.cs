@@ -136,10 +136,14 @@ public partial class GameRoom
             if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
             cost += skillData.cost;
         }
-        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
-        var upgradeCost = (int)(unitData?.stat.RequiredResources! * 0.8f);
+
+        if (DataManager.UnitDict.TryGetValue((int)unitId + 1, out var unitData))
+        {
+            var upgradeCost = unitData.stat.RequiredResources;
+            return cost + upgradeCost;
+        }
         
-        return cost + upgradeCost;
+        return 0;
     }
     
     private int CalcFenceRepairCost(int[] objectIds, bool all = false)
@@ -168,8 +172,8 @@ public partial class GameRoom
             var gameObject = FindGameObjectById(objectId);
             var unitId = gameObject switch
             {
-                MonsterStatue statue => (int)statue.UnitId + 1,
-                Tower tower => (int)tower.UnitId + 1,
+                MonsterStatue statue => (int)statue.UnitId,
+                Tower tower => (int)tower.UnitId,
                 _ => 0
             };
             cost += CalcUpgradeCost(unitId);
@@ -219,8 +223,10 @@ public partial class GameRoom
             case Skill.RepairWolf:
                 cost = CalcStatueRepairCost(Array.Empty<int>());
                 break;
-            case Skill.UpgradeSheep:
-            case Skill.UpgradeWolf:
+            case Skill.BaseUpgradeSheep:
+                cost = GameInfo.StorageLevelUpCost;
+                break;
+            case Skill.BaseUpgradeWolf:
                 cost = GameInfo.StorageLevelUpCost;
                 break;
             case Skill.ResourceSheep:
@@ -240,21 +246,21 @@ public partial class GameRoom
         return cost;
     }
     
-    private void RepairAllFences()
+    private void RepairFences(List<Fence> fences)
     {
-        foreach (var fence in _fences)
+        foreach (var fence in fences)
         {
-            fence.Value.Hp = fence.Value.MaxHp;
-            Broadcast(new S_ChangeHp { ObjectId = fence.Key, Hp = fence.Value.Hp });
+            fence.Hp = fence.MaxHp;
+            Broadcast(new S_ChangeHp { ObjectId = fence.Id, Hp = fence.Hp });
         }
     }
     
-    private void RepairAllStatues()
+    private void RepairStatues(List<MonsterStatue> statues)
     {
-        foreach (var statue in _statues)
+        foreach (var statue in statues)
         {
-            statue.Value.Hp = statue.Value.MaxHp;
-            Broadcast(new S_ChangeHp { ObjectId = statue.Key, Hp = statue.Value.Hp });
+            statue.Hp = statue.MaxHp;
+            Broadcast(new S_ChangeHp { ObjectId = statue.Id, Hp = statue.Hp });
         }
     }
     

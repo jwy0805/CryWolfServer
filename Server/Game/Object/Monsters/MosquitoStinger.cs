@@ -120,7 +120,7 @@ public class MosquitoStinger : MosquitoPester
         {
             if (_infection) sheep.Infection = true;
             if (_woolStop) sheep.YieldStop = true;
-            else sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+            else sheep.YieldDecrement = Room.GameInfo.SheepYield * WoolDownRate / 100;
         }
         
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);

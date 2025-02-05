@@ -14,13 +14,7 @@ public class PrimeSheepWhite : Sheep
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + YieldTime && State != State.Die)
-        {
-            var param = Room.GameInfo.TotalSheepYield * 2 + YieldIncrement - YieldDecrement;
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Room.YieldCoin(this, Math.Clamp(param, 0, param));
-        }
+        Yield();
         
         switch (State)
         {
@@ -41,5 +35,14 @@ public class PrimeSheepWhite : Sheep
             case State.Standby:
                 break;
         }   
+    }
+
+    protected override void Yield()
+    {
+        if (Room == null) return;
+        if (Room.Stopwatch.ElapsedMilliseconds <= Time + YieldTime || State == State.Die || Room.Round == 0) return;
+        var param = (int)((Room.GameInfo.TotalSheepYield + YieldIncrement - YieldDecrement) * YieldInterval * 2);
+        Time = Room.Stopwatch.ElapsedMilliseconds;
+        Room.YieldCoin(this, Math.Clamp(param, 0, param));
     }
 }

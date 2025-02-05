@@ -44,6 +44,7 @@ public class Fence : GameObject
         }
         
         Room.Broadcast(new S_Die { ObjectId = Id });
+        Room.GameInfo.TheNumberOfDestroyedFence++;
         Room.DieAndLeave(Id);
     }
 }

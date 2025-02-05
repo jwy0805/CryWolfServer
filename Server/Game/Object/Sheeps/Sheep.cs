@@ -14,6 +14,7 @@ public class Sheep : Creature, ISkillObserver
     
     protected float SheepBoundMargin = 2.0f;
     protected readonly long YieldTime = 5000;
+    protected float YieldInterval => YieldTime / 20000f;
 
     public SheepId SheepId { get; set; }
     public int YieldIncrement { get; set; }
@@ -42,13 +43,7 @@ public class Sheep : Creature, ISkillObserver
     {
         if (Room == null) return;
         Job = Room.PushAfter(CallCycle, Update);
-        
-        if (Room.Stopwatch.ElapsedMilliseconds > Time + YieldTime && State != State.Die)
-        {
-            var param = Room.GameInfo.TotalSheepYield + YieldIncrement - YieldDecrement;
-            Time = Room.Stopwatch.ElapsedMilliseconds;
-            Room.YieldCoin(this, Math.Clamp(param, 0, param));
-        }
+        Yield();
         
         switch (State)
         {
@@ -120,6 +115,15 @@ public class Sheep : Creature, ISkillObserver
         BroadcastPath();
     }
     
+    protected virtual void Yield()
+    {
+        if (Room == null) return;
+        if (Room.Stopwatch.ElapsedMilliseconds <= Time + YieldTime || State == State.Die || Room.Round == 0) return;
+        var param = (int)((Room.GameInfo.TotalSheepYield + YieldIncrement - YieldDecrement) * YieldInterval);
+        Time = Room.Stopwatch.ElapsedMilliseconds;
+        Room.YieldCoin(this, Math.Clamp(param, 0, param));
+    }
+    
     public override void OnSkillUpgrade(Skill skill)
     {
         string skillName = skill.ToString();
@@ -152,6 +156,7 @@ public class Sheep : Creature, ISkillObserver
     protected override void OnDead(GameObject? attacker)
     {
         Room!.GameInfo.SheepCount--;
+        Room.GameInfo.TheNumberOfDestroyedSheep++;
         base.OnDead(attacker);
     }
     

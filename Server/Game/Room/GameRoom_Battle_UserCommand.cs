@@ -7,7 +7,7 @@ public partial class GameRoom
 {
     public void HandleBaseSkillRun(Player? player, C_BaseSkillRun skillPacket)
     {
-        if (player == null) return;
+        if (player == null || _storage == null || _portal == null) return;
         var skill = skillPacket.Skill;
         int cost = CheckBaseSkillCost(skill);
         bool lackOfCost = GameInfo.SheepResource <= cost;
@@ -21,27 +21,27 @@ public partial class GameRoom
         {
             case Skill.RepairSheep:
                 GameInfo.SheepResource -= cost;
-                RepairAllFences();
+                RepairFences(_fences.Values.ToList());
                 break;
             
             case Skill.RepairWolf:
                 GameInfo.WolfResource -= cost;
-                RepairAllStatues();
+                RepairStatues(_statues.Values.ToList());
                 break;
                 
-            case Skill.UpgradeSheep:
-                if (StorageLevel <= 3)
+            case Skill.BaseUpgradeSheep:
+                if (_storage.Level < 3)
                 {
                     GameInfo.SheepResource -= cost;
-                    StorageLevel++;
+                    _storage.LevelUp();
                 }
                 break;
             
-            case Skill.UpgradeWolf:
-                if (StorageLevel <= 3)
+            case Skill.BaseUpgradeWolf:
+                if (_portal.Level < 3)
                 {
                     GameInfo.WolfResource -= cost;
-                    StorageLevel++;
+                    _portal.LevelUp();
                 }
                 break;
             
@@ -107,20 +107,22 @@ public partial class GameRoom
     {
         if (player == null) return;
 
-        var unitId = upgradePacket.UnitId;
-        DataManager.UnitDict.TryGetValue((int)unitId, out var unitData);
+        var prevUnitId = upgradePacket.UnitId;
+        var upgradeUnitId = (UnitId)((int)prevUnitId + 1);
+        
+        DataManager.UnitDict.TryGetValue((int)prevUnitId, out var unitData);
         if (unitData == null) return;
         if(Enum.TryParse(unitData.faction, out Faction faction) == false) return;
+        if (player.AvailableUnits.Contains(upgradeUnitId) == false) return;
         
         var lackOfGold = faction == Faction.Sheep 
-            ? VerifyUpgradeTowerPortrait(player, unitId) 
-            : VerifyUpgradeMonsterPortrait(player, unitId);
+            ? VerifyUpgradeTowerPortrait(player, prevUnitId) 
+            : VerifyUpgradeMonsterPortrait(player, prevUnitId);
         
         if (lackOfGold == false)
         {
-            var newUnitId = (UnitId)((int)unitId + 1);
-            player.Portraits.Add((int)newUnitId);
-            player.Session?.Send(new S_PortraitUpgrade { UnitId = newUnitId });
+            player.Portraits.Add((int)upgradeUnitId);
+            player.Session?.Send(new S_PortraitUpgrade { UnitId = upgradeUnitId });
         }
         else
         {
@@ -187,45 +189,42 @@ public partial class GameRoom
                 }
             }
 
-            int id = go.Id;
-            if (go.ObjectType == GameObjectType.Tower)
+            UpgradeUnit(go, player);
+        }
+    }
+
+    public void HandleUnitRepair(Player? player, C_UnitRepair packet)
+    {
+        if (player == null) return;
+        var unitIds = packet.ObjectId.ToArray();
+        
+        foreach (var unitId in unitIds)
+        {
+            var go = FindGameObjectById(unitId);
+            if (go == null) continue;
+            if (go.ObjectType == GameObjectType.Fence)
             {
-                if (go is not Tower tower) return;
-                PositionInfo newTowerPos = new()
+                var fence = go as Fence;
+                var cost = CalcFenceRepairCost(new[] { unitId });
+                if (GameInfo.SheepResource < cost)
                 {
-                    PosX = tower.PosInfo.PosX, PosY = tower.PosInfo.PosY, PosZ = tower.PosInfo.PosZ, State = State.Idle
-                };
-                LeaveGame(id);
-                Broadcast(new S_Despawn { ObjectIds = { id } });
-                var towerId = tower.UnitId + 1;
-                SpawnTower(towerId, newTowerPos, player);
+                    SendWarningMessage(player, "골드가 부족합니다.");
+                    return;
+                }
+                GameInfo.SheepResource -= cost;
+                if (fence != null) RepairFences(new List<Fence> { fence });
             }
-            else if (go.ObjectType == GameObjectType.Monster)
+            else
             {
-                if (go is not Monster monster) return;
-                var statueId = monster.StatueId;
-                var statue = FindGameObjectById(statueId);
-                if (statue == null) return;
-                PositionInfo newStatuePos = new()
+                var statue = go as MonsterStatue;
+                var cost = CalcStatueRepairCost(new[] { unitId });
+                if (GameInfo.WolfResource < cost)
                 {
-                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
-                };
-                LeaveGame(statueId);
-                Broadcast(new S_Despawn { ObjectIds = { statueId } });
-                var monsterId = monster.UnitId + 1;
-                SpawnMonsterStatue(monsterId, newStatuePos, player);
-            }
-            else if (go.ObjectType == GameObjectType.MonsterStatue)
-            {
-                if (go is not MonsterStatue statue) return;
-                PositionInfo newStatuePos = new()
-                {
-                    PosX = statue.PosInfo.PosX, PosY = statue.PosInfo.PosY, PosZ = statue.PosInfo.PosZ
-                };
-                LeaveGame(id);
-                Broadcast(new S_Despawn { ObjectIds = { id } });
-                var monsterId = statue.UnitId + 1;
-                SpawnMonsterStatue(monsterId, newStatuePos, player);
+                    SendWarningMessage(player, "골드가 부족합니다.");
+                    return;
+                }
+                GameInfo.WolfResource -= cost;
+                if (statue != null) RepairStatues(new List<MonsterStatue> { statue });
             }
         }
     }
@@ -234,7 +233,6 @@ public partial class GameRoom
     {
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
         if (skillData == null || player == null) return;
-
         var skillInfo = new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player.Session?.Send(popupPacket);
@@ -271,7 +269,6 @@ public partial class GameRoom
         if (player == null) return;
         var ids = packet.ObjectIds.ToArray();
         var cost = CalcFenceRepairCost(ids);
-        if (cost == 0) return;
         var costPacket = new S_SetUnitRepairCost { Cost = cost };
         player.Session?.Send(costPacket);
     }
@@ -283,14 +280,14 @@ public partial class GameRoom
         var costArray = new int[4];
         if (packet.Faction == Faction.Sheep)
         {
-            costArray[0] = CheckBaseSkillCost(Skill.UpgradeSheep);
+            costArray[0] = CheckBaseSkillCost(Skill.BaseUpgradeSheep);
             costArray[1] = CheckBaseSkillCost(Skill.RepairSheep);
             costArray[2] = CheckBaseSkillCost(Skill.ResourceSheep);
             costArray[3] = CheckBaseSkillCost(Skill.AssetSheep);
         }
         else
         {
-            costArray[0] = CheckBaseSkillCost(Skill.UpgradeWolf);
+            costArray[0] = CheckBaseSkillCost(Skill.BaseUpgradeWolf);
             costArray[1] = CheckBaseSkillCost(Skill.RepairWolf);
             costArray[2] = CheckBaseSkillCost(Skill.ResourceWolf);
             costArray[3] = CheckBaseSkillCost(Skill.AssetWolf);
@@ -311,12 +308,26 @@ public partial class GameRoom
     {
         if (player == null) return;
         
-        var objectIds = deletePacket.ObjectId.ToArray();
+        var objectIds = deletePacket.ObjectIds.ToArray();
         foreach (var objectId in objectIds)
         {
             var gameObject = FindGameObjectById(objectId);
             if (gameObject == null) return;
-        
+
+            switch (gameObject.ObjectType)
+            {
+                case GameObjectType.Tower:
+                    if (gameObject is not Tower tower) return;
+                    GameInfo.SheepResource += CalcUnitDeleteCost(new[] { objectId });
+                    GameInfo.NorthTower--;
+                    break;
+                case GameObjectType.MonsterStatue:
+                    if (gameObject is not MonsterStatue statue) return;
+                    GameInfo.WolfResource += CalcUnitDeleteCost(new[] { objectId });
+                    GameInfo.NorthMonster--;
+                    break;
+            }
+            
             LeaveGame(objectId);
             Broadcast(new S_Despawn { ObjectIds = { objectId } });    
         }

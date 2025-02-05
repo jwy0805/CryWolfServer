@@ -20,6 +20,14 @@ public class RewardInfo
     public int Count { get; set; }
 }
 
+public class SingleRewardInfo
+{
+    public int ItemId { get; set; }
+    public ProductType ProductType { get; set; }
+    public int Count { get; set; }
+    public int Star { get; set; }
+}
+
 public class MatchSuccessPacketRequired
 {
     public bool IsTestGame { get; set; }
@@ -68,6 +76,26 @@ public class SendMatchInfoPacketResponse
     public bool SendMatchInfoOk { get; set; }
 }
 
+public class SinglePlayStartPacketRequired
+{
+    public int UserId { get; set; }
+    public Faction UserFaction { get; set; }
+    public UnitId[] UnitIds { get; set; }
+    public int CharacterId { get; set; }
+    public int AssetId { get; set; }
+    public UnitId[] EnemyUnitIds { get; set; }
+    public int EnemyCharacterId { get; set; }
+    public int EnemyAssetId { get; set; }
+    public int MapId { get; set; }
+    public int SessionId { get; set; }
+    public int StageId { get; set; }
+}
+
+public class SinglePlayStartPacketResponse
+{
+    public bool SinglePlayStartOk { get; set; }
+}
+
 public class GameResultPacketRequired
 {
     public int UserId { get; set; }
@@ -79,7 +107,7 @@ public class GameResultPacketResponse
     public bool GetGameResultOk { get; set; }
 }
 
-public class GameRewardPacketRequired
+public class RankGameRewardPacketRequired
 {
     public int WinUserId { get; set; }
     public int WinRankPoint { get; set; }
@@ -87,11 +115,24 @@ public class GameRewardPacketRequired
     public int LoseRankPoint { get; set; }
 }
 
-public class GameRewardPacketResponse
+public class RankGameRewardPacketResponse
 {
     public bool GetGameRewardOk { get; set; }
     public List<RewardInfo> WinnerRewards { get; set; }
     public List<RewardInfo> LoserRewards { get; set; }
+}
+
+public class SingleGameRewardPacketRequired
+{
+    public int UserId { get; set; }
+    public int StageId { get; set; }
+    public int Star { get; set; }
+}
+
+public class SingleGameRewardPacketResponse
+{
+    public bool GetGameRewardOk { get; set; }
+    public List<SingleRewardInfo> Rewards { get; set; }
 }
 
 public class SessionDisconnectPacketRequired

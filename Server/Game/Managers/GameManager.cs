@@ -17,7 +17,6 @@ public class GameManager
                 InitFenceStartPos = new Vector3(-11, 6, -8),
                 InitFenceCenter = new Vector3(0, 6, -14),
                 InitFenceSize = new Vector3(24, 6, 12),
-                PortalPos = new[] { new Vector3(0, 6, 20) }
             }
         },
         {
@@ -28,7 +27,6 @@ public class GameManager
                 SouthFenceMax = 8,
                 InitFenceStartPos = new Vector3(-7, 6, 5),
                 InitFenceSize = new Vector3(12, 6, 10),
-                PortalPos = new[] { new Vector3(0, 6, 25), new Vector3(0, 6, -25) }
             }
         }
     };
@@ -61,9 +59,10 @@ public class GameManager
         public int NorthFenceMax { get; init; }
         public int SouthFenceMax { get; init; }
         public Vector3 InitFenceStartPos { get; init; }
-        public Vector3 InitFenceCenter { get; init; } = new();
-        public Vector3 InitFenceSize { get; init; } = new();
-        public Vector3[] PortalPos { get; set; }
+        public Vector3 InitFenceCenter { get; init; }
+        public Vector3 InitFenceSize { get; init; }
+        public Vector3 StoragePos => new(0, 6, -20);
+        public Vector3 PortalPos => new(0, 6, 20);
         public readonly float MinZ = -20;
         public readonly float MaxZ = 20;
         
@@ -74,10 +73,13 @@ public class GameManager
             for (var i = 0; i < row; i++)
             {
                 // north fence
-                posArr[i] = startPos with { X = startPos.X + i * 2, Z = startPos.Z}; 
+                posArr[i] = startPos with { X = startPos.X + i * 2, Y = 6, Z = startPos.Z}; 
                 
                 // south fence
-                if (SouthFenceMax != 0)posArr[row + i] = startPos with { X = startPos.X + i * 2, Z = -startPos.Z }; 
+                if (SouthFenceMax != 0)
+                {
+                    posArr[row + i] = startPos with { X = startPos.X + i * 2, Y = 6, Z = -startPos.Z };
+                } 
             }
         
             return posArr;

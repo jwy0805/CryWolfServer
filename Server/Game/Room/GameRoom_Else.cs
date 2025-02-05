@@ -10,18 +10,14 @@ public partial class GameRoom
 {
     private void BaseInit()
     {
-        // Spawn Portal
-        var northPortal = ObjectManager.Instance.Add<Portal>();
-        northPortal.Init();
-        northPortal.Way = SpawnWay.North;
-        northPortal.Info.Name = "Portal#6Red";
-        northPortal.CellPos = GameData.PortalPos[0];
-        northPortal.Dir = 90;
-        Push(EnterGame, northPortal);
+        _portal = SpawnPortal();
+        _storage = SpawnStorage();
     }
     
     public void InfoInit()
     {
+        if (_storage == null) return;
+        
         GameInfo = new GameInfo(_players, MapId)
         {
             FenceCenter = GameData.InitFenceCenter,
@@ -29,7 +25,7 @@ public partial class GameRoom
             FenceSize = GameData.InitFenceSize,
         };
         
-        StorageLevel = 1;
+        SpawnFence(_storage.Level, _storage.Level);
         
         // Spawn Prime Sheep
         var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
@@ -51,6 +47,7 @@ public partial class GameRoom
         foreach (var player in _players.Values)
         {
             if (player.Session == null) continue;
+            if (Npc == player) continue;
             
             if (player.Faction == Faction.Sheep)
             {
@@ -199,7 +196,7 @@ public partial class GameRoom
                 targets = _fences.Values.Cast<GameObject>().ToList();
                 break;
             case GameObjectType.Portal:
-                targets = _portals.Values.Cast<GameObject>().ToList();
+                targets = _portal != null ? new List<GameObject> { _portal } : new List<GameObject>();
                 break;
         }
 

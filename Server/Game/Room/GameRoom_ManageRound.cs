@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -8,6 +9,12 @@ public partial class GameRoom
     private bool _checked;
     private readonly int _forwardParam = 4;
     private readonly Scheduler _scheduler = new();
+
+    private struct PlayerRewardPackets
+    {
+        public S_ShowRankResultPopup WinnerPacket;
+        public S_ShowRankResultPopup LoserPacket;
+    }
 
     private void CheckWinner()
     {
@@ -18,15 +25,13 @@ public partial class GameRoom
         var assetId = (SheepId)sheepPlayer.AssetId;
         var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
         
-        if (primeSheep != null && _portals.Values.Count > 0) return;
+        if (primeSheep != null && _portal != null) return;
         if (primeSheep == null)
         {
-            Console.WriteLine("Sheep is dead");
             GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
         }
-        if (_portals.Values.Count == 0)
+        if (_portal?.Room == null)
         {
-            Console.WriteLine("Portals are destroyed");
             GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
         }
     }
@@ -79,7 +84,7 @@ public partial class GameRoom
                     }
                     else
                     {
-                        fence = SpawnFence(newFenceCellPos, StorageLevel);
+                        fence = SpawnFence(newFenceCellPos);
                     }
                     
                     SpawnEffect(EffectId.MoveForwardEffect, fence, fence);
@@ -126,7 +131,7 @@ public partial class GameRoom
     {
         _roundTime = 19;
         _round++;
-        _tutorialSet = false;
+        _singlePlayFlag = false;
         _checked = false;
         
         SpawnTowersInNewRound();
@@ -144,7 +149,81 @@ public partial class GameRoom
             .OrderByDescending(player => player.Session?.SessionId)
             .FirstOrDefault() ?? new Player();
 
-        var rewardPacket = new GameRewardPacketRequired
+        if (GameMode == GameMode.Rank)
+        {
+            var packets = await GetRankReward(winnerPlayer, loserPlayer);
+
+            Console.WriteLine($"{loserPlayer.Session?.UserId} vs {winnerPlayer.Session?.UserId}");
+        
+            loserPlayer.Session?.Send(packets.LoserPacket);
+            winnerPlayer.Session?.Send(packets.WinnerPacket);
+        
+            LeaveGame(loserPlayer.Id);
+            LeaveGame(winnerPlayer.Id);
+        }
+        else if (GameMode == GameMode.Single)
+        {
+            var packet = new S_ShowSingleResultPopup { Win = true  };
+
+            if (winnerPlayer.Session?.UserId == winnerId)
+            {
+                var star = CheckStars(winnerPlayer.Faction);
+                packet.Star = star;
+                var rewardList = await GetSingleReward(winnerPlayer, star);
+                foreach (var rewardInfo in rewardList)
+                {
+                    packet.SingleRewards.Add(new SingleReward
+                    {
+                        ItemId = rewardInfo.ItemId,
+                        ProductType = rewardInfo.ProductType,
+                        Count = rewardInfo.Count,
+                        Star = rewardInfo.Star
+                    });
+                }
+                
+                winnerPlayer.Session?.Send(packet);
+                LeaveGame(winnerPlayer.Id);
+            }
+            else
+            {
+                packet.Win = false;
+                loserPlayer.Session?.Send(packet);
+                LeaveGame(loserPlayer.Id);
+            }
+        }
+        
+        RoomActivated = false;
+        GameLogic.Instance.RemoveGameRoom(RoomId);
+    }
+
+    private int CheckStars(Faction faction)
+    {
+        if (faction == Faction.Sheep)
+        {
+            if (GameInfo.TheNumberOfDestroyedSheep == 0)
+            {
+                return GameInfo.TheNumberOfDestroyedFence == 0 ? 3 : 2;
+            }
+
+            return 1;
+        }
+
+        if (faction == Faction.Wolf)
+        {
+            if (GameInfo.TheNumberOfDestroyedFence == 0)
+            {
+                return GameInfo.FenceStartPos.Z < 2 ? 3 : 2;
+            }
+
+            return 1;
+        }
+
+        return 0;
+    }
+    
+    private async Task<PlayerRewardPackets> GetRankReward(Player winnerPlayer, Player loserPlayer)
+    {
+        var rewardPacket = new RankGameRewardPacketRequired
         {
             WinUserId = winnerPlayer.Session?.UserId ?? -1,
             WinRankPoint = winnerPlayer.WinRankPoint,
@@ -152,17 +231,18 @@ public partial class GameRoom
             LoseRankPoint = loserPlayer.LoseRankPoint
         };
 
-        var task = NetworkManager.Instance
-            .SendRequestToApiAsync<GameRewardPacketResponse>("Match/RankGameReward", rewardPacket, HttpMethod.Put);
+        var packets = new PlayerRewardPackets();
+        var task = NetworkManager.Instance.SendRequestToApiAsync<RankGameRewardPacketResponse>(
+            "Match/RankGameReward", rewardPacket, HttpMethod.Put);
         await task;
 
         if (task.Result == null)
         {
             Console.WriteLine("Game Over: Error in GameRewardPacketResponse");
-            return;
+            return packets;
         }
         
-        var loserPacket = new S_ShowResultPopup
+        var loserPacket = new S_ShowRankResultPopup
         {
             Win = false, RankPointValue = loserPlayer.LoseRankPoint, RankPoint = loserPlayer.RankPoint
         };
@@ -175,7 +255,7 @@ public partial class GameRoom
             });
         }
         
-        var winnerPacket = new S_ShowResultPopup
+        var winnerPacket = new S_ShowRankResultPopup
         {
             Win = true, RankPointValue = winnerPlayer.WinRankPoint, RankPoint = winnerPlayer.RankPoint
         };
@@ -187,17 +267,32 @@ public partial class GameRoom
                 ItemId = rewardInfo.ItemId, ProductType = rewardInfo.ProductType, Count = rewardInfo.Count
             });
         }
+        
+        packets.WinnerPacket = winnerPacket;
+        packets.LoserPacket = loserPacket;
+        
+        return packets;
+    }
 
-        Console.WriteLine($"{loserPlayer.Session?.UserId} vs {winnerPlayer.Session?.UserId}");
+    private async Task<List<SingleRewardInfo>> GetSingleReward(Player player, int star)
+    {
+        var rewardPacket = new SingleGameRewardPacketRequired
+        {
+            UserId = player.Session?.UserId ?? -1,
+            StageId = StageId,
+            Star = star,
+        };
         
-        loserPlayer.Session?.Send(loserPacket);
-        winnerPlayer.Session?.Send(winnerPacket);
+        var task = NetworkManager.Instance.SendRequestToApiAsync<SingleGameRewardPacketResponse>(
+            "Match/SingleGameReward", rewardPacket, HttpMethod.Put);
+        await task;
         
-        LeaveGame(loserPlayer.Id);
-        LeaveGame(winnerPlayer.Id);
+        if (task.Result == null)
+        {
+            Console.WriteLine("Game Over: Error in SingleGameRewardPacketResponse");
+            return new List<SingleRewardInfo>();
+        }
         
-        RoomActivated = false;
-        
-        GameLogic.Instance.RemoveGameRoom(RoomId);
+        return task.Result.Rewards;
     }
 }

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Google.Protobuf.Protocol;
 using Newtonsoft.Json;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -61,6 +62,9 @@ public class NetworkManager
                         break;
                     case "/surrender":
                         responseString = await HandleSurrenderRequest(request);
+                        break;
+                    case "/singlePlay":
+                        responseString = await HandleSingleGameRequest(request);
                         break;
                     case "/test":
                         responseString = await HandleTestRequest(request);
@@ -150,6 +154,27 @@ public class NetworkManager
         return JsonConvert.SerializeObject(testResponse);
     }
 
+    private async Task<string> HandleSingleGameRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var singleGameRequest = JsonConvert.DeserializeObject<SinglePlayStartPacketRequired>(requestBody);
+        if (singleGameRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+        
+        var task = await StartSingleGameAsync(singleGameRequest);
+        var response = new SinglePlayStartPacketResponse { SinglePlayStartOk = task };
+        
+        return JsonConvert.SerializeObject(response);
+    }
+    
     # region StartGame
 
     private async Task<bool> StartGameAsync(MatchSuccessPacketRequired packet, DateTime? startTime = null)
@@ -159,13 +184,13 @@ public class NetworkManager
         
         GameLogic.Instance.Push(() =>
         {
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             if (packet.IsTestGame)
             {
-                StartTestGame(packet);
+                StartTestGame(packet, room);
             }
             else
             {
-                var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
                 var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
                 var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
                 
@@ -194,9 +219,30 @@ public class NetworkManager
                 WolfSessionId = packet.WolfSessionId,
             };
         
-#pragma warning disable CS4014 // 이 호출을 대기하지 않으므로 호출이 완료되기 전에 현재 메서드가 계속 실행됩니다.
-            SendRequestToApiAsync<SendMatchInfoPacketResponse>("Match/SetMatchInfo", sendPacket, HttpMethod.Post);
-#pragma warning restore CS4014 // 이 호출을 대기하지 않으므로 호출이 완료되기 전에 현재 메서드가 계속 실행됩니다.
+            var requestTask = SendRequestToApiAsync<SendMatchInfoPacketResponse>(
+                "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
+            var timeTask = Task.Delay(6000);
+            Task.WhenAll(requestTask, timeTask);
+            
+            room.RoomActivated = true;
+            tcs.SetResult(true);
+        });
+        
+        return await tcs.Task;
+    }
+    
+    private async Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        
+        GameLogic.Instance.Push(() =>
+        {
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var player = CreatePlayerSingle(room, packet);
+            room.Npc = CreateNpc(player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            room.GameMode = GameMode.Single;
+            room.StageId = packet.StageId;
+            room.RoomActivated = true;
             tcs.SetResult(true);
         });
         
@@ -220,6 +266,7 @@ public class NetworkManager
         player.WinRankPoint = faction == Faction.Sheep ? required.WinPointSheep : required.WinPointWolf;
         player.LoseRankPoint = faction == Faction.Sheep ? required.LosePointSheep : required.LosePointWolf;
         player.RankPoint = faction == Faction.Sheep ? required.SheepRankPoint : required.WolfRankPoint;
+        player.UnitIds = faction == Faction.Sheep ? required.SheepUnitIds : required.WolfUnitIds;
         player.Session = faction == Faction.Sheep 
             ? SessionManager.Instance.Find(required.SheepSessionId)
             : SessionManager.Instance.Find(required.WolfSessionId);
@@ -237,7 +284,37 @@ public class NetworkManager
         return player;
     }
 
-    private Player CreateNpc(Player player, MatchSuccessPacketRequired required, int sheepId = 901, int enchantId = 1001)
+    private Player CreatePlayerSingle(GameRoom room, SinglePlayStartPacketRequired required)
+    {
+        var player = ObjectManager.Instance.Add<Player>();
+        var faction = required.UserFaction;
+        var position = faction == Faction.Sheep 
+            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
+            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+        
+        player.Room = room;
+        player.Faction = faction;
+        player.PosInfo = position;
+        player.Info.PosInfo = position;
+        player.CharacterId = (CharacterId)required.CharacterId;
+        player.AssetId = required.AssetId;
+        player.UnitIds = required.UnitIds;
+        player.Session = SessionManager.Instance.Find(required.SessionId);
+
+        Console.WriteLine($"{required.SessionId} single play");
+        if (player.Session == null)
+        {
+            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
+            return player;
+        }
+        
+        player.Session.MyPlayer = player;
+        player.Session.UserId = required.UserId;
+
+        return player;
+    }
+
+    private Player CreateNpc(Player player, CharacterId characterId, int assetId)
     {
         // This is a test NPC, so this has to be changed later when the single play mode is implemented.
         var npc = ObjectManager.Instance.Add<Player>();
@@ -250,8 +327,8 @@ public class NetworkManager
         npc.Info.Name = $"NPC_{player.Info.Name}";
         npc.PosInfo = position;
         npc.Info.PosInfo = position;
-        npc.CharacterId = faction == Faction.Sheep ? required.SheepCharacterId : required.WolfCharacterId;
-        npc.AssetId = faction == Faction.Sheep ? sheepId : enchantId;
+        npc.CharacterId = characterId;
+        npc.AssetId = assetId;
 
         return npc;
     }
@@ -263,12 +340,13 @@ public class NetworkManager
         wolfPlayer.Session?.Send(matchPacketForWolf);
     }
 
-    private async void StartTestGame(MatchSuccessPacketRequired required)
+    private void StartTestGame(MatchSuccessPacketRequired required, GameRoom room)
     {
         var faction = required.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
-        var room = GameLogic.Instance.CreateGameRoom(required.MapId);
         var player = CreatePlayer(room, required, faction);
-        var npc = CreateNpc(player, required);
+        var npcCharacterId = faction == Faction.Sheep ? required.WolfCharacterId : required.SheepCharacterId;
+        var npcAssetId = faction == Faction.Sheep ? (int)required.EnchantId : (int)required.SheepId;
+        var npc = CreateNpc(player, npcCharacterId, npcAssetId);
         var matchPacket = new S_MatchMakingSuccess
         {
             EnemyUserName = npc.Info.Name,
@@ -276,19 +354,16 @@ public class NetworkManager
             EnemyCharacterId = (int)required.SheepCharacterId,
             EnemyAssetId = player.Faction == Faction.Sheep ? (int)required.EnchantId : (int)required.SheepId,
         };
-
+        
         room.Npc = npc;
-        room.IsTestGame = true;
+        room.GameMode = GameMode.Test;
         
         foreach (var unitId in required.SheepUnitIds)
         {
             matchPacket.EnemyUnitIds.Add((int)unitId);
         }
-
+        
         player.Session?.Send(matchPacket);
-
-        await Task.Delay(6000);
-        room.RoomActivated = true;
     }
 
     private Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess> MakeMatchPacket(MatchSuccessPacketRequired packet)

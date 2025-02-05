@@ -118,6 +118,8 @@ public class CactusBoss : Cactus
 
     protected override void UpdateMoving()
     {
+        if (Room == null) return;
+        
         // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)

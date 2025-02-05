@@ -7,7 +7,7 @@ namespace Server.Game;
 public partial class GameRoom 
 {
     // Run when initialize game and storage upgrade.
-    private void SpawnFence(int storageLv = 1, int fenceLv = 0)
+    private void SpawnFence(int storageLv, int fenceLv, bool upgrade = false)
     {
         Vector3[] fencePos = GameData.GetPos(
             GameData.NorthFenceMax + GameData.SouthFenceMax, GameData.NorthFenceMax, GameInfo.FenceStartPos);
@@ -26,13 +26,20 @@ public partial class GameRoom
             else GameInfo.SouthFenceCnt++;
             fence.FenceNum = fenceLv;
             Push(EnterGame, fence);
+            
+            if (upgrade)
+            {
+                SpawnEffect(EffectId.Upgrade, fence, fence);
+            }
         }
     }
 
-    // Run when the land is expanded.
-    private Fence SpawnFence(Vector3 cellPos, int fenceLv = 0)
+    // Run when the land expands.
+    private Fence SpawnFence(Vector3 cellPos)
     {
-        var storageLv = GameInfo.StorageLevel;
+        if (_storage == null) return new Fence();
+        
+        var storageLv = _storage.Level;
         var fence = ObjectManager.Instance.Add<Fence>();
         fence.Init();
         fence.Info.Name = GameData.FenceNames[storageLv];
@@ -43,7 +50,7 @@ public partial class GameRoom
         fence.Dir = fence.Way == SpawnWay.North ? 0 : 180;
         if (fence.Way == SpawnWay.North) GameInfo.NorthFenceCnt++;
         else GameInfo.SouthFenceCnt++;
-        fence.FenceNum = fenceLv;
+        fence.FenceNum = _storage.Level;
         Push(EnterGame, fence);
         
         return fence;
@@ -248,5 +255,40 @@ public partial class GameRoom
         sheep.CellPos = new Vector3(sheep.PosInfo.PosX, sheep.PosInfo.PosY, sheep.PosInfo.PosZ);
         Push(EnterGame, sheep);
         GameInfo.SheepCount++;
+    }
+
+    private Portal SpawnPortal()
+    {
+        var portal = ObjectManager.Instance.Add<Portal>();
+        portal.Init();
+        portal.Way = SpawnWay.North;
+        portal.Info.Name = "Portal#6Red";
+        portal.CellPos = GameData.PortalPos;
+        portal.Dir = 90;
+        
+        Push(EnterGame, portal);
+
+        return portal;
+    }
+    
+    private Storage SpawnStorage()
+    {
+        var storage = ObjectManager.Instance.Add<Storage>();
+        storage.Init();
+        storage.Info.Name = $"StorageLv{storage.Level}";
+        storage.CellPos = GameData.StoragePos;
+        
+        Push(EnterGame, storage);
+
+        return storage;
+    }
+    
+    public void ChangeFences(int level)
+    {
+        var fencesToRemove = _fences.Keys.ToList();
+        foreach (var fenceId in fencesToRemove) LeaveGame(fenceId);
+        _fences.Clear();
+        
+        SpawnFence(level, level, true);
     }
 }

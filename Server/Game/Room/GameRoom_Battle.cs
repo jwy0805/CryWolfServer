@@ -1,60 +1,26 @@
 using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
+using Server.Data.SinglePlayScenario;
 using Server.Game.Resources;
 
 namespace Server.Game;
 
 public partial class GameRoom
 {
-    public int StorageLevel
-    {
-        get => _storageLevel;
-        set
-        {
-            _storageLevel = value;
-            if (_storageLevel > GameInfo.MaxStorageLevel)
-            {
-                _storageLevel = GameInfo.MaxStorageLevel;
-                return;
-            }
-            GameInfo.StorageLevel = _storageLevel;
-
-            switch (_storageLevel)
-            {
-                case 1:
-                    GameInfo.NorthMaxTower = 8;
-                    GameInfo.NorthMaxMonster = 8;
-                    break;
-                case 2:
-                    GameInfo.NorthMaxTower = 12;
-                    GameInfo.NorthMaxMonster = 12;
-                    GameInfo.SheepYield += 20;
-                    break;
-                case 3: // 최대 레벨
-                    GameInfo.NorthMaxTower = 16;
-                    GameInfo.NorthMaxMonster = 16;
-                    GameInfo.SheepYield += 40;
-                    break;
-            }
-            
-            // 울타리 생성
-            if (_storageLevel != 1 && _fences.Count > 0)
-            {   // 기존 울타리 삭제
-                List<int> deleteFences = _fences.Keys.ToList();
-                foreach (var fenceId in deleteFences) LeaveGame(fenceId);
-                _fences.Clear();
-            }
-            
-            SpawnFence(_storageLevel);
-        }
-    }
-    
     private void GameInit()
     {
         Stopwatch.Start();
         _timeSendTime = Stopwatch.ElapsedMilliseconds;
         BaseInit();
+
+        if (GameMode == GameMode.Single)
+        {
+            var factory = new StageFactory();
+            _stageWaveModule = factory.Create(StageId);
+            _stageWaveModule.Room = this;
+        }
     }
     
     public void HandlePlayerMove(Player? player, C_PlayerMove pMovePacket)

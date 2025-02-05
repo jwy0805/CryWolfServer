@@ -121,7 +121,7 @@ public class PacketHandler
         var player = clientSession.MyPlayer;
         var room = player?.Room;
         
-        
+        room?.Push(room.HandleUnitRepair, player, repairPacket);
     }
     
     public static void C_ChangeResourceHandler(PacketSession session, IMessage packet)

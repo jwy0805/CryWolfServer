@@ -308,12 +308,6 @@ public partial class GameObject
         set => Stat.AttackType = value;
     }
     
-    public int Resource
-    {
-        get => Stat.Resource;
-        set => Stat.Resource = value;
-    }
-    
     public int SizeX
     {
         get => Stat.SizeX;

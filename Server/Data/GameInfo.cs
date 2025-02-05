@@ -16,8 +16,8 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private int _northMonster = 0;
     private int _southMaxMonster = 6;
     private int _southMonster = 0;
-    private int _sheepResource = 100000;
-    private int _wolfResource = 100000;
+    private int _sheepResource = 6050;
+    private int _wolfResource = 350;
 
     public int SheepYieldUpgradeCost { get; set; } = 260;
     public int SheepYield { get; set; } = 100;
@@ -28,6 +28,9 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int NorthMaxFenceCnt { get; set; }
     public int SouthMaxFenceCnt { get; set; } = 8;
     public Vector3 FenceStartPos { get; set; }
+    public int TheNumberOfDestroyedFence { get; set; }
+    public int TheNumberOfDestroyedStatue { get; set; }
+    public int TheNumberOfDestroyedSheep { get; set; }
     
     private Vector3 _fenceCenter;
     public Vector3 FenceCenter 
@@ -54,9 +57,8 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public Vector3[] FenceBounds { get; private set; }
     public Vector3[] SheepBounds { get; private set; }
     
-    public int MaxStorageLevel => 2;
-    public int StorageLevel { get; set; } = 0;
     public int StorageLevelUpCost => 400;
+    public int PortalLevelUpCost => 400;
     public int SheepCount { get; set; } = 0;
     
     public int NorthMaxTower

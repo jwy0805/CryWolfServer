@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data.SinglePlayScenario;
 using Server.Game.Enchants;
 using Server.Game.Resources;
 
@@ -187,7 +188,7 @@ public sealed partial class ObjectManager
         { ResourceId.MoleculeQuadruple, new MoleculeQuadrupleFactory() },
         { ResourceId.Dna, new DnaFactory() },
     };
-
+    
     public interface IFactory<out T> where T : GameObject
     {
         T Create();

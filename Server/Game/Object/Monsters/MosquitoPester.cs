@@ -82,6 +82,6 @@ public class MosquitoPester : MosquitoBug
         
         // WoolDown
         if (target is not Sheep sheep) return;
-        if (_woolDown) sheep.YieldDecrement = sheep.Resource * WoolDownRate / 100;
+        if (_woolDown) sheep.YieldDecrement = Room.GameInfo.SheepYield * WoolDownRate / 100;
     }
 }

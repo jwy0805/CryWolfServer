@@ -32,7 +32,7 @@ public class Rabbit : Bunny
     {
         base.Init();
         UnitRole = Role.Warrior;
-        Player.SkillSubject.SkillUpgraded(Skill.RabbitAggro);
+        // Player.SkillSubject.SkillUpgraded(Skill.RabbitAggro);
     }
     
     public override void Update()
