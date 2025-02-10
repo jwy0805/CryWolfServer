@@ -528,7 +528,9 @@ public partial class GameRoom
         }
 
         var pos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
-        pos = Map.Vector2To3(Map.FindNearestEmptySpace(Map.Vector3To2(pos), statue));
+        var vec2Pos = Map.Vector3To2(pos);
+        var vec2FencePos = Map.Vector3To2(GameInfo.FenceStartPos);
+        pos = Map.Vector2To3(Map.FindNearestEmptySpaceMonster(vec2Pos, vec2FencePos, statue));
         posInfo.PosX = pos.X;
         posInfo.PosY = pos.Y;
         posInfo.PosZ = pos.Z;

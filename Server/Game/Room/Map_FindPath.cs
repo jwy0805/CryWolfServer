@@ -405,12 +405,40 @@ public partial class Map
             move++;
         } while (true);
     }
+    
+    public Vector2Int FindNearestEmptySpaceMonster(Vector2Int vector, Vector2Int fenceStartPos, GameObject gameObject)
+    {
+        Pos pos = Cell2Pos(vector);
+        Pos fencePos = Cell2Pos(fenceStartPos);
+        int cnt = 0;
+        int move = 0;
+        int sizeX = gameObject.SizeX - 1;
+        int sizeZ = gameObject.SizeZ - 1;
 
-    // public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
-    // {
-    //     Vector3 destVector = GetClosestVector(gameObject.CellPos, target);
-    //     return destVector;
-    // }
+        do
+        {
+            for (int i = -move; i <= move; i++)
+            {
+                pos.Z += i;
+                for (int j = -move; j <= move; j++)
+                {
+                    pos.X += j;
+                    for (int k = pos.Z - sizeZ; k <= pos.Z + sizeZ; k++)
+                    {
+                        if (k > fencePos.Z) cnt++;
+                        for (int l = pos.X - sizeX; l <= pos.X + sizeX; l++)
+                        {
+                            if (_objects[k, l] != null) cnt++;
+                        }
+                    }
+                    if (cnt == 0) return Pos2Cell(pos);
+                    cnt = 0;
+                }
+            }
+            
+            move++;
+        } while (true);
+    }
     
     public Vector3 GetClosestPoint(GameObject gameObject, GameObject target)
     {

@@ -8,15 +8,15 @@ public class GameInfo // 한 판마다 초기화되는 정보
 {
     private readonly Dictionary<int, Player> _players;
     private int _mapId;
-    private int _northMaxTower = 6;
+    private int _northMaxTower = 8;
     private int _northTower = 0;
-    private int _southMaxTower = 6;
+    private int _southMaxTower = 8;
     private int _southTower = 0;
-    private int _northMaxMonster = 6;
+    private int _northMaxMonster = 8;
     private int _northMonster = 0;
-    private int _southMaxMonster = 6;
+    private int _southMaxMonster = 8;
     private int _southMonster = 0;
-    private int _sheepResource = 6050;
+    private int _sheepResource = 3500;
     private int _wolfResource = 350;
 
     public int SheepYieldUpgradeCost { get; set; } = 260;

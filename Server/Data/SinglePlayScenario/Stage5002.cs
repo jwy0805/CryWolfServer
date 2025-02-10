@@ -25,23 +25,33 @@ public class Stage5002 : Stage
                 _towers.Add(1, tower1);
                 _towers.Add(3, tower3);
                 _towers.Add(4, tower4);
-                _towers.Add(5, tower5);
+                _towers.Add(6, tower5);
                 break;
             case 1:
                 var tower2 = Room.SpawnTowerOnRelativeZ(UnitId.PracticeDummy, new Vector3(1, 0, 1));
-                var tower6 = Room.SpawnTowerOnRelativeZ(UnitId.Mushroom, new Vector3(-1, 0, -1));
+                var tower6 = Room.SpawnTowerOnRelativeZ(UnitId.Mushroom, new Vector3(0, 0, -1));
                 _towers.Add(2, tower2);
-                _towers.Add(6, tower6);
-                
+                _towers.Add(5, tower6);
                 Room.UpgradeBaseSkill(Skill.AssetSheep, npc);
                 break;
             case 2:
-                Room.UpgradeSkill(Skill.BunnyHealth);
-                Room.UpgradeSkill(Skill.BunnyEvasion);
+                Room.UpgradeSkill(Skill.PracticeDummyHealth);
+                Room.UpgradeSkill(Skill.PracticeDummyHealth2);
                 break;
             case 3:
-                
+                Room.UpgradeSkill(Skill.MushroomAttack);
+                Room.UpgradeSkill(Skill.MushroomRange);
+                Room.UpgradeSkill(Skill.MushroomClosestAttack);
                 break;
+            case 4:
+                Room.UpgradeUnit(_towers[0], npc);
+                Room.UpgradeUnit(_towers[3], npc);
+                break;
+            case 5:
+                Room.UpgradeUnit(_towers[5], npc);
+                Room.UpgradeBaseSkill(Skill.AssetSheep, npc);
+                break;
+            
         }
     }
 }

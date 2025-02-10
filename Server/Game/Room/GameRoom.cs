@@ -28,7 +28,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     
     private int _storageLevel = 0;
     private int _portalLevel = 0;
-    private int _roundTime = 19;
+    private int _roundTime = 24;
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
@@ -106,11 +106,11 @@ public partial class GameRoom : JobSerializer, IDisposable
         _roundTime--;
         
         // --- Single Play ---
-        if (_roundTime < 15 && _singlePlayFlag == false)
+        if (_roundTime < 19 && _singlePlayFlag == false)
         {
             if (GameMode == GameMode.Single)
             {
-                _stageWaveModule.Spawn(_round);
+                _stageWaveModule?.Spawn(_round);
                 _singlePlayFlag = true;
             }
         }

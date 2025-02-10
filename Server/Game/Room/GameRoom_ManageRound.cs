@@ -129,7 +129,7 @@ public partial class GameRoom
     
     private void InitRound()
     {
-        _roundTime = 19;
+        _roundTime = 24;
         _round++;
         _singlePlayFlag = false;
         _checked = false;
