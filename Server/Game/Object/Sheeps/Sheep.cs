@@ -155,6 +155,13 @@ public class Sheep : Creature, ISkillObserver
 
     protected override void OnDead(GameObject? attacker)
     {
+        if (Room is { Npc.Faction: Faction.Wolf, GameMode: GameMode.Tutorial })
+        {
+            Hp = MaxHp;
+            Room.RemoveAllMonsters();
+            return;
+        }
+
         Room!.GameInfo.SheepCount--;
         Room.GameInfo.TheNumberOfDestroyedSheep++;
         base.OnDead(attacker);

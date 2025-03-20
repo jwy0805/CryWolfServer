@@ -44,6 +44,8 @@ public class SunfloraPixie : SunflowerFairy
     {
         base.Init();
         UnitRole = Role.Supporter;
+        
+        // Player.SkillSubject.SkillUpgraded(Skill.SunfloraPixieStrongAttack);
     }
     
     protected override void UpdateIdle()

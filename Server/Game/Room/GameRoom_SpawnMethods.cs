@@ -116,6 +116,14 @@ public partial class GameRoom
         statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         statue.Init();
         Push(EnterGame, statue);
+        
+        var spawnPacket = new S_SpawnStatue
+        {
+            StatueId = statue.Id,
+            UnitId = unitId,
+        };
+        Push(Broadcast, spawnPacket);
+        
         return statue;
     }
     
@@ -290,5 +298,13 @@ public partial class GameRoom
         _fences.Clear();
         
         SpawnFence(level, level, true);
+    }
+
+    public void RemoveAllMonsters()
+    {
+        foreach (var monster in _monsters.Values)
+        {
+            monster.Die();
+        }
     }
 }

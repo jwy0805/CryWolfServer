@@ -9,6 +9,7 @@ public class StageFactory
     
     private readonly Dictionary<int, IFactory<Stage>> _stageDict = new()
     {
+        {1000, new StageTutorialSheepFactory()},
         {1001, new Stage1001Factory()},
         {1002, new Stage1002Factory()},
         {1003, new Stage1003Factory()},
@@ -18,6 +19,7 @@ public class StageFactory
         {1007, new Stage1007Factory()},
         {1008, new Stage1008Factory()},
         {1009, new Stage1009Factory()},
+        {5000, new StageTutorialWolfFactory()},
         {5001, new Stage5001Factory()},
         {5002, new Stage5002Factory()},
         {5003, new Stage5003Factory()},
@@ -39,6 +41,7 @@ public class StageFactory
         throw new InvalidDataException();
     }
     
+    private class StageTutorialSheepFactory : IFactory<StageTutorialSheep> { public StageTutorialSheep Create() => new(); }
     private class Stage1001Factory : IFactory<Stage1001> { public Stage1001 Create() => new(); }
     private class Stage1002Factory : IFactory<Stage1002> { public Stage1002 Create() => new(); }
     private class Stage1003Factory : IFactory<Stage1003> { public Stage1003 Create() => new(); }
@@ -48,6 +51,7 @@ public class StageFactory
     private class Stage1007Factory : IFactory<Stage1007> { public Stage1007 Create() => new(); }
     private class Stage1008Factory : IFactory<Stage1008> { public Stage1008 Create() => new(); }
     private class Stage1009Factory : IFactory<Stage1009> { public Stage1009 Create() => new(); }
+    private class StageTutorialWolfFactory : IFactory<StageTutorialWolf> { public StageTutorialWolf Create() => new(); }
     private class Stage5001Factory : IFactory<Stage5001> { public Stage5001 Create() => new(); }
     private class Stage5002Factory : IFactory<Stage5002> { public Stage5002 Create() => new(); }
     private class Stage5003Factory : IFactory<Stage5003> { public Stage5003 Create() => new(); }

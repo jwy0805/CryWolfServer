@@ -96,6 +96,24 @@ public class SinglePlayStartPacketResponse
     public bool SinglePlayStartOk { get; set; }
 }
 
+public class TutorialStartPacketRequired
+{
+    public int UserId { get; set; }
+    public Faction UserFaction { get; set; }
+    public UnitId[] UnitIds { get; set; }
+    public int CharacterId { get; set; }
+    public int AssetId { get; set; }
+    public int EnemyCharacterId { get; set; }
+    public int EnemyAssetId { get; set; }
+    public int MapId { get; set; }
+    public int SessionId { get; set; }
+}
+
+public class TutorialStartPacketResponse
+{
+    public bool TutorialStartOk { get; set; }
+}
+
 public class GameResultPacketRequired
 {
     public int UserId { get; set; }
@@ -133,6 +151,18 @@ public class SingleGameRewardPacketResponse
 {
     public bool GetGameRewardOk { get; set; }
     public List<SingleRewardInfo> Rewards { get; set; }
+}
+
+public class TutorialRewardPacketRequired
+{
+    public int UserId { get; set; }
+    public Faction Faction { get; set; }
+}
+
+public class TutorialRewardPacketResponse
+{
+    public bool GetGameRewardOk { get; set; }
+    public List<RewardInfo> Rewards { get; set; }
 }
 
 public class SessionDisconnectPacketRequired

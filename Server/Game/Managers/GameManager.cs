@@ -47,7 +47,7 @@ public class GameManager
     public class GameData
     {   
         // Game 초기 설정 - 불변 정보, 모든 GameRoom Instance에서 공유
-        public int RoundTime => 25000;
+        public int RoundTime => 24000;
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;  
         public Vector3 Center => new(0, 6.0f, 0);

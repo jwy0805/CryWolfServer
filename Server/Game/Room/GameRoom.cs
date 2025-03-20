@@ -28,7 +28,6 @@ public partial class GameRoom : JobSerializer, IDisposable
     
     private int _storageLevel = 0;
     private int _portalLevel = 0;
-    private int _roundTime = 24;
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
@@ -45,7 +44,9 @@ public partial class GameRoom : JobSerializer, IDisposable
     public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
     public int RoomId { get; set; }
+    public int RoundTime { get; private set; } = 24;
     public bool RoomActivated { get; set; }
+    public bool TutorialFlag { get; set; }
     public Map Map { get; private set; } = new();
     public int MapId { get; set; }
     public GameManager.GameData GameData { get; set; } = new();
@@ -74,6 +75,7 @@ public partial class GameRoom : JobSerializer, IDisposable
 
     public void Update()
     {
+        ManageTutorialUnit();
         if (RoomActivated == false)
         {
             return;
@@ -101,28 +103,43 @@ public partial class GameRoom : JobSerializer, IDisposable
     {
         long time = Stopwatch.ElapsedMilliseconds;
         if (time < _timeSendTime + _interval || time < 1000) return;
-        if (_round > 0) CheckWinner();
-        Broadcast(new S_Time { Time = _roundTime, Round = _round});
-        _roundTime--;
-        
-        // --- Single Play ---
-        if (_roundTime < 19 && _singlePlayFlag == false)
+        if (_round > 0)
         {
-            if (GameMode == GameMode.Single)
-            {
-                _stageWaveModule?.Spawn(_round);
-                _singlePlayFlag = true;
-            }
+            _ = CheckWinner();
         }
-        // --- Single Play ---
         
-        if (_roundTime < 0) 
+        Broadcast(new S_Time { Time = RoundTime, Round = _round});
+        RoundTime--;
+        
+        // --- Single Play ---
+        ManageSinglePlayUnit();
+        
+        if (RoundTime < 0) 
         {
             InitRound();
         }
         
-        if (_roundTime < 10 && _round != 0) CheckMonsters();
+        if (RoundTime < 10 && _round != 0)
+        {
+            CheckMonsters();
+        }
+        
         _timeSendTime = time;
+    }
+    
+    private void ManageTutorialUnit()
+    {
+        if (RoundTime >= 15 || GameMode != GameMode.Tutorial || TutorialFlag) return;
+        _stageWaveModule?.Spawn(_round);
+    }
+
+    private void ManageSinglePlayUnit()
+    {
+        if (RoundTime >= 19 || GameMode != GameMode.Single || _singlePlayFlag) return;
+        if (_stageWaveModule == null) return;
+        Console.WriteLine("sdf");
+        _stageWaveModule.Spawn(_round);
+        _singlePlayFlag = true;
     }
     
     public void EnterGame(GameObject gameObject)
@@ -146,6 +163,7 @@ public partial class GameRoom : JobSerializer, IDisposable
                     // 게임 플레이 중간에 player가 접속했을 때 이미 존재하는 objects spawn
                     foreach (var f in _fences.Values) spawnPacket.Objects.Add(f.Info);
                     foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
+                    foreach (var s in _statues.Values) spawnPacket.Objects.Add(s.Info);
                     foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                     foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
                     spawnPacket.Objects.Add(_portal?.Info);
@@ -496,7 +514,8 @@ public partial class GameRoom : JobSerializer, IDisposable
         Map.Room = null;
         GameData = new GameManager.GameData();
         _singlePlayFlag = false;
-        _roundTime = 19;
+        TutorialFlag = false;
+        RoundTime = 24;
         _round = 0;
         _storageLevel = 0;
         _timeSendTime = 0;

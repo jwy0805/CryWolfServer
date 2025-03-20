@@ -25,6 +25,8 @@ class PacketManager
 	{		
 		_onRecv.Add((ushort)MessageId.CStartGameScene, MakePacket<C_StartGameScene>);
 		_handler.Add((ushort)MessageId.CStartGameScene, PacketHandler.C_StartGameSceneHandler);		
+		_onRecv.Add((ushort)MessageId.CHoldGame, MakePacket<C_HoldGame>);
+		_handler.Add((ushort)MessageId.CHoldGame, PacketHandler.C_HoldGameHandler);		
 		_onRecv.Add((ushort)MessageId.CSpawn, MakePacket<C_Spawn>);
 		_handler.Add((ushort)MessageId.CSpawn, PacketHandler.C_SpawnHandler);		
 		_onRecv.Add((ushort)MessageId.CPlayerMove, MakePacket<C_PlayerMove>);

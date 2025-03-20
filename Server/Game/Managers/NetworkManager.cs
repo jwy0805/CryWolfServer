@@ -66,6 +66,9 @@ public class NetworkManager
                     case "/singlePlay":
                         responseString = await HandleSingleGameRequest(request);
                         break;
+                    case "/tutorial":
+                        responseString = await HandleTutorialRequest(request);
+                        break;
                     case "/test":
                         responseString = await HandleTestRequest(request);
                         break;
@@ -133,6 +136,27 @@ public class NetworkManager
         
         return JsonConvert.SerializeObject(surrenderResponse);
     }
+
+    private async Task<string> HandleTutorialRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var tutorialRequest = JsonConvert.DeserializeObject<TutorialStartPacketRequired>(requestBody);
+        if (tutorialRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+        
+        var task = await StartTutorialAsync(tutorialRequest);
+        var response = new TutorialStartPacketResponse { TutorialStartOk = task };
+
+        return JsonConvert.SerializeObject(response);
+    }   
     
     private async Task<string> HandleTestRequest(HttpListenerRequest request)
     {
@@ -248,7 +272,23 @@ public class NetworkManager
         
         return await tcs.Task;
     }
-    
+
+    private async Task<bool> StartTutorialAsync(TutorialStartPacketRequired packet)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+        
+        GameLogic.Instance.Push(() =>
+        {
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var player = CreatePlayerTutorial(room, packet);
+            room.Npc = CreateNpc(player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            room.GameMode = GameMode.Tutorial;
+            room.RoomActivated = true;
+            tcs.SetResult(true);
+        });
+
+        return await tcs.Task;
+    }    
     private Player CreatePlayer(GameRoom room, MatchSuccessPacketRequired required, Faction faction)
     {
         var player = ObjectManager.Instance.Add<Player>();
@@ -302,6 +342,36 @@ public class NetworkManager
         player.Session = SessionManager.Instance.Find(required.SessionId);
 
         Console.WriteLine($"{required.SessionId} single play");
+        if (player.Session == null)
+        {
+            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
+            return player;
+        }
+        
+        player.Session.MyPlayer = player;
+        player.Session.UserId = required.UserId;
+
+        return player;
+    }
+
+    private Player CreatePlayerTutorial(GameRoom room, TutorialStartPacketRequired required)
+    {
+        var player = ObjectManager.Instance.Add<Player>();
+        var faction = required.UserFaction;
+        var position = faction == Faction.Sheep 
+            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
+            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+
+        player.Room = room;
+        player.Faction = faction;
+        player.PosInfo = position;
+        player.Info.PosInfo = position;
+        player.CharacterId = (CharacterId)required.CharacterId;
+        player.AssetId = required.AssetId;
+        player.UnitIds = required.UnitIds;
+        player.Session = SessionManager.Instance.Find(required.SessionId);
+
+        Console.WriteLine($"{required.SessionId} in tutorial");
         if (player.Session == null)
         {
             Console.WriteLine($"Session not found for user : {player.Session?.UserId}");

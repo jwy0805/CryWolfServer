@@ -168,7 +168,7 @@ public partial class GameRoom
             {
                 bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalStatue.UnitId+ 1, out _);
                 bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalStatue.UnitId);
-                bool lackOfCost = VerifyUnitUpgradeCost((int)originalStatue.UnitId);
+                bool lackOfCost = VerityStatueUpgradeCost((int)originalStatue.UnitId);
             
                 if (evolutionEnded)
                 {
@@ -196,7 +196,9 @@ public partial class GameRoom
     public void HandleUnitRepair(Player? player, C_UnitRepair packet)
     {
         if (player == null) return;
-        var unitIds = packet.ObjectId.ToArray();
+        var unitIds = packet.RepairAll 
+            ? _fences.Values.Select(fence => fence.Id).ToArray() 
+            : packet.ObjectId.ToArray();
         
         foreach (var unitId in unitIds)
         {
@@ -268,8 +270,9 @@ public partial class GameRoom
     {
         if (player == null) return;
         var ids = packet.ObjectIds.ToArray();
-        var cost = CalcFenceRepairCost(ids);
-        var costPacket = new S_SetUnitRepairCost { Cost = cost };
+        var cost = packet.Faction == Faction.Sheep ? CalcFenceRepairCost(ids) : CalcStatueRepairCost(ids);
+        var costAll = packet.Faction == Faction.Sheep ? CalcFenceRepairCost(ids, true) : CalcStatueRepairCost(ids, true);
+        var costPacket = new S_SetUnitRepairCost { Cost = cost, CostAll = costAll };
         player.Session?.Send(costPacket);
     }
     

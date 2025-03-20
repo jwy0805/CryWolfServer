@@ -6,7 +6,7 @@ namespace Server.Data.SinglePlayScenario;
 
 public class Stage5002 : Stage
 {
-    private readonly Dictionary<float, Tower> _towers = new();
+    private readonly Dictionary<int, Tower> _towers = new();
 
     public override void Spawn(int round)
     {

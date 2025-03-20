@@ -6,5 +6,6 @@ public enum GameMode
     Rank,
     Friendly,
     Single,
-    Test
+    Tutorial,
+    Test,
 }

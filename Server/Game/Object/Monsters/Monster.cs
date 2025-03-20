@@ -81,6 +81,11 @@ public class Monster : Creature, ISkillObserver
         Room.DieAndLeave(Id);        
     }
 
+    public void Die()
+    {
+        OnDead(null);
+    }
+
     public override void ApplyAttackEffect(GameObject target)
     {
         if (Room == null) return;

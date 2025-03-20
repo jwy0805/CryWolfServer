@@ -26,7 +26,7 @@ public sealed partial class ObjectManager : IFactory
             ResourceId resourceId when typeof(T) == typeof(Resource) => _resourceDict[resourceId] as IFactory<T>,
             _ => throw new InvalidDataException()
         };
-
+        
         if (factory == null) throw new InvalidDataException();
         var gameObject = factory.Create();
         lock (_lock) gameObject.Id = GenerateId(gameObject.ObjectType);

@@ -29,6 +29,22 @@ public class PacketHandler
         room.Push(room.EnterGame, player);
     }
 
+    public static void C_HoldGameHandler(PacketSession session, IMessage packet)
+    {
+        var holdPacket = (C_HoldGame)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+
+        if (room == null)
+        {
+            Console.WriteLine("Room is null");
+            return;
+        }
+        
+        room.RoomActivated = !holdPacket.Hold;
+    }
+    
     public static void C_SpawnHandler(PacketSession session, IMessage packet)
     {
         var spawnPacket = (C_Spawn)packet;

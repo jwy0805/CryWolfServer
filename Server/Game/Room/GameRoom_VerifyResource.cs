@@ -63,8 +63,18 @@ public partial class GameRoom
 
         if (cost > GameInfo.SheepResource) return true;
         GameInfo.SheepResource -= cost;
+        
         return false;
+    }
+    
+    private bool VerityStatueUpgradeCost(int unitId)
+    {
+        var cost = CalcUpgradeCost(unitId);
 
+        if (cost > GameInfo.WolfResource) return true;
+        GameInfo.WolfResource -= cost;
+        
+        return false;
     }
     
     private bool VerifyCapacityForTower(int towerId, SpawnWay way)
@@ -249,6 +259,15 @@ public partial class GameRoom
     private void RepairFences(List<Fence> fences)
     {
         foreach (var fence in fences)
+        {
+            fence.Hp = fence.MaxHp;
+            Broadcast(new S_ChangeHp { ObjectId = fence.Id, Hp = fence.Hp });
+        }
+    }
+    
+    private void RepairAllFences()
+    {
+        foreach (var fence in _fences.Values)
         {
             fence.Hp = fence.MaxHp;
             Broadcast(new S_ChangeHp { ObjectId = fence.Id, Hp = fence.Hp });
