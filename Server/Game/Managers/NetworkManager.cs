@@ -295,10 +295,12 @@ public class NetworkManager
         var position = faction == Faction.Sheep 
             ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+        var sheepCharacterName = required.SheepCharacterId.ToString();
+        var wolfCharacterName = required.WolfCharacterId.ToString();
         
         player.Room = room;
         player.Faction = faction;
-        player.Info.Name = faction == Faction.Sheep ? $"Player_{required.SheepUserName}" : $"Player_{required.WolfUserName}";
+        player.Info.Name = faction == Faction.Sheep ? sheepCharacterName : wolfCharacterName;
         player.PosInfo = position;
         player.Info.PosInfo = position;
         player.CharacterId = faction == Faction.Sheep ? required.SheepCharacterId : required.WolfCharacterId;
@@ -336,6 +338,7 @@ public class NetworkManager
         player.Faction = faction;
         player.PosInfo = position;
         player.Info.PosInfo = position;
+        player.Info.Name = ((CharacterId)required.CharacterId).ToString();
         player.CharacterId = (CharacterId)required.CharacterId;
         player.AssetId = required.AssetId;
         player.UnitIds = required.UnitIds;
@@ -366,6 +369,7 @@ public class NetworkManager
         player.Faction = faction;
         player.PosInfo = position;
         player.Info.PosInfo = position;
+        player.Info.Name = ((CharacterId)required.CharacterId).ToString();
         player.CharacterId = (CharacterId)required.CharacterId;
         player.AssetId = required.AssetId;
         player.UnitIds = required.UnitIds;
@@ -394,7 +398,8 @@ public class NetworkManager
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
 
         npc.Faction = faction;
-        npc.Info.Name = $"NPC_{player.Info.Name}";
+        // npc.Info.Name = $"NPC_{player.Info.Name}";
+        npc.Info.Name = characterId.ToString();
         npc.PosInfo = position;
         npc.Info.PosInfo = position;
         npc.CharacterId = characterId;
