@@ -508,7 +508,7 @@ public class NetworkManager
             {
                 var winnerId = room.FindPlayer(go =>
                     go is Player player && player.Session?.UserId != packet.UserId)?.Session?.UserId ?? -1;
-                room.GameOver(winnerId, packet.UserId);
+                _ = room.GameOver(winnerId, packet.UserId);
                 tcs.SetResult(true);
             }
         });
