@@ -34,9 +34,21 @@ public class Listener
     {
         if (args.SocketError == SocketError.Success)
         {
+            var socket = args.AcceptSocket;
+            if (socket == null)
+            {
+                Console.WriteLine("Accept failed : Socket is null");
+                return;
+            }
+            
+            EndPoint? remote = socket.RemoteEndPoint;
             Session session = _sessionFactory.Invoke();
-            session.Start(args.AcceptSocket);  
-            session.OnConnected(args.AcceptSocket.RemoteEndPoint);
+            session.Start(args.AcceptSocket);
+
+            if (remote != null)
+            {
+                session.OnConnected(remote);
+            }
         }
         else
         {
