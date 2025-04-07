@@ -33,7 +33,7 @@ public static class Program
                 Console.WriteLine(ip);
             }
             
-            ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("192."));
+            ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
 
             if (ipAddress == null)
             {
