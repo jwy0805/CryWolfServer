@@ -285,7 +285,7 @@ public partial class GameRoom
     
     private void SendWarningMessage(Player player, string msg)
     {
-        S_SendWarningInGame warningPacket = new() { Warning = msg };
+        S_SendWarningInGame warningPacket = new() { MessageKey = msg };
         player.Session?.Send(warningPacket);
     }
 }

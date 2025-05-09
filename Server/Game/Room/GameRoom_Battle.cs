@@ -135,12 +135,12 @@ public partial class GameRoom
                 bool lackOfTowerCapacity = VerifyCapacityForTower(spawnPacket.Num, spawnPacket.Way);
                 if (lackOfTowerCost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
                 if (lackOfTowerCapacity)
                 {
-                    SendWarningMessage(player, "인구수를 초과했습니다.");
+                    SendWarningMessage(player, "warning_in_game_capacity_limit_exceeded");
                     return;
                 }
                 SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
@@ -158,12 +158,12 @@ public partial class GameRoom
                 bool lackOfMonsterCapacity = VerifyCapacityForMonster(spawnPacket.Num, spawnPacket.Way);
                 if (lackOfMonsterCost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
                 if (lackOfMonsterCapacity)
                 {
-                    SendWarningMessage(player, "인구수를 초과했습니다.");
+                    SendWarningMessage(player, "warning_in_game_capacity_limit_exceeded");
                     return;
                 }
                 SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);

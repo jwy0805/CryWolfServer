@@ -13,7 +13,7 @@ public partial class GameRoom
         bool lackOfCost = GameInfo.SheepResource <= cost;
         if (lackOfCost)
         {
-            SendWarningMessage(player, "골드가 부족합니다.");
+            SendWarningMessage(player, "warning_in_game_lack_of_gold");
             return;
         }
         
@@ -82,19 +82,19 @@ public partial class GameRoom
 
         if (player.SkillUpgradedList.Contains(skill))
         {
-            SendWarningMessage(player, "이미 스킬을 배웠습니다.");
+            SendWarningMessage(player, "warning_in_game_already_learn_skill");
             return;
         }
         
         if (lackOfSkill)
         {
-            SendWarningMessage(player, "선행 스킬이 부족합니다.");
+            SendWarningMessage(player, "warning_in_game_missing_prerequisite_skill");
             return;
         }
 
         if (lackOfCost)
         {
-            SendWarningMessage(player, "골드가 부족합니다.");
+            SendWarningMessage(player, "warning_in_game_lack_of_gold");
             return;
         }
 
@@ -126,7 +126,7 @@ public partial class GameRoom
         }
         else
         {
-            SendWarningMessage(player, "골드가 부족합니다.");
+            SendWarningMessage(player, "warning_in_game_lack_of_gold");
         }
     }
 
@@ -147,19 +147,19 @@ public partial class GameRoom
             
                 if (evolutionEnded)
                 {
-                    SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+                    SendWarningMessage(player, "warning_in_game_cannot_evolve_further");
                     return;
                 }
 
                 if (lackOfUpgrade)
                 {
-                    SendWarningMessage(player, "먼저 진화가 필요합니다.");
+                    SendWarningMessage(player, "warning_in_game_needs_to_evolve");
                     return;
                 }
 
                 if (lackOfCost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
             }
@@ -172,19 +172,19 @@ public partial class GameRoom
             
                 if (evolutionEnded)
                 {
-                    SendWarningMessage(player, "더 이상 진화할 수 없습니다.");
+                    SendWarningMessage(player, "warning_in_game_cannot_evolve_further");
                     return;
                 }
 
                 if (lackOfUpgrade)
                 {
-                    SendWarningMessage(player, "먼저 진화가 필요합니다.");
+                    SendWarningMessage(player, "warning_in_game_needs_to_evolve");
                     return;
                 }
 
                 if (lackOfCost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
             }
@@ -210,7 +210,7 @@ public partial class GameRoom
                 var cost = CalcFenceRepairCost(new[] { unitId });
                 if (GameInfo.SheepResource < cost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
                 GameInfo.SheepResource -= cost;
@@ -222,7 +222,7 @@ public partial class GameRoom
                 var cost = CalcStatueRepairCost(new[] { unitId });
                 if (GameInfo.WolfResource < cost)
                 {
-                    SendWarningMessage(player, "골드가 부족합니다.");
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
                     return;
                 }
                 GameInfo.WolfResource -= cost;
