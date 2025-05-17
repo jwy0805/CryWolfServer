@@ -19,7 +19,7 @@ public class StageTutorialSheep : Stage
         switch (round)
         {
             case 0:
-                var statue0 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = -1.5f, PosY = 6, PosZ = 13 });
+                var statue0 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = 1.5f, PosY = 6, PosZ = 13 });
                 var statue1 = Room.SpawnStatue(UnitId.WolfPup, new PositionInfo { PosX = -1.5f, PosY = 6, PosZ = 13 });
                 _statues.Add(0, statue0);
                 _statues.Add(1, statue1);

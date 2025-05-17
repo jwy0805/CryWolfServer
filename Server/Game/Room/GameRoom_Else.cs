@@ -155,29 +155,28 @@ public partial class GameRoom
         }
         
         if (pq.Count == 0 || gameObject is not Creature creature) return null;
-        
-        while (pq.Count > 0)
+
+        if (gameObject.ObjectType == GameObjectType.Monster)
+        {
+            while (pq.Count > 0)
+            {
+                var target = pq.Dequeue().Target;
+                // if (creature.UnreachableIds.Contains(target.Id)) continue;
+                var path = Map.GetPath(gameObject, true, Map.Vector3To2(target.CellPos));
+                if (path.Count == 0)
+                {
+                    // creature.UnreachableIds.Add(target.Id);
+                    continue;
+                }
+
+                // creature.UnreachableIds.Clear();
+                return target;
+            }
+        }
+        else
         {
             var target = pq.Dequeue().Target;
-            Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
-            Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
-            var path = Map.FindPath(gameObject, startCell, destCell);
-            // if (creature.UnreachableIds.Contains(target.Id))
-            // {
-            //     Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
-            //     Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
-            //     var path = Map.FindPath(gameObject, startCell, destCell);
-            //     if (path.Count != 0)
-            //     {
-            //         creature.UnreachableIds.Clear();
-            //         return target;
-            //     }
-            //     continue;
-            // }
-            // else
-            // {
-            //     return target;
-            // }
+            return target;
         }
 
         return null;

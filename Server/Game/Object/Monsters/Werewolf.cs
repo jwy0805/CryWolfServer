@@ -93,7 +93,6 @@ public class Werewolf : Wolf
         
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
-        Console.WriteLine($"{DestPos}");
         if (Path.Count == 0)
         {
             State = State.Idle;

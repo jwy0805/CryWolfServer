@@ -64,7 +64,6 @@ public partial class GameRoom
                 var stageId = sheepPlayer?.Session == null ? 5000 : 1000;
                 _stageWaveModule = factory.Create(stageId);
                 _stageWaveModule.Room = this;
-                Console.WriteLine(stageId);
                 break;
             
             default:
@@ -83,7 +82,7 @@ public partial class GameRoom
             
             if (player.Faction == Faction.Sheep)
             {
-                GameInfo.SheepResource = GameMode == GameMode.Tutorial ? 1500 : 35000;
+                GameInfo.SheepResource = GameMode == GameMode.Tutorial ? 2400 : 450;
                 
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
@@ -95,7 +94,7 @@ public partial class GameRoom
             }
             else
             {
-                GameInfo.WolfResource = GameMode == GameMode.Tutorial ? 1500 : 35000;
+                GameInfo.WolfResource = GameMode == GameMode.Tutorial ? 2400 : 450;
                 
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });

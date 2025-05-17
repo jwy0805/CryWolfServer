@@ -317,7 +317,7 @@ public partial class Map
     {
         Vector2Int startCell = Vector3To2(go.CellPos);
         Vector2Int destCell = destVector ?? Vector3To2(go.DestPos);
-        if (CanGo(go, destCell, false) == false)
+        if (CanGo(go, destCell) == false)
         {
             Vector2Int newDestCell = FindNearestEmptySpace(destCell, go);
             destCell = newDestCell;
