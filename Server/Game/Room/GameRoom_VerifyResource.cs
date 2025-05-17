@@ -122,7 +122,7 @@ public partial class GameRoom
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
         var cost = skillData.cost;
         var resource = player.Faction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
-        if (resource < cost) return true;
+        if (resource <= cost) return true;
         if (player.Faction == Faction.Sheep) GameInfo.SheepResource -= cost;
         else GameInfo.WolfResource -= cost;
         return false;

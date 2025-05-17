@@ -159,21 +159,25 @@ public partial class GameRoom
         while (pq.Count > 0)
         {
             var target = pq.Dequeue().Target;
-            if (creature.UnreachableIds.Contains(target.Id))
-            {
-                Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
-                Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
-                var path = Map.FindPath(gameObject, startCell, destCell);
-                if (path.Count != 0)
-                {
-                    creature.UnreachableIds.Clear();
-                    return target;
-                }
-            }
-            else
-            {
-                return target;
-            }
+            Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
+            Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
+            var path = Map.FindPath(gameObject, startCell, destCell);
+            // if (creature.UnreachableIds.Contains(target.Id))
+            // {
+            //     Vector2Int startCell = Map.Vector3To2(gameObject.CellPos);
+            //     Vector2Int destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, target));
+            //     var path = Map.FindPath(gameObject, startCell, destCell);
+            //     if (path.Count != 0)
+            //     {
+            //         creature.UnreachableIds.Clear();
+            //         return target;
+            //     }
+            //     continue;
+            // }
+            // else
+            // {
+            //     return target;
+            // }
         }
 
         return null;

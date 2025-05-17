@@ -486,17 +486,17 @@ public partial class Map
         }
         else
         {
-            switch (theta)
+            if (deltaZ > 0)                     // up
             {
-                case >= 45 and <= 135:          // up
-                    z = targetCellPos.Z + sizeZ;
-                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, (float)y, (float)z)); 
-                    break;
-                default:
-                    z = targetCellPos.Z - sizeZ;
-                    destVector = Util.Util.NearestCell(new Vector3(target.CellPos.X, (float)y, (float)z)); 
-                    break;
+                z = targetCellPos.Z - sizeZ;   
             }
+            else                                // down
+            {
+                z = targetCellPos.Z + sizeZ;   
+            }
+
+            destVector = Util.Util.NearestCell(
+                new Vector3(target.CellPos.X, (float)y, (float)z));
         }
 
         return destVector;

@@ -83,7 +83,7 @@ public partial class GameRoom
             
             if (player.Faction == Faction.Sheep)
             {
-                GameInfo.SheepResource = GameMode == GameMode.Tutorial ? 1500 : 350;
+                GameInfo.SheepResource = GameMode == GameMode.Tutorial ? 1500 : 35000;
                 
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
@@ -95,7 +95,7 @@ public partial class GameRoom
             }
             else
             {
-                GameInfo.WolfResource = GameMode == GameMode.Tutorial ? 1500 : 350;
+                GameInfo.WolfResource = GameMode == GameMode.Tutorial ? 1500 : 35000;
                 
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
@@ -181,7 +181,8 @@ public partial class GameRoom
     }
     
     public void HandleEffectActivate(Player? player, C_EffectActivate dirPacket)
-    {   // Effect 자체에 공격 등 효과가 있는 경우 Effect Controller에서 패킷 전송
+    {   
+        // Effect 자체에 공격 등 효과가 있는 경우 Effect Controller에서 패킷 전송
         if (player == null) return;
         GameObject? go = FindGameObjectById(dirPacket.ObjectId);
         if (go == null) return;

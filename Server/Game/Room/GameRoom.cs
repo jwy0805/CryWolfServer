@@ -137,7 +137,6 @@ public partial class GameRoom : JobSerializer, IDisposable
     {
         if (RoundTime >= 19 || GameMode != GameMode.Single || _singlePlayFlag) return;
         if (_stageWaveModule == null) return;
-        Console.WriteLine("sdf");
         _stageWaveModule.Spawn(_round);
         _singlePlayFlag = true;
     }
