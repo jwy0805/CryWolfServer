@@ -46,7 +46,8 @@ public class SnakeNaga : Snake
         base.Init();
         UnitRole = Role.Mage;
         
-        // Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaBigFire);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaBigFire);
+        Player.SkillSubject.SkillUpgraded(Skill.SnakeNagaMeteor);
     }
     
     public override void Update()

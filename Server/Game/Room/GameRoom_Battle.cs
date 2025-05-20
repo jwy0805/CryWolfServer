@@ -18,38 +18,26 @@ public partial class GameRoom
     
     private void BaseInit()
     {
+        Console.WriteLine("Base Init");
         _portal = SpawnPortal();
         _storage = SpawnStorage();
-    }
-    
-    public void InfoInit()
-    {
-        if (_storage == null) return;
         
         GameInfo = new GameInfo(_players, MapId)
         {
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
+            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 45000,
+            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 45000
         };
-        
-        SpawnFence(_storage.Level, _storage.Level);
-        
-        // Spawn Prime Sheep
-        var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
-        if (sheepPlayer != null)
-        {
-            SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
-        }
-        
-        // Set Enchant
-        var wolfPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Wolf);
-        if (wolfPlayer != null)
-        {
-            Enchant = EnchantManager.Instance.CreateEnchant((EnchantId)wolfPlayer.AssetId);
-            Enchant.Room = this;
-            Enchant.Update();
-        }
+
+        SpawnFence(1, 1);
+    }
+    
+    public void InfoInit(Player player)
+    {
+        if (_storage == null) return;
+        Console.WriteLine("Info Init");
         
         // Set Monster Wave Module
         var factory = new StageFactory();
@@ -61,7 +49,7 @@ public partial class GameRoom
                 break;
             
             case GameMode.Tutorial:
-                var stageId = sheepPlayer?.Session == null ? 5000 : 1000;
+                var stageId = player.Faction == Faction.Sheep ? 1000 : 5000;
                 _stageWaveModule = factory.Create(stageId);
                 _stageWaveModule.Room = this;
                 break;
@@ -71,6 +59,12 @@ public partial class GameRoom
         }
         
         InitUiText();
+
+        if (_players.Count == 2 && _infoInit == false)
+        {
+            SetAssets();
+            _infoInit = true;
+        }
     }
 
     private void InitUiText()
@@ -82,8 +76,6 @@ public partial class GameRoom
             
             if (player.Faction == Faction.Sheep)
             {
-                GameInfo.SheepResource = GameMode == GameMode.Tutorial ? 2400 : 450;
-                
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
                 if (MapId != 1)
@@ -94,8 +86,6 @@ public partial class GameRoom
             }
             else
             {
-                GameInfo.WolfResource = GameMode == GameMode.Tutorial ? 2400 : 450;
-                
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
                 if (MapId != 1)

@@ -24,7 +24,7 @@ public partial class GameRoom
         
         var assetId = (SheepId)sheepPlayer.AssetId;
         var primeSheep = _sheeps.Values.FirstOrDefault(sheep => sheep.SheepId == assetId);
-        
+
         if (primeSheep != null && _portal != null) return;
         if (primeSheep == null)
         {
@@ -89,7 +89,21 @@ public partial class GameRoom
                     }
                     else
                     {
-                        fence = SpawnFence(newFenceCellPos);
+                        var oldCellPos = newFenceCellPos with { Z = newFenceCellPos.Z - _forwardParam };
+                        var oldCellPosV2 = Map.Vector3To2(oldCellPos);
+                        if (Map.CanSpawnFence(oldCellPosV2, _towers.Values.ToArray()))
+                        {
+                            fence = SpawnFence(newFenceCellPos);
+                        }
+                        else
+                        {
+                            _players.Values
+                                .FirstOrDefault(p => p.Faction == Faction.Sheep)?.Session?
+                                .Send(new S_SendWarningInGame
+                                {
+                                    MessageKey = "warning_in_game_obstacles_between_fences"
+                                });
+                        }
                     }
                     
                     SpawnEffect(EffectId.MoveForwardEffect, fence, fence);
@@ -121,9 +135,23 @@ public partial class GameRoom
             foreach (var tower in remainTowers.Values)
             {
                 Map.ApplyMap(tower, tower.CellPos + new Vector3 { Z = _forwardParam });
-                // tower.CellPos += new Vector3 { Z = _forwardParam };
                 tower.BroadcastInstantMove();
                 SpawnEffect(EffectId.MoveForwardEffect, tower, tower);
+            }
+            
+            var z = GameInfo.FenceStartPos.Z;
+            var statues = _statues.Values
+                .Where(s => z >= s.CellPos.Z - (s.SizeZ - 1) && z <= s.CellPos.Z + (s.SizeZ - 1)).ToList();
+            if (statues.Any())
+            {
+                var primeSheep = _sheeps.Values.MinBy(s => s.SheepId);
+                foreach (var statue in statues)
+                {
+                    if (primeSheep != null)
+                    {
+                        statue.OnDamaged(primeSheep, 9999, Damage.True);
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -154,9 +182,12 @@ public partial class GameRoom
             .Where(player => player.Session?.UserId == winnerId)
             .OrderByDescending(player => player.Session?.SessionId)
             .FirstOrDefault() ?? new Player();
-
+        
         switch (GameMode)
         {
+            case GameMode.Test:
+                EndTestHandler(winnerPlayer, loserPlayer);
+                break;
             case GameMode.Rank:
                 await GetRankRewardHandler(winnerPlayer, loserPlayer);
                 break;
@@ -165,6 +196,9 @@ public partial class GameRoom
                 break;
             case GameMode.Tutorial:
                 await GetTutorialRewardHandler(winnerPlayer, winnerId);
+                break;
+            case GameMode.Friendly:
+                FriendlyEndHandler(winnerPlayer);
                 break;
         }
         
@@ -196,7 +230,30 @@ public partial class GameRoom
 
         return 0;
     }
+    
+    private void EndTestHandler(Player? winner, Player? loser)
+    {
+        if (loser != null)
+        {
+            var packet = new S_ShowRankResultPopup
+            {
+                Win = false, RankPointValue = 0, RankPoint = loser.RankPoint
+            };
+            loser.Session?.Send(packet);
+            LeaveGame(loser.Id);
+        }
 
+        if (winner != null)
+        {
+            var packet = new S_ShowRankResultPopup
+            {
+                Win = true, RankPointValue = 0, RankPoint = winner.RankPoint
+            };
+            winner.Session?.Send(packet);
+            LeaveGame(winner.Id);
+        }
+    }
+    
     private async Task GetRankRewardHandler(Player winner, Player loser)
     {
         var packets = await GetRankReward(winner, loser);
@@ -346,5 +403,10 @@ public partial class GameRoom
         }
 
         return (UnitId)task.Result.Rewards.First().ItemId;
+    }
+
+    private void FriendlyEndHandler(Player winner)
+    {
+        
     }
 }

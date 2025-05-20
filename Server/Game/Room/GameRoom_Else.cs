@@ -99,14 +99,13 @@ public partial class GameRoom
         var type = gameObject.ObjectType;
         if (type is GameObjectType.Tower or GameObjectType.Sheep) return true;
         if (type is GameObjectType.Monster && gameObject.Stat.UnitType == 1) return true;
-
-        // var sheep = FindNearestSheep(gameObject);
-        // if (sheep == null) return false;
-        // var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
-        // var path = Map.GetPath(gameObject, true, destCell);
-        // Console.WriteLine(path.Count);
-        // return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt && path.Count != 0;
-        return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt;
+        
+        var sheep = FindNearestSheep(gameObject);
+        if (sheep == null) return false;
+        var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
+        var path = Map.GetPath(gameObject, true, destCell);
+        Console.WriteLine($"[Target Search Start] {gameObject.Id} {path.Count}");
+        return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt && path.Count != 0;
     }
     
     private IEnumerable<GameObject> GetTargets(GameObjectType type)
@@ -161,15 +160,13 @@ public partial class GameRoom
             while (pq.Count > 0)
             {
                 var target = pq.Dequeue().Target;
-                // if (creature.UnreachableIds.Contains(target.Id)) continue;
                 var path = Map.GetPath(gameObject, true, Map.Vector3To2(target.CellPos));
+                Console.WriteLine($"MeasureShortestDist: Target search {target.ObjectType} {target.Id}");
                 if (path.Count == 0)
                 {
-                    // creature.UnreachableIds.Add(target.Id);
+                    Console.WriteLine($"MeasureShortestDist: No path found");
                     continue;
                 }
-
-                // creature.UnreachableIds.Clear();
                 return target;
             }
         }

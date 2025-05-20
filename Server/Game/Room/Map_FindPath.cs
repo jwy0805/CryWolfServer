@@ -353,7 +353,6 @@ public partial class Map
 			}
 		}
 
-        // if (gameObject.ObjectType == GameObjectType.Monster) Console.WriteLine($"{parent.Count}");
         return gameObject.UnitType == 0 
             ? CalcCellPathFromParent(parent, dest) : CalcCellPathFromParent(parent, dest, 9.0f);
     }

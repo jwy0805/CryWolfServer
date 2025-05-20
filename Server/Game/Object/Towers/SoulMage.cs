@@ -45,8 +45,6 @@ public class SoulMage : Haunt
     {
         base.Init();
         UnitRole = Role.Mage;
-        
-        // Player.SkillSubject.SkillUpgraded(Skill.SoulMageDragonPunch);
     }
     
     public override void Update()

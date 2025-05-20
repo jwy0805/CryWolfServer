@@ -42,6 +42,11 @@ public class Hermit : Spike
         base.Init();
         UnitRole = Role.Tanker;
         SkillImpactMoment = 0.3f;
+        
+        Player.SkillSubject.SkillUpgraded(Skill.HermitNormalAttackDefence);
+        Player.SkillSubject.SkillUpgraded(Skill.HermitAttackerFaint);
+        Player.SkillSubject.SkillUpgraded(Skill.HermitRecoverBurn);
+        Player.SkillSubject.SkillUpgraded(Skill.HermitShield);
     }
     
     public override void Update() 

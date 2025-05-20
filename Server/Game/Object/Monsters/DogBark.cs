@@ -72,7 +72,6 @@ public class DogBark : DogPup
         }
         // 현재 상태를 새로운 상태로 업데이트
         _currentSet = newSet;
-        Console.WriteLine($"{newSet.Count}");
     }
    
     public override void ApplyAttackEffect(GameObject target)

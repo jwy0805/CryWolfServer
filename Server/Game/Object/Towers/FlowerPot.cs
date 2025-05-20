@@ -44,10 +44,6 @@ public class FlowerPot : Sprout
     {
         base.Init();
         UnitRole = Role.Ranger;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.FlowerPot3Hit);
-        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotFireResistDown);
-        Player.SkillSubject.SkillUpgraded(Skill.FlowerPotDoubleTargets);
     }
     
     protected override void AttackImpactEvents(long impactTime)

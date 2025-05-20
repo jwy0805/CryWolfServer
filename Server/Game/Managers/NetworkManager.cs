@@ -81,7 +81,7 @@ public class NetworkManager
                 byte[] buffer = Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
                 response.StatusCode = (int)HttpStatusCode.OK;
-                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                await response.OutputStream.WriteAsync(buffer);
             }
             catch (Exception e)
             {
@@ -205,18 +205,45 @@ public class NetworkManager
     {
         startTime ??= DateTime.UtcNow;
         var tcs = new TaskCompletionSource<bool>();
-        
+
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            Player? sheepPlayer;
+            Player? wolfPlayer;
             if (packet.IsTestGame)
             {
-                StartTestGame(packet, room);
+                var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
+                var player = CreatePlayer(room, packet, faction);
+                var npcCharacterId = faction == Faction.Sheep ? packet.WolfCharacterId : packet.SheepCharacterId;
+                var npcAssetId = faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId;
+                var npc = CreateNpc(room, player, npcCharacterId, npcAssetId);
+                
+                sheepPlayer = player.Faction == Faction.Sheep ? player : npc;
+                wolfPlayer = player.Faction == Faction.Wolf ? player : npc;
+                
+                var matchPacket = new S_MatchMakingSuccess
+                {
+                    EnemyUserName = npc.Info.Name,
+                    EnemyRankPoint = packet.SheepRankPoint,
+                    EnemyCharacterId = (int)packet.SheepCharacterId,
+                    EnemyAssetId = player.Faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId,
+                };
+        
+                room.Npc = npc;
+                room.GameMode = GameMode.Test;
+        
+                foreach (var unitId in packet.SheepUnitIds)
+                {
+                    matchPacket.EnemyUnitIds.Add((int)unitId);
+                }
+
+                player.Session?.Send(matchPacket);
             }
             else
             {
-                var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
-                var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
+                sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
+                wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
                 
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
@@ -232,6 +259,7 @@ public class NetworkManager
                     return;
                 }
         
+                room.GameMode = GameMode.Rank;
                 SendStartGamePacket(sheepPlayer, wolfPlayer, packet);
             }
             
@@ -246,10 +274,21 @@ public class NetworkManager
             var requestTask = SendRequestToApiAsync<SendMatchInfoPacketResponse>(
                 "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
             var timeTask = Task.Delay(6000);
-            Task.WhenAll(requestTask, timeTask);
-            
-            room.RoomActivated = true;
-            tcs.SetResult(true);
+            var tasks = Task.WhenAll(requestTask, timeTask);
+            tasks.ContinueWith(_ =>
+            {
+                if (requestTask.Result is { SendMatchInfoOk: true })
+                {
+                    room.RoomActivated = true;
+                    Console.WriteLine("Start Game Async - room activated");
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    Console.WriteLine("Start Game Async - room not activated");
+                    tcs.SetResult(false);
+                }
+            });
         });
         
         return await tcs.Task;
@@ -263,10 +302,10 @@ public class NetworkManager
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             var player = CreatePlayerSingle(room, packet);
-            room.Npc = CreateNpc(player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Single;
             room.StageId = packet.StageId;
-            room.RoomActivated = true;
+            // room.RoomActivated = true;
             tcs.SetResult(true);
         });
         
@@ -281,9 +320,9 @@ public class NetworkManager
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             var player = CreatePlayerTutorial(room, packet);
-            room.Npc = CreateNpc(player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Tutorial;
-            room.RoomActivated = true;
+            // room.RoomActivated = true;
             tcs.SetResult(true);
         });
 
@@ -297,7 +336,7 @@ public class NetworkManager
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
         var sheepCharacterName = required.SheepCharacterId.ToString();
         var wolfCharacterName = required.WolfCharacterId.ToString();
-        
+
         player.Room = room;
         player.Faction = faction;
         player.Info.Name = faction == Faction.Sheep ? sheepCharacterName : wolfCharacterName;
@@ -313,7 +352,7 @@ public class NetworkManager
             ? SessionManager.Instance.Find(required.SheepSessionId)
             : SessionManager.Instance.Find(required.WolfSessionId);
 
-        Console.WriteLine($"{required.SheepSessionId} : {required.WolfSessionId}");
+        Console.WriteLine($"Create Player -> {room.RoomId} {required.SheepSessionId} : {required.WolfSessionId}" );
         if (player.Session == null)
         {
             Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
@@ -388,7 +427,7 @@ public class NetworkManager
         return player;
     }
 
-    private Player CreateNpc(Player player, CharacterId characterId, int assetId)
+    private Player CreateNpc(GameRoom room, Player player, CharacterId characterId, int assetId)
     {
         // This is a test NPC, so this has to be changed later when the single play mode is implemented.
         var npc = ObjectManager.Instance.Add<Player>();
@@ -405,6 +444,7 @@ public class NetworkManager
         npc.CharacterId = characterId;
         npc.AssetId = assetId;
 
+        Console.WriteLine($"Create NPC -> {npc.Info.Name}");
         return npc;
     }
 
@@ -417,28 +457,7 @@ public class NetworkManager
 
     private void StartTestGame(MatchSuccessPacketRequired required, GameRoom room)
     {
-        var faction = required.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
-        var player = CreatePlayer(room, required, faction);
-        var npcCharacterId = faction == Faction.Sheep ? required.WolfCharacterId : required.SheepCharacterId;
-        var npcAssetId = faction == Faction.Sheep ? (int)required.EnchantId : (int)required.SheepId;
-        var npc = CreateNpc(player, npcCharacterId, npcAssetId);
-        var matchPacket = new S_MatchMakingSuccess
-        {
-            EnemyUserName = npc.Info.Name,
-            EnemyRankPoint = required.SheepRankPoint,
-            EnemyCharacterId = (int)required.SheepCharacterId,
-            EnemyAssetId = player.Faction == Faction.Sheep ? (int)required.EnchantId : (int)required.SheepId,
-        };
         
-        room.Npc = npc;
-        room.GameMode = GameMode.Test;
-        
-        foreach (var unitId in required.SheepUnitIds)
-        {
-            matchPacket.EnemyUnitIds.Add((int)unitId);
-        }
-        
-        player.Session?.Send(matchPacket);
     }
 
     private Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess> MakeMatchPacket(MatchSuccessPacketRequired packet)

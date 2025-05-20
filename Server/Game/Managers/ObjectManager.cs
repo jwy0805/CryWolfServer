@@ -8,7 +8,7 @@ public sealed partial class ObjectManager : IFactory
     public static ObjectManager Instance { get; } = new();
 
     private readonly object _lock = new();
-    private Dictionary<int, Player?> _players = new();
+    private readonly Dictionary<int, Player?> _players = new();
     
     // [UNUSED(1)][TYPE(7)][ID(24)]
     private int _counter = 0;

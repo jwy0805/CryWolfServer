@@ -60,7 +60,7 @@ public class Werewolf : Wolf
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
         
-        // Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
+        Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
@@ -70,7 +70,8 @@ public class Werewolf : Wolf
         // Targeting
         Target = Room.FindClosestTarget(this);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }

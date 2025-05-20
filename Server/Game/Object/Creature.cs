@@ -115,7 +115,6 @@ public class Creature : GameObject
         
         // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
-        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우

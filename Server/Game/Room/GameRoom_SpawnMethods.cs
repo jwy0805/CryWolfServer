@@ -1,6 +1,7 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
+using Server.Game.Enchants;
 
 namespace Server.Game;
 
@@ -173,7 +174,7 @@ public partial class GameRoom
     public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
-        if (parent?.Target == null) return new Projectile();
+        if (parent == null) return new Projectile();
         
         var projectile = ObjectManager.Instance.Create<Projectile>(projectileId);
         var position = new PositionInfo
@@ -183,7 +184,8 @@ public partial class GameRoom
             PosY = parent.PosInfo.PosY + parent.Stat.SizeY, 
             PosZ = parent.PosInfo.PosZ
         };
-        
+
+        if (parent.Target == null) return new Projectile();
         projectile.Room = this;
         projectile.Parent = parent;
         projectile.Target = parent.Target;
@@ -289,6 +291,26 @@ public partial class GameRoom
         Push(EnterGame, storage);
 
         return storage;
+    }
+
+    public void SetAssets()
+    {
+        Console.WriteLine("Set Assets");
+        
+        var sheepPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep);
+        var wolfPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
+
+        if (sheepPlayer != null && wolfPlayer != null)
+        {
+            SpawnPrimeSheep((SheepId)sheepPlayer.AssetId, sheepPlayer);
+            Enchant = EnchantManager.Instance.CreateEnchant((EnchantId)wolfPlayer.AssetId);
+            Enchant.Room = this;
+            Enchant.Update(); 
+        }
+        else
+        {
+            Console.WriteLine("No sheep or wolf player assigned");
+        }
     }
     
     public void ChangeFences(int level)

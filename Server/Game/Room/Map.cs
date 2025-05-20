@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -10,16 +11,17 @@ public partial class Map
 
     public GameManager.GameData? GameData { get; set; }
     public GameRoom? Room { get; set; }
-    
+
     public bool ApplyMap(GameObject gameObject, Vector3 pos = new(), bool checkObjects = true)
     {
         ApplyLeave(gameObject);
         if (gameObject.Room == null) return false;
         if (gameObject.Room.Map != this) return false;
-        
+
         StatInfo stat = gameObject.Stat;
-        Vector2Int v = Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
-        
+        Vector2Int v =
+            Vector3To2(new Vector3(gameObject.PosInfo.PosX, gameObject.PosInfo.PosY, gameObject.PosInfo.PosZ));
+
         if (gameObject.ObjectType != GameObjectType.Fence)
         {
             bool canGo = CanGo(gameObject, v, checkObjects);
@@ -29,14 +31,14 @@ public partial class Map
                 return false;
             }
         }
-        
+
         if (pos != Vector3.Zero)
         {
             gameObject.PosInfo.PosX = pos.X;
             gameObject.PosInfo.PosY = pos.Y;
             gameObject.PosInfo.PosZ = pos.Z;
         }
-        
+
         List<(int, int)> coordinates = CalculateCoordinates(gameObject.PosInfo, stat);
 
         switch (gameObject.UnitType)
@@ -54,7 +56,7 @@ public partial class Map
 
         return true;
     }
-        
+
     public bool ApplyLeave(GameObject gameObject)
     {
         if (gameObject.Room == null || gameObject.Room.Map != this) return false;
@@ -76,7 +78,7 @@ public partial class Map
                 foreach (var tuple in coordinates) _objectPlayer[tuple.Item1, tuple.Item2] = 0;
                 break;
         }
-        
+
         return true;
     }
 
@@ -87,7 +89,7 @@ public partial class Map
         int xSize = stat.SizeX;
         int zSize = stat.SizeZ;
         List<(int, int)> coordinates = new List<(int, int)>();
-        
+
         if (xSize != zSize)
         {
             if (posInfo.Dir < 0) posInfo.Dir = 360 + posInfo.Dir;
@@ -147,7 +149,7 @@ public partial class Map
             grid[i, j] = null;
         }
     }
-    
+
     public GameObject? Find(Vector3 cellPos)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return null;
@@ -166,7 +168,7 @@ public partial class Map
         Pos pos = Cell2Pos(cellPos);
         int x = pos.X;
         int z = pos.Z;
-        
+
         int cnt = 0;
         for (int i = x - (size - 1); i <= x + (size - 1); i++)
         {
@@ -178,7 +180,31 @@ public partial class Map
 
         return cnt == 0;
     }
-    
+
+    public bool CanSpawnFence(Vector2Int cellPos, Tower[] towers)
+    {
+        // Size of Fence is 5X1, 
+        if (cellPos.X < MinX || cellPos.X > MaxX) return false;
+        if (cellPos.Z < MinZ || cellPos.Z > MaxZ) return false;
+
+        Pos pos = Cell2Pos(cellPos);
+        int x = pos.X;
+        int z = pos.Z;
+
+        int cnt = 0;
+        for (int i = x - 3; i <= x + 3; i++)
+        {
+            if (_objects[z, i] != null || _collision[z, i]) cnt++;
+        }
+
+        var fenceCell = Vector2To3(cellPos);
+        var towerExists = towers
+            .Any(t => (fenceCell.Z >= t.CellPos.Z - (t.SizeZ - 1) && fenceCell.Z <= t.CellPos.Z + (t.SizeZ - 1))
+            && (fenceCell.X >= t.CellPos.X - (t.SizeX - 1) && fenceCell.X <= t.CellPos.X + (t.SizeX - 1)));
+        
+        return cnt == 0 && towerExists == false;
+    }
+
     public bool CanGo(GameObject go, Vector2Int cellPos, bool checkObjects = true)
     {
         if (cellPos.X < MinX || cellPos.X > MaxX) return false;
@@ -205,6 +231,7 @@ public partial class Map
 
     public (List<Vector3>, List<double>) Move(GameObject go, bool checkObjects = true)
     {
+        if (go.ObjectType == GameObjectType.Monster) Console.WriteLine($"{go.Id} is moving");
         List<Vector3> path = GetPath(go, checkObjects);
         List<double> arctan = new List<double>();
         

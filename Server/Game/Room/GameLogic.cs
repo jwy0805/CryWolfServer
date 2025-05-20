@@ -21,7 +21,6 @@ public class GameLogic : JobSerializer
     public GameRoom CreateGameRoom(int mapId)
     {
         GameRoom gameRoom = new GameRoom();
-        
         gameRoom.Push(gameRoom.Init, mapId);
         gameRoom.RoomId = _roomId;
         _rooms.Add(_roomId, gameRoom);

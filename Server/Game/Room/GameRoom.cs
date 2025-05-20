@@ -34,6 +34,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Storage? _storage;
     private Portal? _portal;
     private Stage? _stageWaveModule;
+    private bool _infoInit;
     
     public GameMode GameMode { get; set; }
     public Player? Npc { get; set; }
@@ -67,8 +68,8 @@ public partial class GameRoom : JobSerializer, IDisposable
         MapId = mapId;
         Map.LoadMap(mapId);
         Map.MapSetting();
-        Map.Room = this; 
-        
+        Map.Room = this;
+        Console.WriteLine("Room initialized.");
         UnitSizeMapping();
         GameInit();
     }
@@ -149,12 +150,14 @@ public partial class GameRoom : JobSerializer, IDisposable
         {
             case GameObjectType.Player:
                 var player = (Player)gameObject;
-                _players.Add(gameObject.Id, player);
+                _players.Add(player.Id, player);
+                Console.WriteLine($"Player {player.Id} entered.");
                 player.Room = this;
                 player.Init();
                 // 본인에게 정보 전송
                 var enterPacket = new S_EnterGame { Player = player.Info };
                 player.Session?.Send(enterPacket);
+                
                 {
                     var spawnPacket = new S_Spawn(); 
                     foreach (var p in _players.Values.Where(p => player != p)) 
@@ -162,7 +165,8 @@ public partial class GameRoom : JobSerializer, IDisposable
                     // 게임 플레이 중간에 player가 접속했을 때 이미 존재하는 objects spawn
                     foreach (var f in _fences.Values) spawnPacket.Objects.Add(f.Info);
                     foreach (var m in _monsters.Values) spawnPacket.Objects.Add(m.Info);
-                    foreach (var s in _statues.Values) spawnPacket.Objects.Add(s.Info);
+                    foreach (var s in _sheeps.Values) spawnPacket.Objects.Add(s.Info);
+                    foreach (var ms in _statues.Values) spawnPacket.Objects.Add(ms.Info);
                     foreach (var t in _towers.Values) spawnPacket.Objects.Add(t.Info);
                     foreach (var e in _effects.Values) spawnPacket.Objects.Add(e.Info);
                     spawnPacket.Objects.Add(_portal?.Info);
