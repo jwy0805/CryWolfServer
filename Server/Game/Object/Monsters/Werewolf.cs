@@ -60,7 +60,7 @@ public class Werewolf : Wolf
         SkillImpactMoment = 0.3f;
         DrainParam = 0.18f;
         
-        Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
+        // Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }
     
     protected override void UpdateMoving()
