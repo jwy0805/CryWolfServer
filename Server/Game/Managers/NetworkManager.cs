@@ -305,7 +305,7 @@ public class NetworkManager
             room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Single;
             room.StageId = packet.StageId;
-            // room.RoomActivated = true;
+            room.RoomActivated = true;
             tcs.SetResult(true);
         });
         
@@ -322,12 +322,13 @@ public class NetworkManager
             var player = CreatePlayerTutorial(room, packet);
             room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Tutorial;
-            // room.RoomActivated = true;
+            room.RoomActivated = true;
             tcs.SetResult(true);
         });
 
         return await tcs.Task;
     }    
+    
     private Player CreatePlayer(GameRoom room, MatchSuccessPacketRequired required, Faction faction)
     {
         var player = ObjectManager.Instance.Add<Player>();
@@ -383,7 +384,7 @@ public class NetworkManager
         player.UnitIds = required.UnitIds;
         player.Session = SessionManager.Instance.Find(required.SessionId);
 
-        Console.WriteLine($"{required.SessionId} single play");
+        Console.WriteLine($"{required.SessionId} single play, room {room.RoomId}");
         if (player.Session == null)
         {
             Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
@@ -520,7 +521,7 @@ public class NetworkManager
             var room = GameLogic.Instance.FindByUserId(packet.UserId);
             if (room == null)
             {
-                Console.WriteLine("Room not found.");
+                Console.WriteLine($"Room not found.");
                 tcs.SetResult(false);
             }
             else
