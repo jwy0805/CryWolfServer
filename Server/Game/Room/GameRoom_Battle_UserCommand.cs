@@ -235,7 +235,7 @@ public partial class GameRoom
     {
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
         if (skillData == null || player == null) return;
-        var skillInfo = new SkillInfo { Explanation = skillData.explanation, Cost = skillData.cost };
+        var skillInfo = new SkillInfo { Id = skillData.id, Cost = skillData.cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player.Session?.Send(popupPacket);
     }
