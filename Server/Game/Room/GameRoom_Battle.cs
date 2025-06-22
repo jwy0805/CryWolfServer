@@ -37,7 +37,6 @@ public partial class GameRoom
     public void InfoInit(Player player)
     {
         if (_storage == null) return;
-        Console.WriteLine("Info Init");
         
         // Set Monster Wave Module
         var factory = new StageFactory();

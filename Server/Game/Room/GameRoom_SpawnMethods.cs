@@ -231,7 +231,7 @@ public partial class GameRoom
         return projectile;
     }
 
-    public void SpawnPrimeSheep(SheepId sheepId, Player player)
+    private void SpawnPrimeSheep(SheepId sheepId, Player player)
     {
         var sheep = ObjectManager.Instance.Create<Sheep>(sheepId);
         var pos = GameData.InitFenceCenter;
@@ -293,10 +293,8 @@ public partial class GameRoom
         return storage;
     }
 
-    public void SetAssets()
+    private void SetAssets()
     {
-        Console.WriteLine("Set Assets");
-        
         var sheepPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep);
         var wolfPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
 
