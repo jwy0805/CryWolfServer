@@ -16,11 +16,11 @@ public class Stage5001 : Stage
         switch (round)
         {
             case 0:
-                var tower0 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-3, 0, 1));
-                var tower1 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-1.5f, 0, 1));
-                var tower2 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(0, 0, 1));
-                var tower3 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(1.5f, 0, 1));
-                var tower4 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(3, 0, 1));
+                var tower0 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-3, 6, 1));
+                var tower1 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-1.5f, 6, 1));
+                var tower2 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(0, 6, 1));
+                var tower3 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(1.5f, 6, 1));
+                var tower4 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(3, 6, 1));
                 _towers.Add(0, tower0);
                 _towers.Add(1, tower1);
                 _towers.Add(2, tower2);
@@ -41,8 +41,8 @@ public class Stage5001 : Stage
                 Room.UpgradeUnit(_towers[4], npc);
                 break;
             case 5:
-                var tower5 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-4.5f, 0, 1));
-                var tower6 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(4.5f, 0, 1));
+                var tower5 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(-4.5f, 6, 1));
+                var tower6 = Room.SpawnTowerOnRelativeZ(UnitId.Bunny, new Vector3(4.5f, 6, 1));
                 _towers.Add(5, tower5);
                 _towers.Add(6, tower6);
                 break;
