@@ -209,7 +209,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public float GetSpawnRangeMinZ(GameRoom? room, Faction faction)
     {
         if (room == null) return 0;
-        return faction == Faction.Sheep ? room.GameData.MinZ : FenceBounds.Max(v => v.Z);
+        return faction == Faction.Sheep ? room.GameData.MinZ : FenceBounds.Max(v => v.Z) + 2;
     }
 
     public float GetSpawnRangeMaxZ(GameRoom? room, Faction faction)

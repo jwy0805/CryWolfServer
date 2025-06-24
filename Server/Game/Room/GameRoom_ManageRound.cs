@@ -62,6 +62,7 @@ public partial class GameRoom
         _checked = true;
     
         GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam * 0.5f };
+        GameInfo.FenceSize = GameInfo.FenceSize with { Z = GameInfo.FenceSize.Z + _forwardParam };
         GameInfo.FenceStartPos = GameInfo.FenceStartPos with { Z = GameInfo.FenceStartPos.Z + _forwardParam };
 
         var towerCopy = new Dictionary<int, Tower>(_towers);
