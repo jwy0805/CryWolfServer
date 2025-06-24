@@ -8,6 +8,8 @@ public class Wolf : WolfPup
     private bool _magicalAttack = false;
     protected float DrainParam = 0.12f;
     
+    public bool LastHitByWolf { get; set; } = false;
+    
     protected override Skill NewSkill
     {
         get => Skill;
@@ -31,6 +33,7 @@ public class Wolf : WolfPup
                     CriticalChance += 20;
                     break;
                 case Skill.WolfLastHitDna:
+                    LastHitByWolf = true;
                     break;
             }
         }
@@ -63,7 +66,5 @@ public class Wolf : WolfPup
             Hp += (int)(damage * DrainParam);
             BroadcastHp();
         }
-
-        // TODO : DNA
     }
 }

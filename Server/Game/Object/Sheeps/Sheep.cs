@@ -162,9 +162,18 @@ public class Sheep : Creature, ISkillObserver
             return;
         }
 
-        Room!.GameInfo.SheepCount--;
-        Room.GameInfo.TheNumberOfDestroyedSheep++;
-        base.OnDead(attacker);
+        if (Room != null)
+        {
+            var monster = attacker as Monster ?? attacker?.Parent as Monster;
+            if (monster != null && attacker != null)
+            {
+                Room?.YieldDna(this, attacker);
+            }
+        
+            Room!.GameInfo.SheepCount--;
+            Room.GameInfo.TheNumberOfDestroyedSheep++;
+            base.OnDead(attacker);
+        }
     }
     
     protected virtual Vector3 GetRandomDestInFence()

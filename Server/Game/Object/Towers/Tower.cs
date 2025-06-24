@@ -80,7 +80,7 @@ public class Tower : Creature, ISkillObserver
             var monster = attacker as Monster ?? attacker.Parent as Monster;
             if (monster != null)
             {
-                Room.YieldDna(this, monster.DnaYield);
+                Room?.YieldDna(this, attacker);
             }
             
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
@@ -93,12 +93,12 @@ public class Tower : Creature, ISkillObserver
         {
             if (AttackEnded == false) AttackEnded = true;  
             
-            Room.Broadcast(new S_Die { ObjectId = Id, Revive = true });
+            Room?.Broadcast(new S_Die { ObjectId = Id, Revive = true });
             DieEvents(StdAnimTime * 2);
             return;
         }
 
-        Room.Broadcast(new S_Die { ObjectId = Id });
-        Room.DieTower(Id);
+        Room?.Broadcast(new S_Die { ObjectId = Id });
+        Room?.DieTower(Id);
     }
 }

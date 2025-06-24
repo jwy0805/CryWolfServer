@@ -27,8 +27,8 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 45000,
-            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 45000
+            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 450,
+            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 450
         };
 
         SpawnFence(1, 1);
@@ -77,6 +77,7 @@ public partial class GameRoom
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthTower, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.SheepResource});
                 if (MapId != 1)
                 {
                     player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxTower, Max = true });
@@ -87,6 +88,7 @@ public partial class GameRoom
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxMonster, Max = true });
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMonster, Max = false });
+                player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = GameInfo.WolfResource});
                 if (MapId != 1)
                 {
                     player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.SouthCapacityText, Value = GameInfo.SouthMaxMonster, Max = true });
@@ -196,14 +198,27 @@ public partial class GameRoom
         Push(EnterGame, resource);
     }
 
-    public void YieldDna(GameObject gameObject, int yield)
+    public void YieldDna(GameObject gameObject, GameObject attacker)
     {
+        var yield = gameObject.ObjectType switch
+        {
+            GameObjectType.Tower => GameInfo.WolfYieldKillTower,
+            GameObjectType.Fence => GameInfo.WolfYieldKillFence,
+            GameObjectType.Sheep => GameInfo.WolfYieldKillSheep,
+            _ => GameInfo.WolfYield
+        };
+
+        if (attacker is Wolf { LastHitByWolf: true })
+        {
+            yield = (int)(yield * 1.1f); // Wolf가 공격한 경우 10% 추가
+        }
+        
         var resource = yield switch
         {
-            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.Cell),
-            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeDouble),
-            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeTriple),
-            < 300 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeQuadruple),
+            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.Cell),
+            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeDouble),
+            < 500 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeTriple),
+            < 1000 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeQuadruple),
             _ => ObjectManager.Instance.Create<Resource>(ResourceId.Dna)
         };
         

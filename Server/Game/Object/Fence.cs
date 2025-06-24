@@ -34,7 +34,7 @@ public class Fence : GameObject
             var monster = attacker as Monster ?? attacker.Parent as Monster;
             if (monster != null)
             {
-                Room.YieldDna(this, monster.DnaYield);
+                Room?.YieldDna(this, attacker);
             }
 
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)

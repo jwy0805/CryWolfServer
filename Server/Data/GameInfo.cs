@@ -9,20 +9,27 @@ public class GameInfo // 한 판마다 초기화되는 정보
     private readonly Dictionary<int, Player> _players;
     private int _mapId;
     private int _northMaxTower = 8;
-    private int _northTower = 0;
+    private int _northTower;
     private int _southMaxTower = 8;
-    private int _southTower = 0;
+    private int _southTower;
     private int _northMaxMonster = 8;
-    private int _northMonster = 0;
+    private int _northMonster;
     private int _southMaxMonster = 8;
-    private int _southMonster = 0;
-    private int _sheepResource = 3500;
-    private int _wolfResource = 350;
+    private int _southMonster;
+    private int _sheepResource;
+    private int _wolfResource;
 
     public int SheepYieldUpgradeCost { get; set; } = 260;
     public int SheepYield { get; set; } = 100;
     public float SheepYieldParam { get; set; } = 1;
     public int TotalSheepYield => (int)Math.Round(SheepYield * SheepYieldParam);
+    public int WolfYieldUpgradeCost { get; set; } = 260;
+    public int WolfYield { get; set; } = 100;
+    public float WolfYieldParam { get; set; } = 1;
+    public int TotalWolfYield => (int)Math.Round(WolfYield * WolfYieldParam);
+    public int WolfYieldKillTower => TotalWolfYield * 4;
+    public int WolfYieldKillFence => TotalWolfYield * 7;
+    public int WolfYieldKillSheep => TotalWolfYield * 15;
     public int NorthFenceCnt { get; set; }
     public int SouthFenceCnt { get; set; }
     public int NorthMaxFenceCnt { get; set; }
@@ -173,11 +180,6 @@ public class GameInfo // 한 판마다 초기화되는 정보
                 player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource});
         }
     }
-    
-    public int WolfYield { get; set; } = 800;
-    public int WolfYieldKillTower => WolfYield * 8;
-    public int WolfYieldKillFence => WolfYield * 10;
-    public int WolfYieldKillSheep => WolfYield * 20;
     
     public GameInfo(Dictionary<int, Player> players, int mapId)
     {

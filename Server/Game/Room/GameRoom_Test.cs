@@ -79,7 +79,7 @@ public partial class GameRoom
     public void UpgradeUnit(GameObject gameObject, Player player)
     {
         var id = gameObject.Id;
-        PositionInfo newPost = new()
+        PositionInfo newPos = new()
         {
             PosX = gameObject.PosInfo.PosX,
             PosY = gameObject.PosInfo.PosY,
@@ -91,13 +91,13 @@ public partial class GameRoom
         {
             if (gameObject is not Tower tower) return;
             LeaveGame(id);
-            newObject = SpawnTower(tower.UnitId + 1, newPost, player);
+            newObject = SpawnTower(tower.UnitId + 1, newPos, player);
         }
         else if (gameObject.ObjectType == GameObjectType.MonsterStatue)
         {
             if (gameObject is not MonsterStatue statue) return;
             LeaveGame(id);
-            newObject = SpawnMonsterStatue(statue.UnitId + 1, newPost, player);
+            newObject = SpawnMonsterStatue(statue.UnitId + 1, newPos, player);
         }
         else if (gameObject.ObjectType == GameObjectType.Monster)
         {
@@ -105,7 +105,7 @@ public partial class GameRoom
             var statueId = monster.StatueId;
             if (FindGameObjectById(statueId) is not MonsterStatue) return;
             LeaveGame(statueId);
-            newObject = SpawnMonster(monster.UnitId + 1, newPost, player);
+            newObject = SpawnMonster(monster.UnitId + 1, newPos, player);
         }
         else
         {

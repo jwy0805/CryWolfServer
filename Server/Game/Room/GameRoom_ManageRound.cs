@@ -220,7 +220,7 @@ public partial class GameRoom
 
         if (faction == Faction.Wolf)
         {
-            if (GameInfo.TheNumberOfDestroyedFence == 0)
+            if (Round <= 15)
             {
                 return GameInfo.FenceStartPos.Z < 2 ? 3 : 2;
             }

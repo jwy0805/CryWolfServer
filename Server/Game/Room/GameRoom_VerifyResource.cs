@@ -147,9 +147,10 @@ public partial class GameRoom
             cost += skillData.cost;
         }
 
-        if (DataManager.UnitDict.TryGetValue((int)unitId + 1, out var unitData))
+        if (DataManager.UnitDict.TryGetValue((int)unitId, out var unitData) 
+            && DataManager.UnitDict.TryGetValue((int)unitId + 1, out var newUnitData))
         {
-            var upgradeCost = unitData.stat.RequiredResources;
+            var upgradeCost = (int)((newUnitData.stat.RequiredResources - unitData.stat.RequiredResources) * 0.5f);
             return cost + upgradeCost;
         }
         

@@ -8,8 +8,8 @@ namespace Server.Game;
 public class Monster : Creature, ISkillObserver
 {
     public int StatueId { get; set; }
-    
     public float DnaYieldParam { get; set; }
+    
     public int DnaYield
     {
         get

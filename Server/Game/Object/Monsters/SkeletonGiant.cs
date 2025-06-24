@@ -207,12 +207,6 @@ public class SkeletonGiant : Skeleton
             attacker.KillLog = Id;
             attacker.Target = null;
             
-            var monster = attacker as Monster ?? attacker.Parent as Monster;
-            if (monster != null)
-            {
-                Room.YieldDna(this, monster.DnaYield);
-            }
-            
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)
             {
                 attacker.Parent.Target = null;

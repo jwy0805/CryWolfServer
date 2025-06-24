@@ -53,7 +53,8 @@ public partial class GameRoom
             
             case Skill.ResourceWolf:
                 GameInfo.WolfResource -= cost;
-                GameInfo.WolfYield *= 2;
+                GameInfo.WolfYieldParam *= 1.3f;
+                GameInfo.WolfYieldUpgradeCost = (int)(GameInfo.WolfYieldUpgradeCost * 1.5f);
                 break;
             
             case Skill.AssetSheep:
