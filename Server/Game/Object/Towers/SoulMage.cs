@@ -154,13 +154,20 @@ public class SoulMage : Haunt
 
     private async void NaturalTornadoEvents(long impactTime)
     {
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
-            if (_effectTarget == null || Room == null || AddBuffAction == null) return;
-            Room.Push(AddBuffAction, BuffId.Fainted,
-                BuffParamType.None, _effectTarget, this, 0, 1300, false);
-            Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.4), Damage.True, false);
-        });
+            await Scheduler.ScheduleEvent(impactTime, () =>
+            {
+                if (_effectTarget == null || Room == null || AddBuffAction == null) return;
+                Room.Push(AddBuffAction, BuffId.Fainted,
+                    BuffParamType.None, _effectTarget, this, 0, 1300, false);
+                Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.4), Damage.True, false);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
     
     private async void StarFallEvents(long impactTime, PositionInfo effectPos)
@@ -208,7 +215,7 @@ public class SoulMage : Haunt
         
         var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue };
         var targets = Room.FindTargetsInRectangle(this,
-            types, 2, 7, dir, 2);
+            types, 2, 8.25f, dir, 2);
         foreach (var target in targets)
         {
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);

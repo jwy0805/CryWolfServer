@@ -281,7 +281,7 @@ public partial class GameRoom
         var task = NetworkManager.Instance.SendRequestToApiAsync<RankGameRewardPacketResponse>(
             "Match/RankGameReward", rewardPacket, HttpMethod.Put);
         await task;
-
+        
         if (task.Result == null)
         {
             Console.WriteLine("Game Over: Error in GameRewardPacketResponse");
@@ -339,6 +339,11 @@ public partial class GameRoom
                 });
             }
                 
+            foreach (var rewardInfo in rewardList)
+            {
+                Console.WriteLine("Winner Reward: " + rewardInfo.ItemId + rewardInfo.ProductType);
+            }
+            
             packet.Star = star;
             winner.Session?.Send(packet);
             LeaveGame(winner.Id);
