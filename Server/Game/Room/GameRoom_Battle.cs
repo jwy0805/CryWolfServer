@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
@@ -200,13 +201,25 @@ public partial class GameRoom
 
     public void YieldDna(GameObject gameObject, GameObject attacker)
     {
-        var yield = gameObject.ObjectType switch
+        int yield = 0;
+        switch (gameObject.ObjectType)
         {
-            GameObjectType.Tower => GameInfo.WolfYieldKillTower,
-            GameObjectType.Fence => GameInfo.WolfYieldKillFence,
-            GameObjectType.Sheep => GameInfo.WolfYieldKillSheep,
-            _ => GameInfo.WolfYield
-        };
+            case GameObjectType.Tower:
+                if (gameObject is Tower tower)
+                {
+                    if (DataManager.UnitDict.TryGetValue((int)tower.UnitId, out var unitData))
+                    {
+                        yield = unitData.stat.RequiredResources * 2;
+                    }
+                }
+                break;
+            case GameObjectType.Fence:
+                yield = GameInfo.WolfYieldKillFence;
+                break;
+            case GameObjectType.Sheep:
+                yield = GameInfo.WolfYieldKillSheep;
+                break;
+        }
 
         if (attacker is Wolf { LastHitByWolf: true })
         {

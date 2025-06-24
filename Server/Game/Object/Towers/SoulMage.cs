@@ -213,7 +213,7 @@ public class SoulMage : Haunt
             dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         }
         
-        var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue };
+        var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue, GameObjectType.Portal };
         var targets = Room.FindTargetsInRectangle(this,
             types, 2, 8.25f, dir, 2);
         foreach (var target in targets)

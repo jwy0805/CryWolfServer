@@ -61,7 +61,7 @@ public partial class GameRoom
         if (_checked) return;
         _checked = true;
     
-        GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam };
+        GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam * 0.5f };
         GameInfo.FenceStartPos = GameInfo.FenceStartPos with { Z = GameInfo.FenceStartPos.Z + _forwardParam };
 
         var towerCopy = new Dictionary<int, Tower>(_towers);

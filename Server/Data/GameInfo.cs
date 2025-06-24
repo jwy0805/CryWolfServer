@@ -27,9 +27,8 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int WolfYield { get; set; } = 100;
     public float WolfYieldParam { get; set; } = 1;
     public int TotalWolfYield => (int)Math.Round(WolfYield * WolfYieldParam);
-    public int WolfYieldKillTower => TotalWolfYield * 4;
-    public int WolfYieldKillFence => TotalWolfYield * 7;
-    public int WolfYieldKillSheep => TotalWolfYield * 15;
+    public int WolfYieldKillFence => TotalWolfYield * 5;
+    public int WolfYieldKillSheep => TotalWolfYield * 12;
     public int NorthFenceCnt { get; set; }
     public int SouthFenceCnt { get; set; }
     public int NorthMaxFenceCnt { get; set; }
