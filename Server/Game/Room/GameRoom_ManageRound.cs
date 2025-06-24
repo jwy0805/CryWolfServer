@@ -168,7 +168,8 @@ public partial class GameRoom
         _singlePlayFlag = false;
         TutorialFlag = false;
         _checked = false;
-        
+
+        GameInfo.WolfResource += GameInfo.TotalWolfYield;
         SpawnTowersInNewRound();
         SpawnMonstersInNewRound();
     }
@@ -339,12 +340,7 @@ public partial class GameRoom
                     Star = rewardInfo.Star
                 });
             }
-                
-            foreach (var rewardInfo in rewardList)
-            {
-                Console.WriteLine("Winner Reward: " + rewardInfo.ItemId + rewardInfo.ProductType);
-            }
-            
+
             packet.Star = star;
             winner.Session?.Send(packet);
             LeaveGame(winner.Id);
