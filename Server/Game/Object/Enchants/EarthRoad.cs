@@ -16,10 +16,10 @@ public class EarthRoad : Enchant
             return EnchantLevel switch
             {
                 1 => baseValue + 1,
-                2 => baseValue * 3,
-                3 => baseValue * 7,
-                4 => baseValue * 9,
-                5 => baseValue * 10,
+                2 => baseValue + 2,
+                3 => baseValue + 3,
+                4 => baseValue + 5,
+                5 => baseValue + 7,
                 _ => baseValue
             };
         }

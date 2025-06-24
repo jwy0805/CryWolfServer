@@ -13,7 +13,7 @@ public class Sheep : Creature, ISkillObserver
     private readonly float _infectionDist = 3f;
     
     protected float SheepBoundMargin = 2.0f;
-    protected readonly long YieldTime = 5000;
+    protected int YieldTime = 6000;
     protected float YieldInterval => YieldTime / 20000f;
 
     public SheepId SheepId { get; set; }
@@ -36,6 +36,7 @@ public class Sheep : Creature, ISkillObserver
         
         State = State.Idle;
         if (Room == null) return;
+        YieldTime = Room.GameData.RoundTime / 4;
         Time = Room.Stopwatch.ElapsedMilliseconds + YieldTime;
     }
 

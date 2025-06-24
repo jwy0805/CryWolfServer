@@ -26,11 +26,26 @@ public class WindRoad : Enchant
     public override float GetModifier(Player? player, StatType statType, float baseValue)
     {
         if (player?.Faction == Faction.Sheep || EnchantLevel == 0) return baseValue;
-        
-        return statType switch
+
+        if (statType == StatType.MoveSpeed)
         {
-            StatType.AttackSpeed => baseValue * (1 + 0.01f * EnchantLevel * ((EnchantLevel - 1) * 0.5f + 1)),
-            _ => baseValue
-        };
+            return EnchantLevel switch
+            {
+                1 => baseValue * 1.05f,
+                2 => baseValue * 1.07f,
+                3 => baseValue * 1.09f,
+                4 => baseValue * 1.12f,
+                5 => baseValue * 1.15f,
+                _ => baseValue
+            };    
+        }
+
+        return baseValue;
+        // return statType switch
+        // {
+        //     // 1 -> 1.01, 2 -> 1.03, 3 -> 1.06, 4 -> 1.1, 5 -> 1.15
+        //     StatType.AttackSpeed => baseValue * (1 + 0.01f * EnchantLevel * ((EnchantLevel - 1) * 0.5f + 1)),
+        //     _ => baseValue
+        // };
     }
 }

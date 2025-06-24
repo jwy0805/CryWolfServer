@@ -15,12 +15,10 @@ public class Stage1002 : Stage
         switch (round)
         {
             case 0:
-                var statue0 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = -3, PosY = 6, PosZ = 13 });
                 var statue1 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = -1, PosY = 6, PosZ = 13 });
                 var statue2 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = 0, PosY = 6, PosZ = 13 });
                 var statue3 = Room.SpawnStatue(UnitId.DogPup, new PositionInfo { PosX = 3, PosY = 6, PosZ = 13 });
                 var statue4 = Room.SpawnStatue(UnitId.Snakelet, new PositionInfo { PosX = -1, PosY = 6, PosZ = 14.5f });
-                _statues.Add(0, statue0);
                 _statues.Add(1, statue1);
                 _statues.Add(2, statue2);
                 _statues.Add(3, statue3);
@@ -46,7 +44,6 @@ public class Stage1002 : Stage
                 Room.UpgradeUnit(_statues[1], npc);
                 break;
             case 5:
-                Room.UpgradeUnit(_statues[0], npc);
                 Room.UpgradeUnit(_statues[2], npc);
                 Room.UpgradeUnit(_statues[3], npc);
                 break;
@@ -72,7 +69,6 @@ public class Stage1002 : Stage
                 Room.UpgradeUnit(_statues[6], npc);
                 break;
             case 11:
-                Room.UpgradeUnit(_statues[0], npc);
                 Room.UpgradeUnit(_statues[1], npc);
                 Room.UpgradeUnit(_statues[2], npc);
                 Room.UpgradeUnit(_statues[3], npc);
