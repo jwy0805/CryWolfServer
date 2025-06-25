@@ -45,10 +45,6 @@ public class Skeleton : Monster
     {
         base.Init();
         UnitRole = Role.Supporter;
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonDefenceDown);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonNestedDebuff);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonAdditionalDamage);
-        Player.SkillSubject.SkillUpgraded(Skill.SkeletonAttackSpeed);
     }
     
     protected override void UpdateMoving()

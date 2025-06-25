@@ -63,9 +63,10 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public Vector3[] FenceBounds { get; private set; }
     public Vector3[] SheepBounds { get; private set; }
     
-    public int StorageLevelUpCost => 400;
-    public int PortalLevelUpCost => 400;
+    public int StorageLevelUpCost => 300;
+    public int PortalLevelUpCost => 300;
     public int SheepCount { get; set; } = 0;
+    public int EnchantUpCost { get; set; }= 150;
     
     public int NorthMaxTower
     {

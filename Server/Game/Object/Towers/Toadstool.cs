@@ -38,11 +38,6 @@ public class Toadstool : Fungi
     {
         base.Init();
         UnitRole = Role.Ranger;
-        
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolClosestAttackAll);
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonResist);
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolNestedPoison);
-        Player.SkillSubject.SkillUpgraded(Skill.ToadstoolPoisonCloud);
     }
 
     public override void Update()

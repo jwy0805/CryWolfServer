@@ -35,6 +35,10 @@ public partial class GameRoom
                     GameInfo.SheepResource -= cost;
                     _storage.LevelUp();
                 }
+                else
+                {
+                    SendWarningMessage(player, "warning_in_game_max_level");
+                }
                 break;
             
             case Skill.BaseUpgradeWolf:
@@ -42,6 +46,10 @@ public partial class GameRoom
                 {
                     GameInfo.WolfResource -= cost;
                     _portal.LevelUp();
+                }
+                else
+                {
+                    SendWarningMessage(player, "warning_in_game_max_level");
                 }
                 break;
             
@@ -65,6 +73,7 @@ public partial class GameRoom
             case Skill.AssetWolf:
                 if (Enchant is not { EnchantLevel: < 5 }) return;
                 Enchant.EnchantLevel++;
+                SendWarningMessage(player, "warning_in_game_max_level");
                 break;
         }
     }
@@ -122,6 +131,7 @@ public partial class GameRoom
         
         if (lackOfGold == false)
         {
+            UpdateRemainSkills(player, prevUnitId);
             player.Portraits.Add((int)upgradeUnitId);
             player.Session?.Send(new S_PortraitUpgrade { UnitId = upgradeUnitId });
         }

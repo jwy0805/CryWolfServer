@@ -462,13 +462,13 @@ namespace Google.Protobuf.Protocol {
             "CgtNYXRjaE1ha2luZxABEhAKDEluU2luZ2xlR2FtZRACEg8KC0luTXVsdGlH",
             "YW1lEAMSDgoKSW5SYW5rR2FtZRAEEhAKDEluQ3VzdG9tR2FtZRAFEg4KCklu",
             "VHV0b3JpYWwQBhILCgdJbkxvYmJ5EAcSCwoHT2ZmbGluZRAIKikKCFNwYXdu",
-            "V2F5EgkKBU5PUlRIEAASCQoFU09VVEgQARIHCgNBTlkQAipsCgtQcm9kdWN0",
+            "V2F5EgkKBU5PUlRIEAASCQoFU09VVEgQARIHCgNBTlkQAip1CgtQcm9kdWN0",
             "VHlwZRIICgROb25lEAASCAoEVW5pdBABEgwKCE1hdGVyaWFsEAISCwoHRW5j",
             "aGFudBADEgkKBVNoZWVwEAQSDQoJQ2hhcmFjdGVyEAUSCAoER29sZBAGEgoK",
-            "BlNwaW5lbBAHKl8KC0NvbW1vblRleHRzEgsKB05PX1RFWFQQABIRCg1SRVNP",
-            "VVJDRV9URVhUEAESFwoTTk9SVEhfQ0FQQUNJVFlfVEVYVBADEhcKE1NPVVRI",
-            "X0NBUEFDSVRZX1RFWFQQBEIbqgIYR29vZ2xlLlByb3RvYnVmLlByb3RvY29s",
-            "YgZwcm90bzM="));
+            "BlNwaW5lbBAHEgcKA0V4cBAIKl8KC0NvbW1vblRleHRzEgsKB05PX1RFWFQQ",
+            "ABIRCg1SRVNPVVJDRV9URVhUEAESFwoTTk9SVEhfQ0FQQUNJVFlfVEVYVBAD",
+            "EhcKE1NPVVRIX0NBUEFDSVRZX1RFWFQQBEIbqgIYR29vZ2xlLlByb3RvYnVm",
+            "LlByb3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.Env), typeof(global::Google.Protobuf.Protocol.Faction), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.StatType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Damage), typeof(global::Google.Protobuf.Protocol.Direction), typeof(global::Google.Protobuf.Protocol.Asset), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.UnitRegion), typeof(global::Google.Protobuf.Protocol.Role), typeof(global::Google.Protobuf.Protocol.UnitClass), typeof(global::Google.Protobuf.Protocol.SheepId), typeof(global::Google.Protobuf.Protocol.EnchantId), typeof(global::Google.Protobuf.Protocol.CharacterId), typeof(global::Google.Protobuf.Protocol.UnitId), typeof(global::Google.Protobuf.Protocol.Species), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.ResourceId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.UserAct), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.ProductType), typeof(global::Google.Protobuf.Protocol.CommonTexts), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1242,6 +1242,7 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("Character")] Character = 5,
     [pbr::OriginalName("Gold")] Gold = 6,
     [pbr::OriginalName("Spinel")] Spinel = 7,
+    [pbr::OriginalName("Exp")] Exp = 8,
   }
 
   public enum CommonTexts {

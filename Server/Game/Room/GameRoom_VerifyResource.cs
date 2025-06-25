@@ -235,10 +235,10 @@ public partial class GameRoom
                 cost = CalcStatueRepairCost(Array.Empty<int>());
                 break;
             case Skill.BaseUpgradeSheep:
-                cost = GameInfo.StorageLevelUpCost;
+                cost = GameInfo.StorageLevelUpCost * _storageLevel;
                 break;
             case Skill.BaseUpgradeWolf:
-                cost = GameInfo.StorageLevelUpCost;
+                cost = GameInfo.StorageLevelUpCost * _storageLevel;
                 break;
             case Skill.ResourceSheep:
                 cost = GameInfo.SheepYieldUpgradeCost;
@@ -250,7 +250,7 @@ public partial class GameRoom
                 cost = GameInfo.SheepCount * 150;
                 break;
             case Skill.AssetWolf:
-                // TODO: Implement Wolf's skill cost
+                cost = Enchant == null ? 0 : GameInfo.EnchantUpCost * (Enchant.EnchantLevel + 1);
                 break;
         }
         

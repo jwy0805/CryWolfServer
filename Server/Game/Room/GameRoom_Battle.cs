@@ -259,4 +259,16 @@ public partial class GameRoom
         if (player == null) return;
         LeaveGame(leavePacket.ObjectId);
     }
+
+    private void UpdateRemainSkills(Player player, UnitId unitId)
+    {
+        if (GameData.OwnSkills.TryGetValue(unitId, out var skills))
+        {
+            foreach (var skill in skills.Where(skill => player.SkillUpgradedList.Contains(skill) == false))
+            {
+                player.SkillSubject.SkillUpgraded(skill);
+                player.SkillUpgradedList.Add(skill);
+            }
+        }
+    }
 }

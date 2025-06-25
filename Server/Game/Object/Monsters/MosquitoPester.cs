@@ -42,7 +42,6 @@ public class MosquitoPester : MosquitoBug
     {
         base.Init();
         UnitRole = Role.Mage;
-        Player.SkillSubject.SkillUpgraded(Skill.MosquitoPesterPoison);
     }
 
     protected override void AttackImpactEvents(long impactTime)

@@ -31,6 +31,5 @@ public class Spike : Shell
     {
         base.Init();
         UnitRole = Role.Tanker;
-        Player.SkillSubject.SkillUpgraded(Skill.SpikeReflection);
     }
 }
