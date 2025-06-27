@@ -109,6 +109,5 @@ public class MoleRat : Burrow
         target.AttackParam -= StolenDamage;
         
         StolenObjectId = target.Id;
-        
     }
 }

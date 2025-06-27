@@ -38,6 +38,46 @@ public class TrainingDummy : TargetDummy
         UnitRole = Role.Tanker;
     }
 
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+            if (Mp >= MaxMp)
+            {
+                State = State.Skill;
+                Mp = 0;
+                return;
+            }
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Faint:
+                break;
+            case State.Standby:
+                break;
+        }   
+    }
+    
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>

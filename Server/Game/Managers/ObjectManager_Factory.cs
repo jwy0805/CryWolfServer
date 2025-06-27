@@ -158,6 +158,7 @@ public sealed partial class ObjectManager
         { EffectId.PoisonCloud, new PoisonCloudFactory() },
         { EffectId.HermitRecoverBurn, new HermitRecoverBurnFactory() },
         { EffectId.MoveForwardEffect, new MoveForwardEffectFactory() },
+        { EffectId.RegenerationEffect, new RegenerationEffectFactory() },
         { EffectId.WindRoadEffect1, new WindRoadEffect1Factory() },
         { EffectId.WindRoadEffect2, new WindRoadEffect2Factory() },
         { EffectId.WindRoadEffect3, new WindRoadEffect3Factory() },
@@ -340,6 +341,7 @@ public sealed partial class ObjectManager
     public class PoisonCloudFactory : IFactory<PoisonCloud> { public PoisonCloud Create() => new(); }
     public class HermitRecoverBurnFactory : IFactory<HermitRecoverBurn> { public HermitRecoverBurn Create() => new(); }
     public class MoveForwardEffectFactory : IFactory<MoveForwardEffect> { public MoveForwardEffect Create() => new(); }
+    public class RegenerationEffectFactory : IFactory<RegenerationEffect> { public RegenerationEffect Create() => new(); }
     public class WindRoadEffect1Factory : IFactory<WindRoadEffect1> { public WindRoadEffect1 Create() => new(); }
     public class WindRoadEffect2Factory : IFactory<WindRoadEffect2> { public WindRoadEffect2 Create() => new(); }
     public class WindRoadEffect3Factory : IFactory<WindRoadEffect3> { public WindRoadEffect3 Create() => new(); }

@@ -45,6 +45,11 @@ public class Hare : Rabbit
             Mp += 5;
             if (Mp >= MaxMp && Target != null)
             {
+                if (Vector3.Distance(Target.CellPos with { Y = 0 }, CellPos with { Y = 0 }) > TotalSkillRange)
+                {
+                    State = State.Idle;
+                    return;
+                }
                 State = State.Skill;
                 return;
             }
@@ -282,15 +287,26 @@ public class HareClone : Rabbit
     
     protected override async void SkillImpactEvents(long impactTime)
     {
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
-            if (Target == null || Target.Targetable == false || Room == null || Parent is not { Hp: > 0 }) return;
+            await Scheduler.ScheduleEvent(impactTime, () =>
+            {
+                if (Target == null || Target.Targetable == false || Room == null || Parent is not { Hp: > 0 })
+                {
+                    Room?.PushAfter(800, Room.LeaveGame, Id);
+                    return;
+                }
 
-            Room.Push(Target.OnDamaged, Parent, TotalSkillDamage, Damage.Normal, false);
-            Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
-            Room.Push(addBuffAction, BuffId.Aggro,
-                BuffParamType.None, Target, (Creature)Parent, 0, 2000, false);
-            Room.PushAfter(800, Room.LeaveGame, Id);
-        });
+                Room.Push(Target.OnDamaged, Parent, TotalSkillDamage, Damage.Normal, false);
+                Action<BuffId, BuffParamType, GameObject, Creature, float, long, bool> addBuffAction = Room.AddBuff;
+                Room.Push(addBuffAction, BuffId.Aggro,
+                    BuffParamType.None, Target, (Creature)Parent, 0, 2000, false);
+                Room.PushAfter(800, Room.LeaveGame, Id);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

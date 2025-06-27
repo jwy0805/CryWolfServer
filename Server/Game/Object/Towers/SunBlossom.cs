@@ -8,7 +8,7 @@ public class SunBlossom : Tower
     private bool _heal;
     private bool _defenceBuff;
     
-    protected int HealParam = 50;
+    protected int HealParam = 8;
     protected int DefenceBuffParam = 5;
     
     protected override Skill NewSkill
@@ -46,7 +46,22 @@ public class SunBlossom : Tower
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
-            if (Mp >= MaxMp && _heal)
+            
+            // Heal
+            if (_heal)
+            {
+                if (AddBuffAction == null) return;
+                var types = new[] { GameObjectType.Tower };
+                var target = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                    .MinBy(target => target.Hp / target.MaxHp);
+                if (target != null)
+                {
+                    Room.Push(AddBuffAction, BuffId.HealBuff,
+                        BuffParamType.Constant, target, this, HealParam, 1000, false);
+                }
+            }
+            
+            if (Mp >= MaxMp && _defenceBuff)
             {
                 State = State.Skill;
                 return;

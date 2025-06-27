@@ -26,8 +26,6 @@ public partial class GameRoom : JobSerializer, IDisposable
     private readonly Dictionary<int, Projectile> _projectiles = new();
     // private readonly Dictionary<int, Portal> _portals = new();
     
-    private int _storageLevel = 0;
-    private int _portalLevel = 0;
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
@@ -520,7 +518,6 @@ public partial class GameRoom : JobSerializer, IDisposable
         TutorialFlag = false;
         RoundTime = 24;
         _round = 0;
-        _storageLevel = 0;
         _timeSendTime = 0;
         RoomActivated = false;
         Npc = null;

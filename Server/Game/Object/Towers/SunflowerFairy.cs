@@ -9,7 +9,7 @@ public class SunflowerFairy : SunBlossom
     private bool _shield;
     private bool _double;
     
-    protected readonly int FenceHealParam = 100;
+    protected readonly int FenceHealParam = 8;
     protected readonly int ShieldParam = 180;
     
     protected override Skill NewSkill
@@ -50,6 +50,35 @@ public class SunflowerFairy : SunBlossom
         {
             Time = Room.Stopwatch.ElapsedMilliseconds;
             Mp += 5;
+            
+            // Heal
+            if (AddBuffAction == null) return;
+            var types = new[] { GameObjectType.Tower };
+            var healTargets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                .OrderBy(target => target.Hp / target.MaxHp)
+                .Take(_double ? 2 : 1)
+                .ToList();
+            foreach (var target in healTargets)
+            {
+                Room.Push(AddBuffAction, BuffId.HealBuff, 
+                    BuffParamType.Constant, target, this, HealParam, 1000, false);
+            }
+            
+            // Fence Heal
+            if (_fenceHeal)
+            {
+                var fenceType = new[] { GameObjectType.Fence };
+                var targets = Room.FindTargets(this, fenceType, TotalSkillRange, AttackType)
+                    .OrderBy(target => target.Hp)
+                    .Take(_double ? 2 : 1)
+                    .ToList();
+                foreach (var target in targets)  
+                {
+                    Room.Push(AddBuffAction, BuffId.HealBuff,
+                        BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
+                }
+            }
+            
             if (Mp >= MaxMp)
             {
                 State = State.Skill;
@@ -120,34 +149,7 @@ public class SunflowerFairy : SunBlossom
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
         {
             if (Room == null || AddBuffAction == null) return;
-            
             var types = new[] { GameObjectType.Tower };
-            
-            // Heal
-            var healTargets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
-                .OrderBy(target => target.Hp / target.MaxHp)
-                .Take(_double ? 2 : 1)
-                .ToList();
-            foreach (var target in healTargets)
-            {
-                Room.Push(AddBuffAction, BuffId.HealBuff, 
-                    BuffParamType.Constant, target, this, HealParam, 1000, false);
-            }
-            
-            // Fence Heal
-            if (_fenceHeal)
-            {
-                var fenceType = new[] { GameObjectType.Fence };
-                var targets = Room.FindTargets(this, fenceType, TotalSkillRange, AttackType)
-                    .OrderBy(target => target.Hp)
-                    .Take(_double ? 2 : 1)
-                    .ToList();
-                foreach (var target in targets)  
-                {
-                    Room.Push(AddBuffAction, BuffId.HealBuff,
-                        BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
-                }
-            }
             
             // Shield - Instead defence buff
             if (_shield)

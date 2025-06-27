@@ -8,13 +8,13 @@ public class GameInfo // 한 판마다 초기화되는 정보
 {
     private readonly Dictionary<int, Player> _players;
     private int _mapId;
-    private int _northMaxTower = 8;
+    private int _northMaxTower = 7;
     private int _northTower;
-    private int _southMaxTower = 8;
+    private int _southMaxTower = 7;
     private int _southTower;
-    private int _northMaxMonster = 8;
+    private int _northMaxMonster = 7;
     private int _northMonster;
-    private int _southMaxMonster = 8;
+    private int _southMaxMonster = 7;
     private int _southMonster;
     private int _sheepResource;
     private int _wolfResource;
@@ -27,8 +27,8 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int WolfYield { get; set; } = 100;
     public float WolfYieldParam { get; set; } = 1;
     public int TotalWolfYield => (int)Math.Round(WolfYield * WolfYieldParam);
-    public int WolfYieldKillFence => TotalWolfYield * 5;
-    public int WolfYieldKillSheep => TotalWolfYield * 12;
+    public int WolfYieldKillFence => TotalWolfYield;
+    public int WolfYieldKillSheep => TotalWolfYield * 6;
     public int NorthFenceCnt { get; set; }
     public int SouthFenceCnt { get; set; }
     public int NorthMaxFenceCnt { get; set; }

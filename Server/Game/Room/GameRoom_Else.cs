@@ -104,7 +104,8 @@ public partial class GameRoom
         if (sheep == null) return false;
         var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
         var path = Map.GetPath(gameObject, true, destCell);
-        Console.WriteLine($"[Target Search Start] {gameObject.Id} {path.Count}");
+        // Annotation
+        // Console.WriteLine($"[Target Search Start] {gameObject.Id} {path.Count}");
         return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt && path.Count != 0;
     }
     
@@ -161,10 +162,11 @@ public partial class GameRoom
             {
                 var target = pq.Dequeue().Target;
                 var path = Map.GetPath(gameObject, true, Map.Vector3To2(target.CellPos));
-                Console.WriteLine($"MeasureShortestDist: Target search {target.ObjectType} {target.Id}");
+                // Annotation
+                // Console.WriteLine($"MeasureShortestDist: Target search {target.ObjectType} {target.Id}");
                 if (path.Count == 0)
                 {
-                    Console.WriteLine($"MeasureShortestDist: No path found");
+                    // Console.WriteLine($"MeasureShortestDist: No path found");
                     continue;
                 }
                 return target;

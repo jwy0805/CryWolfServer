@@ -140,7 +140,7 @@ public class MothMoon : MothLuna
                     var sheep = sheeps.MinBy(_ => Guid.NewGuid());
                     if (sheep != null)
                     {
-                        sheep.ShieldAdd += sheep.ShieldRemain > 0 ? (int)(ShieldParam * 0.25) : ShieldParam;
+                        sheep.ShieldAdd += sheep.ShieldRemain > sheep.MaxHp ? 0 : ShieldParam;
                     }
                 }
 

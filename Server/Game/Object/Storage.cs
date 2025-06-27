@@ -24,16 +24,14 @@ public class Storage : GameObject
             Level = 3;
             return;
         }
-
-        Room.GameInfo.NorthMaxTower += 4;
         
         if (Level == 2)
         {
-            Room.GameInfo.SheepYield += 20;
+            Room.GameInfo.NorthMaxTower = 10;
         }
         else if (Level == 3)
         {
-            Room.GameInfo.SheepYield += 40;
+            Room.GameInfo.NorthMaxTower = 14;
         }
         
         var packet = new S_BaseUpgrade

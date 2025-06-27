@@ -13,10 +13,11 @@ public class Cacti : Monster
             switch (Skill)
             {
                 case Skill.CactiDefence:
-                    Defence += 2;
+                    MaxHp += 40;
+                    Hp += 40;
                     break;
                 case Skill.CactiDefence2:
-                    Defence += 3;
+                    Defence += 2;
                     break;
             }
         }

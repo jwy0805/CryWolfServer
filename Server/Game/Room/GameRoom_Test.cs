@@ -115,6 +115,43 @@ public partial class GameRoom
         SpawnEffect(EffectId.Upgrade, newObject, newObject);
     }
 
+    // Only for single play scenario
+    public void UpgradeUnitSingle(Dictionary<string, Tower> towers, string key, Player player)
+    {
+        if (towers.TryGetValue(key, out var tower))
+        {
+            var id = tower.Id;
+            PositionInfo newPos = new()
+            {
+                PosX = tower.PosInfo.PosX,
+                PosY = tower.PosInfo.PosY,
+                PosZ = tower.PosInfo.PosZ,
+            };
+            
+            LeaveGame(id);
+            var newObject = SpawnTower(tower.UnitId + 1, newPos, player);
+            towers[key] = newObject;
+        }
+    }
+    
+    public void UpgradeStatue(Dictionary<string, MonsterStatue> statues, string key, Player player)
+    {
+        if (statues.TryGetValue(key, out var statue))
+        {
+            var id = statue.Id;
+            PositionInfo newPos = new()
+            {
+                PosX = statue.PosInfo.PosX,
+                PosY = statue.PosInfo.PosY,
+                PosZ = statue.PosInfo.PosZ,
+            };
+            
+            LeaveGame(id);
+            var newObject = SpawnMonsterStatue(statue.UnitId + 1, newPos, player);
+            statues[key] = newObject;
+        }
+    }
+
     private void TestCaseSheep0(int round)
     {
         if (Npc == null) return;

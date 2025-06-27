@@ -43,12 +43,19 @@ public class Effect : GameObject
 
     protected virtual async void EffectImpact(long impactTime)
     {
-        if (Room == null) return; // Effect는 Target이 없는 경우도 있음
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
-            if (Room == null) return;
-            if (Parent is Creature creature) creature.ApplyEffectEffect();
-            Room?.Push(Room.LeaveGameOnlyServer, Id);
-        });
+            if (Room == null) return; // Effect는 Target이 없는 경우도 있음
+            await Scheduler.ScheduleEvent(impactTime, () =>
+            {
+                if (Room == null) return;
+                if (Parent is Creature creature) creature.ApplyEffectEffect();
+                Room?.Push(Room.LeaveGameOnlyServer, Id);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

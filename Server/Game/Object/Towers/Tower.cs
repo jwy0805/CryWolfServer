@@ -38,6 +38,7 @@ public class Tower : Creature, ISkillObserver
         Room.Map.ApplyMap(this, new Vector3(PosInfo.PosX, PosInfo.PosY, PosInfo.PosZ));
         Room.Broadcast(new S_State { ObjectId = Id, State = State.Idle });
         Room.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp });
+        Room.SpawnEffect(EffectId.RegenerationEffect, this, this, PosInfo, true);
     }
     
     protected override void UpdateIdle()

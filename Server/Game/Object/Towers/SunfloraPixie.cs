@@ -46,6 +46,72 @@ public class SunfloraPixie : SunflowerFairy
         UnitRole = Role.Supporter;
     }
     
+    public override void Update()
+    {
+        if (Room == null) return;
+        Job = Room.PushAfter(CallCycle, Update);
+        if (Room.Stopwatch.ElapsedMilliseconds > Time + MpTime && State != State.Die)
+        {
+            Time = Room.Stopwatch.ElapsedMilliseconds;
+            Mp += 5;
+            
+            // Heal
+            if (AddBuffAction == null) return;
+            var num = _triple ? 3 : 2;
+            var types = new[] { GameObjectType.Tower };
+            var skillTargets = Room.FindTargets(this, types, TotalSkillRange, AttackType);
+            var healTargets = skillTargets
+                .OrderBy(target => target.Hp / target.MaxHp).Take(num).ToList();
+            foreach (var target in healTargets)
+            {
+                Room.Push(AddBuffAction, BuffId.HealBuff,
+                    BuffParamType.Constant, target, this, HealParam, 1000, false);
+                // Debuff Remove
+                if (_debuffRemove && target is Creature creature) Room.Push(Room.RemoveAllDebuffs, creature);
+            }
+            
+            // Fence Heal
+            var fenceType = new[] { GameObjectType.Fence };
+            var fenceTargets = Room.FindTargets(this, fenceType, TotalSkillRange, AttackType)
+                .OrderBy(target => target.Hp).Take(num).ToList();
+            foreach (var target in fenceTargets)  
+            {
+                Room.Push(AddBuffAction, BuffId.HealBuff,
+                    BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
+            }
+            
+            if (Mp >= MaxMp)
+            {
+                State = State.Skill;
+                Mp = 0;
+                return;
+            }
+        }
+        
+        switch (State)
+        {
+            case State.Die:
+                UpdateDie();
+                break;
+            case State.Idle:
+                UpdateIdle();
+                break;
+            case State.Attack:
+                UpdateAttack();
+                break;
+            case State.Skill:
+                UpdateSkill();
+                break;
+            case State.KnockBack:
+                UpdateKnockBack();
+                break;
+            case State.Revive:
+            case State.Faint:
+            case State.Standby:
+                break;
+        }
+    }
+    
     protected override void UpdateIdle()
     {   
         // Targeting
@@ -122,18 +188,7 @@ public class SunfloraPixie : SunflowerFairy
             AttackEnded = true;
             var types = new[] { GameObjectType.Tower };
             var num = _triple ? 3 : 2;
-            
-            // Heal
             var skillTargets = Room.FindTargets(this, types, TotalSkillRange, AttackType);
-            var healTargets = skillTargets
-                .OrderBy(target => target.Hp / target.MaxHp).Take(num).ToList();
-            foreach (var target in healTargets)
-            {
-                Room.Push(AddBuffAction, BuffId.HealBuff,
-                    BuffParamType.Constant, target, this, HealParam, 1000, false);
-                // Debuff Remove
-                if (_debuffRemove && target is Creature creature) Room.Push(Room.RemoveAllDebuffs, creature);
-            }
             
             // Recover Mp
             if (_recoverMp)
@@ -145,16 +200,6 @@ public class SunfloraPixie : SunflowerFairy
                 {
                     target.Mp += _mpRecoverParam;
                 }
-            }
-            
-            // Fence Heal
-            var fenceType = new[] { GameObjectType.Fence };
-            var fenceTargets = Room.FindTargets(this, fenceType, TotalSkillRange, AttackType)
-                .OrderBy(target => target.Hp).Take(num).ToList();
-            foreach (var target in fenceTargets)  
-            {
-                Room.Push(AddBuffAction, BuffId.HealBuff,
-                    BuffParamType.Constant, target, this, FenceHealParam, 1000, false);
             }
             
             // Invincible - Instead shield

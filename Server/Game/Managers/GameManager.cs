@@ -23,8 +23,8 @@ public class GameManager
             2, new GameData
             {
                 ZCoordinatesOfMap = new[] { 108, 80, 52, 24, 0, -24, -52, -80, -108 },
-                NorthFenceMax = 8,
-                SouthFenceMax = 8,
+                NorthFenceMax = 12,
+                SouthFenceMax = 12,
                 InitFenceStartPos = new Vector3(-7, 6, 5),
                 InitFenceSize = new Vector3(12, 6, 10),
             }
@@ -50,8 +50,6 @@ public class GameManager
         public int RoundTime => 24000;
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;  
-        public Vector3 Center => new(0, 6.0f, 0);
-        public int[] BaseUpgradeCost = { 0, 600, 2000 };
         public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
         
         // Vector2Int, Vector3 * 4

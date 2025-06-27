@@ -187,8 +187,8 @@ public partial class GameRoom
         {
             < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver),
             < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden),
-            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen),
-            < 300 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed),
+            < 150 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen),
+            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed),
             _ => ObjectManager.Instance.Create<Resource>(ResourceId.ChestGold)
         };
 
@@ -209,12 +209,15 @@ public partial class GameRoom
                 {
                     if (DataManager.UnitDict.TryGetValue((int)tower.UnitId, out var unitData))
                     {
-                        yield = unitData.stat.RequiredResources * 2;
+                        yield = unitData.stat.RequiredResources;
                     }
                 }
                 break;
             case GameObjectType.Fence:
-                yield = GameInfo.WolfYieldKillFence;
+                if (_storage != null)
+                {
+                    yield = GameInfo.WolfYieldKillFence * (int)Math.Pow(2, _storage.Level - 1);
+                }
                 break;
             case GameObjectType.Sheep:
                 yield = GameInfo.WolfYieldKillSheep;
@@ -228,10 +231,10 @@ public partial class GameRoom
         
         var resource = yield switch
         {
-            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.Cell),
-            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeDouble),
-            < 500 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeTriple),
-            < 1000 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeQuadruple),
+            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.Cell),
+            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeDouble),
+            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeTriple),
+            < 300 => ObjectManager.Instance.Create<Resource>(ResourceId.MoleculeQuadruple),
             _ => ObjectManager.Instance.Create<Resource>(ResourceId.Dna)
         };
         

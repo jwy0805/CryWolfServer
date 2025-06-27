@@ -71,6 +71,15 @@ public class Stage1004 : Stage
                 Room.UpgradeSkill(Skill.WolfDrain);
                 Room.UpgradeSkill(Skill.WolfCritical);
                 break;
+            case 13:
+                Room.UpgradeUnit(_statues["mol1"], npc);
+                Room.UpgradeUnit(_statues["mol2"], npc);
+                Room.UpgradeSkill(Skill.MoleRatKingStealWool);
+                break;
+            case 14:
+                Room.UpgradeUnit(_statues["w1"], npc);
+                Room.UpgradeUnit(_statues["w3"], npc);
+                break;
         }
     }
 }

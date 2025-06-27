@@ -219,7 +219,6 @@ public class SoulMage : Haunt
         foreach (var target in targets)
         {
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
-            Room.Push(AddBuffAction, BuffId.Fainted, BuffParamType.None, target, this, 0, 1300, false);
         }
     }
 

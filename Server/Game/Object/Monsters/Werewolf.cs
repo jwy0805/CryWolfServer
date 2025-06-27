@@ -135,7 +135,6 @@ public class Werewolf : Wolf
         Room.SpawnEffect(EffectId.WerewolfMagicalEffect, this, this, target.PosInfo, true);
         Room.Push(target.OnDamaged, this, magicalParam, Damage.Magical, false);
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
-        // TODO : DNA
     }
 
     protected override void SetNextState()

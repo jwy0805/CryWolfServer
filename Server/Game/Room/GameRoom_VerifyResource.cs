@@ -122,9 +122,7 @@ public partial class GameRoom
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
         var cost = skillData.cost;
         var resource = player.Faction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
-        if (resource <= cost) return true;
-        if (player.Faction == Faction.Sheep) GameInfo.SheepResource -= cost;
-        else GameInfo.WolfResource -= cost;
+        if (resource < cost) return true;
         return false;
     }
 
@@ -235,10 +233,16 @@ public partial class GameRoom
                 cost = CalcStatueRepairCost(Array.Empty<int>());
                 break;
             case Skill.BaseUpgradeSheep:
-                cost = GameInfo.StorageLevelUpCost * _storageLevel;
+                if (_storage != null)
+                {
+                    cost = GameInfo.StorageLevelUpCost * _storage.Level;
+                }
                 break;
             case Skill.BaseUpgradeWolf:
-                cost = GameInfo.StorageLevelUpCost * _storageLevel;
+                if (_portal != null)
+                {
+                    cost = GameInfo.StorageLevelUpCost * _portal.Level;
+                }
                 break;
             case Skill.ResourceSheep:
                 cost = GameInfo.SheepYieldUpgradeCost;

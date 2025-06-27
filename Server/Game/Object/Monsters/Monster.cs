@@ -8,17 +8,7 @@ namespace Server.Game;
 public class Monster : Creature, ISkillObserver
 {
     public int StatueId { get; set; }
-    public float DnaYieldParam { get; set; }
     
-    public int DnaYield
-    {
-        get
-        {
-            if (Room == null) return 0;
-            return (int)(Room.GameInfo.WolfYield + DnaYieldParam);
-        }
-    }
-
     protected Monster()
     {
         ObjectType = GameObjectType.Monster;
@@ -91,6 +81,5 @@ public class Monster : Creature, ISkillObserver
         if (Room == null) return;
 
         base.ApplyAttackEffect(target);
-        Room.GameInfo.WolfResource += Room.GameInfo.WolfYield;
     }
 }

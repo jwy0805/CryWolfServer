@@ -30,6 +30,7 @@ public class HareCloneEffect : Effect { }
 public class StarFall : Effect { }
 public class HermitRecoverBurn : Effect { }
 public class MoveForwardEffect : Effect { }
+public class RegenerationEffect : Effect { }
 public class WindRoadEffect1 : Effect { }
 public class WindRoadEffect2 : Effect { }
 public class WindRoadEffect3 : Effect { }

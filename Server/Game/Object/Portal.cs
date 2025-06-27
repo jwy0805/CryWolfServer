@@ -17,6 +17,7 @@ public class Portal : GameObject
         DataManager.ObjectDict.TryGetValue(601, out var objectData);
         if (objectData == null) return;
         Stat.MergeFrom(objectData.stat);
+        Level = 1;
     }
 
     public void LevelUp()
@@ -30,15 +31,13 @@ public class Portal : GameObject
             return;
         }
 
-        Room.GameInfo.NorthMaxTower += 4;
-        
         if (Level == 2)
         {
-            Room.GameInfo.WolfYield += 20;
+            Room.GameInfo.NorthMaxMonster = 10;
         }
         else if (Level == 3)
         {
-            Room.GameInfo.WolfYield += 40;
+            Room.GameInfo.NorthMaxMonster = 14;
         }
         
         var packet = new S_BaseUpgrade

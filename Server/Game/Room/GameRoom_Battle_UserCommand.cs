@@ -37,7 +37,7 @@ public partial class GameRoom
                 }
                 else
                 {
-                    SendWarningMessage(player, "warning_in_game_max_level");
+                    SendWarningMessage(player, "warning_in_game_reached_max_level");
                 }
                 break;
             
@@ -49,7 +49,7 @@ public partial class GameRoom
                 }
                 else
                 {
-                    SendWarningMessage(player, "warning_in_game_max_level");
+                    SendWarningMessage(player, "warning_in_game_reached_max_level");
                 }
                 break;
             
@@ -71,9 +71,13 @@ public partial class GameRoom
                 break;
             
             case Skill.AssetWolf:
-                if (Enchant is not { EnchantLevel: < 5 }) return;
+                if (Enchant is not { EnchantLevel: < 5 })
+                {
+                    SendWarningMessage(player, "warning_in_game_reached_max_level");
+                    return;
+                }
+                GameInfo.WolfResource -= cost;
                 Enchant.EnchantLevel++;
-                SendWarningMessage(player, "warning_in_game_max_level");
                 break;
         }
     }
@@ -108,6 +112,12 @@ public partial class GameRoom
             return;
         }
 
+        if (DataManager.SkillDict.TryGetValue((int)skill, out var skillData))
+        {
+            if (player.Faction == Faction.Sheep) GameInfo.SheepResource -= skillData.cost;
+            else GameInfo.WolfResource -= skillData.cost;
+        }
+        
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
         player.Session?.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });

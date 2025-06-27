@@ -32,7 +32,6 @@ public class Rabbit : Bunny
     {
         base.Init();
         UnitRole = Role.Warrior;
-        // Player.SkillSubject.SkillUpgraded(Skill.RabbitAggro);
     }
     
     public override void Update()
@@ -45,6 +44,11 @@ public class Rabbit : Bunny
             Mp += 5;
             if (Mp >= MaxMp && _aggro && Target != null)
             {
+                if (Vector3.Distance(Target.CellPos with { Y = 0 }, CellPos with { Y = 0 }) > TotalSkillRange)
+                {
+                    State = State.Idle;
+                    return;
+                }
                 State = State.Skill;
                 return;
             }

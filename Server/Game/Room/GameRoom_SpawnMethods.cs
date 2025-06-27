@@ -205,7 +205,8 @@ public partial class GameRoom
         ProjectileId projectileId, GameObject? parent, PositionInfo posInfo, float speed, GameObject target)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
-        if (parent?.Target == null) return new Projectile();
+        if (parent == null) return new Projectile();
+        if (parent.Target == null) return new Projectile();
         
         var projectile = ObjectManager.Instance.Create<Projectile>(projectileId);
         var position = new PositionInfo

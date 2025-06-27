@@ -135,8 +135,11 @@ public class MothCelestial : MothMoon
             
                 // Shield Sheep
                 var sheepShield = sheeps.MinBy(_ => Guid.NewGuid());
-                if (sheepShield != null) sheepShield.ShieldAdd += ShieldParam;
-
+                if (sheepShield != null)
+                {
+                    sheepShield.ShieldAdd += sheepShield.ShieldRemain > sheepShield.MaxHp ? 0 : ShieldParam;
+                }
+                
                 // Debuff Remove
                 if (_debuffRemove)
                 {
