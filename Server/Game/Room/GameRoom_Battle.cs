@@ -163,6 +163,19 @@ public partial class GameRoom
         }
     }
 
+    public void HandleBindStatueInfo(Player? player, C_BindStatueInfo bindPacket)
+    {
+        if (FindGameObjectById(bindPacket.StatueId) is not MonsterStatue statue) return;
+        
+        var packet = new S_BindStatueInfo()
+        {
+            StatueId = statue.Id,
+            UnitId = statue.UnitId,
+        };
+        
+        Push(Broadcast, packet);
+    }
+    
     public void HandleState(Player? player, C_State statePacket)
     {
         if (player == null) return;

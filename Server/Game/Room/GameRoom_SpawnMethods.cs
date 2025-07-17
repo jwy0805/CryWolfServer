@@ -117,14 +117,6 @@ public partial class GameRoom
         statue.Dir = statue.Way == SpawnWay.North ? (int)Direction.N : (int)Direction.S;
         statue.Init();
         Push(EnterGame, statue);
-        
-        var spawnPacket = new S_SpawnStatue
-        {
-            StatueId = statue.Id,
-            UnitId = unitId,
-        };
-        Push(Broadcast, spawnPacket);
-        
         return statue;
     }
     

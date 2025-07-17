@@ -54,6 +54,16 @@ public class PacketHandler
         
         room?.Push(room.HandleSpawn, player, spawnPacket);
     }
+
+    public static void C_BindStatueInfoHandler(PacketSession session, IMessage packet)
+    {
+        var bindPacket = (C_BindStatueInfo)packet;
+        var clientSession = (ClientSession)session;
+        var player = clientSession.MyPlayer;
+        var room = player?.Room;
+        
+        room?.Push(room.HandleBindStatueInfo, player, bindPacket);
+    }
     
     public static void C_PlayerMoveHandler(PacketSession session, IMessage packet)
     {
