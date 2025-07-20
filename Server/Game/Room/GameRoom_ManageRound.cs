@@ -176,6 +176,8 @@ public partial class GameRoom
 
     public async Task GameOver(int winnerId, int loserId)
     {
+        _gameOver = true;
+
         var loserPlayer = _players.Values
             .Where(player => player.Session?.UserId == loserId)
             .OrderByDescending(player => player.Session?.SessionId)

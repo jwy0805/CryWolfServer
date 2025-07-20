@@ -33,6 +33,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Portal? _portal;
     private Stage? _stageWaveModule;
     private bool _infoInit;
+    private bool _gameOver;
     
     public GameMode GameMode { get; set; }
     public Player? Npc { get; set; }
@@ -101,7 +102,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private void SetTimeAndRound()
     {
         long time = Stopwatch.ElapsedMilliseconds;
-        if (time < _timeSendTime + _interval || time < 1000) return;
+        if (time < _timeSendTime + _interval || time < 1000 || _gameOver) return;
         if (_round > 0)
         {
             _ = CheckWinner();
