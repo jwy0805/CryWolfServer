@@ -227,10 +227,10 @@ public partial class GameRoom
         switch (skill)
         {
             case Skill.RepairSheep:
-                cost = CalcFenceRepairCost(Array.Empty<int>());
+                cost = CalcFenceRepairCost(Array.Empty<int>(), true);
                 break;
             case Skill.RepairWolf:
-                cost = CalcStatueRepairCost(Array.Empty<int>());
+                cost = CalcStatueRepairCost(Array.Empty<int>(), true);
                 break;
             case Skill.BaseUpgradeSheep:
                 if (_storage != null)
