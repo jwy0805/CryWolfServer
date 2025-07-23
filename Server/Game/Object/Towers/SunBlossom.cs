@@ -133,18 +133,6 @@ public class SunBlossom : Tower
             
             var types = new[] { GameObjectType.Tower };
             
-            // Heal
-            if (_heal)
-            {
-                var target = Room.FindTargets(this, types, TotalSkillRange, AttackType)
-                    .MinBy(target => target.Hp / target.MaxHp);
-                if (target != null)
-                {
-                    Room.Push(AddBuffAction, BuffId.HealBuff,
-                        BuffParamType.Constant, target, this, HealParam, 1000, false);
-                }
-            }
-            
             // Defence Buff
             if (_defenceBuff)
             {

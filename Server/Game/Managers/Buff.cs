@@ -197,6 +197,7 @@ public class HealBuff : Buff
         Room?.SpawnEffect(EffectId.StateHeal, Caster, Master, Master.PosInfo, true);
         CalculateFactor();
         Master.Hp += (int)Factor;
+        Room?.Broadcast(new S_GetDamage { ObjectId = Master.Id, DamageType = Damage.Heal, Damage = (int)Factor });
         RemoveBuff();
     }
 }

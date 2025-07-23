@@ -194,7 +194,11 @@ public class SunfloraPixie : SunflowerFairy
             if (_recoverMp)
             {
                 var mpTargets = skillTargets
-                    .Where(target => target.MaxMp != 1)
+                    .Where(target => 
+                        target.MaxMp != 1 && target is Creature creature 
+                                          && creature.UnitId != UnitId.SunBlossom 
+                                          && creature.UnitId != UnitId.SunflowerFairy 
+                                          && creature.UnitId != UnitId.SunfloraPixie)
                     .OrderBy(_ => Guid.NewGuid()).Take(num).ToList();
                 foreach (var target in mpTargets)
                 {
