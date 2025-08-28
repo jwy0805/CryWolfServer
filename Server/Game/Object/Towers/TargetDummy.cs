@@ -76,6 +76,12 @@ public class TargetDummy : PracticeDummy
         }   
     }
     
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DummyBlow, SoundType = SoundType.D3 });
+    }
+    
     protected override void SkillImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>

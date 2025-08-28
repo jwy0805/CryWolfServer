@@ -38,6 +38,12 @@ public class Cactus : Cacti
         base.Init();
         UnitRole = Role.Tanker;
     }
+    
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.MonsterAttack, SoundType = SoundType.D3 });
+    }
 
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
     {

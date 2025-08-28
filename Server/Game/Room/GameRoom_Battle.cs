@@ -28,8 +28,8 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 450,
-            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 450
+            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 45000,
+            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 45000
         };
 
         SpawnFence(1, 1);
@@ -103,7 +103,7 @@ public partial class GameRoom
     {
         if (player == null) return;
         
-        S_PlayerMove playerMovePacket = new S_PlayerMove
+        var playerMovePacket = new S_PlayerMove
         {
             State = pMovePacket.State,
             ObjectId = player.Id,

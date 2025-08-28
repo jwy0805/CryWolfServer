@@ -184,7 +184,7 @@ public class Burrow : Monster
     {
         EndTaskId = Scheduler.ScheduleCancellableEvent(animTime, () => SetNextState(State));
     }
-
+    
     public override void SetNextState(State state)
     {
         if (state == State.Die && WillRevive)
@@ -208,5 +208,11 @@ public class Burrow : Monster
             SyncPosAndDir();
             if (StateChanged) EvasionParam -= 20;
         }
+    }
+    
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.MonsterAttack, SoundType = SoundType.D3 });
     }
 }

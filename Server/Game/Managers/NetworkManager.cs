@@ -50,15 +50,18 @@ public class NetworkManager
             var context = await _httpListener.GetContextAsync();
             var request = context.Request; 
             var response = context.Response;
-
+            
             try
             {
                 string responseString;
-
+                
                 switch (request.Url?.AbsolutePath)
-                {
+                { 
                     case "/match":
                         responseString = await HandleMatchRequest(request);
+                        break;
+                    case "/friendlyMatch":
+                        responseString = await HandleFriendlyMatchRequest(request);
                         break;
                     case "/surrender":
                         responseString = await HandleSurrenderRequest(request);
@@ -112,6 +115,27 @@ public class NetworkManager
 
         var task = await StartGameAsync(matchRequest);
         var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task }; 
+        
+        return JsonConvert.SerializeObject(matchResponse);
+    }
+
+    private async Task<string> HandleFriendlyMatchRequest(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST")
+        {
+            throw new HttpRequestException("Method Not Allowed", null, HttpStatusCode.MethodNotAllowed);
+        }
+        
+        using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+        var requestBody = await reader.ReadToEndAsync();
+        var matchRequest = JsonConvert.DeserializeObject<FriendlyMatchPacketRequired>(requestBody);
+        if (matchRequest == null)
+        {
+            throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+        }
+
+        var task = await StartFriendlyGameAsync(matchRequest);
+        var matchResponse = new FriendlyMatchPacketResponse { IsSuccess = task };
         
         return JsonConvert.SerializeObject(matchResponse);
     }
@@ -209,8 +233,6 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            Player? sheepPlayer;
-            Player? wolfPlayer;
             if (packet.IsTestGame)
             {
                 var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
@@ -218,10 +240,6 @@ public class NetworkManager
                 var npcCharacterId = faction == Faction.Sheep ? packet.WolfCharacterId : packet.SheepCharacterId;
                 var npcAssetId = faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId;
                 var npc = CreateNpc(room, player, npcCharacterId, npcAssetId);
-                
-                sheepPlayer = player.Faction == Faction.Sheep ? player : npc;
-                wolfPlayer = player.Faction == Faction.Wolf ? player : npc;
-                
                 var matchPacket = new S_MatchMakingSuccess
                 {
                     EnemyUserName = npc.Info.Name,
@@ -242,8 +260,8 @@ public class NetworkManager
             }
             else
             {
-                sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
-                wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
+                var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
+                var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
                 
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
@@ -291,6 +309,64 @@ public class NetworkManager
             });
         });
         
+        return await tcs.Task;
+    }
+
+    private async Task<bool> StartFriendlyGameAsync(FriendlyMatchPacketRequired packet, DateTime? startTime = null)
+    {
+        Console.WriteLine("Start Friendly Game Async");
+        startTime ??= DateTime.UtcNow;
+        var tcs = new TaskCompletionSource<bool>();
+        
+        GameLogic.Instance.Push(() =>
+        {
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var sheepPlayer = CreatePlayerFriendly(room, packet, Faction.Sheep);
+            var wolfPlayer = CreatePlayerFriendly(room, packet, Faction.Wolf);
+            
+            if (sheepPlayer.Session == null || wolfPlayer.Session == null)
+            {
+                if ((DateTime.UtcNow - startTime.Value).TotalMilliseconds > 5000)
+                {
+                    Console.WriteLine("Session timeout.");
+                    tcs.SetResult(false);
+                    return;
+                }
+        
+                Console.WriteLine("Session is not ready yet.");
+                GameLogic.Instance.PushAfter(400, () => _ = RetryStartGameAsync(packet, startTime, tcs));
+                return;
+            }
+            
+            room.GameMode = GameMode.Friendly;
+            var sendPacket = new SendMatchInfoPacketRequired
+            {
+                SheepUserId = packet.SheepUserId,
+                SheepSessionId = packet.SheepSessionId,
+                WolfUserId = packet.WolfUserId,
+                WolfSessionId = packet.WolfSessionId,
+            };
+        
+            var requestTask = SendRequestToApiAsync<SendMatchInfoPacketResponse>(
+                "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
+            var timeTask = Task.Delay(6000);
+            var tasks = Task.WhenAll(requestTask, timeTask);
+            tasks.ContinueWith(_ =>
+            {
+                if (requestTask.Result is { SendMatchInfoOk: true })
+                {
+                    room.RoomActivated = true;
+                    Console.WriteLine("Start Game Async - room activated");
+                    tcs.SetResult(true);
+                }
+                else
+                {
+                    Console.WriteLine("Start Game Async - room not activated");
+                    tcs.SetResult(false);
+                }
+            });
+        });
+
         return await tcs.Task;
     }
     
@@ -366,6 +442,40 @@ public class NetworkManager
         return player;
     }
 
+    private Player CreatePlayerFriendly(GameRoom room, FriendlyMatchPacketRequired required, Faction faction)
+    {
+        var player = ObjectManager.Instance.Add<Player>();
+        var position = faction == Faction.Sheep 
+            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
+            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
+        var sheepCharacterName = required.SheepCharacterId.ToString();
+        var wolfCharacterName = required.WolfCharacterId.ToString();
+
+        player.Room = room;
+        player.Faction = faction;
+        player.Info.Name = faction == Faction.Sheep ? sheepCharacterName : wolfCharacterName;
+        player.PosInfo = position;
+        player.Info.PosInfo = position;
+        player.CharacterId = faction == Faction.Sheep ? required.SheepCharacterId : required.WolfCharacterId;
+        player.AssetId = faction == Faction.Sheep ? (int)required.SheepId : (int)required.EnchantId;
+        player.UnitIds = faction == Faction.Sheep ? required.SheepUnitIds : required.WolfUnitIds;
+        player.Session = faction == Faction.Sheep 
+            ? SessionManager.Instance.Find(required.SheepSessionId)
+            : SessionManager.Instance.Find(required.WolfSessionId);
+        
+        Console.WriteLine($"Create Player -> {room.RoomId} {required.SheepSessionId} : {required.WolfSessionId}" );
+        if (player.Session == null)
+        {
+            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
+            return player;
+        }
+        
+        player.Session.MyPlayer = player;
+        player.Session.UserId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
+
+        return player;
+    }
+    
     private Player CreatePlayerSingle(GameRoom room, SinglePlayStartPacketRequired required)
     {
         var player = ObjectManager.Instance.Add<Player>();
@@ -438,7 +548,6 @@ public class NetworkManager
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
 
         npc.Faction = faction;
-        // npc.Info.Name = $"NPC_{player.Info.Name}";
         npc.Info.Name = characterId.ToString();
         npc.PosInfo = position;
         npc.Info.PosInfo = position;
@@ -506,6 +615,13 @@ public class NetworkManager
         TaskCompletionSource<bool> tcs)
     {
         var result = await StartGameAsync(packet, startTime);
+        tcs.TrySetResult(result);
+    }
+    
+    private async Task RetryStartGameAsync(FriendlyMatchPacketRequired packet, DateTime? startTime,
+        TaskCompletionSource<bool> tcs)
+    {
+        var result = await StartFriendlyGameAsync(packet, startTime);
         tcs.TrySetResult(result);
     }
 

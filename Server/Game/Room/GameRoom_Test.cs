@@ -90,14 +90,32 @@ public partial class GameRoom
         if (gameObject.ObjectType == GameObjectType.Tower)
         {
             if (gameObject is not Tower tower) return;
+            var hpPortion = tower.Hp / (float)tower.MaxHp;
             LeaveGame(id);
+            newPos.State = gameObject.State != State.Die ? State.Idle : State.Die;
             newObject = SpawnTower(tower.UnitId + 1, newPos, player);
+            newObject.Hp = (int)(newObject.MaxHp * hpPortion);
+            
+            if (newPos.State == State.Die)
+            {
+                newObject.Targetable = false;
+                DieAndLeave(newObject.Id);
+            }
+            
+            newObject.BroadcastState();
+            var soundPacket = new S_PlaySound
+                { ObjectId = newObject.Id, Sound = Sounds.UpgradeTower, SoundType = SoundType.D3 };
+            Push(Broadcast, soundPacket);
         }
         else if (gameObject.ObjectType == GameObjectType.MonsterStatue)
         {
             if (gameObject is not MonsterStatue statue) return;
             LeaveGame(id);
             newObject = SpawnMonsterStatue(statue.UnitId + 1, newPos, player);
+            
+            var soundPacket = new S_PlaySound
+                { ObjectId = newObject.Id, Sound = Sounds.UpgradeStatue, SoundType = SoundType.D3 };
+            Push(Broadcast, soundPacket);
         }
         else if (gameObject.ObjectType == GameObjectType.Monster)
         {

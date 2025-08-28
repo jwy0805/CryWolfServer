@@ -260,7 +260,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         }
     }
 
-    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId) 
+    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId, bool sound = true) 
     {
         var projectile = (Projectile)gameObject;
         _projectiles.Add(projectile.Id, projectile);
@@ -268,7 +268,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y + 0.5f, Z = targetPos.Z };
         var spawnPacket = new S_SpawnProjectile
         { 
-            Object = gameObject.Info, ParentId = parentId, DestPos = destVector, MoveSpeed = speed 
+            Object = gameObject.Info, ParentId = parentId, DestPos = destVector, MoveSpeed = speed, Sound = sound
         };
         Broadcast(spawnPacket);
     }

@@ -73,11 +73,12 @@ public class DogBark : DogPup
         // 현재 상태를 새로운 상태로 업데이트
         _currentSet = newSet;
     }
-   
+    
     public override void ApplyAttackEffect(GameObject target)
     {
         HitCount++;
         Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DogBite, SoundType = SoundType.D3 });
     }
 
     protected override void SkillImpactEvents(long impactTime)
@@ -89,6 +90,7 @@ public class DogBark : DogPup
             if (State == State.Faint) return;
             
             Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+            Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DogBite, SoundType = SoundType.D3 });
             HitCount = 0;
         });
     }

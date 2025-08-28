@@ -9,3 +9,10 @@ public enum GameMode
     Tutorial,
     Test,
 }
+
+public enum AttackType
+{
+    Ground = 0,
+    Air = 1,
+    Both = 2
+}

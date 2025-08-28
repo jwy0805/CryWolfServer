@@ -234,7 +234,7 @@ public class PacketHandler
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
-        if (uiPacket.Init && player != null) room?.InfoInit(player);
+        if (uiPacket.Init && player != null) room?.Push(room.InfoInit, player);
     }
 
     public static void C_UnitDeleteHandler(PacketSession session, IMessage packet)

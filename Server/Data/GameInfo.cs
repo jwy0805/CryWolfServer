@@ -164,9 +164,16 @@ public class GameInfo // 한 판마다 초기화되는 정보
         get => _sheepResource;
         set
         {
+            var plus = _sheepResource <= value;
             _sheepResource = value;
             foreach (var player in _players.Values.Where(player => player.Faction == Faction.Sheep))
-                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource});
+            {
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _sheepResource });
+                if (plus)
+                {
+                    player.Session?.Send(new S_PlaySound { Sound = Sounds.GetGold, SoundType = SoundType.D2 });   
+                }
+            }
         }
     }
 
@@ -175,9 +182,16 @@ public class GameInfo // 한 판마다 초기화되는 정보
         get => _wolfResource;
         set
         {
+            var plus = _wolfResource <= value;
             _wolfResource = value;
             foreach (var player in _players.Values.Where(player => player.Faction == Faction.Wolf))
-                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource});
+            {
+                player.Session?.Send(new S_SetTextUI { TextUI = CommonTexts.ResourceText, Value = _wolfResource });
+                if (plus)
+                {
+                    player.Session?.Send(new S_PlaySound { Sound = Sounds.GetDna, SoundType = SoundType.D2 });   
+                }
+            }
         }
     }
     

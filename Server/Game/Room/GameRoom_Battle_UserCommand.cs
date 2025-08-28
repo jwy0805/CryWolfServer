@@ -162,7 +162,7 @@ public partial class GameRoom
 
             if (go is Tower originalTower)
             {
-                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalTower.UnitId+ 1, out _);
+                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalTower.UnitId + 1, out _);
                 bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalTower.UnitId);
                 bool lackOfCost = VerifyUnitUpgradeCost((int)originalTower.UnitId);
             

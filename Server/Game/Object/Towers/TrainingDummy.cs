@@ -94,6 +94,7 @@ public class TrainingDummy : TargetDummy
             }
             
             Room.Push(Target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.TrainingDummyBlow, SoundType = SoundType.D3 });
         });
     }
     

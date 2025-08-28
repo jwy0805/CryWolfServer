@@ -62,7 +62,7 @@ public class MoleRatKing : MoleRat
         
         // Targeting 우선순위 - Sheep
         var targetTypeList = new List<GameObjectType> { GameObjectType.Sheep };
-        Target = Room.FindClosestPriorityTarget(this, targetTypeList);
+        Target = Room.FindClosestPriorityTarget(this, targetTypeList, Stat.AttackType, false);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우
@@ -186,10 +186,12 @@ public class MoleRatKing : MoleRat
                 var stealWool = (int)(Room.GameInfo.TotalSheepYield * _stealWoolParam);
                 sheep.YieldDecrement += stealWool;
                 Room.GameInfo.WolfResource += stealWool;
+                Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.MoleRatKingSteal, SoundType = SoundType.D3 });
             }
         }
         
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.MonsterAttack, SoundType = SoundType.D3 });
 
         // Steal Attack 처리
         if (target.Room == null || target.Targetable == false || target.Hp <= 0) return;

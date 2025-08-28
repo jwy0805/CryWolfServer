@@ -30,6 +30,7 @@ public partial class GameRoom
         {
             await GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
         }
+        
         if (_portal?.Room == null)
         {
             await GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
@@ -64,6 +65,8 @@ public partial class GameRoom
         GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam * 0.5f };
         GameInfo.FenceSize = GameInfo.FenceSize with { Z = GameInfo.FenceSize.Z + _forwardParam };
         GameInfo.FenceStartPos = GameInfo.FenceStartPos with { Z = GameInfo.FenceStartPos.Z + _forwardParam };
+
+        Broadcast(new S_PlaySound { Sound = Sounds.ExpandFence, SoundType = SoundType.D2 });
 
         var towerCopy = new Dictionary<int, Tower>(_towers);
         var tasks = new List<Task>();
@@ -100,10 +103,7 @@ public partial class GameRoom
                         {
                             _players.Values
                                 .FirstOrDefault(p => p.Faction == Faction.Sheep)?.Session?
-                                .Send(new S_SendWarningInGame
-                                {
-                                    MessageKey = "warning_in_game_obstacles_between_fences"
-                                });
+                                .Send(new S_SendWarningInGame { MessageKey = "warning_in_game_obstacles_between_fences" });
                         }
                     }
                     
@@ -202,7 +202,7 @@ public partial class GameRoom
                 await GetTutorialRewardHandler(winnerPlayer, winnerId);
                 break;
             case GameMode.Friendly:
-                FriendlyEndHandler(winnerPlayer);
+                FriendlyEndHandler(winnerPlayer, loserPlayer);
                 break;
         }
         
@@ -409,8 +409,13 @@ public partial class GameRoom
         return (UnitId)task.Result.Rewards.First().ItemId;
     }
 
-    private void FriendlyEndHandler(Player winner)
+    private void FriendlyEndHandler(Player winner, Player loser)
     {
-        
+        var loserPacket = new S_ShowFriendlyResultPopup { Win = false };
+        var winnerPacket = new S_ShowFriendlyResultPopup { Win = true };
+        loser.Session?.Send(loserPacket);
+        winner.Session?.Send(winnerPacket);
+        LeaveGame(loser.Id);
+        LeaveGame(winner.Id);
     }
 }

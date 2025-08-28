@@ -29,4 +29,10 @@ public class PracticeDummy : Tower
         base.Init();
         UnitRole = Role.Tanker;
     }
+    
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DummyBlow, SoundType = SoundType.D3 });
+    }
 }

@@ -99,7 +99,7 @@ public class FlowerPot : Sprout
             
             _projectile2 = Room.SpawnProjectile(
                 pid == ProjectileId.Sprout3HitFire ? ProjectileId.Sprout3HitFire : ProjectileId.SproutFire,
-                this, target.PosInfo, 5f, secondTarget);
+                this, target.PosInfo, 5f, secondTarget, false);
             if (_projectile2 is SproutFire projectile2) projectile2.Depth = 1;
         }
     }

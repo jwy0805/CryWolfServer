@@ -53,9 +53,15 @@ public class Wolf : WolfPup
         {
             Room.SpawnEffect(EffectId.WolfMagicalEffect, this, this, target.PosInfo, true);
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.WolfSkill, SoundType = SoundType.D3 });
+        }
+        else
+        {
+            Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.WolfBite, SoundType = SoundType.D3 });
         }
         
-        Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         // Drain
         if (_drain)

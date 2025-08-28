@@ -183,7 +183,7 @@ public partial class GameObject : IGameObject
         });
     }
     
-    protected virtual void BroadcastState()
+    public virtual void BroadcastState()
     {
         Room?.Broadcast(new S_State { ObjectId = Id, State = State });
     }

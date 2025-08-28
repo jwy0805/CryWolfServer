@@ -76,6 +76,28 @@ public class SendMatchInfoPacketResponse
     public bool SendMatchInfoOk { get; set; }
 }
 
+public class FriendlyMatchPacketRequired
+{
+    public int SheepUserId { get; set; }
+    public int SheepSessionId { get; set; }
+    public string SheepUserName { get; set; }
+    public int WolfUserId { get; set; }
+    public int WolfSessionId { get; set; }
+    public string WolfUserName { get; set; }
+    public int MapId { get; set; }
+    public CharacterId SheepCharacterId { get; set; }
+    public CharacterId WolfCharacterId { get; set; }
+    public SheepId SheepId { get; set; }
+    public EnchantId EnchantId { get; set; }
+    public UnitId[] SheepUnitIds { get; set; }
+    public UnitId[] WolfUnitIds { get; set; }
+}
+
+public class FriendlyMatchPacketResponse
+{
+    public bool IsSuccess { get; set; }
+}
+
 public class SinglePlayStartPacketRequired
 {
     public int UserId { get; set; }

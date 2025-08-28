@@ -72,6 +72,7 @@ public class Werewolf : Wolf
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우
+            Console.WriteLine("Werewolf UpdateMoving: No valid target found.");
             State = State.Idle;
             return;
         }

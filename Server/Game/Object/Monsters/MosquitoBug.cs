@@ -56,7 +56,8 @@ public class MosquitoBug : Monster
         // Targeting
         Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        {   
+            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
@@ -70,7 +71,7 @@ public class MosquitoBug : Monster
         double deltaZ = DestPos.Z - CellPos.Z;
         Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
         
-        if (distance <= TotalAttackRange)
+        if (distance <= TotalAttackRange)        
         {
             State = State.Attack;
             SyncPosAndDir();

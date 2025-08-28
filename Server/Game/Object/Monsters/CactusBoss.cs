@@ -98,7 +98,7 @@ public class CactusBoss : Cactus
     
     protected override void UpdateIdle()
     {
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
+        Target = Room?.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         
         if (_rush && _rushed == false)
@@ -205,6 +205,12 @@ public class CactusBoss : Cactus
         EndEvents(animPlayTime); 
     }
 
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.CactusBossBlow, SoundType = SoundType.D3 });
+    }
+    
     private void SmashImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>

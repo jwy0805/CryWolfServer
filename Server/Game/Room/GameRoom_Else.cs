@@ -19,21 +19,22 @@ public partial class GameRoom
         // 어그로 끌린 상태면 리턴
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target; 
 
-        var targetTypeList = GetTargetType(gameObject, ReachableInFence(gameObject));
+        var reachable = ReachableInFence(gameObject);
+        var targetTypeList = GetTargetType(gameObject, reachable);
         var targetList = new List<GameObject>();
         foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
-
         return MeasureShortestDist(gameObject, targetList, attackType);
     }
     
-    public GameObject? FindClosestPriorityTarget(GameObject gameObject, List<GameObjectType> typeList, int attackType = 0)
+    public GameObject? FindClosestPriorityTarget(
+        GameObject gameObject, List<GameObjectType> typeList, int attackType = 0, bool check = true)
     {
         if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
 
         foreach (var type in typeList)
         {
             var targetList = GetTargets(type).ToList();
-            var finalTarget = MeasureShortestDist(gameObject, targetList, attackType);
+            var finalTarget = MeasureShortestDist(gameObject, targetList, attackType, check);
             if (finalTarget != null) return finalTarget;
         } 
 
@@ -102,11 +103,11 @@ public partial class GameRoom
         
         var sheep = FindNearestSheep(gameObject);
         if (sheep == null) return false;
+        if (GameInfo.NorthFenceCnt >= GameInfo.NorthMaxFenceCnt) return false;
         var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
         var path = Map.GetPath(gameObject, true, destCell);
-        // Annotation
-        // Console.WriteLine($"[Target Search Start] {gameObject.Id} {path.Count}");
-        return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt && path.Count != 0;
+        
+        return path.Count != 0;
     }
     
     private IEnumerable<GameObject> GetTargets(GameObjectType type)
@@ -137,7 +138,7 @@ public partial class GameRoom
         return targets;    
     }
     
-    private GameObject? MeasureShortestDist(GameObject gameObject, List<GameObject> targets, int attackType)
+    private GameObject? MeasureShortestDist(GameObject gameObject, List<GameObject> targets, int attackType, bool check = true)
     {
         PriorityQueue<TargetDistance, float> pq = new();
         
@@ -153,20 +154,30 @@ public partial class GameRoom
             var distance = Vector3.Distance(targetPos, cellPos);
             pq.Enqueue(new TargetDistance { Target = target, Distance = distance }, distance);
         }
-        
-        if (pq.Count == 0 || gameObject is not Creature creature) return null;
 
+        if (gameObject is not Creature creature) return null;
+        if (pq.Count == 0)
+        {
+            creature.UnreachableIds.Clear();
+            return null;
+        }
+        
         if (gameObject.ObjectType == GameObjectType.Monster)
         {
             while (pq.Count > 0)
             {
                 var target = pq.Dequeue().Target;
-                var path = Map.GetPath(gameObject, true, Map.Vector3To2(target.CellPos));
+                if (creature.UnreachableIds.Contains(target.Id)) continue;
+                
+                var dist = Vector3.Distance(target.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 });
+                if (dist < creature.TotalAttackRange) return target;
+                
+                var path = Map.GetPath(gameObject, check, Map.Vector3To2(target.CellPos));
                 // Annotation
-                // Console.WriteLine($"MeasureShortestDist: Target search {target.ObjectType} {target.Id}");
+                Console.WriteLine($"MeasureShortestDist: {(gameObject as Creature)?.UnitId.ToString() ?? "null"} " + $"Target search {target.ObjectType} {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");  
                 if (path.Count == 0)
                 {
-                    // Console.WriteLine($"MeasureShortestDist: No path found");
+                    Console.WriteLine($"MeasureShortestDist: No path found {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");
                     continue;
                 }
                 return target;

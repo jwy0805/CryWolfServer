@@ -163,7 +163,7 @@ public partial class GameRoom
         Push(EnterGameEffect, effect, master.Id, trailing, duration);
     }
     
-    public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed)
+    public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed, bool sound = true)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
         if (parent == null) return new Projectile();
@@ -189,12 +189,12 @@ public partial class GameRoom
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
-        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id);
+        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id, sound);
         return projectile;
     }   
     
     public Projectile SpawnProjectile(
-        ProjectileId projectileId, GameObject? parent, PositionInfo posInfo, float speed, GameObject target)
+        ProjectileId projectileId, GameObject? parent, PositionInfo posInfo, float speed, GameObject target, bool sound = true)
     {
         if (Enum.IsDefined(typeof(ProjectileId), projectileId) == false) return new Projectile();
         if (parent == null) return new Projectile();
@@ -220,7 +220,7 @@ public partial class GameRoom
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
-        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id);
+        Push(EnterGameProjectile, projectile, projectile.DestPos, speed, parent.Id, sound);
         return projectile;
     }
 

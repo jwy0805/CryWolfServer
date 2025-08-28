@@ -309,7 +309,7 @@ public partial class Map
             if (parent.Count > 800)
             {
                 // 길찾기 실패 (경로가 존재하지 않음)
-                Console.WriteLine("Pathfinding failed");
+                Console.WriteLine($"Pathfinding failed -> start : {Vector2To3(startCellPos)} dest : {Vector2To3(destCellPos)}");
                 return new List<Vector3>();
             }                                                           
             

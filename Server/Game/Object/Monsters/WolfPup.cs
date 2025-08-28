@@ -30,4 +30,10 @@ public class WolfPup : Monster
         base.Init();
         UnitRole = Role.Warrior;
     }
+    
+    public override void ApplyAttackEffect(GameObject target)
+    {
+        Room?.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room?.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.WolfBite, SoundType = SoundType.D3 });
+    }
 }

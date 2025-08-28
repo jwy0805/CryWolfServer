@@ -87,6 +87,7 @@ public class MoleRat : Burrow
         if (_drain) Hp += (int)(damage * DrainParam);
         BroadcastHp();
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+        Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.MonsterAttack, SoundType = SoundType.D3 });
         
         // Steal Attack
         if (_stealAttack == false || target.Targetable == false || target.Hp < 0) return;

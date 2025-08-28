@@ -94,7 +94,10 @@ public class DogBowwow : DogBark
         
         HitCount++;
         if ((_smash && HitCount < 3) || (_smash == false && HitCount < 4))
+        {
             Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
+            Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DogBowwowBite, SoundType = SoundType.D3 });
+        }
     }
 
     protected override void SkillImpactEvents(long impactTime)
@@ -107,6 +110,7 @@ public class DogBowwow : DogBark
             if (_smash)
             {
                 Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+                Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DogBowwowSkill, SoundType = SoundType.D3 });
                 if (_smashFaint)
                 {
                     var randomInt = new Random().Next(100);
@@ -120,6 +124,7 @@ public class DogBowwow : DogBark
             else
             {
                 Room.Push(Target.OnDamaged, this, TotalSkillDamage, Damage.True, false);
+                Room.Broadcast(new S_PlaySound { ObjectId = Id, Sound = Sounds.DogBowwowBite, SoundType = SoundType.D3 });
             }
             
             HitCount = 0;
