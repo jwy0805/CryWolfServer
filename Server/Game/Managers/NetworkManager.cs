@@ -378,7 +378,7 @@ public class NetworkManager
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             var player = CreatePlayerSingle(room, packet);
-            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
             room.GameMode = GameMode.Single;
             room.StageId = packet.StageId;
             room.RoomActivated = true;
@@ -538,8 +538,9 @@ public class NetworkManager
         return player;
     }
 
-    private Player CreateNpc(GameRoom room, Player player, CharacterId characterId, int assetId)
+    private Player CreateNpc(GameRoom room, Player player, CharacterId characterId, int assetId, UnitId[]? unitIds = null)
     {
+        unitIds ??= Array.Empty<UnitId>();
         // This is a test NPC, so this has to be changed later when the single play mode is implemented.
         var npc = ObjectManager.Instance.Add<Player>();
         var faction = player.Faction == Faction.Sheep ? Faction.Wolf : Faction.Sheep;
@@ -547,12 +548,14 @@ public class NetworkManager
             ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
 
+        npc.Room = room;
         npc.Faction = faction;
         npc.Info.Name = characterId.ToString();
         npc.PosInfo = position;
         npc.Info.PosInfo = position;
         npc.CharacterId = characterId;
         npc.AssetId = assetId;
+        npc.UnitIds = unitIds;
 
         Console.WriteLine($"Create NPC -> {npc.Info.Name}");
         return npc;

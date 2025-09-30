@@ -43,8 +43,6 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CBaseSkillRun, PacketHandler.C_BaseSkillRunHandler);		
 		_onRecv.Add((ushort)MessageId.CSkillUpgrade, MakePacket<C_SkillUpgrade>);
 		_handler.Add((ushort)MessageId.CSkillUpgrade, PacketHandler.C_SkillUpgradeHandler);		
-		_onRecv.Add((ushort)MessageId.CPortraitUpgrade, MakePacket<C_PortraitUpgrade>);
-		_handler.Add((ushort)MessageId.CPortraitUpgrade, PacketHandler.C_PortraitUpgradeHandler);		
 		_onRecv.Add((ushort)MessageId.CUnitUpgrade, MakePacket<C_UnitUpgrade>);
 		_handler.Add((ushort)MessageId.CUnitUpgrade, PacketHandler.C_UnitUpgradeHandler);		
 		_onRecv.Add((ushort)MessageId.CUnitRepair, MakePacket<C_UnitRepair>);
@@ -65,10 +63,8 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CUnitDelete, PacketHandler.C_UnitDeleteHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUpgradePopup, MakePacket<C_SetUpgradePopup>);
 		_handler.Add((ushort)MessageId.CSetUpgradePopup, PacketHandler.C_SetUpgradePopupHandler);		
-		_onRecv.Add((ushort)MessageId.CSetUpgradeButtonCost, MakePacket<C_SetUpgradeButtonCost>);
-		_handler.Add((ushort)MessageId.CSetUpgradeButtonCost, PacketHandler.C_SetUpgradeButtonCostHandler);		
-		_onRecv.Add((ushort)MessageId.CSetUnitUpgradeCost, MakePacket<C_SetUnitUpgradeCost>);
-		_handler.Add((ushort)MessageId.CSetUnitUpgradeCost, PacketHandler.C_SetUnitUpgradeCostHandler);		
+		_onRecv.Add((ushort)MessageId.CSetUpgradeCost, MakePacket<C_SetUpgradeCost>);
+		_handler.Add((ushort)MessageId.CSetUpgradeCost, PacketHandler.C_SetUpgradeCostHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUnitDeleteCost, MakePacket<C_SetUnitDeleteCost>);
 		_handler.Add((ushort)MessageId.CSetUnitDeleteCost, PacketHandler.C_SetUnitDeleteCostHandler);		
 		_onRecv.Add((ushort)MessageId.CSetUnitRepairCost, MakePacket<C_SetUnitRepairCost>);

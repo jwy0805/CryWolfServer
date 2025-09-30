@@ -20,32 +20,32 @@ public class GameLogic : JobSerializer
 
     public GameRoom CreateGameRoom(int mapId)
     {
-        GameRoom gameRoom = new GameRoom();
-        gameRoom.Push(gameRoom.Init, mapId);
-        gameRoom.RoomId = _roomId;
-        _rooms.Add(_roomId, gameRoom);
-        Console.WriteLine($"Game room created: {gameRoom.RoomId} for map {mapId}");
+        GameRoom room = new GameRoom();
+        room.Push(room.Init, mapId);
+        room.RoomId = _roomId;
+        _rooms.Add(_roomId, room);
+        Console.WriteLine($"Game room created: {room.RoomId} for map {mapId}");
         _roomId++;
 
-        return gameRoom;
+        return room;
     }
     
     public void RemoveGameRoom(int roomId)
     {
         lock (_lock)
         {
-            if (_rooms.TryGetValue(roomId, out var gameRoom) == false) return;
+            if (_rooms.TryGetValue(roomId, out var room) == false) return;
 
             try
             {
-                gameRoom.Dispose();
+                room.Dispose();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
             
-            _rooms.Remove(gameRoom.RoomId);
+            _rooms.Remove(room.RoomId);
         }
     }
 

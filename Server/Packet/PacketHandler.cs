@@ -120,16 +120,6 @@ public class PacketHandler
         room?.Push(room.HandleSkillUpgrade, player, upgradePacket);
     }
 
-    public static void C_PortraitUpgradeHandler(PacketSession session, IMessage packet)
-    {
-        var upgradePacket = (C_PortraitUpgrade)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-
-        room?.Push(room.HandlePortraitUpgrade, player, upgradePacket);
-    }
-
     public static void C_UnitUpgradeHandler(PacketSession session, IMessage packet)
     {
         var upgradePacket = (C_UnitUpgrade)packet;
@@ -257,24 +247,14 @@ public class PacketHandler
         room?.Push(room.HandleSetUpgradePopup, player, popupPacket);
     }
 
-    public static void C_SetUpgradeButtonCostHandler(PacketSession session, IMessage packet)
+    public static void C_SetUpgradeCostHandler(PacketSession session, IMessage packet)
     {
-        var buttonPacket = (C_SetUpgradeButtonCost)packet;
+        var buttonPacket = (C_SetUpgradeCost)packet;
         var clientSession = (ClientSession)session;
         var player = clientSession.MyPlayer;
         var room = player?.Room;
         
         room?.Push(room.HandleSetCostInUpgradeButton, player, buttonPacket);
-    }
-    
-    public static void C_SetUnitUpgradeCostHandler(PacketSession session, IMessage packet)
-    {
-        var upgradePacket = (C_SetUnitUpgradeCost)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        
-        room?.Push(room.HandleSetUpgradeCostText, player, upgradePacket);
     }
     
     public static void C_SetUnitDeleteCostHandler(PacketSession session, IMessage packet)

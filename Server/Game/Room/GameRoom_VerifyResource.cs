@@ -270,7 +270,7 @@ public partial class GameRoom
         }
     }
     
-    private void RepairAllFences()
+    public void RepairAllFences()
     {
         foreach (var fence in _fences.Values)
         {

@@ -4,6 +4,7 @@ using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Data.SinglePlayScenario;
+using Server.Game.AI;
 using Server.Game.Enchants;
 using Server.Game.Resources;
 using Server.Util;
@@ -24,8 +25,13 @@ public partial class GameRoom : JobSerializer, IDisposable
     private readonly Dictionary<int, Fence> _fences = new();
     private readonly Dictionary<int, Effect> _effects = new();
     private readonly Dictionary<int, Projectile> _projectiles = new();
-    // private readonly Dictionary<int, Portal> _portals = new();
+
+    private readonly UpkeepTracker<Tower> _towerTracker = new(tower => tower.UnitId);
+    private readonly UpkeepTracker<MonsterStatue> _statueTracker = new(statue => statue.UnitId);
+    private bool _notifiedTowerExcess;
+    private bool _notifiedStatueExcess;
     
+    private readonly Random _random = new();
     private int _round = 0;
     private readonly long _interval = 1000;
     private long _timeSendTime;
@@ -34,6 +40,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Stage? _stageWaveModule;
     private bool _infoInit;
     private bool _gameOver;
+    private AiController? _aiController;
     
     public GameMode GameMode { get; set; }
     public Player? Npc { get; set; }
@@ -46,7 +53,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     public int RoomId { get; set; }
     public int RoundTime { get; private set; } = 24;
     public bool RoomActivated { get; set; }
-    public bool TutorialFlag { get; set; }
+    public bool TutorialSpawnFlag { get; set; }
     public Map Map { get; private set; } = new();
     public int MapId { get; set; }
     public GameManager.GameData GameData { get; set; } = new();
@@ -71,20 +78,17 @@ public partial class GameRoom : JobSerializer, IDisposable
         Console.WriteLine("Room initialized.");
         UnitSizeMapping();
         GameInit();
-    }
-
-    public void Update()
-    {
-        ManageTutorialUnit();
-        if (RoomActivated == false)
+        
+        if (GameMode == GameMode.Single)
         {
-            return;
+            InitAiServices();
         }
 
-        Flush();
-        SetTimeAndRound();
-        UpdateBuffs();
-    } 
+        if (GameMode == GameMode.AiTest)
+        {
+            
+        }
+    }
 
     private void UnitSizeMapping()
     {
@@ -98,21 +102,31 @@ public partial class GameRoom : JobSerializer, IDisposable
             UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
+    
+    public void Update()
+    {
+        ManageTutorial();
+        if (RoomActivated == false)
+        {
+            return;
+        }
+
+        Flush();
+        SetTimeAndRound();
+        UpdateBuffs();
+    } 
      
     private void SetTimeAndRound()
     {
         long time = Stopwatch.ElapsedMilliseconds;
         if (time < _timeSendTime + _interval || time < 1000 || _gameOver) return;
-        if (_round > 0)
-        {
-            _ = CheckWinner();
-        }
+        _ = CheckRegular();
         
         Broadcast(new S_Time { Time = RoundTime, Round = _round});
         RoundTime--;
         
         // --- Single Play ---
-        ManageSinglePlayUnit();
+        ManageSinglePlay();
         
         if (RoundTime < 0) 
         {
@@ -126,17 +140,13 @@ public partial class GameRoom : JobSerializer, IDisposable
         
         _timeSendTime = time;
     }
-    
-    private void ManageTutorialUnit()
-    {
-        if (RoundTime >= 15 || GameMode != GameMode.Tutorial || TutorialFlag) return;
-        _stageWaveModule?.Spawn(_round);
-    }
 
-    private void ManageSinglePlayUnit()
+    private void ManageSinglePlay()
     {
         if (RoundTime >= 19 || GameMode != GameMode.Single || _singlePlayFlag) return;
         if (_stageWaveModule == null) return;
+        var blackboard = BuildBlackboard();
+        _aiController?.Update(this, blackboard);
         _stageWaveModule.Spawn(_round);
         _singlePlayFlag = true;
     }
@@ -156,7 +166,6 @@ public partial class GameRoom : JobSerializer, IDisposable
                 // 본인에게 정보 전송
                 var enterPacket = new S_EnterGame { Player = player.Info };
                 player.Session?.Send(enterPacket);
-                
                 {
                     var spawnPacket = new S_Spawn(); 
                     foreach (var p in _players.Values.Where(p => player != p)) 
@@ -342,7 +351,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Map.ApplyLeave(tower);
     }
     
-    // Deprecated immediately from game.
+    // Vanish immediately from game.
     public void LeaveGame(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
@@ -516,7 +525,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Map.Room = null;
         GameData = new GameManager.GameData();
         _singlePlayFlag = false;
-        TutorialFlag = false;
+        TutorialSpawnFlag = false;
         RoundTime = 24;
         _round = 0;
         _timeSendTime = 0;

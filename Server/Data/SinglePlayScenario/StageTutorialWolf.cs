@@ -39,6 +39,6 @@ public class StageTutorialWolf : Stage
                 break;
         }
 
-        Room.TutorialFlag = true;
+        Room.TutorialSpawnFlag = true;
     }
 }

@@ -1,10 +1,17 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
 public partial class GameRoom
 {
+    public void SpawnStatueForTest(UnitId monsterId, PositionInfo pos)
+    {
+        var player = Npc; 
+        SpawnMonsterStatue(monsterId, pos, player);
+    }
+    
     public MonsterStatue SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
         var player = Npc;
@@ -12,9 +19,9 @@ public partial class GameRoom
         SpawnEffect(EffectId.Upgrade, statue, statue);
         
         return statue;
-    }
+    }    
 
-    private void SpawnTower(UnitId towerId, PositionInfo pos)
+    public void SpawnTower(UnitId towerId, PositionInfo pos)
     {
         var player = Npc;
         var tower = SpawnTower(towerId, pos, player);
@@ -34,7 +41,7 @@ public partial class GameRoom
         SpawnEffect(EffectId.Upgrade, tower, tower);
 
         return tower;
-    }
+    }  
     
     public void UpgradeSkill(Skill skill)
     {
@@ -75,7 +82,7 @@ public partial class GameRoom
                 break;
         }
     }
-
+    
     public void UpgradeUnit(GameObject gameObject, Player player)
     {
         var id = gameObject.Id;

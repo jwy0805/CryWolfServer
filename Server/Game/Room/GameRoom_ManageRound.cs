@@ -16,6 +16,16 @@ public partial class GameRoom
         public S_ShowRankResultPopup LoserPacket;
     }
 
+    private async Task CheckRegular()
+    {
+        if (Round > 0)
+        {
+            await CheckWinner();
+        }
+        
+        TrackUnits();
+    }
+    
     private async Task CheckWinner()
     {
         var sheepPlayer = _players.Values.FirstOrDefault(player => player.Faction == Faction.Sheep);
@@ -34,6 +44,44 @@ public partial class GameRoom
         if (_portal?.Room == null)
         {
             await GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
+        }
+    }
+    
+    private void TrackUnits()
+    {
+        _towerTracker.Observe(_towers.Values, GameInfo.NorthMaxTower);
+        _statueTracker.Observe(_statues.Values, GameInfo.NorthMaxMonster);
+
+        if (!_notifiedTowerExcess && _towerTracker.HasAnyExcessThisRound)
+        {
+            var player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep);
+
+            if (GameMode == GameMode.Tutorial && !_tutorialTags["UpkeepReminder"])
+            {
+                player?.Session?.Send(new S_ShowTutorialTooltip { Tag = "UpkeepReminder" });
+                _tutorialTags["UpkeepReminder"] = true;
+            }
+            else
+            {
+                player?.Session?.Send(new S_SendWarningInGame { MessageKey = "warning_in_game_tower_upkeep" });
+                _notifiedTowerExcess = true;
+            }
+        }
+        
+        if (!_notifiedStatueExcess && _statueTracker.HasAnyExcessThisRound)
+        {
+            var player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
+
+            if (GameMode == GameMode.Tutorial && !_tutorialTags["UpkeepReminder"])
+            {
+                player?.Session?.Send(new S_ShowTutorialTooltip { Tag = "UpkeepReminder" });
+                _tutorialTags["UpkeepReminder"] = true;
+            }
+            else
+            {
+                player?.Session?.Send(new S_SendWarningInGame { MessageKey = "warning_in_game_statue_upkeep" });
+                _notifiedStatueExcess = true;   
+            }
         }
     }
     
@@ -166,13 +214,51 @@ public partial class GameRoom
         RoundTime = 24;
         _round++;
         _singlePlayFlag = false;
-        TutorialFlag = false;
+        TutorialSpawnFlag = false;
         _checked = false;
 
-        GameInfo.WolfResource += GameInfo.TotalWolfYield;
         SpawnTowersInNewRound();
         SpawnMonstersInNewRound();
+        ManageResource();
     }
+
+    private void ManageResource()
+    {
+        ApplyUpkeep();
+        _notifiedTowerExcess = false;
+        _notifiedStatueExcess = false;
+        GameInfo.WolfResource += GameInfo.TotalWolfYield;
+        GameInfo.WolfResource -= GameInfo.WolfUpkeep;
+        GameInfo.SheepResource -= GameInfo.SheepUpkeep;
+        GameInfo.SheepUpkeep = 0;
+        GameInfo.WolfUpkeep = 0;
+    }
+    
+    private void ApplyUpkeep()
+    {
+        var towerExcessList = _towerTracker.FinalizeAndReset();
+        var statueExcessList = _statueTracker.FinalizeAndReset();
+
+        foreach (var towerExcess in towerExcessList)
+        {
+            if (DataManager.UnitDict.TryGetValue((int)towerExcess.UnitId, out var unitData))
+            {
+                int upkeepCost = unitData.stat.RequiredResources;
+                GameInfo.SheepUpkeep += upkeepCost;
+            }
+        }
+
+        foreach (var statueExcess in statueExcessList)
+        {
+            if (DataManager.UnitDict.TryGetValue((int)statueExcess.UnitId, out var unitData))
+            {
+                int upkeepCost = unitData.stat.RequiredResources;
+                GameInfo.WolfUpkeep += upkeepCost;
+            }
+        }
+    }
+
+    #region GameOver&Rewards
 
     public async Task GameOver(int winnerId, int loserId)
     {
@@ -418,4 +504,6 @@ public partial class GameRoom
         LeaveGame(loser.Id);
         LeaveGame(winner.Id);
     }
+
+    #endregion
 }

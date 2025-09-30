@@ -123,7 +123,7 @@ public partial class GameRoom
         player.Session?.Send(new S_SkillUpgrade { Skill = upgradePacket.Skill });
     }
 
-    public void HandlePortraitUpgrade(Player? player, C_PortraitUpgrade upgradePacket)
+    public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
     {
         if (player == null) return;
 
@@ -143,74 +143,26 @@ public partial class GameRoom
         {
             UpdateRemainSkills(player, prevUnitId);
             player.Portraits.Add((int)upgradeUnitId);
-            player.Session?.Send(new S_PortraitUpgrade { UnitId = upgradeUnitId });
+            if (player.Faction == Faction.Sheep)
+            {
+                foreach (var tower in _towers.Values.Where(t => t.UnitId == prevUnitId && t.Player == player))
+                {
+                    UpgradeUnit(tower, player);
+                }
+            }
+            else
+            {
+                foreach (var statue in _statues.Values.Where(ms => ms.UnitId == prevUnitId && ms.Player == player))
+                {
+                    UpgradeUnit(statue, player);
+                }
+            }
+            
+            player.Session?.Send(new S_UnitUpgrade { UnitId = upgradeUnitId });
         }
         else
         {
             SendWarningMessage(player, "warning_in_game_lack_of_gold");
-        }
-    }
-
-    public void HandleUnitUpgrade(Player? player, C_UnitUpgrade upgradePacket)
-    {
-        if (player == null) return;
-        var objectIds = upgradePacket.ObjectId.ToArray();
-        foreach (var objectId in objectIds)
-        {
-            var go = FindGameObjectById(objectId);
-            if (go == null) return;
-
-            if (go is Tower originalTower)
-            {
-                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalTower.UnitId + 1, out _);
-                bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalTower.UnitId);
-                bool lackOfCost = VerifyUnitUpgradeCost((int)originalTower.UnitId);
-            
-                if (evolutionEnded)
-                {
-                    SendWarningMessage(player, "warning_in_game_cannot_evolve_further");
-                    return;
-                }
-
-                if (lackOfUpgrade)
-                {
-                    SendWarningMessage(player, "warning_in_game_needs_to_evolve");
-                    return;
-                }
-
-                if (lackOfCost)
-                {
-                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
-                    return;
-                }
-            }
-
-            if (go is MonsterStatue originalStatue)
-            {
-                bool evolutionEnded = !DataManager.UnitDict.TryGetValue((int)originalStatue.UnitId+ 1, out _);
-                bool lackOfUpgrade = VerifyUnitUpgrade(player, (int)originalStatue.UnitId);
-                bool lackOfCost = VerityStatueUpgradeCost((int)originalStatue.UnitId);
-            
-                if (evolutionEnded)
-                {
-                    SendWarningMessage(player, "warning_in_game_cannot_evolve_further");
-                    return;
-                }
-
-                if (lackOfUpgrade)
-                {
-                    SendWarningMessage(player, "warning_in_game_needs_to_evolve");
-                    return;
-                }
-
-                if (lackOfCost)
-                {
-                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
-                    return;
-                }
-            }
-
-            UpgradeUnit(go, player);
         }
     }
 
@@ -261,21 +213,12 @@ public partial class GameRoom
         player.Session?.Send(popupPacket);
     }
 
-    public void HandleSetCostInUpgradeButton(Player? player, C_SetUpgradeButtonCost packet)
+    public void HandleSetCostInUpgradeButton(Player? player, C_SetUpgradeCost packet)
     {
         if (player == null) return;
         var cost = CalcUpgradePortrait(player, (UnitId)packet.UnitId);
-        S_SetUpgradeButtonCost buttonPacket = new() { Cost = cost };
+        S_SetUpgradeCost buttonPacket = new() { Cost = cost };
         player.Session?.Send(buttonPacket);
-    }
-    
-    public void HandleSetUpgradeCostText(Player? player, C_SetUnitUpgradeCost packet)
-    {
-        if (player == null) return;
-        var ids = packet.ObjectIds.ToArray();
-        var cost = CalcUnitUpgradeCost(ids);
-        var costPacket = new S_SetUnitUpgradeCost { Cost = cost };
-        player.Session?.Send(costPacket);
     }
     
     public void HandleSetDeleteCostText(Player? player, C_SetUnitDeleteCost packet)

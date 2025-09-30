@@ -7,6 +7,58 @@ public class GameManager
 {
     public static GameManager Instance { get; } = new();
 
+    #region AI Matrix
+    public readonly Dictionary<(Role, Role), float> RoleAffinityMatrix = new()
+    {
+        // Warrior
+        { (Role.Warrior, Role.Warrior), 0f },
+        { (Role.Warrior, Role.Ranger), 0.2f },   // Warrior > Ranger 약간 유리
+        { (Role.Warrior, Role.Tanker), -0.2f },  // Warrior < Tanker 약간 불리
+        { (Role.Warrior, Role.Mage), -0.1f },    
+        { (Role.Warrior, Role.Supporter), 0f },
+
+        // Ranger
+        { (Role.Ranger, Role.Warrior), -0.2f },  
+        { (Role.Ranger, Role.Ranger), 0f },
+        { (Role.Ranger, Role.Tanker), 0.2f },    
+        { (Role.Ranger, Role.Mage), 0.1f },
+        { (Role.Ranger, Role.Supporter), 0f },
+
+        // Tanker
+        { (Role.Tanker, Role.Warrior), 0.2f },   
+        { (Role.Tanker, Role.Ranger), -0.2f },   
+        { (Role.Tanker, Role.Tanker), 0f },
+        { (Role.Tanker, Role.Mage), -0.3f },
+        { (Role.Tanker, Role.Supporter), 0f },
+
+        // Mage
+        { (Role.Mage, Role.Warrior), 0.1f },
+        { (Role.Mage, Role.Ranger), -0.1f },
+        { (Role.Mage, Role.Tanker), 0.3f },      
+        { (Role.Mage, Role.Mage), 0f },
+        { (Role.Mage, Role.Supporter), 0f },
+
+        // Supporter
+        { (Role.Supporter, Role.Warrior), 0f },
+        { (Role.Supporter, Role.Ranger), 0f },
+        { (Role.Supporter, Role.Tanker), 0f },
+        { (Role.Supporter, Role.Mage), 0f },
+        { (Role.Supporter, Role.Supporter), 0f }
+    };
+
+    // Unit Value, Main skill 업그레이드하면 value의 1/4 증가, 이외 스킬은 1/10 증가
+    // (UnitLevel, UnitClass) -> Value
+    public readonly Dictionary<(int, UnitClass), int> UnitValueMatrix = new()
+    {
+        { (1, UnitClass.Peasant), 20 }, { (1, UnitClass.Squire), 30 }, { (1, UnitClass.Knight), 40 },
+        { (1, UnitClass.NobleKnight), 50 }, { (1, UnitClass.Baron), 60 },
+        { (2, UnitClass.Peasant), 40 }, { (2, UnitClass.Squire), 60 }, { (2, UnitClass.Knight), 80 },
+        { (2, UnitClass.NobleKnight), 100 }, { (2, UnitClass.Baron), 120 },
+        { (3, UnitClass.Peasant), 80 }, { (3, UnitClass.Squire), 120 }, { (3, UnitClass.Knight), 160 },
+        { (3, UnitClass.NobleKnight), 200 }, { (3, UnitClass.Baron), 240 },
+    };
+    #endregion
+    
     public readonly Dictionary<int, GameData> GameDataCache = new()
     {
         {
@@ -82,7 +134,7 @@ public class GameManager
         
             return posArr;
         }
-
+        
         #region Skills
 
         public readonly Dictionary<UnitId, HashSet<Skill>> OwnSkills = new()

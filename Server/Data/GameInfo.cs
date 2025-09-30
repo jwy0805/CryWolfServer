@@ -22,10 +22,12 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int SheepYieldUpgradeCost { get; set; } = 260;
     public int SheepYield { get; set; } = 100;
     public float SheepYieldParam { get; set; } = 1;
+    public int SheepUpkeep { get; set; } = 0;
     public int TotalSheepYield => (int)Math.Round(SheepYield * SheepYieldParam);
     public int WolfYieldUpgradeCost { get; set; } = 260;
     public int WolfYield { get; set; } = 100;
     public float WolfYieldParam { get; set; } = 1;
+    public int WolfUpkeep { get; set; } = 0;
     public int TotalWolfYield => (int)Math.Round(WolfYield * WolfYieldParam);
     public int WolfYieldKillFence => TotalWolfYield;
     public int WolfYieldKillSheep => TotalWolfYield * 6;
@@ -37,6 +39,13 @@ public class GameInfo // 한 판마다 초기화되는 정보
     public int TheNumberOfDestroyedFence { get; set; }
     public int TheNumberOfDestroyedStatue { get; set; }
     public int TheNumberOfDestroyedSheep { get; set; }
+
+    #region AI
+
+    public HashSet<SkillData> AiSkills { get; set; } = new();
+    public Dictionary<UnitId, Skill> MainSkills { get; set; } = new();
+
+    #endregion
     
     private Vector3 _fenceCenter;
     public Vector3 FenceCenter 

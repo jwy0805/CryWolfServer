@@ -38,6 +38,9 @@ public class SkillData
     public int id;
     public string explanation;
     public int cost;
+    public int value;
+    public float coefficient;
+    public SkillType type;
 }
 
 [Serializable]

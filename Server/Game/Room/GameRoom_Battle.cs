@@ -28,8 +28,8 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 45000,
-            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 45000
+            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 500,
+            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 500
         };
 
         SpawnFence(1, 1);
@@ -276,6 +276,7 @@ public partial class GameRoom
         LeaveGame(leavePacket.ObjectId);
     }
 
+    // Remain skills upgrade when the unit is upgraded.
     private void UpdateRemainSkills(Player player, UnitId unitId)
     {
         if (GameData.OwnSkills.TryGetValue(unitId, out var skills))

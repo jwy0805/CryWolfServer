@@ -40,6 +40,6 @@ public class StageTutorialSheep : Stage
                 break;
         }
 
-        Room.TutorialFlag = true;
+        Room.TutorialSpawnFlag = true;
     }
 }
