@@ -13,6 +13,6 @@ public partial class GameRoom
     private void ManageTutorial()
     {
         if (RoundTime >= 15 || GameMode != GameMode.Tutorial || TutorialSpawnFlag) return;
-        _stageWaveModule?.Spawn(_round);
+        _tutorialWaveModule?.Spawn(_round);
     }
 }

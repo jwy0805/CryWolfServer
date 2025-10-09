@@ -286,7 +286,7 @@ public partial class GameRoom
         return storage;
     }
 
-    private void SetAssets()
+    public void SetAssets()
     {
         var sheepPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep);
         var wolfPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);

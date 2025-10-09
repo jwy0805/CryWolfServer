@@ -154,9 +154,18 @@ public class Sheep : Creature, ISkillObserver
         }
     }
 
+    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    {
+        base.OnDamaged(attacker, damage, damageType, reflected);
+        
+        if (Room == null) return;
+        Room.GameInfo.SheepDamageThisRound += damage;
+    }
+    
     protected override void OnDead(GameObject? attacker)
     {
-        if (Room is { Npc.Faction: Faction.Wolf, GameMode: GameMode.Tutorial })
+        if (Room is { GameMode: GameMode.Tutorial } && Room.FindPlayer(go =>
+                go is Player { IsNpc: true, Faction: Faction.Wolf }) != null)
         {
             Hp = MaxHp;
             Room.RemoveAllMonsters();

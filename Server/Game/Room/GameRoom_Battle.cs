@@ -41,21 +41,11 @@ public partial class GameRoom
         
         // Set Monster Wave Module
         var factory = new StageFactory();
-        switch (GameMode)
+        if (GameMode == GameMode.Tutorial)
         {
-            case GameMode.Single:
-                _stageWaveModule = factory.Create(StageId);
-                _stageWaveModule.Room = this;
-                break;
-            
-            case GameMode.Tutorial:
-                var stageId = player.Faction == Faction.Sheep ? 1000 : 5000;
-                _stageWaveModule = factory.Create(stageId);
-                _stageWaveModule.Room = this;
-                break;
-            
-            default:
-                break;
+            var stageId = player.Faction == Faction.Sheep ? 1000 : 5000;
+            _tutorialWaveModule = factory.Create(stageId);
+            _tutorialWaveModule.Room = this;
         }
         
         InitUiText();
@@ -72,8 +62,7 @@ public partial class GameRoom
         foreach (var player in _players.Values)
         {
             if (player.Session == null) continue;
-            if (Npc == player) continue;
-            
+            if (player.IsNpc) continue;            
             if (player.Faction == Faction.Sheep)
             {
                 player.Session.Send(new S_SetTextUI { TextUI = CommonTexts.NorthCapacityText, Value = GameInfo.NorthMaxTower, Max = true });

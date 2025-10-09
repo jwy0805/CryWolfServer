@@ -50,31 +50,10 @@ public partial class GameRoom
 
         return false;
     }
-    
-    private bool VerifyUnitUpgrade(Player player, int unitId)
-    {
-        if (player.Portraits.Contains(unitId + 1)) return false;
-        return true;
-    }
 
-    private bool VerifyUnitUpgradeCost(int unitId)
+    public bool VerifyTechForUnitUpgrade(Faction faction, UnitId unitId)
     {
-        var cost = CalcUpgradeCost(unitId);
-
-        if (cost > GameInfo.SheepResource) return true;
-        GameInfo.SheepResource -= cost;
-        
-        return false;
-    }
-    
-    private bool VerityStatueUpgradeCost(int unitId)
-    {
-        var cost = CalcUpgradeCost(unitId);
-
-        if (cost > GameInfo.WolfResource) return true;
-        GameInfo.WolfResource -= cost;
-        
-        return false;
+        return (int)unitId % 100 % 3 == 0 && GetBaseLevel(faction) < 2;
     }
     
     private bool VerifyCapacityForTower(int towerId, SpawnWay way)
@@ -157,21 +136,51 @@ public partial class GameRoom
     
     private int CalcFenceRepairCost(int[] objectIds, bool all = false)
     {
-        var fenceDict = all ? _fences : _fences
-            .Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
-        var damaged = fenceDict.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
-        var cost = (int)(damaged * 0.4);
-        return cost;
+        if (all) return CalcFenceRepairCost();
+        var dictionary = _fences.Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        var damaged = dictionary.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
+        return (int)(damaged * 0.4);;
+    }  
+    
+    public int CalcFenceRepairCost()
+    {
+        var damaged = _fences.Sum(fence => fence.Value.MaxHp - fence.Value.Hp);
+        return (int)(damaged * 0.4);
     }
 
     private int CalcStatueRepairCost(int[] objectIds, bool all = false)
     {
-        var statueDict = all ? _statues : _statues
-            .Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
-        var damaged = statueDict.Sum(statue => statue.Value.MaxHp - statue.Value.Hp);
+        if (all) return CalcStatueRepairCost();
+        var dictionary = _statues.Where(kv => objectIds.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        var damaged = dictionary.Sum(statue => statue.Value.MaxHp - statue.Value.Hp);
         var cost = (int)(damaged * 0.4);
         return cost;
     }
+    
+    public int CalcStatueRepairCost()
+    {
+        var damaged = _statues.Sum(statue => statue.Value.MaxHp - statue.Value.Hp);
+        return (int)(damaged * 0.4);
+    }
+
+    public int CalcPortalRepairCost()
+    {
+        if (_portal == null) return 0;
+        var damaged = _portal.MaxHp - _portal.Hp;
+        return (int)(damaged);
+    }
+
+    public int CalcEconomyUpgradeCost(Faction faction)
+    {
+        return faction == Faction.Sheep ? CalcSheepResourceUpgradeCost() : CalcWolfResourceUpgradeCost();
+    }
+    
+    public int CalcBaseUpgradeCost() => _storage == null ? 0 : GameInfo.StorageLevelUpCost * (_storage.Level + 1);
+    public int CalcPortalUpgradeCost() => _portal == null ? 0 : GameInfo.PortalLevelUpCost * (_portal.Level + 1);
+    private int CalcSheepResourceUpgradeCost () => GameInfo.SheepYieldUpgradeCost;
+    private int CalcWolfResourceUpgradeCost () => GameInfo.WolfYield * 4;
+    public int CalcSheepCost() => GameInfo.SheepCount * 150;
+    public int CalcEnchantUpgradeCost() => Enchant == null ? 0 : GameInfo.EnchantUpCost * (Enchant.EnchantLevel + 1);
     
     private int CalcUnitUpgradeCost(int[] objectIds)
     {
@@ -209,7 +218,7 @@ public partial class GameRoom
         return (int)(cost * 0.5);
     }
     
-    private int CalcUpgradeCost(int unitId)
+    public int CalcUpgradeCost(int unitId)
     {
         // Unit Level is 3
         if (unitId % 100 % 3 == 0) return 0;
@@ -233,28 +242,22 @@ public partial class GameRoom
                 cost = CalcStatueRepairCost(Array.Empty<int>(), true);
                 break;
             case Skill.BaseUpgradeSheep:
-                if (_storage != null)
-                {
-                    cost = GameInfo.StorageLevelUpCost * _storage.Level;
-                }
+                cost = CalcBaseUpgradeCost();
                 break;
             case Skill.BaseUpgradeWolf:
-                if (_portal != null)
-                {
-                    cost = GameInfo.StorageLevelUpCost * _portal.Level;
-                }
+                cost = CalcPortalUpgradeCost();
                 break;
             case Skill.ResourceSheep:
-                cost = GameInfo.SheepYieldUpgradeCost;
+                cost = CalcSheepResourceUpgradeCost();
                 break;
             case Skill.ResourceWolf:
-                cost = GameInfo.WolfYield * 3;
+                cost = CalcWolfResourceUpgradeCost();
                 break;
             case Skill.AssetSheep:
-                cost = GameInfo.SheepCount * 150;
+                cost = CalcSheepCost();
                 break;
             case Skill.AssetWolf:
-                cost = Enchant == null ? 0 : GameInfo.EnchantUpCost * (Enchant.EnchantLevel + 1);
+                cost = CalcEnchantUpgradeCost();
                 break;
         }
         
@@ -264,15 +267,6 @@ public partial class GameRoom
     private void RepairFences(List<Fence> fences)
     {
         foreach (var fence in fences)
-        {
-            fence.Hp = fence.MaxHp;
-            Broadcast(new S_ChangeHp { ObjectId = fence.Id, Hp = fence.Hp });
-        }
-    }
-    
-    public void RepairAllFences()
-    {
-        foreach (var fence in _fences.Values)
         {
             fence.Hp = fence.MaxHp;
             Broadcast(new S_ChangeHp { ObjectId = fence.Id, Hp = fence.Hp });

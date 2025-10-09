@@ -13,20 +13,20 @@ public class HeuristicsService : IHeuristicsService
 
     public float EvaluatePressure(AiBlackboard blackboard) => blackboard.TotalPressure;
 
-    public float ComparePopulation(AiBlackboard blackboard)
+    public float ComparePopulation(AiBlackboard blackboard, AiPolicy policy)
     {
-        var playerMaxPop = blackboard.PlayerMaxPopulation;
-        var playerPop = blackboard.PlayerPopulation;
-        var npcMaxPop = blackboard.NpcMaxPopulation;
-        var npcPop = blackboard.NpcPopulation;
+        var playerMaxPop = blackboard.EnemyMaxPop;
+        var playerPop = blackboard.EnemyPop;
+        var npcMaxPop = blackboard.MyMaxPop;
+        var npcPop = blackboard.MyPop;
         var maxPopDiff = playerMaxPop - npcMaxPop;
         
         float populationScore = 0f;
-        if (maxPopDiff > blackboard.PopDiffThreshold)
+        if (maxPopDiff > policy.PopDiffThreshold)
         {
             populationScore += 0.5f;
         }
-        else if (maxPopDiff > 0 && maxPopDiff < blackboard.PopDiffThreshold)
+        else if (maxPopDiff > 0 && maxPopDiff < policy.PopDiffThreshold)
         {
             populationScore += 0.2f;
         }
@@ -39,8 +39,8 @@ public class HeuristicsService : IHeuristicsService
 
     public float EvaluatePopulation(AiBlackboard blackboard)
     {
-        var npcMaxPop = blackboard.NpcMaxPopulation;
-        var npcPop = blackboard.NpcPopulation;
+        var npcMaxPop = blackboard.MyMaxPop;
+        var npcPop = blackboard.MyPop;
         if (npcPop == 0) npcPop = 1;
 
         return (float)Math.Sqrt(npcMaxPop / (float)npcPop);
@@ -48,7 +48,7 @@ public class HeuristicsService : IHeuristicsService
     
     public float EvaluateResource(AiBlackboard blackboard, int actionCost)
     {
-        if (actionCost > blackboard.Resource) return -10000f;
+        if (actionCost > blackboard.MyResource) return -10000f;
 
         return 0;
     }

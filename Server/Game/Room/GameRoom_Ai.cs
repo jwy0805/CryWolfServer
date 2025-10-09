@@ -8,75 +8,151 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    private void InitAiServices()
+    private void InitAi()
     {
-        if (Npc == null) return;
+        switch (GameMode)
+        {
+            case GameMode.Single:
+                InitSingleModeAi();
+                break;
+            case GameMode.AiTest:
+                InitAiTestModeAi();
+                break;
+        }
+    }
+    
+    private void InitAiServices(Faction faction, Player npc)
+    {
         var policy = new AiPolicy();
         var heuristics = new HeuristicsService(this);
         var factory = new ActionFactory(heuristics, policy);
-        _aiController = new AiController(factory, policy);
-
-        var aiUnits = Npc.UnitIds
-            .SelectMany(id => new[] { (int)id, (int)(id - 1), (int)(id - 2) }).ToList();
-        GameInfo.AiSkills = DataManager.SkillDict
-            .Where(kv => aiUnits.Contains(kv.Key / 10))
-            .Select(kv => kv.Value)
-            .ToHashSet();
-        GameInfo.MainSkills = GameInfo.AiSkills
-            .Where(data => data.type == SkillType.Main)
-            .ToDictionary(data => (UnitId)(data.id / 10), data => (Skill)(data.id));
-    }
-    
-    private AiBlackboard BuildBlackboard()
-    {
-        if (_storage == null || _portal == null || Npc == null) return new AiBlackboard();
-        
-        var blackboard = new AiBlackboard
+        var controller = new AiController(factory, policy)
         {
-            Faction = Npc.Faction,
-            Resource = Npc.Faction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource,
-            NpcBaseLevel = Npc.Faction == Faction.Sheep ? _storage.Level : _portal.Level,
-            PlayerBaseLevel = Npc.Faction == Faction.Sheep ? _portal.Level : _storage.Level,
-            RoundTimeLeft = RoundTime,
-            PopulationPerKind = (Npc.Faction == Faction.Sheep ? GameInfo.NorthMaxTower : GameInfo.NorthMaxMonster) / 3
+            AiUnits = npc.UnitIds,
+            AiSkills = DataManager.SkillDict
+                .Where(kv => npc.UnitIds.Contains((UnitId)(kv.Key / 10)))  // UnitId 매핑 필요 시 수정
+                .Select(kv => kv.Value)
+                .ToHashSet(),
+            MainSkills = DataManager.SkillDict
+                .Where(kv => npc.UnitIds.Contains((UnitId)(kv.Key / 10)) && kv.Value.type == SkillType.Main)
+                .ToDictionary(kv => (UnitId)(kv.Value.id / 10), kv => (Skill)(kv.Value.id))
         };
         
-        if (blackboard.Faction == Faction.Sheep)
-        {
-            blackboard.AntiAircraft = _statues.Values.Any(ms => DataManager.UnitDict[(int)ms.UnitId].stat.AttackType == 2);
-        }
-
-        blackboard.TotalPressure = CalcPressure(blackboard);
-        
-        return blackboard;
+        _aiControllers[faction] = controller;
     }
 
-    private float CalcPressure(AiBlackboard blackboard)
+    private void InitSingleModeAi()
+    {
+        var humanPlayer = FindPlayer(go => go is Player { IsNpc: false });
+        var npc = FindPlayer(go => go is Player { IsNpc: true });
+        if (humanPlayer == null || npc == null)
+        {
+            Console.WriteLine("[Warning] Human or AI player not found for Single mode.");
+            return;
+        }
+        
+        var aiFaction = humanPlayer.Faction == Faction.Sheep ? Faction.Wolf : Faction.Sheep;
+        InitAiServices(aiFaction, npc);
+    }
+
+    private void InitAiTestModeAi()
+    {
+        var sheepNpc = FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Sheep });
+        var wolfNpc = FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Wolf });
+        if (sheepNpc == null || wolfNpc == null)
+        {
+            Console.WriteLine("[Warning] AI players not found for AiTest mode.");
+            return;
+        }
+        
+        InitAiServices(Faction.Sheep, sheepNpc);
+        InitAiServices(Faction.Wolf, wolfNpc);
+    }
+
+    private WorldSnapshot BuildWorldSnapshot()
+    {
+        var sheepNpc = FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Sheep });
+        var wolfNpc = FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Wolf });
+        
+        return new WorldSnapshot
+        {
+            SheepPlayer = sheepNpc ?? new Player(),
+            WolfPlayer = wolfNpc ?? new Player(),
+            SheepUnits = sheepNpc?.CurrentUnitIds ?? Array.Empty<UnitId>(),
+            WolfUnits = wolfNpc?.CurrentUnitIds ?? Array.Empty<UnitId>(),
+            RoundTimeLeft = RoundTime,
+            SheepResource = GameInfo.SheepResource,
+            WolfResource = GameInfo.WolfResource,
+            SheepBaseLevel = _storage?.Level ?? 1,
+            WolfBaseLevel = _portal?.Level ?? 1,
+            SheepMaxPop = GameInfo.NorthMaxTower,
+            SheepPop = _towers.Values.Count,
+            WolfMaxPop = GameInfo.NorthMaxMonster,
+            WolfPop = _statues.Values.Count,
+            SheepUnitCounts = _towers.Values
+                .GroupBy(tower => tower.UnitId)
+                .ToDictionary(g => g.Key, g => g.Count()),
+            WolfUnitCounts = _statues.Values
+                .GroupBy(statue => statue.UnitId)
+                .ToDictionary(g => g.Key, g => g.Count())
+        };
+    }
+    
+    private AiBlackboard BuildBlackboard(WorldSnapshot snapshot, Faction faction, AiPolicy policy)
+    {
+        Player player = faction == Faction.Sheep ? snapshot.SheepPlayer : snapshot.WolfPlayer;
+        bool amISheep = faction == Faction.Sheep;
+        UnitId[] myUnits = amISheep ? snapshot.SheepUnits : snapshot.WolfUnits;
+        int myResource = amISheep ? snapshot.SheepResource : snapshot.WolfResource;
+        int myBaseLevel = amISheep ? snapshot.SheepBaseLevel : snapshot.WolfBaseLevel;
+        int myMaxPop = amISheep ? snapshot.SheepMaxPop : snapshot.WolfMaxPop;
+        int myPop = amISheep ? snapshot.SheepPop : snapshot.WolfPop;
+        int enemyResource = amISheep ? snapshot.WolfResource : snapshot.SheepResource;
+        int enemyBaseLevel = amISheep ? snapshot.WolfBaseLevel : snapshot.SheepBaseLevel;
+        int enemyMaxPop = amISheep ? snapshot.WolfMaxPop : snapshot.SheepMaxPop;
+        int enemyPop = amISheep ? snapshot.WolfPop : snapshot.SheepPop;
+        var myCounts = amISheep ? snapshot.SheepUnitCounts : snapshot.WolfUnitCounts;
+        var enemyCounts = amISheep ? snapshot.WolfUnitCounts : snapshot.SheepUnitCounts;
+        var skillReady = new Dictionary<Skill, bool>();
+        float unitProb = ComputeUnitProb(faction);
+        
+        return new AiBlackboard(player, faction, myUnits, snapshot.RoundTimeLeft, myResource, myBaseLevel, myMaxPop, myPop,
+            myCounts, enemyResource, enemyBaseLevel, enemyMaxPop, enemyPop, enemyCounts, skillReady, unitProb, policy)
+        {
+            PopulationPerKind = Math.Max(1, myCounts.Count),
+            TotalPressure = CalcPressure(faction, policy)
+        };
+    }
+
+    private float CalcPressure(Faction faction, AiPolicy policy)
     {
         int myValue;
         int enemyValue;
-        float pressureByFight;
-        if (Npc?.Faction == Faction.Sheep)
+        float pressureByBattle;
+        if (faction == Faction.Sheep)
         {
-            myValue = _towers.Values.Select(tower => GetUnitValue((int)tower.UnitId)).Sum();
-            enemyValue = _statues.Values.Select(statue => GetUnitValue((int)statue.UnitId)).Sum();
-            pressureByFight = GetSheepPressure(blackboard);
+            myValue = _towers.Values.Select(tower => GetUnitValue((int)tower.UnitId, faction)).Sum();
+            enemyValue = _statues.Values.Select(statue => GetUnitValue((int)statue.UnitId, faction)).Sum();
+            pressureByBattle = GetSheepPressure(policy);
         }
         else
         {
-            myValue = _statues.Values.Select(statue => GetUnitValue((int)statue.UnitId)).Sum();
-            enemyValue = _towers.Values.Select(tower => GetUnitValue((int)tower.UnitId)).Sum();
-            pressureByFight = GetWolfPressure(blackboard);
+            myValue = _statues.Values.Select(statue => GetUnitValue((int)statue.UnitId, faction)).Sum();
+            enemyValue = _towers.Values.Select(tower => GetUnitValue((int)tower.UnitId, faction)).Sum();
+            pressureByBattle = GetWolfPressure(policy);
         }
 
         float pressureByValue = (enemyValue - myValue) / (float)enemyValue * 10;
 
-        return pressureByValue + pressureByFight;
+        return pressureByValue + pressureByBattle;
     }
 
-    private int GetUnitValue(int unitId)
+    private int GetUnitValue(int unitId, Faction faction)
     {
-        if (Npc == null) return 0;
+        var npc = faction == Faction.Sheep 
+            ? FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Sheep }) 
+            : FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Wolf });
+        if (npc == null) return 0;
         var unit = DataManager.UnitDict[unitId];
         var mod = unitId % 100 % 3;
         var level = mod switch
@@ -88,7 +164,7 @@ public partial class GameRoom
         };
 
         var unitValue =  GameManager.Instance.UnitValueMatrix[(level, unit.unitClass)];
-        var skillVale = Npc.SkillUpgradedList
+        var skillVale = npc.SkillUpgradedList
             .Where(s => s.ToString().Contains(((UnitId)unitId).ToString()))
             .Select(s =>
             {
@@ -105,7 +181,7 @@ public partial class GameRoom
         return unitValue + skillVale;
     }
 
-    private float GetSheepPressure(AiBlackboard blackboard)
+    private float GetSheepPressure(AiPolicy policy)
     {
         var rangedMonsters = _monsters.Values.Count(statue => 
             DataManager.UnitDict[(int)statue.UnitId].unitRole == Role.Ranger ||
@@ -123,66 +199,25 @@ public partial class GameRoom
         var meleeDiff = meleeMonsters - meleeTowers;
 
         if (rangedDiff <= 0 && meleeDiff <= 0) return 0;
-        return rangedDiff * blackboard.RangedFactor + meleeDiff * blackboard.MeleeFactor;
+        return rangedDiff * policy.RangedFactor + meleeDiff * policy.MeleeFactor;
     }
 
-    private float GetWolfPressure(AiBlackboard blackboard)
+    private float GetWolfPressure(AiPolicy policy)
     {
         var monsterCount = _monsters.Count;
         var fenceZ = GameInfo.FenceStartPos.Z;
-        float pressureByFence = (fenceZ - (-10)) / 4f * blackboard.FenceFactor;
+        float pressureByFence = (fenceZ - (-10)) / 4f * policy.FenceFactor;
         float pressureByTime = 0f;
         if (monsterCount == 0)
         {
-            pressureByTime = RoundTime * blackboard.TimeFactor;
+            pressureByTime = RoundTime * policy.TimeFactor;
         }
         
         return pressureByFence + pressureByTime;
     }
-
-    public float CalcEconomicScore(AiBlackboard blackboard, double min = -5, double max = 5)
-    {
-        if (Npc == null) return 0f;
-        float score = 0f;
-        if (Npc.Faction == Faction.Sheep)
-        {
-            if (_monsters.Count > 0) return score;
-            score += blackboard.RoundTimeLeft * blackboard.RoundTimeLeftFactor;
-            return score;   
-        }
-        else // value가 앞서고 있다면 -5, 5 사이의 난수를 정규분포 확률에 따라 score로 취득 
-        {
-            var myValue = _statues.Values.Select(statue => GetUnitValue((int)statue.UnitId)).Sum();
-            var enemyValue = _towers.Values.Select(tower => GetUnitValue((int)tower.UnitId)).Sum();
-
-            if (myValue > enemyValue)
-            {
-                score += (float)Util.Util.GetRandomValueByGaussian(_random, min, max, 0, 1.5f);
-            }
-        }
-
-        return score;
-    }
-
-    public float FenceHealthScore()
-    {
-        if (Npc == null || Npc.Faction == Faction.Wolf) return -10000f;
-        if (_fences.Values.Any(fence => fence.Hp * 2 < fence.MaxHp)) return 3f;
-        if (_fences.Values.Any(fence => fence.Hp * 4 < fence.MaxHp)) return 6f;
-        return 0.5f;
-    }
-
-    public float StatueHealthScore()
-    {
-        if (Npc == null || Npc.Faction == Faction.Sheep) return -10000f;
-        if (_statues.Values.Any(statue => statue.Hp * 2 < statue.MaxHp)) return 3f;
-        if (_statues.Values.Any(statue => statue.Hp * 4 < statue.MaxHp)) return 6f;
-        return 0.5f;
-    }
     
     public UnitId PickCounterUnit(Faction faction, AiBlackboard blackboard)
     {
-        if (Npc == null) return UnitId.UnknownUnit;
         var unitRoles = new[] { Role.Warrior, Role.Ranger, Role.Mage, Role.Supporter, Role.Tanker };
         var unitRoleDict = unitRoles.ToDictionary(r => r, _ => 0f);
         var enemies = faction == Faction.Sheep 
@@ -216,8 +251,8 @@ public partial class GameRoom
         var bestBackRole = backRoles.OrderByDescending(r => unitRoleDict[r]).First();
         
         // 자원, 기존 타워 위치들 고려
-        var unitPool = Npc.UnitIds;
-        if (blackboard.UnitProb < 1)
+        var unitPool = blackboard.MyPlayer.UnitIds;
+        if (blackboard.UnitProb < 0.5)
         {
             var frontUnits = unitPool
                 .Select(id => DataManager.UnitDict[(int)id])
@@ -254,7 +289,7 @@ public partial class GameRoom
         double baseSigmaCenter = isFrontliner ? 2.5 : 4.0;
         double centerExp = isFrontliner ? 1.0 : 0.8;        // 센터 바이어스 지수
         double weightThreshold = 0.03;
-        const double distMinimum = 1;                    // 아군 타워 최소거리
+        const double distMinimum = 1;                       // 아군 타워 최소거리
         const double sigmaRepulsion = 0.25;                 // 간격 위반시 패널티 폭
         const double beta = 0.75;                           // 적 타워 x를 0으로 압축하는 비율
         const double sigmaStatue = 1.5;                     // 적 석상 x 끌림 폭
@@ -377,18 +412,17 @@ public partial class GameRoom
         return candidates.Last(); 
     }
     
-    public Skill PickSkillToUpgrade(Faction faction, AiBlackboard blackboard)
+    public Skill PickSkillToUpgrade(AiBlackboard blackboard)
     {
-        if (Npc == null) return Skill.NoSkill;
-        var resource = faction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
-        var maxCost = (int)(resource * blackboard.SkillCostLimit);
+        var resource = blackboard.MyFaction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
+        var maxCost = (int)(resource * blackboard.Policy.SkillCostLimit);
         var candidates = new List<(UnitId unit, Skill skill, int distToMain, bool upgradableNow)>();
 
-        foreach (var kv in GameInfo.MainSkills)
+        foreach (var kv in _aiControllers[blackboard.MyFaction].MainSkills)
         {
             var unit = kv.Key;
             var main = kv.Value;
-            var pick = PickNextTowardsMain(main, out var distToMain, out var upgradableNow);
+            var pick = PickNextTowardsMain(main, out var distToMain, out var upgradableNow, blackboard.MyPlayer);
             if (pick == Skill.NoSkill) continue;
             
             var cost = DataManager.SkillDict[(int)pick].cost;
@@ -412,8 +446,9 @@ public partial class GameRoom
 
     public UnitId PickUnitToUpgrade(AiBlackboard blackboard)
     {
-        if (Npc == null) return UnitId.UnknownUnit;
-        var units = Npc.UnitIds.Where(id => id != UnitId.UnknownUnit).ToArray();
+        var policy = blackboard.Policy;
+        var controller = _aiControllers[blackboard.MyFaction];
+        var units = controller.AiUnits.Where(id => id != (int)UnitId.UnknownUnit).ToArray();
         var dict = DataManager.UnitDict;
         if (units.Length == 0) return UnitId.UnknownUnit;
         
@@ -421,8 +456,8 @@ public partial class GameRoom
         var upgradables = units.Where(unitId => (int)unitId % 100 % 3 != 0).ToList();
         
         // Supporter 진화 확률(상황 무관 7~15%) - 확률은 매 결정 시 살짝 흔들리도록 Uniform[MIN, MAX]
-        double supporterProb = blackboard.SupporterProbMin +
-                               (blackboard.SupporterProbMax - blackboard.SupporterProbMin) * _random.NextDouble();
+        double supporterProb = policy.SupporterProbMin +
+                               (policy.SupporterProbMax - policy.SupporterProbMin) * _random.NextDouble();
         if (_random.NextDouble() < supporterProb)
         {
             var supporters = units.Where(id => dict[(int)id].unitRole == Role.Supporter).ToList();
@@ -433,54 +468,57 @@ public partial class GameRoom
         }
         
         // 각 유닛에 대한 “결정 점수 + 소량 지터” 계산
-        var scoreByUnit = new Dictionary<UnitId, double>(upgradables.Count());
-        foreach (var unitId in upgradables)
+        var scoreByUnit = new Dictionary<UnitId, double>(upgradables.Count);
+        foreach (var id in upgradables)
         {
+            var unitId = id;
             double score = ComputeUnitUpgradeScore(unitId, blackboard);
-            score += blackboard.JitterScale * _random.NextDouble();
+            score += policy.JitterScale * _random.NextDouble();
             scoreByUnit[unitId] = Math.Max(1e-9, score);
         }
         
         // 확률적 선택
-        return SampleBySoftmax(scoreByUnit, blackboard.TempSoftmax, blackboard.EpsilonExplore);
+        return SampleBySoftmax(scoreByUnit, policy.TempSoftmax, policy.EpsilonExplore);
     }
     
-    public void Ai_SpawnTower(UnitId towerId, PositionInfo pos, int cost)
+    public void Ai_SpawnTower(UnitId towerId, PositionInfo pos, int cost, Player player)
     {
-        var player = Npc;
         var tower = SpawnTower(towerId, pos, player);
         SpawnEffect(EffectId.Upgrade, tower, tower);
-        if (player == null) return;
-        if (player.Faction == Faction.Sheep)
+        switch (player.Faction)
         {
-            GameInfo.SheepResource -= cost;
-        }
-        else if (player.Faction == Faction.Wolf)
-        {
-            GameInfo.WolfResource -= cost;
+            case Faction.Sheep:
+                GameInfo.SheepResource -= cost;
+                break;
+            case Faction.Wolf:
+                GameInfo.WolfResource -= cost;
+                break;
         }
     }
     
-    public void Ai_SpawnStatue(UnitId monsterId, PositionInfo pos, int cost)
+    public void Ai_SpawnStatue(UnitId monsterId, PositionInfo pos, int cost, Player player)
     {
-        var player = Npc;
         var statue = SpawnMonsterStatue(monsterId, pos, player);
         SpawnEffect(EffectId.Upgrade, statue, statue);
-        if (player == null) return;
-        if (player.Faction == Faction.Sheep)
+        switch (player.Faction)
         {
-            GameInfo.SheepResource -= cost;
-        }
-        else if (player.Faction == Faction.Wolf)
-        {
-            GameInfo.WolfResource -= cost;
+            case Faction.Sheep:
+                GameInfo.SheepResource -= cost;
+                break;
+            case Faction.Wolf:
+                GameInfo.WolfResource -= cost;
+                break;
         }
     }
-    
-    public void Ai_UpgradeSkill(Skill skill, int cost)
+
+    public void Ai_SpawnSheep(int cost, Player player)
     {
-        var player = Npc;
-        if (player == null) return;
+        GameInfo.SheepResource -= cost;
+        SpawnSheep(player);
+    }
+    
+    public void Ai_UpgradeSkill(Skill skill, int cost, Player player)
+    {
         player.SkillSubject.SkillUpgraded(skill);
         player.SkillUpgradedList.Add(skill);
         
@@ -494,29 +532,29 @@ public partial class GameRoom
         }
     }
     
-    public void Ai_UpgradeUnit(UnitId prevUnitId, int cost)
+    public void Ai_UpgradeUnit(UnitId prevUnitId, int cost, Player player)
     {
         DataManager.UnitDict.TryGetValue((int)prevUnitId, out var unitData);
-        if (unitData == null || Npc == null) return;
+        if (unitData == null) return;
         if(Enum.TryParse(unitData.faction, out Faction faction) == false) return;
         
-        UpdateRemainSkills(Npc, prevUnitId);
-        if (Npc.Faction == Faction.Sheep)
+        UpdateRemainSkills(player, prevUnitId);
+        if (player.Faction == Faction.Sheep)
         {
             GameInfo.SheepResource -= cost;
             var towers = _towers.Values.Where(tower => tower.UnitId == prevUnitId).ToList();
             foreach (var tower in towers)
             {
-                UpgradeUnit(tower, Npc);
+                UpgradeUnit(tower, player);
             }
         }
-        else if (Npc.Faction == Faction.Wolf)
+        else if (player.Faction == Faction.Wolf)
         {
             GameInfo.WolfResource -= cost;
             var statues = _statues.Values.Where(statue => statue.UnitId == prevUnitId).ToList();
             foreach (var statue in statues)
             {
-                UpgradeUnit(statue, Npc);
+                UpgradeUnit(statue, player);
             }
         }
     }
@@ -540,6 +578,14 @@ public partial class GameRoom
             Broadcast(new S_ChangeHp { ObjectId = statue.Id, Hp = statue.Hp });
         }
     }
+
+    public void Ai_RepairPortal(int cost)
+    {
+        GameInfo.WolfResource -= cost;
+        if (_portal == null) return;
+        _portal.Hp = _portal.MaxHp;
+        Broadcast(new S_ChangeHp { ObjectId = _portal.Id, Hp = _portal.Hp });
+    }
     
     public void Ai_UpgradeStorage(int cost)
     {
@@ -553,5 +599,28 @@ public partial class GameRoom
         if (_portal is not { Level: < 3 }) return;
         GameInfo.WolfResource -= cost;
         _portal.LevelUp();
+    }
+
+    public void Ai_UpgradeEnchant(int cost)
+    {
+        if (Enchant is not { EnchantLevel: < 5 }) return;
+        GameInfo.WolfResource -= cost;
+        Enchant.EnchantLevel++;
+    }
+
+    public void Ai_UpgradeEconomy(int cost, Faction faction)
+    {
+        if (faction == Faction.Sheep)
+        {
+            GameInfo.SheepResource -= cost;
+            GameInfo.SheepYieldParam *= 1.3f;
+            GameInfo.SheepYieldUpgradeCost = (int)(GameInfo.SheepYieldUpgradeCost * 1.5f);
+        }
+        else
+        {
+            GameInfo.WolfResource -= cost;
+            GameInfo.WolfYieldParam *= 1.3f;
+            GameInfo.WolfYieldUpgradeCost = (int)(GameInfo.WolfYieldUpgradeCost * 1.5f);
+        }
     }
 }

@@ -4,50 +4,59 @@ namespace Server.Game.AI;
 
 public sealed class AiBlackboard
 {
-    public Faction Faction { get; set; }
-    
-    public int Resource;
-    public int NpcBaseLevel;
-    public int PlayerBaseLevel;
-    public int RoundTimeLeft;
-    
-    public int PopulationPerKind;
-    public int NpcMaxPopulation;
-    public int NpcPopulation;
-    public int PlayerMaxPopulation;
-    public int PlayerPopulation;
+    public Player MyPlayer { get; set; }
+    public Faction MyFaction { get; set; }
+    public UnitId[] MyUnits { get; set; }
+    public int RoundTimeLeft { get; set; }
 
-    public float UnitProb; // 근거리, 원거리 유닛 비율 -> 1에 가까울수록 균형 
+    public int MyResource { get; set; }
+    public int EnemyResource { get; set; }
+    public int MyBaseLevel { get; set; }
+    public int EnemyBaseLevel { get; set; }
     
-    // For Pressure System
-    public float TotalPressure; // -1 ~ 1 이 일반적, 그 이상은 극단적 상황
-    public readonly float RangedFactor = 0.1f;
-    public readonly float MeleeFactor = 0.05f;
-    public readonly float TimeFactor = 0.05f;
-    public readonly float FenceFactor = 0.1f;
-    public readonly float PopDiffThreshold = 4f;
-    public readonly float RoundTimeLeftFactor = 0.3f;
-    public readonly float SkillCostLimit = 0.75f;
+    public int PopulationPerKind { get; set; }
+    public int MyMaxPop { get; }
+    public int MyPop { get; }
+    public int EnemyMaxPop { get; }
+    public int EnemyPop { get; }
+
+    public float UnitProb { get; set; } // 근거리, 원거리 유닛 비율 -> 1에 가까울수록 균형 
+    public float TotalPressure { get; set; } // -1 ~ 1 이 일반적, 그 이상은 극단적 상황
     
-    // For Method: PickUnitToUpgrade
-    public readonly double SupporterProbMin = 0.07;
-    public readonly double SupporterProbMax = 0.16;
-    public readonly double JitterScale = 0.05; // 소량의 무작위성
-    public readonly double TempSoftmax = 0.9; // Softmax temperature: 낮을수록 결정적
-    public readonly double EpsilonExplore = 0.05; // epsilon-greedy exploration: 가끔 완전 랜덤
-    public double WaveOverflowFactor { get; set; }
-    public double FenceDamageFactor { get; set; }
-    public double FenceLowDamageFactor { get; set; }
-    public double FenceMoveFactor { get; set; }
-    public double AffinityFactor { get; set; }
-    public double AffinityFloorFactor { get; set; } // 상성으로 인한 과도한 급락 방지 하한 배율
+    public IReadOnlyDictionary<UnitId, int> MyCounts { get; }
+    public IReadOnlyDictionary<UnitId, int> EnemyCounts { get; }
+    public IReadOnlyDictionary<Skill, bool> SkillReady { get; }
+    
+    public AiPolicy Policy { get; set; }
     
     // For Sheep AI
     public bool AntiAircraft;
     public bool ProtectFenceInside;
 
-    public Dictionary<UnitId, int> MyCounts = new();
-    public Dictionary<UnitId, int> EnemyCounts = new();
-
-    public Dictionary<Skill, bool> SkillReady = new();
+    public AiBlackboard(Player player, Faction faction, UnitId[] myUnits, int roundTimeLeft, int myResource, int myBaseLevel, int myMaxPop, int myPop,
+        IReadOnlyDictionary<UnitId, int> myCounts, int enemyResource, int enemyBaseLevel, int enemyMaxPop, int enemyPop,
+        IReadOnlyDictionary<UnitId, int> enemyCounts, IReadOnlyDictionary<Skill, bool> skillReady, float unitProb,
+        AiPolicy policy)
+    {
+        MyPlayer = player;
+        MyFaction = faction;
+        MyUnits = myUnits;
+        RoundTimeLeft = roundTimeLeft;
+        
+        MyResource = myResource;
+        MyBaseLevel = myBaseLevel;
+        MyMaxPop = myMaxPop;
+        MyPop = myPop;
+        EnemyResource = enemyResource;
+        EnemyBaseLevel = enemyBaseLevel;
+        EnemyMaxPop = enemyMaxPop;
+        EnemyPop = enemyPop;
+        
+        MyCounts = myCounts;
+        EnemyCounts = enemyCounts;
+        
+        SkillReady = skillReady;
+        UnitProb = unitProb;
+        Policy = policy;
+    }
 }

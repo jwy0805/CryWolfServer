@@ -5,12 +5,12 @@ using System.Xml;
 
 namespace PacketGenerator;
 
-class Program
+public static class Program
 {
-    static string clientRegister;
-    static string serverRegister;
+    private static string _clientRegister = string.Empty;
+    private static string _serverRegister = string.Empty;
 
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         string file = "../../Common/Packet/Packet.proto";
         if (args.Length >= 1)
@@ -45,7 +45,7 @@ class Program
                     msgName += FirstCharToUpper(word);
 
                 string packetName = $"S_{msgName.Substring(1)}";
-                clientRegister += string.Format(PacketFormat.managerRegisterFormat, msgName, packetName);
+                _clientRegister += string.Format(PacketFormat.ManagerRegisterFormat, msgName, packetName);
             }
             else if (name.StartsWith("C_"))
             {
@@ -56,17 +56,17 @@ class Program
                     msgName += FirstCharToUpper(word);
 
                 string packetName = $"C_{msgName.Substring(1)}";
-                serverRegister += string.Format(PacketFormat.managerRegisterFormat, msgName, packetName);
+                _serverRegister += string.Format(PacketFormat.ManagerRegisterFormat, msgName, packetName);
             }
         }
 
-        string clientManagerText = string.Format(PacketFormat.managerFormat, clientRegister);
+        string clientManagerText = string.Format(PacketFormat.ManagerFormat, _clientRegister);
         File.WriteAllText("ClientPacketManager.cs", clientManagerText);
-        string serverManagerText = string.Format(PacketFormat.managerFormat, serverRegister);
+        string serverManagerText = string.Format(PacketFormat.ManagerFormat, _serverRegister);
         File.WriteAllText("ServerPacketManager.cs", serverManagerText);
     }
 
-    public static string FirstCharToUpper(string input)
+    private static string FirstCharToUpper(string input)
     {
         if (string.IsNullOrEmpty(input))
             return "";

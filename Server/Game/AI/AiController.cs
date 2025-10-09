@@ -1,19 +1,22 @@
+using Google.Protobuf.Protocol;
+using Server.Data;
+
 namespace Server.Game.AI;
 
 public class AiController
 {
     private readonly IActionFactory _factory;
-    private readonly AiPolicy _policy;
+    public readonly AiPolicy Policy;
 
     public AiController(IActionFactory factory, AiPolicy policy)
     {
         _factory = factory;
-        _policy = policy;
+        Policy = policy;
     }
 
-    public int FenceDamageThisRound { get; set; } = 0;
-    public int SheepDamageThisRound { get; set; } = 0;
-    public bool FenceMovedThisRound { get; set; } = false;
+    public UnitId[] AiUnits { get; init; } = Array.Empty<UnitId>();
+    public HashSet<SkillData> AiSkills { get; set; } = new();
+    public Dictionary<UnitId, Skill> MainSkills { get; set; } = new();
     
     public void Update(GameRoom room, AiBlackboard blackboard)
     {

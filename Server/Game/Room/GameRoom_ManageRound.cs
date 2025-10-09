@@ -87,9 +87,10 @@ public partial class GameRoom
     
     private void CheckMonsters()
     {
-        if (Npc is { Faction: Faction.Sheep })
+        if (GameMode == GameMode.Tutorial)
         {
-            if (GameMode == GameMode.Tutorial && GameInfo.FenceStartPos.Z >= 2) return;
+            var npc = FindPlayer(go => go is Player { IsNpc: true, Faction: Faction.Sheep });
+            if (npc != null && GameInfo.FenceStartPos.Z >= 2) return;
         }
         
         if (GameInfo.FenceStartPos.Z >= 10) return;
@@ -202,6 +203,8 @@ public partial class GameRoom
                     }
                 }
             }
+
+            GameInfo.FenceMovedThisRound = true;
         }
         catch (Exception ex)
         {
@@ -213,13 +216,13 @@ public partial class GameRoom
     {
         RoundTime = 24;
         _round++;
-        _singlePlayFlag = false;
         TutorialSpawnFlag = false;
         _checked = false;
 
         SpawnTowersInNewRound();
         SpawnMonstersInNewRound();
         ManageResource();
+        InitAiProperties();
     }
 
     private void ManageResource()
@@ -232,6 +235,13 @@ public partial class GameRoom
         GameInfo.SheepResource -= GameInfo.SheepUpkeep;
         GameInfo.SheepUpkeep = 0;
         GameInfo.WolfUpkeep = 0;
+    }
+
+    private void InitAiProperties()
+    {
+        GameInfo.FenceDamageThisRound = 0;
+        GameInfo.SheepDamageThisRound = 0;
+        GameInfo.FenceMovedThisRound = false;
     }
     
     private void ApplyUpkeep()

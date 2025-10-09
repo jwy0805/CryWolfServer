@@ -42,8 +42,9 @@ public class GameInfo // 한 판마다 초기화되는 정보
 
     #region AI
 
-    public HashSet<SkillData> AiSkills { get; set; } = new();
-    public Dictionary<UnitId, Skill> MainSkills { get; set; } = new();
+    public int FenceDamageThisRound { get; set; } = 0;
+    public int SheepDamageThisRound { get; set; } = 0;
+    public bool FenceMovedThisRound { get; set; } = false;
 
     #endregion
     

@@ -1,6 +1,5 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
-using Server.Data;
 
 namespace Server.Game.AI;
 
@@ -17,43 +16,46 @@ public sealed class ActionFactory : IActionFactory
     
     public IEnumerable<IAiAction> Enumerate(AiBlackboard blackboard, GameRoom room)
     {
-        var npc = room.Npc;
-        if (npc == null) yield break;
-        
         // 1) 유닛 소환
         var unitId = PickUnit(blackboard, room);
         blackboard.MyCounts.TryGetValue(unitId, out var count);
         if (_policy.UpkeepTolerance <= 0 && count + 1 > blackboard.PopulationPerKind) yield break;
 
         // spawn unit
-        var vector = SamplePosition(unitId, room);
+        var vector = SamplePosition(blackboard, unitId, room);
         var pos = new PositionInfo { PosX = vector.X, PosY = vector.Y, PosZ = vector.Z };
-        yield return AiActions.SpawnUnit(unitId, pos, _heuristics, _policy);
+        yield return AiActions.SpawnUnit(unitId, pos, _heuristics, _policy, blackboard);
         
         // 2) 스킬 업그레이드
         var skill = PickSkill(blackboard, room);
         if (skill != Skill.NoSkill)
         {
-            yield return AiActions.UpgradeSkill(skill, _heuristics, _policy);
+            yield return AiActions.UpgradeSkill(skill, _heuristics, _policy, blackboard);
         }
         
         // 3) 유닛 업그레이드(진화)
         var upgradeUnitId = UpgradeUnit(blackboard, room);
         if (upgradeUnitId != UnitId.UnknownUnit)
         {
-            yield return AiActions.UpgradeUnit(upgradeUnitId, _heuristics, _policy);
+            yield return AiActions.UpgradeUnit(upgradeUnitId, _heuristics, _policy, blackboard);
         }
         
-        
+        yield return AiActions.RepairFence(_heuristics);
+        yield return AiActions.RepairStatue(_heuristics);
+        yield return AiActions.RepairPortal(_heuristics);
+        yield return AiActions.UpgradeStorage(_heuristics);
+        yield return AiActions.UpgradePortal(_heuristics);
+        yield return AiActions.UpgradeEnchant(_heuristics);
+        yield return AiActions.SpawnSheep(_heuristics, blackboard);
+        yield return AiActions.UpgradeYield(_heuristics, blackboard.MyFaction);
     }
     
     private UnitId PickUnit(AiBlackboard blackboard, GameRoom room)
     {
-        var npc = room.Npc;
-        return npc == null ? UnitId.UnknownUnit : room.PickCounterUnit(npc.Faction, blackboard);
+        return room.PickCounterUnit(blackboard.MyFaction, blackboard);
     }
 
-    private Vector3 SamplePosition(UnitId unitId, GameRoom room)
+    private Vector3 SamplePosition(AiBlackboard blackboard, UnitId unitId, GameRoom room)
     {
         /*
          sheep
@@ -68,27 +70,17 @@ public sealed class ActionFactory : IActionFactory
          전략에 따라 가끔 전진 statue 사용하되 평소엔 후방에 배치
          직업군별 위치선정 다르게        
         */
-        var npc = room.Npc;
-        if (npc == null) return Vector3.Zero;
-        return npc.Faction == Faction.Sheep ? room.SampleTowerPos(unitId) : room.SampleStatuePos(unitId);
+        return blackboard.MyFaction == Faction.Sheep ? room.SampleTowerPos(unitId) : room.SampleStatuePos(unitId);
     }
 
     private Skill PickSkill(AiBlackboard blackboard, GameRoom room)
     {
-        var npc = room.Npc;
-        return npc == null ? Skill.NoSkill : room.PickSkillToUpgrade(npc.Faction, blackboard);
+        return room.PickSkillToUpgrade(blackboard);
     }
     
     private UnitId UpgradeUnit(AiBlackboard blackboard, GameRoom room)
     {
-        var npc = room.Npc;
-        if (npc == null) return UnitId.UnknownUnit;
         var unitToUpgrade = room.PickUnitToUpgrade(blackboard);
         return unitToUpgrade;
-    }
-    
-    private IEnumerable<UnitId> GetUnitPool(AiBlackboard blackboard)
-    {
-        return new[] { UnitId.UnknownUnit };
     }
 }

@@ -9,7 +9,7 @@ public class Stage1003 : Stage
 
     public override void Spawn(int round)
     {
-        var npc = Room?.Npc;
+        var npc = Room?.FindPlayer(go => go is Player { IsNpc: true });
         if (Room == null || npc == null) return;
 
         switch (round)

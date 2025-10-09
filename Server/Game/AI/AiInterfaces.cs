@@ -5,14 +5,13 @@ public interface IHeuristicsService
     GameRoom Room { get; }
     float EvaluatePressure(AiBlackboard blackboard);
     float EvaluateResource(AiBlackboard blackboard, int cost);
-    float ComparePopulation(AiBlackboard blackboard);
+    float ComparePopulation(AiBlackboard blackboard, AiPolicy policy);
     float EvaluatePopulation(AiBlackboard blackboard);
     float NeedEconomicUpgrade(AiBlackboard blackboard);
 }
 
 public interface IAiAction
 {
-    int Cost { get; }
     float Score(AiBlackboard blackboard);
     void Execute(GameRoom room);
 }

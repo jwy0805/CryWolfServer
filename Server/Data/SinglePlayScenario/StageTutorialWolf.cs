@@ -10,7 +10,7 @@ public class StageTutorialWolf : Stage
 
     public override void Spawn(int round)
     {
-        var npc = Room?.Npc;
+        var npc = Room?.FindPlayer(go => go is Player { IsNpc: true });
         if (Room == null || npc == null)
         {
             Console.WriteLine("Room or Npc is null");

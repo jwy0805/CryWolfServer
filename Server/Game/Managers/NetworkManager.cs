@@ -247,8 +247,7 @@ public class NetworkManager
                     EnemyCharacterId = (int)packet.SheepCharacterId,
                     EnemyAssetId = player.Faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId,
                 };
-        
-                room.Npc = npc;
+                
                 room.GameMode = GameMode.Test;
         
                 foreach (var unitId in packet.SheepUnitIds)
@@ -370,7 +369,7 @@ public class NetworkManager
         return await tcs.Task;
     }
     
-    private async Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet)
+    public async Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet)
     {
         var tcs = new TaskCompletionSource<bool>();
         
@@ -378,7 +377,7 @@ public class NetworkManager
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             var player = CreatePlayerSingle(room, packet);
-            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
+            CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
             room.GameMode = GameMode.Single;
             room.StageId = packet.StageId;
             room.RoomActivated = true;
@@ -396,7 +395,7 @@ public class NetworkManager
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
             var player = CreatePlayerTutorial(room, packet);
-            room.Npc = CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Tutorial;
             room.RoomActivated = true;
             tcs.SetResult(true);
@@ -548,6 +547,7 @@ public class NetworkManager
             ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
 
+        npc.IsNpc = true;
         npc.Room = room;
         npc.Faction = faction;
         npc.Info.Name = characterId.ToString();
@@ -561,16 +561,25 @@ public class NetworkManager
         return npc;
     }
 
+    public Player CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId)
+    {
+        var npc = ObjectManager.Instance.Add<Player>();
+        npc.IsNpc = true;
+        npc.Room = room;
+        npc.Faction = faction;
+        npc.CharacterId = characterId;
+        npc.AssetId = assetId;
+        npc.UnitIds = room.GetAiDeck();
+        
+        Console.WriteLine($"Create NPC for AI Game -> {npc.Info.Name}");
+        return npc;
+    }
+
     private void SendStartGamePacket(Player sheepPlayer, Player wolfPlayer, MatchSuccessPacketRequired packet)
     {
         var (matchPacketForSheep, matchPacketForWolf) = MakeMatchPacket(packet);
         sheepPlayer.Session?.Send(matchPacketForSheep);
         wolfPlayer.Session?.Send(matchPacketForWolf);
-    }
-
-    private void StartTestGame(MatchSuccessPacketRequired required, GameRoom room)
-    {
-        
     }
 
     private Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess> MakeMatchPacket(MatchSuccessPacketRequired packet)

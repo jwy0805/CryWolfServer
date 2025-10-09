@@ -20,7 +20,7 @@ public class PacketHandler
             return;
         }
 
-        var npc = room.Npc;
+        var npc = room.FindPlayer(go => go is Player { IsNpc: true });
         if (npc != null)
         {
             room.Push(room.EnterGame, npc);

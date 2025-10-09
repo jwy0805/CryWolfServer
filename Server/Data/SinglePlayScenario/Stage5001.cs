@@ -11,7 +11,7 @@ public class Stage5001 : Stage
     
     public override void Spawn(int round)
     {
-        var npc = Room?.Npc;
+        var npc = Room?.FindPlayer(go => go is Player { IsNpc: true });
         if (Room == null || npc == null) return;
         if (Room.GameInfo.FenceStartPos.Z >= 10 && _finishMove == false)
         {

@@ -134,6 +134,10 @@ public partial class GameRoom
         if (unitData == null) return;
         if(Enum.TryParse(unitData.faction, out Faction faction) == false) return;
         if (player.AvailableUnits.Contains(upgradeUnitId) == false) return;
+        if ((int)upgradeUnitId % 100 % 3 == 0 && GetBaseLevel(faction) < 2)
+        {
+            SendWarningMessage(player, "warning_in_game_lack_of_base_level");
+        }
         
         var lackOfGold = faction == Faction.Sheep 
             ? VerifyUpgradeTowerPortrait(player, prevUnitId) 
@@ -157,7 +161,7 @@ public partial class GameRoom
                     UpgradeUnit(statue, player);
                 }
             }
-            
+            player.UpdateCurrentUnits(prevUnitId, upgradeUnitId);
             player.Session?.Send(new S_UnitUpgrade { UnitId = upgradeUnitId });
         }
         else

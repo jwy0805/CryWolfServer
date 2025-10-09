@@ -20,6 +20,14 @@ public class Fence : GameObject
         Stat.Hp = fenceData.stat.MaxHp;
     }
 
+    public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)
+    {
+        base.OnDamaged(attacker, damage, damageType, reflected);
+        
+        if (Room == null) return;
+        Room.GameInfo.FenceDamageThisRound += damage;
+    }
+    
     protected override void OnDead(GameObject? attacker)
     {
         if (Room == null) return;
@@ -34,7 +42,7 @@ public class Fence : GameObject
             var monster = attacker as Monster ?? attacker.Parent as Monster;
             if (monster != null)
             {
-                Room?.YieldDna(this, attacker);
+                Room.YieldDna(this, attacker);
             }
 
             if (attacker.ObjectType is GameObjectType.Effect or GameObjectType.Projectile && attacker.Parent != null)

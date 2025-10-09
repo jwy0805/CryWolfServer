@@ -13,8 +13,6 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer, IDisposable
 {
-    private bool _singlePlayFlag;
-    
     private readonly object _lock = new();
     
     private readonly Dictionary<int, Player> _players = new();
@@ -37,13 +35,14 @@ public partial class GameRoom : JobSerializer, IDisposable
     private long _timeSendTime;
     private Storage? _storage;
     private Portal? _portal;
-    private Stage? _stageWaveModule;
     private bool _infoInit;
     private bool _gameOver;
-    private AiController? _aiController;
+    private Stage? _tutorialWaveModule;
+    
+    private readonly Dictionary<Faction, AiController> _aiControllers = new();
     
     public GameMode GameMode { get; set; }
-    public Player? Npc { get; set; }
+    // public Player? Npc { get; set; }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
@@ -67,6 +66,10 @@ public partial class GameRoom : JobSerializer, IDisposable
         public float Distance;
     }
     
+    public int GetBaseLevel(Faction faction) => faction == Faction.Sheep ? GetStorageLevel() : GetPortalLevel();
+    private int GetStorageLevel() => _storage?.Level ?? 0;
+    private int GetPortalLevel() => _portal?.Level ?? 0;
+    
     public void Init(int mapId)
     {
         GameData = GameManager.Instance.GameDataCache[mapId];
@@ -78,16 +81,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Console.WriteLine("Room initialized.");
         UnitSizeMapping();
         GameInit();
-        
-        if (GameMode == GameMode.Single)
-        {
-            InitAiServices();
-        }
-
-        if (GameMode == GameMode.AiTest)
-        {
-            
-        }
+        InitAi();
     }
 
     private void UnitSizeMapping()
@@ -126,7 +120,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         RoundTime--;
         
         // --- Single Play ---
-        ManageSinglePlay();
+        UpdateAiModule();
         
         if (RoundTime < 0) 
         {
@@ -141,14 +135,32 @@ public partial class GameRoom : JobSerializer, IDisposable
         _timeSendTime = time;
     }
 
-    private void ManageSinglePlay()
+    private void UpdateAiModule()
     {
-        if (RoundTime >= 19 || GameMode != GameMode.Single || _singlePlayFlag) return;
-        if (_stageWaveModule == null) return;
-        var blackboard = BuildBlackboard();
-        _aiController?.Update(this, blackboard);
-        _stageWaveModule.Spawn(_round);
-        _singlePlayFlag = true;
+        if (GameMode != GameMode.Single && GameMode != GameMode.AiTest) return;
+        if (RoundTime >= 24) return;
+
+        var snapshot = BuildWorldSnapshot();
+        
+        if (_aiControllers.TryGetValue(Faction.Sheep, out var aiSheep))
+        {
+            var blackboardSheep = BuildBlackboard(snapshot, Faction.Sheep, aiSheep.Policy);
+            aiSheep.Update(this, blackboardSheep);
+        }
+
+        if (_aiControllers.TryGetValue(Faction.Wolf, out var aiWolf))
+        {
+            var blackboardWolf = BuildBlackboard(snapshot, Faction.Wolf, aiWolf.Policy);
+            aiWolf.Update(this, blackboardWolf);
+        }
+    }
+    
+    public void EnterGameNpc(GameObject gameObject)
+    {
+        var player = (Player)gameObject;
+        _players.Add(player.Id, player);
+        Console.WriteLine($"NPC Player {player.Id} entered.");
+        player.Room = this;
     }
     
     public void EnterGame(GameObject gameObject)
@@ -453,7 +465,7 @@ public partial class GameRoom : JobSerializer, IDisposable
             }
         }
     }
-
+    
     public void Dispose()
     {
         Dispose(true);
@@ -524,13 +536,11 @@ public partial class GameRoom : JobSerializer, IDisposable
         GameInfo = new GameInfo(new Dictionary<int, Player>(), 1);
         Map.Room = null;
         GameData = new GameManager.GameData();
-        _singlePlayFlag = false;
         TutorialSpawnFlag = false;
         RoundTime = 24;
         _round = 0;
         _timeSendTime = 0;
         RoomActivated = false;
-        Npc = null;
         Enchant = null;
     }
     

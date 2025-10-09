@@ -8,7 +8,113 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-        // ---- 스냅샷: 아군/적군 좌표 ----
+    private struct UnitCandidate
+    {
+        public UnitId Id;
+        public Role Role;
+        public int AttackType;
+    }
+    
+    public UnitId[] GetAiDeck()
+    {
+        var candidatesPool = DataManager.UnitDict.Keys.Select(k => (UnitId)k)
+            .Where(id => id != UnitId.UnknownUnit)
+            .Where(id => ((int)id % 100) % 3 == 0).ToList();
+
+        var candidates = candidatesPool.Select(id => new UnitCandidate
+        {
+            Id = id,
+            Role = DataManager.UnitDict[(int)id].unitRole,
+            AttackType = DataManager.UnitDict[(int)id].stat.AttackType
+        }).ToList();
+        
+        bool IsMelee(Role r) => r is Role.Warrior or Role.Tanker;
+        bool IsRanged(Role r) => r is Role.Ranger or Role.Mage;
+        
+        var melee = candidates.Where(c => IsMelee(c.Role)).ToList();
+        var ranged = candidates.Where(c => IsRanged(c.Role)).ToList();
+        var supporter = candidates.Where(c => c.Role == Role.Supporter).ToList();
+        var airAttackers = candidates.Where(c => 
+            (AttackType)c.AttackType is AttackType.Air or AttackType.Both).ToList();
+        var deck = new List<UnitId>(6);
+        var excludes = new HashSet<UnitId>();
+        
+        // Helpers
+        UnitCandidate? PickRandom(IReadOnlyList<UnitCandidate> list) 
+            => list.Count == 0 ? null : list.ElementAt(_random.Next(list.Count));
+
+        UnitCandidate? PickRandomExcept(IReadOnlyList<UnitCandidate> list, HashSet<UnitId> exclude)
+        {
+            var filtered = list.Where(uc => !exclude.Contains(uc.Id)).ToList();
+            return filtered.Count == 0 ? null : filtered.ElementAt(_random.Next(filtered.Count));
+        }
+
+        // Guaranteed air attack
+        var airPick = PickRandom(airAttackers);
+        if (airPick.HasValue)
+        {
+            deck.Add(airPick.Value.Id);
+            excludes.Add(airPick.Value.Id);
+        }
+        
+        // Balanced melee/ranged
+        var meleePick = PickRandomExcept(melee, excludes);
+        if (meleePick.HasValue)
+        {
+            deck.Add(meleePick.Value.Id);
+            excludes.Add(meleePick.Value.Id);
+        }
+
+        var rangedPick = PickRandomExcept(ranged, excludes);
+        if (rangedPick.HasValue)
+        {
+            deck.Add(rangedPick.Value.Id);
+            excludes.Add(rangedPick.Value.Id);
+        }
+        
+        // balanced remaining
+        while (deck.Count < 6)
+        {
+            int currentMelee = deck.Count(id => IsMelee(DataManager.UnitDict[(int)id].unitRole));
+            int currentRanged = deck.Count(id => IsRanged(DataManager.UnitDict[(int)id].unitRole));
+            var preferPool = currentMelee < currentRanged ? melee : ranged;
+            var pick = PickRandomExcept(preferPool, excludes) ?? PickRandomExcept(candidates, excludes);
+            if (!pick.HasValue) break;
+            deck.Add(pick.Value.Id);
+            excludes.Add(pick.Value.Id);
+        }
+
+        return deck.Take(6).ToArray();
+    }
+    
+    private float ComputeUnitProb(Faction faction)
+    {
+        Dictionary<Role, int> roleDict;
+        if (faction == Faction.Sheep)
+        {
+            roleDict = _towers.Values
+                .GroupBy(tower => DataManager.UnitDict[(int)tower.UnitId].unitRole)
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+        else
+        {
+            roleDict = _statues.Values
+                .GroupBy(statue => DataManager.UnitDict[(int)statue.UnitId].unitRole)
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+        
+        int meleeCount = 0;
+        int rangedCount = 0;
+
+        if (roleDict.TryGetValue(Role.Warrior, out var warriorCnt)) meleeCount += warriorCnt;
+        if (roleDict.TryGetValue(Role.Tanker, out var tankerCnt)) meleeCount += tankerCnt;
+        if (roleDict.TryGetValue(Role.Ranger, out var rangerCnt)) rangedCount += rangerCnt;
+        if (roleDict.TryGetValue(Role.Mage, out var mageCnt)) rangedCount += mageCnt;
+        
+        return (meleeCount + rangedCount) > 0 ? meleeCount / (float)(meleeCount + rangedCount) : 0.5f; // 둘 다 0이면 중립값
+    }
+    
+    // ---- 스냅샷: 아군/적군 좌표 ----
     private List<(double X, double Z)> Snapshot2D()
     {
         var list = new List<(double X, double Z)>();
@@ -111,10 +217,31 @@ public partial class GameRoom
     // ---- z만 균등으로 샘플 ----
     private Vector3 SampleBaseCandidate(bool frontliner)
     {
-        var minZ = frontliner ? GameInfo.FenceStartPos.Z + 0.5f : GameInfo.FenceStartPos.Z - 1.5f;
-        var maxZ = frontliner ? GameInfo.FenceStartPos.Z + 1.5f : GameInfo.FenceStartPos.Z - 0.5f;
-        
-        float z = (float)(minZ + (maxZ - minZ) * _random.NextDouble());
+        var minZBase = frontliner ? GameInfo.FenceStartPos.Z + 0.5f : GameInfo.FenceStartPos.Z - 1.5f;
+        var maxZBase = frontliner ? GameInfo.FenceStartPos.Z + 1.5f : GameInfo.FenceStartPos.Z - 0.5f;
+
+        float z;
+        if (GameInfo.SheepDamageThisRound <= 0) 
+        {
+            // Sheep 피해가 없으면 그대로 균등분포
+            z = (float)(minZBase + (maxZBase - minZBase) * _random.NextDouble());
+        }
+        else
+        {
+            // Sheep 피해가 존재할 때만 FenceCenter로 bias
+            var totalSheepHp = _sheeps.Values.Select(sheep => sheep.Stat.MaxHp).Sum();
+            var totalFenceHp = DataManager.FenceDict[_storage?.Level ?? 1].stat.MaxHp * GameInfo.NorthMaxFenceCnt;
+            double sheepFactor = Math.Clamp(GameInfo.SheepDamageThisRound / (double)totalSheepHp, 0.0, 1.0);
+            double fenceFactor = 1.0 - Math.Clamp(GameInfo.FenceDamageThisRound / (double)totalFenceHp * 0.3, 0.0, 1.0);
+            double bias = (sheepFactor + fenceFactor) * 0.5;
+
+            float fenceCenterZ = GameInfo.FenceCenter.Z;
+            float minZ = (float)(minZBase * (1 - bias) + fenceCenterZ * bias);
+            float maxZ = (float)(maxZBase * (1 - bias) + fenceCenterZ * bias);
+
+            z = (float)(minZ + (maxZ - minZ) * _random.NextDouble());
+        }
+
         return new Vector3(0, 6, z);
     }
     
@@ -126,13 +253,12 @@ public partial class GameRoom
         // ---- 단일 메인 스킬 기준 선택 (2단계 이내면 후보 반환) ----
     // out distToMain: 메인까지 남은 "즉시 찍을 수 있는 단계 수" 근사치
     // out upgradableNow: 반환한 pick을 지금 당장 찍을 수 있는지
-    private Skill PickNextTowardsMain(Skill mainSkill, out int distToMain, out bool upgradableNow)
+    private Skill PickNextTowardsMain(Skill mainSkill, out int distToMain, out bool upgradableNow, Player player)
     {
         distToMain = int.MaxValue;
         upgradableNow = false;
-        if (Npc == null) return Skill.NoSkill;
 
-        var learned = Npc.SkillUpgradedList;
+        var learned = player.SkillUpgradedList;
         if (learned.Contains(mainSkill)) return Skill.NoSkill;  
         
         var requiredSkills = GetAllSkillsRequired(mainSkill, GameData.SkillTree);
@@ -161,7 +287,7 @@ public partial class GameRoom
         }
         
         // 선행이 가장 적게 부족한 missing 스킬
-        var pickByFewestNeeds = missing.OrderBy(GetMissingCount).FirstOrDefault();
+        var pickByFewestNeeds = missing.OrderBy(skill => GetMissingCount(skill, player)).FirstOrDefault();
         if (!pickByFewestNeeds.Equals(default(Skill)))
         {
             upgradableNow = false;
@@ -191,12 +317,10 @@ public partial class GameRoom
         => !tree.TryGetValue(skill, out var prerequisites) 
            || prerequisites.All(p => p == Skill.NoSkill || learned.Contains(p));
 
-    private int GetMissingCount(Skill s)
+    private int GetMissingCount(Skill s, Player player)
     {
-        if (Npc == null) return 0;
         if (!GameData.SkillTree.TryGetValue(s, out var prerequisites) || prerequisites.Count == 0) return 0;
-
-        return prerequisites.Count(pre => pre != Skill.NoSkill && !Npc.SkillUpgradedList.Contains(pre));
+        return prerequisites.Count(pre => pre != Skill.NoSkill && !player.SkillUpgradedList.Contains(pre));
     }
 
     private UnitId SampleBySoftmax(Dictionary<UnitId, double> scores, double temperature, double epsilon)
@@ -243,23 +367,21 @@ public partial class GameRoom
 
     private double ComputeUnitUpgradeScore(UnitId unitId, AiBlackboard blackboard)
     {
-        if (Npc == null) return 0;
         var role = DataManager.UnitDict[(int)unitId].unitRole;
-        var faction = Npc.Faction;
         double monsterOverflow = Util.Util.Clamp01(GetMonsterOverflowNorm());
         double fenceDamageNorm = Util.Util.Clamp01(GetFenceDamageNorm());
         bool fenceMoved = GetFenceMoved();
 
         double score = 1;
-        if (faction == Faction.Sheep)
+        if (blackboard.MyFaction == Faction.Sheep)
         {
             switch (role)
             {
                 case Role.Ranger or Role.Mage:
-                    score *= 1 + blackboard.WaveOverflowFactor * monsterOverflow;
+                    score *= 1 + blackboard.Policy.WaveOverflowFactor * monsterOverflow;
                     break;
                 case Role.Tanker or Role.Warrior:
-                    score *= 1 + blackboard.FenceDamageFactor * fenceDamageNorm;
+                    score *= 1 + blackboard.Policy.FenceDamageFactor * fenceDamageNorm;
                     break;
             }
         }
@@ -268,15 +390,15 @@ public partial class GameRoom
             switch (role)
             {
                 case Role.Ranger or Role.Mage:
-                    score *= 1 + blackboard.FenceLowDamageFactor * (1 - fenceDamageNorm);
+                    score *= 1 + blackboard.Policy.FenceLowDamageFactor * (1 - fenceDamageNorm);
                     break;
                 case Role.Tanker or Role.Warrior:
-                    if (fenceMoved) score *= 1 + blackboard.FenceMoveFactor;
+                    if (fenceMoved) score *= 1 + blackboard.Policy.FenceMoveFactor;
                     break;
             }
         }
 
-        var enemyDistributionDict = GetEnemyRoleDistribution(faction);
+        var enemyDistributionDict = GetEnemyRoleDistribution(blackboard.MyFaction);
         double affinitySum = 0;
         foreach (var (enemyRole, value) in enemyDistributionDict)
         {
@@ -287,7 +409,7 @@ public partial class GameRoom
             }
         }
 
-        score *= Math.Max(blackboard.AffinityFloorFactor, 1 + blackboard.AffinityFactor * affinitySum);
+        score *= Math.Max(blackboard.Policy.AffinityFloorFactor, 1 + blackboard.Policy.AffinityFactor * affinitySum);
         return score;
     }
 
@@ -301,12 +423,12 @@ public partial class GameRoom
     {
         if (_storage == null) return 0;  
         var fenceMaxHp = DataManager.FenceDict[_storage.Level].stat.MaxHp;
-        return _aiController?.FenceDamageThisRound / (fenceMaxHp * GameInfo.NorthMaxFenceCnt) ?? 0;
+        return GameInfo.FenceDamageThisRound / (double)(fenceMaxHp * GameInfo.NorthMaxFenceCnt);
     }
 
     private bool GetFenceMoved()
     {
-        return _aiController?.FenceMovedThisRound ?? false;
+        return GameInfo.FenceMovedThisRound;
     }
 
     private Dictionary<Role, double> GetEnemyRoleDistribution(Faction faction)

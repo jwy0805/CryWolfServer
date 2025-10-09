@@ -5,12 +5,14 @@ namespace Server.Game;
 
 public class Player : GameObject
 {
-    private UnitId[] _unitIds = new UnitId[6];
+    private UnitId[] _unitIds = Array.Empty<UnitId>();
+    private UnitId[] _currentUnitIds = Array.Empty<UnitId>();
     public CharacterId CharacterId { get; set; }
     public int AssetId { get; set; }
     public readonly HashSet<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public readonly SkillSubject SkillSubject = new();
     public readonly HashSet<int> Portraits = new ();
+    public bool IsNpc { get; set; }
     public Faction Faction { get; set; }
     public ClientSession? Session { get; set; }
     public int WinRankPoint { get; set; }
@@ -24,6 +26,7 @@ public class Player : GameObject
         set
         {
             _unitIds = value;
+            _currentUnitIds = value;
             AvailableUnits.AddRange(
                 _unitIds.SelectMany(id =>
                 {
@@ -39,6 +42,8 @@ public class Player : GameObject
             );
         }
     }
+    
+    public UnitId[] CurrentUnitIds => _currentUnitIds;
 
     public Player()
     {
@@ -53,5 +58,12 @@ public class Player : GameObject
     public void OnLeaveGame()
     {
         
+    }
+    
+    public void UpdateCurrentUnits(UnitId oldId, UnitId newId)
+    {
+        int idx = Array.IndexOf(_currentUnitIds, oldId);
+        if (idx < 0) return;
+        _currentUnitIds[idx] = newId;
     }
 }

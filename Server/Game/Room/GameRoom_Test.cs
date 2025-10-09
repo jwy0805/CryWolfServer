@@ -8,14 +8,14 @@ public partial class GameRoom
 {
     public void SpawnStatueForTest(UnitId monsterId, PositionInfo pos)
     {
-        var player = Npc; 
-        SpawnMonsterStatue(monsterId, pos, player);
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
+        SpawnMonsterStatue(monsterId, pos, npc);
     }
     
     public MonsterStatue SpawnStatue(UnitId monsterId, PositionInfo pos)
     {
-        var player = Npc;
-        var statue = SpawnMonsterStatue(monsterId, pos, player);
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
+        var statue = SpawnMonsterStatue(monsterId, pos, npc);
         SpawnEffect(EffectId.Upgrade, statue, statue);
         
         return statue;
@@ -23,21 +23,21 @@ public partial class GameRoom
 
     public void SpawnTower(UnitId towerId, PositionInfo pos)
     {
-        var player = Npc;
-        var tower = SpawnTower(towerId, pos, player);
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
+        var tower = SpawnTower(towerId, pos, npc);
         SpawnEffect(EffectId.Upgrade, tower, tower);
     }
 
     public Tower SpawnTowerOnRelativeZ(UnitId unitId, Vector3 relativePos)
     {
-        var player = Npc;
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
         var pos = new PositionInfo
         {
             PosX = relativePos.X,
             PosY = relativePos.Y,
             PosZ = GameInfo.FenceStartPos.Z + relativePos.Z,
         };
-        var tower = SpawnTower(unitId, pos, player);
+        var tower = SpawnTower(unitId, pos, npc);
         SpawnEffect(EffectId.Upgrade, tower, tower);
 
         return tower;
@@ -45,10 +45,10 @@ public partial class GameRoom
     
     public void UpgradeSkill(Skill skill)
     {
-        var player = Npc;
-        if (player == null) return;
-        player.SkillSubject.SkillUpgraded(skill);
-        player.SkillUpgradedList.Add(skill);
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
+        if (npc == null) return;
+        npc.SkillSubject.SkillUpgraded(skill);
+        npc.SkillUpgradedList.Add(skill);
     }
 
     public void UpgradeBaseSkill(Skill skill, Player player)
@@ -179,8 +179,6 @@ public partial class GameRoom
 
     private void TestCaseSheep0(int round)
     {
-        if (Npc == null) return;
-        
         switch (round)
         {
             case 0:
@@ -193,8 +191,6 @@ public partial class GameRoom
     
     private void TestCaseSheep1(int round)
     {
-        if (Npc == null) return;
-
         switch (round)
         {
             case 0:
@@ -212,8 +208,9 @@ public partial class GameRoom
     
     private void TestCaseSheep2(int round)
     {
-        if (Npc == null) return;
-
+        var npc = FindPlayer(go => go is Player { IsNpc: true});
+        if (npc == null) return;
+        
         switch (round)
         {
             case 0: // 북 2
@@ -246,13 +243,13 @@ public partial class GameRoom
                 
                 var northWolfPup1 = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
-                if (northWolfPup1 != null) UpgradeUnit(northWolfPup1, Npc);
+                if (northWolfPup1 != null) UpgradeUnit(northWolfPup1, npc);
                 break;
             
             case 5: 
                 var northLurker = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Lurker, Way: SpawnWay.North });
-                if (northLurker != null) UpgradeUnit(northLurker, Npc);
+                if (northLurker != null) UpgradeUnit(northLurker, npc);
                 break;
             
             case 6:
@@ -269,13 +266,13 @@ public partial class GameRoom
                 
                 var northWolfPup2 = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.WolfPup, Way: SpawnWay.North });
-                if (northWolfPup2 != null) UpgradeUnit(northWolfPup2, Npc);
+                if (northWolfPup2 != null) UpgradeUnit(northWolfPup2, npc);
                 break;
             
             case 8:
                 var northCreeper = _statues.Values
                     .FirstOrDefault(statue => statue is { UnitId: UnitId.Creeper, Way: SpawnWay.North });
-                if (northCreeper != null) UpgradeUnit(northCreeper, Npc);
+                if (northCreeper != null) UpgradeUnit(northCreeper, npc);
                 break;
             
             case 9:
@@ -291,7 +288,8 @@ public partial class GameRoom
 
     private void TestCaseSheep3(int round)
     {
-        if (Npc == null) return;
+        var npc = FindPlayer(go => go is Player { IsNpc: true}); 
+        if (npc == null) return;
         
         switch (round)
         {
@@ -318,7 +316,7 @@ public partial class GameRoom
                 var dogPupList = _statues.Values.Where(statue => statue.UnitId == UnitId.DogPup).ToList();
                 foreach (var statue in dogPupList)
                 {
-                    UpgradeUnit(statue, Npc);
+                    UpgradeUnit(statue, npc);
                 }
                 break;
             case 3:
@@ -332,7 +330,7 @@ public partial class GameRoom
                 var lurkerList = _statues.Values.Where(statue => statue.UnitId == UnitId.Lurker).ToList();
                 foreach (var statue in lurkerList)
                 {
-                    UpgradeUnit(statue, Npc);
+                    UpgradeUnit(statue, npc);
                 }
                 break;
             case 6: 

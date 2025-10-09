@@ -20,9 +20,6 @@ public class AiSpawnTest
         _wolfPlayer.Faction = Faction.Wolf;
 
         _room = GameLogic.Instance.CreateGameRoom(1);
-        _room.Npc = _wolfPlayer;
-        _room.Push(_room.EnterGame, _sheepPlayer);
-        _room.Push(_room.EnterGame, _wolfPlayer);
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -4f, PosY = 6, PosZ = 12 });
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -2.5f, PosY = 6, PosZ = 12 });
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -5.5f, PosY = 6, PosZ = 12 });
