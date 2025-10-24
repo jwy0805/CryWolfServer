@@ -11,50 +11,77 @@ public class HeuristicsService : IHeuristicsService
         Room = room;
     }
 
-    public float EvaluatePressure(AiBlackboard blackboard) => blackboard.TotalPressure;
+    public double EvaluatePressure(AiBlackboard blackboard) => blackboard.TotalPressure;
 
-    public float ComparePopulation(AiBlackboard blackboard, AiPolicy policy)
+    public double ComparePopulation(AiBlackboard blackboard, AiPolicy policy)
     {
-        var playerMaxPop = blackboard.EnemyMaxPop;
-        var playerPop = blackboard.EnemyPop;
-        var npcMaxPop = blackboard.MyMaxPop;
-        var npcPop = blackboard.MyPop;
-        var maxPopDiff = playerMaxPop - npcMaxPop;
+        var enemyMaxPop = blackboard.EnemyMaxPop;
+        var enemyPop = blackboard.EnemyPop;
+        var myMaxPop = blackboard.MyMaxPop;
+        var myPop = blackboard.MyPop;
+        var maxPopDiff = enemyMaxPop - myMaxPop;
         
-        float populationScore = 0f;
+        double populationScore = 0;
         if (maxPopDiff > policy.PopDiffThreshold)
         {
-            populationScore += 0.5f;
+            populationScore += 0.5;
         }
         else if (maxPopDiff > 0 && maxPopDiff < policy.PopDiffThreshold)
         {
-            populationScore += 0.2f;
+            populationScore += 0.2;
         }
 
-        if (npcPop == 0) npcPop = 1;
-        populationScore += (float)Math.Pow((playerPop / (float)npcPop), 2) / (float)Math.PI;
+        if (myPop == 0) myPop = 1;
+        populationScore += policy.ComparePopulation(enemyPop, myPop);
         
         return populationScore;
     }
 
-    public float EvaluatePopulation(AiBlackboard blackboard)
+    public double EvaluatePopulation(AiBlackboard blackboard, AiPolicy policy)
     {
-        var npcMaxPop = blackboard.MyMaxPop;
-        var npcPop = blackboard.MyPop;
-        if (npcPop == 0) npcPop = 1;
+        var popDiff = blackboard.MyMaxPop - blackboard.MyPop;
 
-        return (float)Math.Sqrt(npcMaxPop / (float)npcPop);
+        return policy.EvaluatePopulation(popDiff);
+    }
+
+    public double CompareValue(AiBlackboard blackboard, AiPolicy policy)
+    {
+        int myValue;
+        int enemyValue;
+        if (blackboard.MyFaction == Faction.Sheep)
+        {
+            myValue = Room.GetTowerValue();
+            enemyValue = Room.GetStatueValue();
+        }
+        else
+        {
+            myValue = Room.GetStatueValue();
+            enemyValue = Room.GetTowerValue();
+        }
+        
+        return policy.CompareValueForUnitUpgrade(myValue, enemyValue, blackboard.MyPop);
     }
     
-    public float EvaluateResource(AiBlackboard blackboard, int actionCost)
+    public double EvaluateResource(AiBlackboard blackboard, int actionCost)
     {
         if (actionCost > blackboard.MyResource) return -10000f;
 
         return 0;
     }
 
-    public float NeedEconomicUpgrade(AiBlackboard blackboard)
+    public double NeedEconomicUpgrade(AiBlackboard blackboard, AiPolicy policy)
     {
-        return Room.CalcEconomicScore(blackboard);
+        return Room.CalcEconomicScore(blackboard, policy);
+    }
+    
+    public double VerifyCapacity(AiBlackboard blackboard, AiPolicy policy)
+    {
+        var popDiff = blackboard.MyMaxPop - blackboard.MyPop;
+        if (popDiff <= 0)
+        {
+            return -10000f;
+        }
+
+        return 0;
     }
 }

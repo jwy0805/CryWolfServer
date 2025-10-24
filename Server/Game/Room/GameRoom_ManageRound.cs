@@ -38,11 +38,14 @@ public partial class GameRoom
         if (primeSheep != null && _portal != null) return;
         if (primeSheep == null)
         {
+            Console.WriteLine($"{DateTime.Now} - Game Over in Room {RoomId}, Mode: {GameMode}, Wolf win.");
             await GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
+            return;
         }
         
         if (_portal?.Room == null)
         {
+            Console.WriteLine($"{DateTime.Now} - Game Over in Room {RoomId}, Mode: {GameMode}, Sheep win.");
             await GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
         }
     }
@@ -241,6 +244,7 @@ public partial class GameRoom
     {
         GameInfo.FenceDamageThisRound = 0;
         GameInfo.SheepDamageThisRound = 0;
+        GameInfo.SheepDeathsThisRound = 0;
         GameInfo.FenceMovedThisRound = false;
     }
     
@@ -253,7 +257,7 @@ public partial class GameRoom
         {
             if (DataManager.UnitDict.TryGetValue((int)towerExcess.UnitId, out var unitData))
             {
-                int upkeepCost = unitData.stat.RequiredResources;
+                int upkeepCost = unitData.Stat.RequiredResources;
                 GameInfo.SheepUpkeep += upkeepCost;
             }
         }
@@ -262,7 +266,7 @@ public partial class GameRoom
         {
             if (DataManager.UnitDict.TryGetValue((int)statueExcess.UnitId, out var unitData))
             {
-                int upkeepCost = unitData.stat.RequiredResources;
+                int upkeepCost = unitData.Stat.RequiredResources;
                 GameInfo.WolfUpkeep += upkeepCost;
             }
         }

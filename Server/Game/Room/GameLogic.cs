@@ -6,7 +6,7 @@ public class GameLogic : JobSerializer
 
     private readonly Dictionary<int, GameRoom> _rooms = new();
     private int _roomId = 1;
-    private object _lock = new();
+    private readonly object _lock = new();
 
     public void Update()
     { 
@@ -20,7 +20,7 @@ public class GameLogic : JobSerializer
 
     public GameRoom CreateGameRoom(int mapId)
     {
-        GameRoom room = new GameRoom();
+        var room = new GameRoom();
         room.Push(room.Init, mapId);
         room.RoomId = _roomId;
         _rooms.Add(_roomId, room);

@@ -15,7 +15,7 @@ public class Scheduler
         var cts = new CancellationTokenSource();
         var taskId = Guid.NewGuid();
         _tasks[taskId] = cts;
-
+        
         Task.Run(async () =>
         {
             try

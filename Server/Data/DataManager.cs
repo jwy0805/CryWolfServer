@@ -1,6 +1,9 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace Server.Data;
 
-public interface ILoader<TKey, TValue>
+public interface ILoader<TKey, TValue> where TKey : notnull
 {
     Dictionary<TKey, TValue> MakeDict();
 }
@@ -20,11 +23,20 @@ public class DataManager
         SkillDict = LoadJson<SkillLoader, int, SkillData>("SkillData")!.MakeDict();
     }
 
-    private static TLoader? LoadJson<TLoader, TKey, TValue>(string data) where TLoader : ILoader<TKey, TValue>
+    private static TLoader? LoadJson<TLoader, TKey, TValue>(string data) 
+        where TLoader : ILoader<TKey, TValue> where TKey : notnull
     {
         var path = Environment.GetEnvironmentVariable("DATA_PATH") ??
                    "/Users/jwy/Documents/Dev/CryWolf/Common";
         var text = File.ReadAllText($"{path}/{data}.json");
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<TLoader>(text);
+        var settings = new JsonSerializerSettings {
+            MissingMemberHandling = MissingMemberHandling.Error,
+            Converters =
+            {
+                new StringEnumConverter()
+            } 
+        };
+        
+        return JsonConvert.DeserializeObject<TLoader>(text, settings);
     }
 }

@@ -35,10 +35,17 @@ public class Effect : GameObject
     
     private async void DestroyEffect(long destroyTime)
     {
-        await Scheduler.ScheduleEvent(destroyTime, () =>
+        try
         {
-            Room?.LeaveGame(Id);
-        });
+            await Scheduler.ScheduleEvent(destroyTime, () =>
+            {
+                Room?.LeaveGame(Id);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     protected virtual async void EffectImpact(long impactTime)

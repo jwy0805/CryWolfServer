@@ -31,8 +31,8 @@ public class Sheep : Creature, ISkillObserver
     {
         base.Init();
         DataManager.ObjectDict.TryGetValue((int)SheepId ,out var objectData);
-        Stat.MergeFrom(objectData!.stat);
-        Hp = objectData.stat.MaxHp;
+        Stat.MergeFrom(objectData!.Stat);
+        Hp = objectData.Stat.MaxHp;
         
         State = State.Idle;
         if (Room == null) return;
@@ -164,6 +164,7 @@ public class Sheep : Creature, ISkillObserver
     
     protected override void OnDead(GameObject? attacker)
     {
+        // Tutorial -> Sheep never dies when attacked by NPC Wolf
         if (Room is { GameMode: GameMode.Tutorial } && Room.FindPlayer(go =>
                 go is Player { IsNpc: true, Faction: Faction.Wolf }) != null)
         {
@@ -182,6 +183,7 @@ public class Sheep : Creature, ISkillObserver
         
             Room!.GameInfo.SheepCount--;
             Room.GameInfo.TheNumberOfDestroyedSheep++;
+            Room.GameInfo.SheepDeathsThisRound++;
             base.OnDead(attacker);
         }
     }

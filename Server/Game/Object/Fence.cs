@@ -16,8 +16,8 @@ public class Fence : GameObject
     {
         DataManager.FenceDict.TryGetValue(FenceNum, out var fenceData);
         if (fenceData == null) throw new InvalidDataException();
-        Stat.MergeFrom(fenceData.stat);
-        Stat.Hp = fenceData.stat.MaxHp;
+        Stat.MergeFrom(fenceData.Stat);
+        Stat.Hp = fenceData.Stat.MaxHp;
     }
 
     public override void OnDamaged(GameObject attacker, int damage, Damage damageType, bool reflected = false)

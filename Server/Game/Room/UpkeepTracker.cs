@@ -6,6 +6,7 @@ public readonly record struct UpkeepExcess(UnitId UnitId, int PeakCount, int Lim
 
 public class UpkeepTracker<T>
 {
+    private readonly int _popDivThreshold = 3;
     private readonly Func<T, UnitId> _selector;
     private readonly Dictionary<UnitId, int> _peakCount = new();
     private readonly Dictionary<UnitId, int> _peakExcess = new();
@@ -13,13 +14,15 @@ public class UpkeepTracker<T>
     
     public UpkeepTracker(Func<T, UnitId> selector) => _selector = selector;
     public bool HasAnyExcessThisRound => _peakExcess.Values.Any(v => v > 0);
+    public bool AlreadyMaxed(UnitId unitId, int population) 
+        => _peakExcess.TryGetValue(unitId, out var count) && count > CeilDiv(population, _popDivThreshold);
     
     private static int CeilDiv(int n, int d) => (n + d - 1) / d;
 
     public void Observe(IEnumerable<T> source, int population)
     {
         if (population <= 0) return;
-        int limit = CeilDiv(population, 3);
+        int limit = CeilDiv(population, _popDivThreshold);
         // Counts per UnitId
         var counts = source.Select(_selector)
             .Where(id => !EqualityComparer<UnitId>.Default.Equals(id, default))

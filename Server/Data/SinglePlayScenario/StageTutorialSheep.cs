@@ -33,10 +33,10 @@ public class StageTutorialSheep : Stage
                 _statues.Add(3, statue3);
                 break;
             case 5: 
-                Room.UpgradeUnit(_statues[1], npc);
+                Room.UpgradeStatues(UnitId.WolfPup, npc);
                 break;
             case 6:
-                Room.UpgradeUnit(_statues[3], npc);
+                Room.UpgradeStatues(UnitId.Lurker, npc);
                 break;
         }
 

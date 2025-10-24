@@ -11,7 +11,6 @@ public class Player : GameObject
     public int AssetId { get; set; }
     public readonly HashSet<Skill> SkillUpgradedList = new() { Skill.NoSkill };
     public readonly SkillSubject SkillSubject = new();
-    public readonly HashSet<int> Portraits = new ();
     public bool IsNpc { get; set; }
     public Faction Faction { get; set; }
     public ClientSession? Session { get; set; }
@@ -27,19 +26,8 @@ public class Player : GameObject
         {
             _unitIds = value;
             _currentUnitIds = value;
-            AvailableUnits.AddRange(
-                _unitIds.SelectMany(id =>
-                {
-                    var level = (int)id % 100 % 3;
-                    return level switch
-                    {
-                        0 => new[] { id, id - 1, id - 2 },
-                        1 => new[] { id },
-                        2 => new[] { id, id - 1 },
-                        _ => Array.Empty<UnitId>()
-                    };
-                })
-            );
+            AvailableUnits.AddRange(_unitIds.SelectMany(Util.Util.GetAllSubUnitIds));
+            _currentUnitIds = AvailableUnits.Where(id => (int)id % 100 % 3 == 1).ToArray();
         }
     }
     

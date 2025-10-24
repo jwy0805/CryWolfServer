@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Game;
@@ -6,7 +7,7 @@ namespace Server.Data;
 
 public class GameInfo // 한 판마다 초기화되는 정보
 {
-    private readonly Dictionary<int, Player> _players;
+    private readonly ConcurrentDictionary<int, Player> _players;
     private int _mapId;
     private int _northMaxTower = 7;
     private int _northTower;
@@ -44,7 +45,9 @@ public class GameInfo // 한 판마다 초기화되는 정보
 
     public int FenceDamageThisRound { get; set; } = 0;
     public int SheepDamageThisRound { get; set; } = 0;
+    public int SheepDeathsThisRound { get; set; } = 0;
     public bool FenceMovedThisRound { get; set; } = false;
+    public bool UrgentSpawn { get; set; } = false;
 
     #endregion
     
@@ -205,7 +208,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         }
     }
     
-    public GameInfo(Dictionary<int, Player> players, int mapId)
+    public GameInfo(ConcurrentDictionary<int, Player> players, int mapId)
     {
         _players = players;
         _mapId = mapId;

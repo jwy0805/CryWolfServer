@@ -547,8 +547,6 @@ public class NetworkManager
             ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
             : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
 
-        npc.IsNpc = true;
-        npc.Room = room;
         npc.Faction = faction;
         npc.Info.Name = characterId.ToString();
         npc.PosInfo = position;
@@ -556,23 +554,21 @@ public class NetworkManager
         npc.CharacterId = characterId;
         npc.AssetId = assetId;
         npc.UnitIds = unitIds;
+        room.EnterGameNpc(npc);
 
         Console.WriteLine($"Create NPC -> {npc.Info.Name}");
         return npc;
     }
 
-    public Player CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId)
+    public void CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId)
     {
         var npc = ObjectManager.Instance.Add<Player>();
-        npc.IsNpc = true;
-        npc.Room = room;
         npc.Faction = faction;
+        npc.Info.Name = characterId.ToString();
         npc.CharacterId = characterId;
         npc.AssetId = assetId;
-        npc.UnitIds = room.GetAiDeck();
-        
-        Console.WriteLine($"Create NPC for AI Game -> {npc.Info.Name}");
-        return npc;
+        npc.UnitIds = room.GetAiDeck(faction);
+        room.EnterGameNpc(npc);
     }
 
     private void SendStartGamePacket(Player sheepPlayer, Player wolfPlayer, MatchSuccessPacketRequired packet)

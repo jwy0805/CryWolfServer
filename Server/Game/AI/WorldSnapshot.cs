@@ -4,8 +4,8 @@ namespace Server.Game.AI;
 
 public class WorldSnapshot
 {
-    public Player SheepPlayer { get; init; }
-    public Player WolfPlayer { get; init; }
+    public Player SheepPlayer { get; init; } = new();
+    public Player WolfPlayer { get; init; } = new();
     public UnitId[] SheepUnits { get; init; } = Array.Empty<UnitId>();
     public UnitId[] WolfUnits { get; init; } = Array.Empty<UnitId>();
     

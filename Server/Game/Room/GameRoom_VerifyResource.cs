@@ -13,7 +13,7 @@ public partial class GameRoom
     {
         if (!DataManager.UnitDict.TryGetValue(unitId, out var towerData)) return true;
         int resource = GameInfo.SheepResource;
-        int cost = towerData.stat.RequiredResources;
+        int cost = towerData.Stat.RequiredResources;
         if (resource < cost) return true;
         GameInfo.SheepResource -= cost;
         
@@ -24,7 +24,7 @@ public partial class GameRoom
     {
         int resource = GameInfo.WolfResource;
         if (!DataManager.UnitDict.TryGetValue(unitId, out var monsterData)) return true;
-        int cost = monsterData.stat.RequiredResources;
+        int cost = monsterData.Stat.RequiredResources;
         if (resource < cost) return true;
         GameInfo.WolfResource -= cost;
         
@@ -53,7 +53,12 @@ public partial class GameRoom
 
     public bool VerifyTechForUnitUpgrade(Faction faction, UnitId unitId)
     {
-        return (int)unitId % 100 % 3 == 0 && GetBaseLevel(faction) < 2;
+        if ((int)unitId % 100 % 3 == 0)
+        {
+            return GetBaseLevel(faction) >= 2;
+        }
+
+        return true;
     }
     
     private bool VerifyCapacityForTower(int towerId, SpawnWay way)
@@ -99,7 +104,7 @@ public partial class GameRoom
     private bool VerifyResourceForSkillUpgrade(Player player, Skill skill)
     {
         if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) return true;
-        var cost = skillData.cost;
+        var cost = skillData.Cost;
         var resource = player.Faction == Faction.Sheep ? GameInfo.SheepResource : GameInfo.WolfResource;
         if (resource < cost) return true;
         return false;
@@ -121,13 +126,13 @@ public partial class GameRoom
         {
             if (player.SkillUpgradedList.Contains(skill)) continue;
             if (!DataManager.SkillDict.TryGetValue((int)skill, out var skillData)) continue;
-            cost += skillData.cost;
+            cost += skillData.Cost;
         }
 
         if (DataManager.UnitDict.TryGetValue((int)unitId, out var unitData) 
             && DataManager.UnitDict.TryGetValue((int)unitId + 1, out var newUnitData))
         {
-            var upgradeCost = (int)((newUnitData.stat.RequiredResources - unitData.stat.RequiredResources) * 0.5f);
+            var upgradeCost = (int)((newUnitData.Stat.RequiredResources - unitData.Stat.RequiredResources) * 0.5f);
             return cost + upgradeCost;
         }
         
@@ -179,7 +184,7 @@ public partial class GameRoom
     public int CalcPortalUpgradeCost() => _portal == null ? 0 : GameInfo.PortalLevelUpCost * (_portal.Level + 1);
     private int CalcSheepResourceUpgradeCost () => GameInfo.SheepYieldUpgradeCost;
     private int CalcWolfResourceUpgradeCost () => GameInfo.WolfYield * 4;
-    public int CalcSheepCost() => GameInfo.SheepCount * 150;
+    public int CalcSheepCost(int resources) => GameInfo.SheepCount * resources;
     public int CalcEnchantUpgradeCost() => Enchant == null ? 0 : GameInfo.EnchantUpCost * (Enchant.EnchantLevel + 1);
     
     private int CalcUnitUpgradeCost(int[] objectIds)
@@ -225,12 +230,12 @@ public partial class GameRoom
         
         var oldCost = 0;
         var newCost = 0;
-        if (DataManager.UnitDict.TryGetValue(unitId, out var oldData)) oldCost = oldData.stat.RequiredResources;
-        if (DataManager.UnitDict.TryGetValue(unitId + 1, out var newData)) newCost = newData.stat.RequiredResources;
+        if (DataManager.UnitDict.TryGetValue(unitId, out var oldData)) oldCost = oldData.Stat.RequiredResources;
+        if (DataManager.UnitDict.TryGetValue(unitId + 1, out var newData)) newCost = newData.Stat.RequiredResources;
         return newCost - oldCost;
     }
 
-    private int CheckBaseSkillCost(Skill skill)
+    private int CheckBaseSkillCost(Player player, Skill skill)
     {
         int cost = 0;
         switch (skill)
@@ -254,7 +259,8 @@ public partial class GameRoom
                 cost = CalcWolfResourceUpgradeCost();
                 break;
             case Skill.AssetSheep:
-                cost = CalcSheepCost();
+                var resources = DataManager.ObjectDict[(int)player.AssetId].Stat.RequiredResources;
+                cost = CalcSheepCost(resources);
                 break;
             case Skill.AssetWolf:
                 cost = CalcEnchantUpgradeCost();

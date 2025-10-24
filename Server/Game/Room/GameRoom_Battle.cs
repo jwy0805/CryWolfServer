@@ -40,11 +40,11 @@ public partial class GameRoom
         if (_storage == null) return;
         
         // Set Monster Wave Module
-        var factory = new StageFactory();
+        var stageFactory = new StageFactory();
         if (GameMode == GameMode.Tutorial)
         {
             var stageId = player.Faction == Faction.Sheep ? 1000 : 5000;
-            _tutorialWaveModule = factory.Create(stageId);
+            _tutorialWaveModule = stageFactory.Create(stageId);
             _tutorialWaveModule.Room = this;
         }
         
@@ -211,7 +211,7 @@ public partial class GameRoom
                 {
                     if (DataManager.UnitDict.TryGetValue((int)tower.UnitId, out var unitData))
                     {
-                        yield = unitData.stat.RequiredResources;
+                        yield = unitData.Stat.RequiredResources;
                     }
                 }
                 break;

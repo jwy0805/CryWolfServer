@@ -5,15 +5,17 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    public float CalcEconomicScore(AiBlackboard blackboard, double min = -5, double max = 5)
+    public double CalcEconomicScore(AiBlackboard blackboard, AiPolicy policy, double min = -5, double max = 5)
     {
-        var policy = blackboard.Policy;
-        float score = 0f;
+        double score = 0f;
         if (blackboard.MyFaction == Faction.Sheep)
         {
-            if (_monsters.Count > 0) return score;
-            score += blackboard.RoundTimeLeft * policy.RoundTimeLeftFactor;
-            return score;   
+            if (_round > 0)
+            {
+                if (_monsters.Count > 0) return score;
+                score += blackboard.RoundTimeLeft * policy.RoundTimeLeftFactor;
+                return score;   
+            }
         }
         else // value가 앞서고 있다면 -5, 5 사이의 난수를 정규분포 확률에 따라 score로 취득 
         {
@@ -22,60 +24,60 @@ public partial class GameRoom
 
             if (myValue > enemyValue)
             {
-                score += (float)Util.Util.GetRandomValueByGaussian(_random, min, max, 0, 1.5f);
+                score += policy.CalcEconomicUpgrade(min, max);
             }
         }
 
         return score;
     }
 
-    public float FenceHealthScore(Faction myFaction)
+    public double FenceHealthScore(Faction myFaction)
     {
-        if (myFaction == Faction.Wolf) return -10000f;
-        if (_fences.Values.Any(fence => fence.Hp * 2 < fence.MaxHp)) return 3.5f;
-        if (_fences.Values.Any(fence => fence.Hp * 4 < fence.MaxHp)) return 7f;
-        return 0.5f;
-    }
-
-    public float StatueHealthScore(Faction myFaction)
-    {
-        if (myFaction == Faction.Sheep) return -10000f;
-        if (_statues.Values.Any(statue => statue.Hp * 2 < statue.MaxHp)) return 3.5f;
-        if (_statues.Values.Any(statue => statue.Hp * 4 < statue.MaxHp)) return 7f;
-        return 0.5f;
-    }
-
-    public float PortalHealthScore()
-    {
-        if (_portal == null) return -10000f;
-        if (_portal.Hp * 2 < _portal.MaxHp) return 7f;
+        if (myFaction == Faction.Wolf) return -10000;
+        if (_fences.Values.Any(fence => fence.Hp * 2 < fence.MaxHp)) return 3.5;
+        if (_fences.Values.Any(fence => fence.Hp * 4 < fence.MaxHp)) return 7;
         return 0f;
     }
+
+    public double StatueHealthScore(Faction myFaction)
+    {
+        if (myFaction == Faction.Sheep) return -10000;
+        if (_statues.Values.Any(statue => statue.Hp * 2 < statue.MaxHp)) return 3.5;
+        if (_statues.Values.Any(statue => statue.Hp * 4 < statue.MaxHp)) return 7;
+        return 0f;
+    }
+
+    public double PortalHealthScore()
+    {
+        if (_portal == null) return -10000;
+        if (_portal.Hp * 2 < _portal.MaxHp) return 7;
+        return 0;
+    }
     
-    public float UpgradeStorageScore(AiBlackboard blackboard)
+    public double UpgradeStorageScore(AiBlackboard blackboard)
     {
-        if (blackboard.MyFaction == Faction.Wolf || _storage == null) return -10000f;
+        if (blackboard.MyFaction == Faction.Wolf || _storage == null) return -10000;
         return UpgradeBaseScore(blackboard);
     }
 
-    public float UpgradePortalScore(AiBlackboard blackboard)
+    public double UpgradePortalScore(AiBlackboard blackboard)
     {
-        if (blackboard.MyFaction == Faction.Sheep || _portal == null) return -10000f;
+        if (blackboard.MyFaction == Faction.Sheep || _portal == null) return -10000;
         return UpgradeBaseScore(blackboard);
     }
 
-    private float UpgradeBaseScore(AiBlackboard blackboard)
+    private double UpgradeBaseScore(AiBlackboard blackboard)
     {
-        float score = 0;
+        double score = 0;
         
         // 1) 상대와 나의 인구수 차이에 따른 점수
         switch (blackboard.EnemyMaxPop - blackboard.MyMaxPop)
         {
             case > 8:
-                score += 3f + (float)_random.NextDouble() * 3.5f;
+                score += 3f + _random.NextDouble() * 3.5;
                 break;
             case > 0:
-                score += (float)_random.NextDouble() * 2f;
+                score += _random.NextDouble() * 2;
                 break;
         }
         
@@ -83,22 +85,22 @@ public partial class GameRoom
         if (blackboard.MyBaseLevel == 1)
         {
             int tier2Count = blackboard.MyUnits.Count(u => (int)u % 100 % 3 == 2);
-            float addScore = tier2Count > 3 ? 1.25f : 1.0f;
-
+            double addScore = tier2Count >= 3 ? 1.25 : 1.0;
+            
             score += blackboard.MyUnits.Where(myUnit => (int)myUnit % 100 % 3 == 2).Sum(_ => addScore);
         }
 
         // 3) 인구수가 최대치에 도달한 경우
         if (blackboard.MyPop == blackboard.MyMaxPop)
         {
-            score += (float)_random.NextDouble() * 2f;
+            score += _random.NextDouble() * 4;
         }
         
         return score;
     }
 
-    public float UpgradeEnchantScore()
+    public double UpgradeEnchantScore()
     {
-        return (float)Util.Util.GetRandomValueByGaussian(_random, 0, 6, 2, 1.5);
+        return Util.Util.GetRandomValueByGaussian(_random, 0, 5, 2, 3);
     }
 }

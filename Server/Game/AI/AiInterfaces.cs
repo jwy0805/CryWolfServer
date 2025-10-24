@@ -3,20 +3,23 @@ namespace Server.Game.AI;
 public interface IHeuristicsService
 {
     GameRoom Room { get; }
-    float EvaluatePressure(AiBlackboard blackboard);
-    float EvaluateResource(AiBlackboard blackboard, int cost);
-    float ComparePopulation(AiBlackboard blackboard, AiPolicy policy);
-    float EvaluatePopulation(AiBlackboard blackboard);
-    float NeedEconomicUpgrade(AiBlackboard blackboard);
+    double EvaluatePressure(AiBlackboard blackboard);
+    double EvaluateResource(AiBlackboard blackboard, int cost);
+    double ComparePopulation(AiBlackboard blackboard, AiPolicy policy);
+    double EvaluatePopulation(AiBlackboard blackboard, AiPolicy policy);
+    double CompareValue(AiBlackboard blackboard, AiPolicy policy);
+    double NeedEconomicUpgrade(AiBlackboard blackboard, AiPolicy policy);
+    double VerifyCapacity(AiBlackboard blackboard, AiPolicy policy);
 }
 
 public interface IAiAction
 {
-    float Score(AiBlackboard blackboard);
+    double Score();
     void Execute(GameRoom room);
 }
 
 public interface IActionFactory
 {
     IEnumerable<IAiAction> Enumerate(AiBlackboard blackboard, GameRoom room);
+    IAiAction CreateIdleAction(AiBlackboard blackboard);
 }

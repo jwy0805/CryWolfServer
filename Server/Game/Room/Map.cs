@@ -231,8 +231,6 @@ public partial class Map
 
     public (List<Vector3>, List<double>) Move(GameObject go, bool checkObjects = true)
     {
-        // Annotation
-        // if (go.ObjectType == GameObjectType.Monster) Console.WriteLine($"{go.Id} is moving");
         List<Vector3> path = GetPath(go, checkObjects);
         List<double> arctan = new List<double>();
         

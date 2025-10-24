@@ -16,7 +16,7 @@ public class Portal : GameObject
     {
         DataManager.ObjectDict.TryGetValue(601, out var objectData);
         if (objectData == null) return;
-        Stat.MergeFrom(objectData.stat);
+        Stat.MergeFrom(objectData.Stat);
         Level = 1;
     }
 

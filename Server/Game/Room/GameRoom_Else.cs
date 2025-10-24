@@ -173,11 +173,12 @@ public partial class GameRoom
                 if (dist < creature.TotalAttackRange) return target;
                 
                 var path = Map.GetPath(gameObject, check, Map.Vector3To2(target.CellPos));
-                // Annotation
-                Console.WriteLine($"MeasureShortestDist: {(gameObject as Creature)?.UnitId.ToString() ?? "null"} " + $"Target search {target.ObjectType} {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");  
+                //// Important Annotation
+                // Console.WriteLine($"MeasureShortestDist: {(gameObject as Creature)?.UnitId.ToString() ?? "null"} " + $"Target search {target.ObjectType} {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");  
                 if (path.Count == 0)
                 {
-                    Console.WriteLine($"MeasureShortestDist: No path found {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");
+                    //// Important Annotation
+                    // Console.WriteLine($"MeasureShortestDist: No path found {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");
                     continue;
                 }
                 return target;

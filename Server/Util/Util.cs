@@ -1,4 +1,5 @@
 using System.Numerics;
+using Google.Protobuf.Protocol;
 using MathNet.Numerics;
 
 namespace Server.Util;
@@ -19,6 +20,16 @@ public class Util
         double dx = x2 - x1;
         double dz = z2 - z1;
         return Math.Sqrt(dx * dx + dz * dz);
+    }
+
+    public static double ScaleValueByLog(double value, double inputMin, double inputMax, double resultMin, double resultMax)
+    {
+        double logMin = Math.Log(inputMin);
+        double logMax = Math.Log(inputMax);
+        double normalized = (Math.Log(value) - logMin) / (logMax - logMin);
+        double scaled = resultMin + normalized * (resultMax - resultMin);
+        
+        return Math.Min(Math.Max(scaled, resultMin), resultMax);
     }
     
     public static double GetRandomValueByGaussian(Random random, double min, double max, double mean, double stdDev)
@@ -78,4 +89,16 @@ public class Util
     } 
     
     public static double Clamp01(double x) => x < 0 ? 0 : x > 1 ? 1 : x;
+
+    public static UnitId[] GetAllSubUnitIds(UnitId id)
+    {
+        var level = (int)id % 100 % 3;
+        return level switch
+        {
+            0 => new[] { id, id - 1, id - 2 },
+            1 => new[] { id },
+            2 => new[] { id, id - 1 },
+            _ => Array.Empty<UnitId>()
+        };
+    }
 }

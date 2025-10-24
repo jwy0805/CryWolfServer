@@ -9,7 +9,7 @@ public partial class GameRoom
     {
         if (player == null || _storage == null || _portal == null) return;
         var skill = skillPacket.Skill;
-        int cost = CheckBaseSkillCost(skill);
+        int cost = CheckBaseSkillCost(player, skill);
         bool lackOfCost = GameInfo.SheepResource <= cost;
         if (lackOfCost)
         {
@@ -114,8 +114,8 @@ public partial class GameRoom
 
         if (DataManager.SkillDict.TryGetValue((int)skill, out var skillData))
         {
-            if (player.Faction == Faction.Sheep) GameInfo.SheepResource -= skillData.cost;
-            else GameInfo.WolfResource -= skillData.cost;
+            if (player.Faction == Faction.Sheep) GameInfo.SheepResource -= skillData.Cost;
+            else GameInfo.WolfResource -= skillData.Cost;
         }
         
         player.SkillSubject.SkillUpgraded(skill);
@@ -132,7 +132,7 @@ public partial class GameRoom
         
         DataManager.UnitDict.TryGetValue((int)prevUnitId, out var unitData);
         if (unitData == null) return;
-        if(Enum.TryParse(unitData.faction, out Faction faction) == false) return;
+        if(Enum.TryParse(unitData.Faction, out Faction faction) == false) return;
         if (player.AvailableUnits.Contains(upgradeUnitId) == false) return;
         if ((int)upgradeUnitId % 100 % 3 == 0 && GetBaseLevel(faction) < 2)
         {
@@ -146,20 +146,13 @@ public partial class GameRoom
         if (lackOfGold == false)
         {
             UpdateRemainSkills(player, prevUnitId);
-            player.Portraits.Add((int)upgradeUnitId);
             if (player.Faction == Faction.Sheep)
             {
-                foreach (var tower in _towers.Values.Where(t => t.UnitId == prevUnitId && t.Player == player))
-                {
-                    UpgradeUnit(tower, player);
-                }
+                UpgradeTowers(prevUnitId, player);
             }
             else
             {
-                foreach (var statue in _statues.Values.Where(ms => ms.UnitId == prevUnitId && ms.Player == player))
-                {
-                    UpgradeUnit(statue, player);
-                }
+                UpgradeStatues(prevUnitId, player);
             }
             player.UpdateCurrentUnits(prevUnitId, upgradeUnitId);
             player.Session?.Send(new S_UnitUpgrade { UnitId = upgradeUnitId });
@@ -212,7 +205,7 @@ public partial class GameRoom
     {
         DataManager.SkillDict.TryGetValue(packet.SkillId, out var skillData);
         if (skillData == null || player == null) return;
-        var skillInfo = new SkillInfo { Id = skillData.id, Cost = skillData.cost };
+        var skillInfo = new SkillInfo { Id = skillData.Id, Cost = skillData.Cost };
         S_SetUpgradePopup popupPacket = new() { SkillInfo = skillInfo };
         player.Session?.Send(popupPacket);
     }
@@ -251,17 +244,17 @@ public partial class GameRoom
         var costArray = new int[4];
         if (packet.Faction == Faction.Sheep)
         {
-            costArray[0] = CheckBaseSkillCost(Skill.BaseUpgradeSheep);
-            costArray[1] = CheckBaseSkillCost(Skill.RepairSheep);
-            costArray[2] = CheckBaseSkillCost(Skill.ResourceSheep);
-            costArray[3] = CheckBaseSkillCost(Skill.AssetSheep);
+            costArray[0] = CheckBaseSkillCost(player, Skill.BaseUpgradeSheep);
+            costArray[1] = CheckBaseSkillCost(player, Skill.RepairSheep);
+            costArray[2] = CheckBaseSkillCost(player, Skill.ResourceSheep);
+            costArray[3] = CheckBaseSkillCost(player, Skill.AssetSheep);
         }
         else
         {
-            costArray[0] = CheckBaseSkillCost(Skill.BaseUpgradeWolf);
-            costArray[1] = CheckBaseSkillCost(Skill.RepairWolf);
-            costArray[2] = CheckBaseSkillCost(Skill.ResourceWolf);
-            costArray[3] = CheckBaseSkillCost(Skill.AssetWolf);
+            costArray[0] = CheckBaseSkillCost(player, Skill.BaseUpgradeWolf);
+            costArray[1] = CheckBaseSkillCost(player, Skill.RepairWolf);
+            costArray[2] = CheckBaseSkillCost(player, Skill.ResourceWolf);
+            costArray[3] = CheckBaseSkillCost(player, Skill.AssetWolf);
         }
 
         var costPacket = new S_SetBaseSkillCost

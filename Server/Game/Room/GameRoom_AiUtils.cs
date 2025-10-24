@@ -15,17 +15,17 @@ public partial class GameRoom
         public int AttackType;
     }
     
-    public UnitId[] GetAiDeck()
+    public UnitId[] GetAiDeck(Faction faction)
     {
         var candidatesPool = DataManager.UnitDict.Keys.Select(k => (UnitId)k)
-            .Where(id => id != UnitId.UnknownUnit)
+            .Where(id => id != UnitId.UnknownUnit && DataManager.UnitDict[(int)id].Faction == faction.ToString())
             .Where(id => ((int)id % 100) % 3 == 0).ToList();
 
         var candidates = candidatesPool.Select(id => new UnitCandidate
         {
             Id = id,
-            Role = DataManager.UnitDict[(int)id].unitRole,
-            AttackType = DataManager.UnitDict[(int)id].stat.AttackType
+            Role = DataManager.UnitDict[(int)id].UnitRole,
+            AttackType = DataManager.UnitDict[(int)id].Stat.AttackType
         }).ToList();
         
         bool IsMelee(Role r) => r is Role.Warrior or Role.Tanker;
@@ -33,7 +33,6 @@ public partial class GameRoom
         
         var melee = candidates.Where(c => IsMelee(c.Role)).ToList();
         var ranged = candidates.Where(c => IsRanged(c.Role)).ToList();
-        var supporter = candidates.Where(c => c.Role == Role.Supporter).ToList();
         var airAttackers = candidates.Where(c => 
             (AttackType)c.AttackType is AttackType.Air or AttackType.Both).ToList();
         var deck = new List<UnitId>(6);
@@ -75,8 +74,8 @@ public partial class GameRoom
         // balanced remaining
         while (deck.Count < 6)
         {
-            int currentMelee = deck.Count(id => IsMelee(DataManager.UnitDict[(int)id].unitRole));
-            int currentRanged = deck.Count(id => IsRanged(DataManager.UnitDict[(int)id].unitRole));
+            int currentMelee = deck.Count(id => IsMelee(DataManager.UnitDict[(int)id].UnitRole));
+            int currentRanged = deck.Count(id => IsRanged(DataManager.UnitDict[(int)id].UnitRole));
             var preferPool = currentMelee < currentRanged ? melee : ranged;
             var pick = PickRandomExcept(preferPool, excludes) ?? PickRandomExcept(candidates, excludes);
             if (!pick.HasValue) break;
@@ -93,13 +92,13 @@ public partial class GameRoom
         if (faction == Faction.Sheep)
         {
             roleDict = _towers.Values
-                .GroupBy(tower => DataManager.UnitDict[(int)tower.UnitId].unitRole)
+                .GroupBy(tower => DataManager.UnitDict[(int)tower.UnitId].UnitRole)
                 .ToDictionary(g => g.Key, g => g.Count());
         }
         else
         {
             roleDict = _statues.Values
-                .GroupBy(statue => DataManager.UnitDict[(int)statue.UnitId].unitRole)
+                .GroupBy(statue => DataManager.UnitDict[(int)statue.UnitId].UnitRole)
                 .ToDictionary(g => g.Key, g => g.Count());
         }
         
@@ -215,7 +214,7 @@ public partial class GameRoom
     }
     
     // ---- z만 균등으로 샘플 ----
-    private Vector3 SampleBaseCandidate(bool frontliner)
+    private Vector3 SampleZBaseCandidate(bool frontliner)
     {
         var minZBase = frontliner ? GameInfo.FenceStartPos.Z + 0.5f : GameInfo.FenceStartPos.Z - 1.5f;
         var maxZBase = frontliner ? GameInfo.FenceStartPos.Z + 1.5f : GameInfo.FenceStartPos.Z - 0.5f;
@@ -228,16 +227,17 @@ public partial class GameRoom
         }
         else
         {
+            float minBias = 0;
+            float maxBias = 0;
+            if (_monsters.Values.Any(m => m.CellPos.Z <= GameInfo.FenceStartPos.Z))
+            {
+                minBias = 10f;
+                maxBias = GameInfo.FenceStartPos.Z - GameInfo.FenceCenter.Z;
+            }
+            
             // Sheep 피해가 존재할 때만 FenceCenter로 bias
-            var totalSheepHp = _sheeps.Values.Select(sheep => sheep.Stat.MaxHp).Sum();
-            var totalFenceHp = DataManager.FenceDict[_storage?.Level ?? 1].stat.MaxHp * GameInfo.NorthMaxFenceCnt;
-            double sheepFactor = Math.Clamp(GameInfo.SheepDamageThisRound / (double)totalSheepHp, 0.0, 1.0);
-            double fenceFactor = 1.0 - Math.Clamp(GameInfo.FenceDamageThisRound / (double)totalFenceHp * 0.3, 0.0, 1.0);
-            double bias = (sheepFactor + fenceFactor) * 0.5;
-
-            float fenceCenterZ = GameInfo.FenceCenter.Z;
-            float minZ = (float)(minZBase * (1 - bias) + fenceCenterZ * bias);
-            float maxZ = (float)(maxZBase * (1 - bias) + fenceCenterZ * bias);
+            float minZ = Math.Max(GameInfo.FenceCenter.Z, minZBase - minBias); // fenceCenterZ 보다는 더 커야됨
+            float maxZ = maxZBase - maxBias;
 
             z = (float)(minZ + (maxZ - minZ) * _random.NextDouble());
         }
@@ -250,7 +250,7 @@ public partial class GameRoom
         return Math.Exp(-Math.Pow(dist - distThreshold, 2) / (2 * sigma * sigma));
     }
     
-        // ---- 단일 메인 스킬 기준 선택 (2단계 이내면 후보 반환) ----
+    // ---- 단일 메인 스킬 기준 선택 (2단계 이내면 후보 반환) ----
     // out distToMain: 메인까지 남은 "즉시 찍을 수 있는 단계 수" 근사치
     // out upgradableNow: 반환한 pick을 지금 당장 찍을 수 있는지
     private Skill PickNextTowardsMain(Skill mainSkill, out int distToMain, out bool upgradableNow, Player player)
@@ -367,7 +367,7 @@ public partial class GameRoom
 
     private double ComputeUnitUpgradeScore(UnitId unitId, AiBlackboard blackboard)
     {
-        var role = DataManager.UnitDict[(int)unitId].unitRole;
+        var role = DataManager.UnitDict[(int)unitId].UnitRole;
         double monsterOverflow = Util.Util.Clamp01(GetMonsterOverflowNorm());
         double fenceDamageNorm = Util.Util.Clamp01(GetFenceDamageNorm());
         bool fenceMoved = GetFenceMoved();
@@ -422,7 +422,7 @@ public partial class GameRoom
     private double GetFenceDamageNorm()
     {
         if (_storage == null) return 0;  
-        var fenceMaxHp = DataManager.FenceDict[_storage.Level].stat.MaxHp;
+        var fenceMaxHp = DataManager.FenceDict[_storage.Level].Stat.MaxHp;
         return GameInfo.FenceDamageThisRound / (double)(fenceMaxHp * GameInfo.NorthMaxFenceCnt);
     }
 
@@ -434,8 +434,8 @@ public partial class GameRoom
     private Dictionary<Role, double> GetEnemyRoleDistribution(Faction faction)
     {
         var enemyUnits = faction == Faction.Sheep
-            ? _statues.Values.Select(statue => (statue.UnitId, DataManager.UnitDict[(int)statue.UnitId].unitRole)).ToList()
-            : _towers.Values.Select(tower => (tower.UnitId, DataManager.UnitDict[(int)tower.UnitId].unitRole)).ToList();
+            ? _statues.Values.Select(statue => (statue.UnitId, unitRole: DataManager.UnitDict[(int)statue.UnitId].UnitRole)).ToList()
+            : _towers.Values.Select(tower => (tower.UnitId, unitRole: DataManager.UnitDict[(int)tower.UnitId].UnitRole)).ToList();
         var total = enemyUnits.Count;
         if (total == 0)
         {

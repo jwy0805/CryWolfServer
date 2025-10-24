@@ -5,7 +5,7 @@ using ServerCore;
 
 namespace Server.Game;
 
-public struct Pos
+public struct Pos : IEquatable<Pos>
 {
     public Pos(int z, int x) { Z = z; X = x; }
     public int Z;
@@ -30,6 +30,11 @@ public struct Pos
     {
         long value = (Z << 32) | X;
         return value.GetHashCode();
+    }
+
+    public bool Equals(Pos other)
+    {
+        return Z == other.Z && X == other.X;
     }
 }
 
@@ -308,8 +313,8 @@ public partial class Map
 		{
             if (parent.Count > 800)
             {
-                // 길찾기 실패 (경로가 존재하지 않음)
-                Console.WriteLine($"Pathfinding failed -> start : {Vector2To3(startCellPos)} dest : {Vector2To3(destCellPos)}");
+                // Important Annotation 길찾기 실패 (경로가 존재하지 않음)
+                // Console.WriteLine($"Pathfinding failed -> start : {Vector2To3(startCellPos)} dest : {Vector2To3(destCellPos)}");
                 return new List<Vector3>();
             }                                                           
             

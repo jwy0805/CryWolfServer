@@ -15,7 +15,7 @@ public class MonsterStatue : GameObject
     public override void Init()
     {
         DataManager.ObjectDict.TryGetValue(602, out var objectData);
-        Stat.MergeFrom(objectData!.stat);
+        Stat.MergeFrom(objectData!.Stat);
         Hp = MaxHp;
         Targetable = false;
     }

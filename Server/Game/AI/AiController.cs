@@ -14,7 +14,6 @@ public class AiController
         Policy = policy;
     }
 
-    public UnitId[] AiUnits { get; init; } = Array.Empty<UnitId>();
     public HashSet<SkillData> AiSkills { get; set; } = new();
     public Dictionary<UnitId, Skill> MainSkills { get; set; } = new();
     
@@ -22,20 +21,27 @@ public class AiController
     {
         var actionList = _factory.Enumerate(blackboard, room).Take(20).ToList();
         IAiAction? bestAction = null;
-        float bestScore = float.NegativeInfinity;
+        double bestScore = float.NegativeInfinity;
         foreach (var action in actionList)
         {
-            float score = action.Score(blackboard);
+            double score = action.Score();
             if (score > bestScore)
             {
                 bestScore = score;
                 bestAction = action;
             }
         }
-
-        if (bestAction != null && bestScore > 0.01f)
+        
+        if (bestAction == null) return;
+        if (bestScore <= Policy.IdleThreshold)
+        {
+            room.Push(_factory.CreateIdleAction(blackboard).Execute, room);
+            Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> Idle({bestAction.GetType().Name}) (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
+        }
+        else
         {
             room.Push(bestAction.Execute, room);
+            Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> {bestAction.GetType().Name} (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
         }
     }
 }

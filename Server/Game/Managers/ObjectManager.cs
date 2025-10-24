@@ -8,7 +8,6 @@ public sealed partial class ObjectManager : IFactory
     public static ObjectManager Instance { get; } = new();
 
     private readonly object _lock = new();
-    private readonly Dictionary<int, Player?> _players = new();
     
     // [UNUSED(1)][TYPE(7)][ID(24)]
     private int _counter = 0;
@@ -41,11 +40,6 @@ public sealed partial class ObjectManager : IFactory
         lock (_lock)
         {
             gameObject.Id = GenerateId(gameObject.ObjectType);
-
-            if (gameObject.ObjectType == GameObjectType.Player)
-            {
-                _players.Add(gameObject.Id, gameObject as Player);
-            }
         }
 
         return gameObject;
@@ -63,32 +57,5 @@ public sealed partial class ObjectManager : IFactory
     {
         int type = (id >> 24) & 0x7F;
         return (GameObjectType)type;
-    }
-
-    public bool Remove(int objectId)
-    {
-        GameObjectType objectType = GetObjectTypeById(objectId);
-        
-        lock (_lock)
-        {
-            if (objectType == GameObjectType.Player) return _players.Remove(objectId);
-        }
-
-        return false;
-    }
-
-    public Player? Find(int objectId)
-    {
-        GameObjectType objectType = GetObjectTypeById(objectId);
-
-        lock (_lock)
-        {
-            if (objectType == GameObjectType.Player)
-            {
-                if (_players.TryGetValue(objectId, out var player)) return player;
-            }
-        }
-
-        return null;
     }
 }

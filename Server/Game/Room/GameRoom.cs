@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Numerics;
 using Google.Protobuf;
@@ -7,7 +8,6 @@ using Server.Data.SinglePlayScenario;
 using Server.Game.AI;
 using Server.Game.Enchants;
 using Server.Game.Resources;
-using Server.Util;
 
 namespace Server.Game;
 
@@ -15,14 +15,14 @@ public partial class GameRoom : JobSerializer, IDisposable
 {
     private readonly object _lock = new();
     
-    private readonly Dictionary<int, Player> _players = new();
-    private readonly Dictionary<int, Tower> _towers = new();
-    private readonly Dictionary<int, Monster> _monsters = new();
-    private readonly Dictionary<int, MonsterStatue> _statues = new();
-    private readonly Dictionary<int, Sheep> _sheeps = new();
-    private readonly Dictionary<int, Fence> _fences = new();
-    private readonly Dictionary<int, Effect> _effects = new();
-    private readonly Dictionary<int, Projectile> _projectiles = new();
+    private readonly ConcurrentDictionary<int, Player> _players = new();
+    private readonly ConcurrentDictionary<int, Tower> _towers = new();
+    private readonly ConcurrentDictionary<int, Monster> _monsters = new();
+    private readonly ConcurrentDictionary<int, MonsterStatue> _statues = new();
+    private readonly ConcurrentDictionary<int, Sheep> _sheeps = new();
+    private readonly ConcurrentDictionary<int, Fence> _fences = new();
+    private readonly ConcurrentDictionary<int, Effect> _effects = new();
+    private readonly ConcurrentDictionary<int, Projectile> _projectiles = new();
 
     private readonly UpkeepTracker<Tower> _towerTracker = new(tower => tower.UnitId);
     private readonly UpkeepTracker<MonsterStatue> _statueTracker = new(statue => statue.UnitId);
@@ -30,7 +30,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private bool _notifiedStatueExcess;
     
     private readonly Random _random = new();
-    private int _round = 0;
+    private int _round;
     private readonly long _interval = 1000;
     private long _timeSendTime;
     private Storage? _storage;
@@ -39,14 +39,14 @@ public partial class GameRoom : JobSerializer, IDisposable
     private bool _gameOver;
     private Stage? _tutorialWaveModule;
     
-    private readonly Dictionary<Faction, AiController> _aiControllers = new();
+    private readonly ConcurrentDictionary<Faction, AiController> _aiControllers = new();
     
     public GameMode GameMode { get; set; }
     // public Player? Npc { get; set; }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
-    public GameInfo GameInfo { get; private set; } = new(new Dictionary<int, Player>(), 1);
+    public GameInfo GameInfo { get; private set; } = new(new ConcurrentDictionary<int, Player>(), 1);
     public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
     public int RoomId { get; set; }
@@ -69,6 +69,8 @@ public partial class GameRoom : JobSerializer, IDisposable
     public int GetBaseLevel(Faction faction) => faction == Faction.Sheep ? GetStorageLevel() : GetPortalLevel();
     private int GetStorageLevel() => _storage?.Level ?? 0;
     private int GetPortalLevel() => _portal?.Level ?? 0;
+    public int GetNumberOfTowers() => _towers.Count;
+    public int GetNumberOfStatues() => _statues.Count;
     
     public void Init(int mapId)
     {
@@ -92,7 +94,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         {
             DataManager.UnitDict.TryGetValue(unitId, out var unitData);
             var stat = new StatInfo();
-            stat.MergeFrom(unitData?.stat);
+            stat.MergeFrom(unitData?.Stat);
             UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
     }
@@ -138,29 +140,34 @@ public partial class GameRoom : JobSerializer, IDisposable
     private void UpdateAiModule()
     {
         if (GameMode != GameMode.Single && GameMode != GameMode.AiTest) return;
-        if (RoundTime >= 24) return;
+        if (RoundTime >= 23) return;
 
         var snapshot = BuildWorldSnapshot();
+
+        Console.WriteLine("--- Ai Module Update Start ---");
         
         if (_aiControllers.TryGetValue(Faction.Sheep, out var aiSheep))
         {
             var blackboardSheep = BuildBlackboard(snapshot, Faction.Sheep, aiSheep.Policy);
             aiSheep.Update(this, blackboardSheep);
+            Console.WriteLine("--- AI Sheep Update End ---");
         }
 
         if (_aiControllers.TryGetValue(Faction.Wolf, out var aiWolf))
         {
             var blackboardWolf = BuildBlackboard(snapshot, Faction.Wolf, aiWolf.Policy);
             aiWolf.Update(this, blackboardWolf);
+            Console.WriteLine("--- AI Wolf Update End ---");
         }
     }
     
-    public void EnterGameNpc(GameObject gameObject)
+    public void EnterGameNpc(Player npc)
     {
-        var player = (Player)gameObject;
-        _players.Add(player.Id, player);
-        Console.WriteLine($"NPC Player {player.Id} entered.");
-        player.Room = this;
+        _players.TryAdd(npc.Id, npc);
+        Console.WriteLine($"NPC Player {npc.Id} entered.");
+        npc.Room = this;
+        npc.IsNpc = true;
+        npc.Init();
     }
     
     public void EnterGame(GameObject gameObject)
@@ -171,7 +178,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         {
             case GameObjectType.Player:
                 var player = (Player)gameObject;
-                _players.Add(player.Id, player);
+                _players.TryAdd(player.Id, player);
                 Console.WriteLine($"Player {player.Id} entered.");
                 player.Room = this;
                 player.Init();
@@ -201,7 +208,7 @@ public partial class GameRoom : JobSerializer, IDisposable
                 gameObject.Info.Name = tower.UnitId.ToString();
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 tower.Info = gameObject.Info;
-                _towers.Add(gameObject.Id, tower);
+                _towers.TryAdd(gameObject.Id, tower);
                 Map.ApplyMap(tower);
                 tower.Update();
                 break;
@@ -213,7 +220,7 @@ public partial class GameRoom : JobSerializer, IDisposable
                 gameObject.PosInfo.Dir = 180;
                 gameObject.Info.PosInfo = gameObject.PosInfo;
                 monster.Info = gameObject.Info;
-                _monsters.Add(gameObject.Id, monster);
+                _monsters.TryAdd(gameObject.Id, monster);
                 Map.ApplyMap(monster);
                 monster.Update();
                 break;
@@ -223,7 +230,7 @@ public partial class GameRoom : JobSerializer, IDisposable
                 var monsterName = statue.UnitId.ToString();
                 gameObject.Info.Name = string.Concat(monsterName, "Statue");
                 statue.Info = gameObject.Info;
-                _statues.Add(gameObject.Id, statue);
+                _statues.TryAdd(gameObject.Id, statue);
                 Map.ApplyMap(statue);
                 statue.Update();
                 break;
@@ -231,7 +238,7 @@ public partial class GameRoom : JobSerializer, IDisposable
             case GameObjectType.Fence:
                 var fence = (Fence)gameObject;
                 fence.Info = gameObject.Info;
-                _fences.Add(gameObject.Id, fence);
+                _fences.TryAdd(gameObject.Id, fence);
                 fence.Room = this;
                 Map.ApplyMap(fence);
                 break;
@@ -241,7 +248,7 @@ public partial class GameRoom : JobSerializer, IDisposable
                 gameObject.PosInfo.State = State.Idle;
                 gameObject.Info.Name = sheep.SheepId.ToString();
                 sheep.Info = gameObject.Info;
-                _sheeps.Add(gameObject.Id, sheep);
+                _sheeps.TryAdd(gameObject.Id, sheep);
                 sheep.Room = this;
                 Map.ApplyMap(sheep);
                 sheep.Update();
@@ -284,7 +291,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId, bool sound = true) 
     {
         var projectile = (Projectile)gameObject;
-        _projectiles.Add(projectile.Id, projectile);
+        _projectiles.TryAdd(projectile.Id, projectile);
         projectile.Room = this;
         var destVector = new DestVector { X = targetPos.X, Y = targetPos.Y + 0.5f, Z = targetPos.Z };
         var spawnPacket = new S_SpawnProjectile
@@ -297,7 +304,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private void EnterGameEffect(GameObject gameObject, int parentId, bool trailingParent, int duration = 2000)
     {
         var effect = (Effect)gameObject; 
-        _effects.Add(gameObject.Id, effect);
+        _effects.TryAdd(gameObject.Id, effect);
         effect.Room = this;
         var spawnPacket = new S_SpawnEffect
         {
@@ -306,7 +313,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Broadcast(spawnPacket);
     }
     
-    // Deprecated from game after dying motion on client.
+    // Fade away from game after dying motion on client.
     public void DieAndLeave(int objectId)
     {
         GameObjectType type = ObjectManager.GetObjectTypeById(objectId);
@@ -533,7 +540,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         _projectiles.Clear();
         _statues.Clear();
         Buffs.Clear();
-        GameInfo = new GameInfo(new Dictionary<int, Player>(), 1);
+        GameInfo = new GameInfo(new ConcurrentDictionary<int, Player>(), 1);
         Map.Room = null;
         GameData = new GameManager.GameData();
         TutorialSpawnFlag = false;

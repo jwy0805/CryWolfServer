@@ -6,37 +6,80 @@ namespace Server.Game.AI;
 
 public static class AiActions
 {
-    private const float SpawnPopulationFactor = 1.1f;
+    public static Action<int, UnitId>? OnSpawnUnit;
+    public static Action<int, Skill>? OnUpgradeSkill;
+    public static Action<int, UnitId>? OnUpgradeUnit;
+    public static Action<int>? OnRepairFence;
+    public static Action<int>? OnRepairStatue;
+    public static Action<int>? OnRepairPortal;
+    public static Action<int>? OnUpgradeStorage;
+    public static Action<int>? OnUpgradePortal;
+    public static Action<int>? OnUpgradeEnchant;
+    public static Action<int>? OnSpawnSheep;
+    public static Action<int>? OnUpgradeYield;
+    
+    private const float SpawnPopulationFactor = 1f;
     private const float SpawnValueFactor = 0.9f;
-    public const float UpgradePopulationFactor = 0.9f;
-    public const float UpgradeValueFactor = 1.1f;
-    private const float SkillUpgradeFactor1 = 0.8f;
-    private const float SkillUpgradeFactor2 = 1.2f;
+    private const float UpgradePopulationFactor = 1f;
+    private const float UpgradeValueFactor = 1.1f;
+    private const float SkillUpgradeFactor1 = 1.3f;
 
+    public static IAiAction Idle(IHeuristicsService heuristics, AiBlackboard blackboard) 
+        => new IdleAction(heuristics, blackboard);
     public static IAiAction SpawnUnit(UnitId unitId, PositionInfo pos, IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard) 
         => new SpawnUnitAction(unitId, pos, heuristics, policy, blackboard);
     public static IAiAction UpgradeSkill(Skill skill, IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard) 
         => new SkillUpgradeAction(skill, heuristics, policy, blackboard);
     public static IAiAction UpgradeUnit(UnitId unitId, IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard) 
         => new UnitUpgradeAction(heuristics, policy, unitId, blackboard);
-    public static IAiAction RepairFence(IHeuristicsService heuristics) => new RepairFenceAction(heuristics);
-    public static IAiAction RepairStatue(IHeuristicsService heuristics) => new RepairStatueAction(heuristics);
-    public static IAiAction RepairPortal(IHeuristicsService heuristics) => new RepairPortalAction(heuristics);
-    public static IAiAction UpgradeStorage(IHeuristicsService heuristics) => new UpgradeStorageAction(heuristics);
-    public static IAiAction UpgradePortal(IHeuristicsService heuristics) => new UpgradePortalAction(heuristics);
-    public static IAiAction UpgradeEnchant(IHeuristicsService heuristics) => new UpgradeEnchantAction(heuristics);
-    public static IAiAction SpawnSheep(IHeuristicsService heuristics, AiBlackboard blackboard) => new SpawnSheepAction(heuristics, blackboard);
-    public static IAiAction UpgradeYield(IHeuristicsService heuristics, Faction faction) 
-        => new UpgradeYieldAction(heuristics, faction);
+    public static IAiAction RepairFence(IHeuristicsService heuristics, AiBlackboard blackboard)
+        => new RepairFenceAction(heuristics, blackboard);
+    public static IAiAction RepairStatue(IHeuristicsService heuristics, AiBlackboard blackboard)
+        => new RepairStatueAction(heuristics, blackboard);
+    public static IAiAction RepairPortal(IHeuristicsService heuristics, AiBlackboard blackboard) 
+        => new RepairPortalAction(heuristics, blackboard);
+    public static IAiAction UpgradeStorage(IHeuristicsService heuristics, AiBlackboard blackboard)
+        => new UpgradeStorageAction(heuristics, blackboard);
+    public static IAiAction UpgradePortal(IHeuristicsService heuristics, AiBlackboard blackboard)
+        => new UpgradePortalAction(heuristics, blackboard);
+    public static IAiAction UpgradeEnchant(IHeuristicsService heuristics, AiBlackboard blackboard)
+        => new UpgradeEnchantAction(heuristics, blackboard);
+    public static IAiAction SpawnSheep(IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard)
+        => new SpawnSheepAction(heuristics, policy, blackboard);
+    public static IAiAction UpgradeYield(IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard) 
+        => new UpgradeYieldAction(heuristics, policy, blackboard);
 
+    private sealed class IdleAction : IAiAction
+    {
+        private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
+        
+        public IdleAction(IHeuristicsService heuristics, AiBlackboard blackboard)
+        {
+            _heuristics = heuristics;
+            _blackboard = blackboard;
+        }
+        
+        public double Score()
+        {
+            return 0;
+        }
+
+        public void Execute(GameRoom room)
+        {
+            
+        }
+    }
+    
     private sealed class SpawnUnitAction : IAiAction
     {
         private readonly UnitId _unitId;
         private readonly PositionInfo _pos;  // Considering position of the fences
         private readonly IHeuristicsService _heuristics;
         private readonly AiPolicy _policy;
-        private readonly int _cost;
         private readonly AiBlackboard _blackboard;
+        private readonly int _cost;
+        private double _score;
         
         public SpawnUnitAction(UnitId unitId, PositionInfo pos, IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard)
         {
@@ -44,29 +87,34 @@ public static class AiActions
             _pos = pos;
             _heuristics = heuristics;
             _policy = policy;
-            _cost = DataManager.UnitDict.TryGetValue((int)unitId, out var unitData) ? unitData.stat.RequiredResources : 0;
             _blackboard = blackboard;
+            _cost = DataManager.UnitDict.TryGetValue((int)unitId, out var unitData) ? unitData.Stat.RequiredResources : 0;
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var totalPressure = _heuristics.EvaluatePressure(blackboard) * SpawnValueFactor;
-            var populationFactor1 = _heuristics.ComparePopulation(blackboard, _policy) * SpawnPopulationFactor;
-            var populationFactor2 = _heuristics.EvaluatePopulation(blackboard) * SpawnPopulationFactor;
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return totalPressure + populationFactor1 + populationFactor2 + resourceFactor;
+            var totalPressure = _heuristics.EvaluatePressure(_blackboard) * SpawnValueFactor;
+            var populationFactor1 = _heuristics.ComparePopulation(_blackboard, _policy) * SpawnPopulationFactor;
+            var populationFactor2 = _heuristics.EvaluatePopulation(_blackboard, _policy);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            var capacityLimit = _heuristics.VerifyCapacity(_blackboard, _policy);
+            var score = totalPressure + populationFactor1 + populationFactor2 + resourceFactor + capacityLimit;
+            _score = score;
+            // Console.WriteLine($"SpawnUnitActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor1}, PopEval: {populationFactor2}, Resource: {resourceFactor}), Remaining: {_blackboard.MyResource - _cost}");
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
             if (_blackboard.MyFaction == Faction.Sheep)
             {
-                room.Push(room.Ai_SpawnTower, _unitId, _pos, _cost, _blackboard.MyPlayer);
+                room.Ai_SpawnTower(_unitId, _pos, _cost, _blackboard.MyPlayer);
             }            
             else
             {
-                room.Push(room.Ai_SpawnStatue, _unitId, _pos, _cost, _blackboard.MyPlayer);
+                room.Ai_SpawnStatue(_unitId, _pos, _cost, _blackboard.MyPlayer);
             }
+            OnSpawnUnit?.Invoke(_blackboard.MyPlayer.Id, _unitId);
         }
     }
     
@@ -75,30 +123,34 @@ public static class AiActions
         private readonly Skill _skill;
         private readonly IHeuristicsService _heuristics;
         private readonly AiPolicy _policy;
-        private readonly int _cost;
         private readonly AiBlackboard _blackboard;
+        private readonly int _cost;
+        private double _score;
         
         public SkillUpgradeAction(Skill skill, IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard)
         {
             _skill = skill;
             _heuristics = heuristics;
             _policy = policy;
-            _cost = DataManager.SkillDict.TryGetValue((int)skill, out var skillData) ? skillData.cost : 0;
             _blackboard = blackboard;
+            _cost = DataManager.SkillDict.TryGetValue((int)skill, out var skillData) ? skillData.Cost : 0;
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var totalPressure = _heuristics.EvaluatePressure(blackboard);
-            var populationFactor1 = _heuristics.ComparePopulation(blackboard, _policy) * SkillUpgradeFactor1;
-            var populationFactor2 = _heuristics.EvaluatePopulation(blackboard) * SkillUpgradeFactor2;
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return totalPressure + populationFactor1 + populationFactor2 + resourceFactor;
+            var totalPressure = _heuristics.EvaluatePressure(_blackboard);
+            var populationFactor = _heuristics.ComparePopulation(_blackboard, _policy) * SkillUpgradeFactor1;
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            var score = totalPressure + populationFactor + resourceFactor;
+            // Console.WriteLine($"SkillUpgradeActionScore: {score} (Pressure: {totalPressure}, PopComp: {populationFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
+            _score = score;
+            return _score;
         }
-
+        
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradeSkill, _skill, _cost, _blackboard.MyPlayer);
+            room.Ai_UpgradeSkill(_skill, _cost, _blackboard.MyPlayer);
+            OnUpgradeSkill?.Invoke(_blackboard.MyPlayer.Id, _skill);
         }
     }
     
@@ -109,169 +161,209 @@ public static class AiActions
         private readonly AiPolicy _policy;
         private readonly int _cost;
         private readonly AiBlackboard _blackboard;
+        private double _score;
         
         public UnitUpgradeAction(IHeuristicsService heuristics, AiPolicy policy, UnitId unitId, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
             _policy = policy;
             _unitId = unitId;
-            _cost = heuristics.Room.CalcUpgradeCost((int)unitId);
             _blackboard = blackboard;
+            _cost = heuristics.Room.CalcUpgradeCost((int)unitId);
         }
 
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var totalPressure = _heuristics.EvaluatePressure(blackboard);
-            var populationFactor1 = _heuristics.ComparePopulation(blackboard, _policy) * SkillUpgradeFactor1;
-            var populationFactor2 = _heuristics.EvaluatePopulation(blackboard) * SkillUpgradeFactor2;
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            var upgradable = _heuristics.Room.VerifyTechForUnitUpgrade(blackboard.MyFaction, _unitId);
-            return upgradable ? totalPressure + populationFactor1 + populationFactor2 + resourceFactor : -1000;
+            var totalPressure = _heuristics.EvaluatePressure(_blackboard);
+            var populationFactor = _heuristics.ComparePopulation(_blackboard, _policy) * UpgradePopulationFactor;
+            var valueFactor = _heuristics.CompareValue(_blackboard, _policy) * UpgradeValueFactor;
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            var upgradable = _heuristics.Room.VerifyTechForUnitUpgrade(_blackboard.MyFaction, _unitId);
+            _score = totalPressure + populationFactor + valueFactor + resourceFactor;
+            // Console.WriteLine($"UnitUpgradeActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor}, valueFactor: {valueFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
+            return upgradable ? _score : -1000;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradeUnit, _unitId, _cost, _blackboard.MyPlayer);
+            room.Ai_UpgradeUnit(_unitId, _cost, _blackboard.MyPlayer);
+            OnUpgradeUnit?.Invoke(_blackboard.MyPlayer.Id, _unitId);
         }
     }
     
     private sealed class RepairFenceAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
+        private double _score;
         
-        public RepairFenceAction(IHeuristicsService heuristics)
+        public RepairFenceAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = heuristics.Room.CalcFenceRepairCost();
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            return _heuristics.Room.FenceHealthScore(blackboard.MyFaction);
+            var score = _heuristics.Room.FenceHealthScore(_blackboard.MyFaction);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_RepairAllFences, _cost);
+            room.Ai_RepairAllFences(_cost);
+            OnRepairFence?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
     
     private sealed class RepairStatueAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
-
-        public RepairStatueAction(IHeuristicsService heuristics)
+        private double _score;
+        
+        public RepairStatueAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = _heuristics.Room.CalcStatueRepairCost();
         }
 
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            return _heuristics.Room.StatueHealthScore(blackboard.MyFaction);
+            var score = _heuristics.Room.StatueHealthScore(_blackboard.MyFaction);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_RepairAllStatues, _cost);
+            room.Ai_RepairAllStatues(_cost);
+            OnRepairStatue?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
     
     private sealed class RepairPortalAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
+        private double _score;
         
-        public RepairPortalAction(IHeuristicsService heuristics)
+        public RepairPortalAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = heuristics.Room.CalcPortalRepairCost();
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
             var score = _heuristics.Room.PortalHealthScore();
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return score + resourceFactor;
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_RepairPortal, _cost);
+            room.Ai_RepairPortal(_cost);
+            OnRepairPortal?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
     
     private sealed class UpgradeStorageAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
+        private double _score;
         
-        public UpgradeStorageAction(IHeuristicsService heuristics)
+        public UpgradeStorageAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = heuristics.Room.CalcBaseUpgradeCost();
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var score = _heuristics.Room.UpgradeStorageScore(blackboard);
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return score + resourceFactor;
+            var score = _heuristics.Room.UpgradeStorageScore(_blackboard);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            Console.WriteLine($"StorageUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradeStorage, _cost);
+            room.Ai_UpgradeStorage(_cost);
+            OnUpgradeStorage?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
 
     private sealed class UpgradePortalAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
+        private double _score;
         
-        public UpgradePortalAction(IHeuristicsService heuristics)
+        public UpgradePortalAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = heuristics.Room.CalcPortalUpgradeCost();
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var score = _heuristics.Room.UpgradePortalScore(blackboard);
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return score + resourceFactor;
+            var score = _heuristics.Room.UpgradePortalScore(_blackboard);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            Console.WriteLine($"PortalUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
+            return _score;
         }
         
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradePortal, _cost);
+            room.Ai_UpgradePortal(_cost);
+            OnUpgradePortal?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
     
     private sealed class UpgradeEnchantAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
+        private double _score;
         
-        public UpgradeEnchantAction(IHeuristicsService heuristics)
+        public UpgradeEnchantAction(IHeuristicsService heuristics, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
+            _blackboard = blackboard;
             _cost = heuristics.Room.CalcEnchantUpgradeCost();
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
             var score = _heuristics.Room.UpgradeEnchantScore();
-            var resourceFactor = _heuristics.EvaluateResource(blackboard, _cost);
-            return score + resourceFactor;
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradeEnchant, _cost);
+            room.Ai_UpgradeEnchant(_cost);
+            OnUpgradeEnchant?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
 
@@ -280,54 +372,68 @@ public static class AiActions
     private sealed class SpawnSheepAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
-        private readonly int _cost;
+        private readonly AiPolicy _policy;
         private readonly AiBlackboard _blackboard;
+        private readonly int _cost;
+        private double _score;
         
-        public SpawnSheepAction(IHeuristicsService heuristics, AiBlackboard blackboard)
+        public SpawnSheepAction(IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard)
         {
             _heuristics = heuristics;
-            _cost = heuristics.Room.CalcSheepCost();
+            if (!DataManager.ObjectDict.TryGetValue(blackboard.MyPlayer.AssetId, out var data))
+            {
+                throw new Exception($"Invalid AssetId for Sheep Spawn: {blackboard.MyPlayer.AssetId}");
+            }
+            _cost = _heuristics.Room.CalcSheepCost(data.Stat.RequiredResources);
+            _policy = policy;
             _blackboard = blackboard;
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var score = 0f;
-            score += _heuristics.NeedEconomicUpgrade(blackboard);
-            score += _heuristics.EvaluateResource(blackboard, _cost);
-            return score;
+            var score = _heuristics.NeedEconomicUpgrade(_blackboard, _policy);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            // Console.WriteLine("SheepSpawnActionScore: " + (score + resourceFactor));
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_SpawnSheep, _cost, _blackboard.MyPlayer);
+            room.Ai_SpawnSheep(_cost, _blackboard.MyPlayer);
+            OnSpawnSheep?.Invoke(_blackboard.MyPlayer.Id);
         }
     }
     
     private sealed class UpgradeYieldAction : IAiAction
     {
         private readonly IHeuristicsService _heuristics;
+        private readonly AiPolicy _policy;
+        private readonly AiBlackboard _blackboard;
         private readonly int _cost;
-        private readonly Faction _myFaction;
+        private double _score;
         
-        public UpgradeYieldAction(IHeuristicsService heuristics, Faction faction)
+        public UpgradeYieldAction(IHeuristicsService heuristics, AiPolicy policy, AiBlackboard blackboard)
         {
-            _heuristics = heuristics;
-            _cost = heuristics.Room.CalcEconomyUpgradeCost(faction);
-            _myFaction = faction;
+            _heuristics = heuristics;         
+            _policy = policy;
+            _blackboard = blackboard;
+            _cost = heuristics.Room.CalcEconomyUpgradeCost(blackboard.MyFaction);
         }
         
-        public float Score(AiBlackboard blackboard)
+        public double Score()
         {
-            var score = 0f;
-            score += _heuristics.NeedEconomicUpgrade(blackboard);
-            score += _heuristics.EvaluateResource(blackboard, _cost);
-            return score;
+            var score = _heuristics.NeedEconomicUpgrade(_blackboard, _policy);
+            var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
+            // Console.WriteLine("UpgradeYieldActionScore: " + (score + resourceFactor));
+            _score = score + resourceFactor;
+            return _score;
         }
 
         public void Execute(GameRoom room)
         {
-            room.Push(room.Ai_UpgradeEconomy, _cost, _myFaction);
+            OnUpgradeYield?.Invoke(_blackboard.MyPlayer.Id);
+            room.Ai_UpgradeEconomy(_cost, _blackboard.MyFaction);
         }
     }
     

@@ -20,12 +20,6 @@ public class PacketHandler
             return;
         }
 
-        var npc = room.FindPlayer(go => go is Player { IsNpc: true });
-        if (npc != null)
-        {
-            room.Push(room.EnterGame, npc);
-        }
-
         room.Push(room.EnterGame, player);
     }
 
@@ -172,7 +166,7 @@ public class PacketHandler
         Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
         Vector2Int cellPos = room.Map.Vector3To2(vector);
         if (DataManager.UnitDict.TryGetValue(spawnPacket.UnitId, out var unitData) == false) return;
-        Enum.TryParse(unitData.faction, out Faction faction);
+        Enum.TryParse(unitData.Faction, out Faction faction);
         GameObjectType type = faction == Faction.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
         
         var size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
@@ -197,7 +191,7 @@ public class PacketHandler
         
         var sendRangePacket = new S_GetRanges
         {
-            AttackRange = unitData.stat.AttackRange, SkillRange = unitData.stat.SkillRange
+            AttackRange = unitData.Stat.AttackRange, SkillRange = unitData.Stat.SkillRange
         };
         player?.Session?.Send(sendRangePacket);
     }
