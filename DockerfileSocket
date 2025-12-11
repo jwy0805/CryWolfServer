@@ -5,7 +5,7 @@ WORKDIR /src
 # 전체 소스 복사 (Actions에서 이미 checkout 완료)
 COPY . .
 
-WORKDIR /src/CryWolfServer/Server
+WORKDIR /src/Server
 
 RUN dotnet restore Server.csproj
 RUN dotnet publish Server.csproj -c Release -o /app/out
