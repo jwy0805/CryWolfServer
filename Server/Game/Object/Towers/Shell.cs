@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -15,13 +16,13 @@ public class Shell : Tower
             switch (Skill)
             {
                 case Skill.ShellDefence:
-                    Defence += 4;
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.ShellFireResist:
-                    FireResist += 15;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.ShellPoisonResist:
-                    PoisonResist += 15;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

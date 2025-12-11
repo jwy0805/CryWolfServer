@@ -154,48 +154,6 @@ public class PacketHandler
         room?.Push(room.HandleLeave, player, leavePacket);
     }
 
-    public static void C_UnitSpawnPosHandler(PacketSession session, IMessage packet)
-    {
-        var spawnPacket = (C_UnitSpawnPos)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (room == null) return;
-        
-        DestVector dest = spawnPacket.DestVector;
-        Vector3 vector = new Vector3(dest.X, dest.Y, dest.Z);
-        Vector2Int cellPos = room.Map.Vector3To2(vector);
-        if (DataManager.UnitDict.TryGetValue(spawnPacket.UnitId, out var unitData) == false) return;
-        Enum.TryParse(unitData.Faction, out Faction faction);
-        GameObjectType type = faction == Faction.Sheep ? GameObjectType.Tower : GameObjectType.Monster;
-        
-        var size = room.UnitSizeList.FirstOrDefault(s => s.UnitId == (UnitId)spawnPacket.UnitId).SizeX;
-        var canSpawn = room.Map.CanSpawn(cellPos, size)
-                       && room.Map.Vector2To3(cellPos).Z >= room.GameInfo.GetSpawnRangeMinZ(room, faction) 
-                       && room.Map.Vector2To3(cellPos).Z <= room.GameInfo.GetSpawnRangeMaxZ(room, faction);
-        
-        var unitSpawnPacket = new S_UnitSpawnPos { CanSpawn = canSpawn, ObjectType = type };
-        player?.Session?.Send(unitSpawnPacket);
-    }
-
-    public static void C_GetRangesHandler(PacketSession session, IMessage packet)
-    {
-        var rangePacket = (C_GetRanges)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (room == null) return;
-
-        DataManager.UnitDict.TryGetValue(rangePacket.UnitId, out var unitData);
-        if (unitData == null) return;
-        
-        var sendRangePacket = new S_GetRanges
-        {
-            AttackRange = unitData.Stat.AttackRange, SkillRange = unitData.Stat.SkillRange
-        };
-        player?.Session?.Send(sendRangePacket);
-    }
-
     public static void C_GetSpawnableBoundsHandler(PacketSession session, IMessage packet)
     {
         var boundsPacket = (C_GetSpawnableBounds)packet;

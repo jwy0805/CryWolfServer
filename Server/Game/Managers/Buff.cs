@@ -27,11 +27,13 @@ public enum BuffId
     HealBuff,
     HealthBuff,
     DefenceBuff,
+    MagicalDefenceBuff,
     MoveSpeedBuff,
     Invincible,
     AttackDebuff,
     AttackSpeedDebuff,
     DefenceDebuff,
+    MagicalDefenceDebuff,
     MoveSpeedDebuff,
     Curse,
     Addicted,
@@ -281,6 +283,44 @@ public class DefenceBuff : Buff
     }
 }
 
+public class MagicalDefenceBuff : Buff
+{
+    public override void Init(BuffParamType paramType, GameRoom room,
+        GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
+    {
+        base.Init(paramType, room, master, caster, param, duration, nested);
+        Id = BuffId.MagicalDefenceBuff;
+        Type = BuffType.Buff;
+    }
+    
+    public override void CalculateFactor()
+    {
+        if (ParamType == BuffParamType.Constant) Factor = Param;
+        else if (ParamType == BuffParamType.Percentage) Factor = Master.MagicalDefence * Param;
+        
+        if (Master.Burn) Factor *= Master.TotalFireResist / (float)100;
+    }
+    
+    public override void TriggerBuff()
+    {
+        CalculateFactor();
+        Master.MagicalDefenceParam += (int)Factor;
+    }
+
+    public override void RenewBuff(long duration)
+    {
+        base.RenewBuff(duration);
+        Master.MagicalDefenceParam -= (int)Factor;
+        TriggerBuff();
+    }
+
+    public override void RemoveBuff()
+    {
+        base.RemoveBuff();
+        Master.MagicalDefenceParam -= (int)Factor;
+    }
+}
+
 public class AccuracyBuff : Buff
 {
     public override void Init(BuffParamType paramType, GameRoom room,
@@ -485,6 +525,42 @@ public class DefenceDebuff : Buff
     {
         base.RemoveBuff();
         Master.DefenceParam += (int)Factor;
+    }
+}
+
+public class MagicalDefenceDebuff : Buff
+{
+    public override void Init(BuffParamType paramType, GameRoom room,
+        GameObject master, Creature caster, float param, long duration = 5000, bool nested = false)
+    {
+        base.Init(paramType, room, master, caster, param, duration, nested);
+        Id = BuffId.MagicalDefenceDebuff;
+        Type = BuffType.Debuff;
+    }
+    
+    public override void CalculateFactor()
+    {
+        if (ParamType == BuffParamType.Constant) Factor = Param;
+        else if (ParamType == BuffParamType.Percentage) Factor = Master.MagicalDefence * Param;
+    }
+    
+    public override void TriggerBuff()
+    {
+        CalculateFactor();
+        Master.MagicalDefenceParam -= (int)Factor;
+    }
+
+    public override void RenewBuff(long duration)
+    {
+        base.RenewBuff(duration);
+        Master.MagicalDefenceParam += (int)Factor;
+        TriggerBuff();
+    }
+
+    public override void RemoveBuff()
+    {
+        base.RemoveBuff();
+        Master.MagicalDefenceParam += (int)Factor;
     }
 }
 

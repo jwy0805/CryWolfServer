@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
+
+WORKDIR /src
+
+# 전체 소스 복사 (Actions에서 이미 checkout 완료)
+COPY . .
+
+WORKDIR /src/CryWolfServer/Server
+
+RUN dotnet restore Server.csproj
+RUN dotnet publish Server.csproj -c Release -o /app/out
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
+WORKDIR /app
+COPY --from=build /app/out .
+
+# socket
+EXPOSE 7780 
+# http
+EXPOSE 8081
+
+CMD ["dotnet", "Server.dll"]

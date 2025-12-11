@@ -6,23 +6,34 @@ public readonly record struct UpkeepExcess(UnitId UnitId, int PeakCount, int Lim
 
 public class UpkeepTracker<T>
 {
-    private readonly int _popDivThreshold = 3;
     private readonly Func<T, UnitId> _selector;
+    private readonly GameRoom _room;
+    private readonly Faction _faction;
     private readonly Dictionary<UnitId, int> _peakCount = new();
-    private readonly Dictionary<UnitId, int> _peakExcess = new();
+    private readonly Dictionary<UnitId, int> _peakExcess = new(); // 초과된 count
     private readonly Dictionary<UnitId, int> _limitAtPeak = new();
     
-    public UpkeepTracker(Func<T, UnitId> selector) => _selector = selector;
+    private int PopDivThreshold => _faction == Faction.Sheep
+        ? _room.GameInfo.NorthMaxTower / 3
+        : _room.GameInfo.NorthMaxMonster / 3;
+    
+    public UpkeepTracker(Func<T, UnitId> selector, GameRoom room, Faction faction)
+    {
+        _selector = selector;
+        _room = room;
+        _faction = faction;
+    }
+    
     public bool HasAnyExcessThisRound => _peakExcess.Values.Any(v => v > 0);
     public bool AlreadyMaxed(UnitId unitId, int population) 
-        => _peakExcess.TryGetValue(unitId, out var count) && count > CeilDiv(population, _popDivThreshold);
+        => _peakExcess.TryGetValue(unitId, out var count) && count > PopDivThreshold;
     
-    private static int CeilDiv(int n, int d) => (n + d - 1) / d;
+    // private static int CeilDiv(int n, int d) => (n + d - 1) / d;
 
     public void Observe(IEnumerable<T> source, int population)
     {
         if (population <= 0) return;
-        int limit = CeilDiv(population, _popDivThreshold);
+        int limit = PopDivThreshold;
         // Counts per UnitId
         var counts = source.Select(_selector)
             .Where(id => !EqualityComparer<UnitId>.Default.Equals(id, default))

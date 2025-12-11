@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -26,10 +27,10 @@ public class Bloom : Bud
                     break;
                 case Skill.BloomCritical:
                     _critical = true;
-                    CriticalChance += 20;
+                    CriticalChance += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.BloomCriticalDamage:
-                    CriticalMultiplier += 0.25f;
+                    CriticalMultiplier += DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

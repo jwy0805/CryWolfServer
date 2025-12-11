@@ -1,10 +1,12 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
 public class Snake : Snakelet
 {
     private bool _fire = false;
+    
     protected override Skill NewSkill
     {
         get => Skill;
@@ -17,13 +19,13 @@ public class Snake : Snakelet
                     _fire = true;
                     break;
                 case Skill.SnakeAccuracy:
-                    Accuracy += 25;
+                    Accuracy += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnakeFireResist:
-                    FireResist += 20;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnakeSpeed:
-                    MoveSpeed += 1;
+                    MoveSpeed += DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

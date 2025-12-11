@@ -20,22 +20,14 @@ public class StageTutorialWolf : Stage
         switch (round)
         {
             case 0:
-                var tower0 = Room.SpawnTowerOnRelativeZ(UnitId.PracticeDummy, new Vector3(0, 6, 1));
+                var tower0 = Room.SpawnTowerOnRelativeZ(UnitId.TargetDummy, new Vector3(0, 6, 1.5f));
                 var tower1 = Room.SpawnTowerOnRelativeZ(UnitId.Bloom, new Vector3(1f, 6, -0.5f));
                 var tower2 = Room.SpawnTowerOnRelativeZ(UnitId.Bloom, new Vector3(-1f, 6, -0.5f));
+                var tower3 = Room.SpawnTowerOnRelativeZ(UnitId.Rabbit, new Vector3(1f, 6, 0.75f));
                 _towers.Add(0, tower0);
                 _towers.Add(1, tower1);
                 _towers.Add(2, tower2);
-                break;
-            
-            case 1:
-                if (Room.RoundTime >= 8) return;
-                Room.Broadcast(new S_StepTutorial { Process = false });
-                break;
-            
-            case 3:
-                if (Room.RoundTime >= 22) return;
-                Room.Broadcast(new S_StepTutorial { Process = false });
+                _towers.Add(3, tower3);
                 break;
         }
 

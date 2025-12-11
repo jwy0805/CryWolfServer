@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,13 +14,13 @@ public class Lurker : Monster
             switch (Skill)
             {
                 case Skill.LurkerSpeed:
-                    MoveSpeed += 1;
+                    MoveSpeed += DataManager.SkillDict[(int)Skill].Value;
                     break;
-                case Skill.LurkerDefence:
-                    Defence += 3;
+                case Skill.LurkerMagicalDefence:
+                    MagicalDefence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.LurkerPoisonResist:
-                    PoisonResist += 15;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

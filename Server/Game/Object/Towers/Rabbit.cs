@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -19,10 +20,10 @@ public class Rabbit : Bunny
                     _aggro = true;
                     break;
                 case Skill.RabbitDefence:
-                    Defence += 3;
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.RabbitEvasion:
-                    Evasion += 10;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

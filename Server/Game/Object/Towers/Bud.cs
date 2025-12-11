@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -15,10 +16,13 @@ public class Bud : Tower
             switch (Skill)
             {
                 case Skill.BudAttackSpeed:
+                    AttackSpeed += AttackSpeed * (DataManager.SkillDict[(int)Skill].Value / (float)100);
                     break;
                 case Skill.BudRange:
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.BudAccuracy:
+                    Accuracy += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

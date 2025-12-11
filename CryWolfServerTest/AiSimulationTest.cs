@@ -14,8 +14,8 @@ public class AiSimulationTest
     {
         try
         {
-            var logPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ai_test.log");
-            var sw = new StreamWriter(logPath) { AutoFlush = true };
+            var logDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ai_test.log");
+            var sw = new StreamWriter(logDir) { AutoFlush = true };
             Console.SetOut(sw);
         }
         catch (Exception e)

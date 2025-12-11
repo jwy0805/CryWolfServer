@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -9,9 +10,11 @@ public class SnowBomb : Bomb
     private bool _frostbite;
     private bool _frostArmor;
 
-    protected float ExplosionRange = 1.5f;
-    protected float SelfExplosionRange = 2.5f;
-    protected readonly float AttackSpeedDecreaseParam = 0.1f;
+    protected float ExplosionRange = 3f;
+    protected float SelfExplosionRange = 4f;
+    protected float AttackSpeedDecreaseParam;
+    
+    protected readonly int MagicalDefenceBuffParam = (int)DataManager.SkillDict[(int)Skill.SnowBombFrostArmor].Value;
     protected GameObject? Attacker;
     
     protected override Skill NewSkill
@@ -23,13 +26,14 @@ public class SnowBomb : Bomb
             switch (Skill)
             {
                 case Skill.SnowBombFireResist:
-                    FireResist += 20;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnowBombAreaAttack:
                     _areaAttack = true;
                     break;
                 case Skill.SnowBombFrostbite:
                     _frostbite = true;
+                    AttackSpeedDecreaseParam = DataManager.SkillDict[(int)Skill].Value / (float)100;
                     break;
                 case Skill.SnowBombFrostArmor:
                     _frostArmor = true;
@@ -84,6 +88,10 @@ public class SnowBomb : Bomb
         {
             if (Room == null) return;
             AttackEnded = true;
+            Target = Room
+                .FindTargets(this, new[] { GameObjectType.Monster }, TotalAttackRange, 2)
+                .OrderBy(go => go.CellPos.Z)
+                .FirstOrDefault(go => go.Id != Id);
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.SnowBombSkill, this, 5f);
@@ -93,15 +101,23 @@ public class SnowBomb : Bomb
 
     protected async void ExplodeEvents(long impactTime)
     {
-        if (Room == null) return;
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
             if (Room == null) return;
-            ApplyEffectEffect();
-            OnDead(Attacker);
-        });
+            await Scheduler.ScheduleEvent(impactTime, () =>
+            {
+                if (Room == null) return;
+                ApplyEffectEffect();
+                OnDead(Attacker);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
+    // When Self Destruct
     public override void ApplyEffectEffect()
     {
         if (Room == null || AddBuffAction == null) return;
@@ -111,8 +127,8 @@ public class SnowBomb : Bomb
         var gameObjects = Room.FindTargets(this, targetList, SkillRange);
         foreach (var gameObject in gameObjects)
         {
-            Room.Push(AddBuffAction, BuffId.DefenceDebuff,
-                BuffParamType.Constant, gameObject, this, 3, 5000, false);
+            Room.Push(AddBuffAction, BuffId.MagicalDefenceBuff,
+                BuffParamType.Constant, gameObject, this, MagicalDefenceBuffParam, 5000, false);
         }
     }
 
@@ -130,21 +146,27 @@ public class SnowBomb : Bomb
             if (_areaAttack)
             {
                 Room.SpawnEffect(EffectId.SnowBombExplosion, this, this, posInfo);
-                var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+                var enemyList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
                 var cellPos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
-                var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);
-                foreach (var gameObject in gameObjects)
+                var enemies = Room.FindTargets(cellPos, enemyList, ExplosionRange);
+                foreach (var enemy in enemies)
                 {
-                    Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+                    Room.Push(enemy.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
                     if (_frostbite == false) continue;
                     Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
-                        BuffParamType.Percentage, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
+                        BuffParamType.Percentage, enemy, this, AttackSpeedDecreaseParam, 5000, false);
+                }
+                
+                var allies = Room.FindTargets(cellPos, new[] { GameObjectType.Monster }, ExplosionRange);
+                foreach (var ally in allies)
+                {
+                    ally.AttackParam += AttackBuffParam;
                 }
             }
             else
             {
                 if (target == null || target.Targetable == false || target.Hp <= 0) return;
-                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+                target.AttackParam += AttackBuffParam;
             }
         }
     }

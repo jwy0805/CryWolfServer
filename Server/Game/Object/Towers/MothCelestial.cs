@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -8,7 +9,8 @@ public class MothCelestial : MothMoon
     private bool _poison;
     private bool _breedSheep;
     private bool _debuffRemove;
-    private readonly int _breedProb = 10;
+    
+    private readonly int _breedProb = (int)DataManager.SkillDict[(int)Skill.MothCelestialBreed].Value;
 
     protected override Skill NewSkill
     {
@@ -19,13 +21,13 @@ public class MothCelestial : MothMoon
             switch (Skill)
             {
                 case Skill.MothCelestialSheepHealParamUp:
-                    HealParam = 300;
+                    HealParam = (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MothCelestialPoison:
                     _poison = true;
                     break;
                 case Skill.MothCelestialAccuracy:
-                    Accuracy += 30;
+                    Accuracy += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MothCelestialBreed:
                     _breedSheep = true;

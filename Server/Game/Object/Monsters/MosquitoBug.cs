@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -8,8 +9,8 @@ public class MosquitoBug : Monster
 {
     private bool _faint = false;
 
-    protected int FaintParam = 30;
-    protected List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
+    protected readonly int FaintParam = (int)DataManager.SkillDict[(int)Skill.MosquitoBugSheepFaint].Value;
+    protected readonly List<GameObjectType> TypeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
     
     protected override Skill NewSkill
     {
@@ -20,13 +21,13 @@ public class MosquitoBug : Monster
             switch (Skill)
             {
                 case Skill.MosquitoBugEvasion:
-                    Evasion += 10;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MosquitoBugRange:
-                    AttackRange += 1;
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MosquitoBugSpeed:
-                    MoveSpeed += 1;
+                    MoveSpeed += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MosquitoBugSheepFaint:
                     _faint = true;
@@ -45,7 +46,7 @@ public class MosquitoBug : Monster
     {
         if (Room == null) return;
         
-        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType);
+        Target = Room.FindClosestPriorityTarget(this, TypeList, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room) return;
         State = State.Moving;
     }
@@ -54,7 +55,7 @@ public class MosquitoBug : Monster
     {
         if (Room == null) return;
         // Targeting
-        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType); 
+        Target = Room.FindClosestPriorityTarget(this, TypeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우

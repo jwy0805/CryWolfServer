@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,13 +14,13 @@ public class Snakelet : Monster
             switch (Skill)
             {
                 case Skill.SnakeletAttackSpeed:
-                    AttackSpeed += AttackSpeed * 0.2f;
+                    AttackSpeed += AttackSpeed * DataManager.SkillDict[(int)Skill].Value / 100f;
                     break;
                 case Skill.SnakeletAttack:
-                    Attack += 6;
+                    Attack += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnakeletEvasion:
-                    Evasion += 15;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

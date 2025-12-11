@@ -51,10 +51,6 @@ class PacketManager
 		_handler.Add((ushort)MessageId.CChangeResource, PacketHandler.C_ChangeResourceHandler);		
 		_onRecv.Add((ushort)MessageId.CLeave, MakePacket<C_Leave>);
 		_handler.Add((ushort)MessageId.CLeave, PacketHandler.C_LeaveHandler);		
-		_onRecv.Add((ushort)MessageId.CUnitSpawnPos, MakePacket<C_UnitSpawnPos>);
-		_handler.Add((ushort)MessageId.CUnitSpawnPos, PacketHandler.C_UnitSpawnPosHandler);		
-		_onRecv.Add((ushort)MessageId.CGetRanges, MakePacket<C_GetRanges>);
-		_handler.Add((ushort)MessageId.CGetRanges, PacketHandler.C_GetRangesHandler);		
 		_onRecv.Add((ushort)MessageId.CGetSpawnableBounds, MakePacket<C_GetSpawnableBounds>);
 		_handler.Add((ushort)MessageId.CGetSpawnableBounds, PacketHandler.C_GetSpawnableBoundsHandler);		
 		_onRecv.Add((ushort)MessageId.CSetTextUI, MakePacket<C_SetTextUI>);

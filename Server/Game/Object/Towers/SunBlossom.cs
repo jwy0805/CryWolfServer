@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -7,9 +8,9 @@ public class SunBlossom : Tower
 {
     private bool _heal;
     private bool _defenceBuff;
-    
-    protected int HealParam = 8;
-    protected int DefenceBuffParam = 5;
+
+    protected int HealParam = (int)DataManager.SkillDict[(int)Skill.SunBlossomHeal].Value;
+    private readonly int _defenceBuffParam = (int)DataManager.SkillDict[(int)Skill.SunBlossomDefence].Value;
     
     protected override Skill NewSkill
     {
@@ -23,7 +24,7 @@ public class SunBlossom : Tower
                     _heal = true;
                     break;
                 case Skill.SunBlossomSelfDefence:
-                    Defence += 3;
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SunBlossomDefence:
                     _defenceBuff = true;
@@ -142,7 +143,7 @@ public class SunBlossom : Tower
                 if (target != null)
                 {
                     Room.Push(AddBuffAction, BuffId.DefenceBuff,
-                        BuffParamType.Constant, target, this, DefenceBuffParam, 5000, false);
+                        BuffParamType.Constant, target, this, _defenceBuffParam, 5000, false);
                 }
             }
             

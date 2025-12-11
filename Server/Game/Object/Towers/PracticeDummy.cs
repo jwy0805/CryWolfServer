@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,12 +14,11 @@ public class PracticeDummy : Tower
             switch (Skill)
             {
                 case Skill.PracticeDummyHealth:
-                    MaxHp += 40;
-                    Hp += 40;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
-                case Skill.PracticeDummyHealth2:
-                    MaxHp += 60;
-                    Hp += 60;
+                case Skill.PracticeDummyDefence:
+                    DefenceParam += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

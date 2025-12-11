@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -11,11 +12,11 @@ public class SkeletonGiant : Skeleton
     private bool _reviveSelf = false;
     protected List<GameObject> DebuffTargets = new();
     
-    protected readonly int DefenceDebuffParam = 3;
-    protected float DebuffRange = 2f;
-    protected readonly int AttackStealParam = 2;
-    protected readonly int ReviveAnimTime = 1000;
-    protected readonly int DeathStandbyTime = 2000;
+    protected readonly int DefenceDebuffParam = (int)DataManager.SkillDict[(int)Skill.SkeletonGiantDefenceDebuff].Value;
+    protected readonly float DebuffRange = 2f;
+    protected readonly int AttackStealParam = (int)DataManager.SkillDict[(int)Skill.SkeletonGiantAttackSteal].Value;
+    // protected readonly int ReviveAnimTime = 1000;
+    protected readonly int DeathStandbyTime = 1000;
     
     protected override Skill NewSkill
     {
@@ -32,7 +33,7 @@ public class SkeletonGiant : Skeleton
                     _attackSteal = true;
                     break;
                 case Skill.SkeletonGiantMpDown:
-                    MaxMp -= 25;
+                    MaxMp -= (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SkeletonGiantRevive:
                     _reviveSelf = true;
@@ -107,7 +108,7 @@ public class SkeletonGiant : Skeleton
        
         if (distance <= TotalAttackRange)
         {
-            State = _defenceDebuff && Mp >= MaxMp ? State.Skill : State.Attack;
+            State = _attackSteal && Mp >= MaxMp ? State.Skill : State.Attack;
             SyncPosAndDir();
             return;
         }
@@ -189,7 +190,7 @@ public class SkeletonGiant : Skeleton
         }
         else
         {
-            State = _defenceDebuff && Mp >= MaxMp ? State.Skill : State.Attack;
+            State = _attackSteal && Mp >= MaxMp ? State.Skill : State.Attack;
             SyncPosAndDir();
         }
     }

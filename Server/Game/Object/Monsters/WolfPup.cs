@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,13 +14,13 @@ public class WolfPup : Monster
             switch (Skill)
             {
                 case Skill.WolfPupSpeed:
-                    MoveSpeed += 1;
+                    MoveSpeed += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.WolfPupAttack:
-                    Attack += 4;
+                    Attack += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.WolfPupDefence:
-                    Defence += 2;
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

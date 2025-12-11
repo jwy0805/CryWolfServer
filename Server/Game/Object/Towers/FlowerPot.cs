@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,8 +14,8 @@ public class FlowerPot : Sprout
     private short _hitCount;
     private Projectile _projectile = new();
     private Projectile? _projectile2;
-    private readonly int _fireResistDownParam = 2;
-    private readonly float _doubleTargetParam = 0.6f;
+    private readonly int _fireResistDownParam = (int)DataManager.SkillDict[(int)Skill.FlowerPotFireResistDown].Value;
+    private readonly float _doubleTargetParam = DataManager.SkillDict[(int)Skill.FlowerPotDoubleTargets].Value / 100f;
     
     protected override Skill NewSkill
     {

@@ -26,7 +26,7 @@ public class DataManager
     private static TLoader? LoadJson<TLoader, TKey, TValue>(string data) 
         where TLoader : ILoader<TKey, TValue> where TKey : notnull
     {
-        var path = Environment.GetEnvironmentVariable("DATA_PATH") ??
+        var path = Environment.GetEnvironmentVariable("Data__Path") ??
                    "/Users/jwy/Documents/Dev/CryWolf/Common";
         var text = File.ReadAllText($"{path}/{data}.json");
         var settings = new JsonSerializerSettings {

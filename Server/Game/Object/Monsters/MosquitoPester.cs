@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -6,8 +7,8 @@ public class MosquitoPester : MosquitoBug
 {
     private bool _poison = false;
     private bool _woolDown = false;
-    
-    protected int WoolDownRate = 20;
+
+    protected readonly int WoolDownRate = (int)DataManager.SkillDict[(int)Skill.MosquitoPesterWoolRate].Value;
     
     protected override Skill NewSkill
     {
@@ -24,14 +25,14 @@ public class MosquitoPester : MosquitoBug
                     _woolDown = true;
                     break;
                 case Skill.MosquitoPesterPoisonResist:
-                    PoisonResist += 20;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MosquitoPesterEvasion:
-                    Evasion += 15;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MosquitoPesterHealth:
-                    MaxHp += 30;
-                    Hp += 30;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     BroadcastHp();
                     break;
             }

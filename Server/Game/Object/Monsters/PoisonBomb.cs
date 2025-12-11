@@ -1,15 +1,19 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Game.Resources;
 
 namespace Server.Game;
 
 public class PoisonBomb : SnowBomb
 {
-    private bool _selfDestruct;
-    private bool _mpDown;
-    private readonly int _increasingMaxMpParam = 20;
-    private float _poisonParam = 0.03f;
+    private bool _magicalAttackBuff;
+    private bool _recoverPoison;
+    private bool _poisonBomb;
+    
+    private readonly float _poisonParam = 0.02f;
+    
+    private readonly int _magicalAttackBuffParam = (int)DataManager.SkillDict[(int)Skill.PoisonBombMagicalAttack].Value;
     
     protected override Skill NewSkill
     {
@@ -19,17 +23,18 @@ public class PoisonBomb : SnowBomb
             Skill = value;
             switch (Skill)
             {
+                case Skill.PoisonBombMagicalAttack:
+                    _magicalAttackBuff = true;
+                    break;
+                case Skill.PoisonBombRecoverPoison:
+                    _recoverPoison = true;
+                    break;
+                case Skill.PoisonBombPoison:
+                    _poisonBomb = true;
+                    break;
                 case Skill.PoisonBombBombRange:
-                    ExplosionRange = 2.0f;
-                    break;
-                case Skill.PoisonBombSelfDestruct:
-                    _selfDestruct = true;
-                    break;
-                case Skill.PoisonBombPoisonPowerUp:
-                    _poisonParam = 0.06f;
-                    break;
-                case Skill.PoisonBombExplosionMpDown:
-                    _mpDown = true;
+                    ExplosionRange += 1f;
+                    SelfExplosionRange += 1f;
                     break;
             }
         }
@@ -39,7 +44,6 @@ public class PoisonBomb : SnowBomb
     {
         base.Init();
         UnitRole = Role.Mage;
-        SelfExplosionRange = 3.5f;
     }
 
     protected override void UpdateRush()
@@ -79,41 +83,41 @@ public class PoisonBomb : SnowBomb
         {
             if (Room == null) return;
             AttackEnded = true;
+            Target = Room
+                .FindTargets(this, new[] { GameObjectType.Monster }, TotalAttackRange, 2)
+                .OrderBy(go => go.CellPos.Z)
+                .FirstOrDefault(go => go.Id != Id);
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.PoisonBombSkill, this, 5f);
         });
     }
     
+    // When Self Destruct
     public override void ApplyEffectEffect()
     {
         if (Room == null || AddBuffAction == null) return;
         Room.SpawnEffect(EffectId.PoisonBombExplosion, this, this, PosInfo);
-        
-        if (_selfDestruct)
+        var allyList = new[] { GameObjectType.Monster };
+        var allies = Room.FindTargets(this, allyList, SkillRange);
+        foreach (var ally in allies)
+        {
+            Room.Push(AddBuffAction, BuffId.MagicalDefenceBuff,
+                BuffParamType.Constant, ally, this, MagicalDefenceBuffParam, 5000, false);
+
+            if (!_recoverPoison) continue;
+            if (ally is not Creature creature) continue;
+            Room.Push(Room.RemoveNestedBuff, BuffId.Addicted, creature);
+        }
+
+        if (_poisonBomb)
         {
             var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
-            var gameObjects = Room.FindTargets(this, targetList, SelfExplosionRange);
-
-            foreach (var gameObject in gameObjects)
-            {
-                Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
-                Room.Push(AddBuffAction, BuffId.Addicted,
-                    BuffParamType.Percentage, gameObject, this, _poisonParam, 5000, false);
-                if (_mpDown == false || gameObject.Room == null) continue;
-                gameObject.MaxMp *= _increasingMaxMpParam;
-                gameObject.BroadcastMp();
-            }
-        }
-        else
-        {
-            var targetList = new[] { GameObjectType.Monster };
-            var gameObjects = Room.FindTargets(this, targetList, SkillRange);
-
-            foreach (var gameObject in gameObjects)
+            var enemies = Room.FindTargets(this, targetList, SelfExplosionRange);
+            foreach (var enemy in enemies)
             {
                 Room.Push(AddBuffAction, BuffId.Addicted,
-                    BuffParamType.Constant, gameObject, this, 3, 5000, false);
+                    BuffParamType.Percentage, enemy, this, _poisonParam, 5000, false);
             }
         }
     }
@@ -122,16 +126,24 @@ public class PoisonBomb : SnowBomb
     {
         if (Room == null || Hp <= 0 || AddBuffAction == null) return;
         Room.SpawnEffect(EffectId.PoisonBombSkillExplosion, this, this, posInfo);
-        
-        var targetList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
+        var enemyList = new[] { GameObjectType.Tower, GameObjectType.Fence, GameObjectType.Sheep };
         var cellPos = new Vector3(posInfo.PosX, posInfo.PosY, posInfo.PosZ);
-        var gameObjects = Room.FindTargets(cellPos, targetList, ExplosionRange);
-        
-        foreach (var gameObject in gameObjects)
+        var enemies = Room.FindTargets(cellPos, enemyList, ExplosionRange);
+        foreach (var enemy in enemies)
         {
-            Room.Push(gameObject.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+            Room.Push(enemy.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.AttackSpeedDebuff,
-                BuffParamType.Constant, gameObject, this, AttackSpeedDecreaseParam, 5000, false);
+                BuffParamType.Percentage, enemy, this, AttackSpeedDecreaseParam, 5000, false);
+        }
+        
+        var allies = Room.FindTargets(cellPos, new[] { GameObjectType.Monster }, ExplosionRange);
+        foreach (var ally in allies)
+        {
+            ally.AttackParam += AttackBuffParam;
+            if (_magicalAttackBuff)
+            {
+                ally.SkillParam += _magicalAttackBuffParam;
+            }
         }
     }
 
@@ -172,7 +184,7 @@ public class PoisonBomb : SnowBomb
             AttackEnded = true;
             Targetable = false;
             Attacker = attacker;
-            if (_selfDestruct)
+            if (_recoverPoison)
             {
                 var target = Room.FindRandomTarget(
                     this, TotalAttackRange * 3, 0, true);

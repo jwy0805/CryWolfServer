@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -20,15 +21,15 @@ public class Burrow : Monster
             switch (Skill)
             {
                 case Skill.BurrowHealth:
-                    MaxHp += 30;
-                    Hp += 30;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     BroadcastHp();
                     break;
                 case Skill.BurrowDefence:
-                    Defence += 2;
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.BurrowEvasion:
-                    Evasion += 10;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.BurrowHalfBurrow:
                     _halfBurrow = true;

@@ -164,7 +164,7 @@ public class GameManager
             { UnitId.Blossom, new HashSet<Skill> 
                 { Skill.BlossomAttackSpeed, Skill.BlossomDeath, Skill.BlossomFaintCritical, Skill.BlossomPowerAttack } },
             { UnitId.PracticeDummy, new HashSet<Skill> 
-                { Skill.PracticeDummyHealth, Skill.PracticeDummyHealth2 } },
+                { Skill.PracticeDummyHealth, Skill.PracticeDummyDefence } },
             { UnitId.TargetDummy, new HashSet<Skill> 
                 { Skill.TargetDummyHealSelf, Skill.TargetDummyPoisonResist, Skill.TargetDummyAggro } },
             { UnitId.TrainingDummy, new HashSet<Skill> 
@@ -172,7 +172,7 @@ public class GameManager
             { UnitId.Shell, new HashSet<Skill> 
                 { Skill.ShellDefence, Skill.ShellPoisonResist, Skill.ShellFireResist } },
             { UnitId.Spike, new HashSet<Skill> 
-                { Skill.SpikeReflection, Skill.SpikeFireResist, Skill.SpikeDefence } },
+                { Skill.SpikeReflection, Skill.SpikeFireResist, Skill.SpikeMagicalDefence } },
             { UnitId.Hermit, new HashSet<Skill> 
                 { Skill.HermitNormalAttackDefence, Skill.HermitAttackerFaint, Skill.HermitRecoverBurn, Skill.HermitShield } },
             { UnitId.SunBlossom, new HashSet<Skill> 
@@ -225,15 +225,15 @@ public class GameManager
                 { Skill.WerewolfBerserker, Skill.WerewolfCriticalDamage,
                     Skill.WerewolfCriticalRate, Skill.WerewolfThunder } },
             { UnitId.Bomb, new HashSet<Skill> 
-                { Skill.BombAttack, Skill.BombBomb, Skill.BombHealth } },
+                { Skill.BombBomb, Skill.BombDefence, Skill.BombMpDown } },
             { UnitId.SnowBomb, new HashSet<Skill> 
                 { Skill.SnowBombFrostbite, Skill.SnowBombAreaAttack, Skill.SnowBombFrostArmor, Skill.SnowBombFireResist } },
             { UnitId.PoisonBomb, new HashSet<Skill> 
-                { Skill.PoisonBombBombRange, Skill.PoisonBombSelfDestruct, Skill.PoisonBombExplosionMpDown, Skill.PoisonBombPoisonPowerUp } },
+                { Skill.PoisonBombMagicalAttack, Skill.PoisonBombRecoverPoison, Skill.PoisonBombPoison, Skill.PoisonBombBombRange } },
             { UnitId.Cacti, new HashSet<Skill> 
-                { Skill.CactiDefence, Skill.CactiDefence2 } },
+                { Skill.CactiDefence, Skill.CactiFireResist } },
             { UnitId.Cactus, new HashSet<Skill> 
-                { Skill.CactusPoisonResist, Skill.CactusReflection, Skill.CactusSpeed } },
+                { Skill.CactusFireResist, Skill.CactusReflection, Skill.CactusSpeed } },
             { UnitId.CactusBoss, new HashSet<Skill> 
                 { Skill.CactusBossRush, Skill.CactusBossBreath, Skill.CactusBossHeal, Skill.CactusBossAggro } },
             { UnitId.Snakelet, new HashSet<Skill> 
@@ -244,7 +244,7 @@ public class GameManager
                 { Skill.SnakeNagaCritical, Skill.SnakeNagaDrain, Skill.SnakeNagaMeteor, 
                     Skill.SnakeNagaBigFire, Skill.SnakeNagaSuperAccuracy } },
             { UnitId.Lurker, new HashSet<Skill>
-                { Skill.LurkerSpeed, Skill.LurkerDefence, Skill.LurkerPoisonResist } },
+                { Skill.LurkerSpeed, Skill.LurkerMagicalDefence, Skill.LurkerPoisonResist } },
             { UnitId.Creeper, new HashSet<Skill>
                 { Skill.CreeperPoison, Skill.CreeperRoll, Skill.CreeperNestedPoison, Skill.CreeperRollDamageUp } },
             { UnitId.Horror, new HashSet<Skill> 
@@ -299,7 +299,7 @@ public class GameManager
             { Skill.BlossomFaintCritical, new HashSet<Skill> { Skill.BlossomAttackSpeed }},
             { Skill.BlossomPowerAttack, new HashSet<Skill> { Skill.BlossomDeath, Skill.BlossomFaintCritical } },
             { Skill.PracticeDummyHealth, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.PracticeDummyHealth2, new HashSet<Skill> { Skill.PracticeDummyHealth } },
+            { Skill.PracticeDummyDefence, new HashSet<Skill> { Skill.PracticeDummyHealth } },
             { Skill.TargetDummyHealSelf, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.TargetDummyPoisonResist, new HashSet<Skill> { Skill.TargetDummyHealSelf } },
             { Skill.TargetDummyAggro, new HashSet<Skill> { Skill.TargetDummyHealSelf } },
@@ -311,7 +311,7 @@ public class GameManager
             { Skill.ShellPoisonResist, new HashSet<Skill> { Skill.ShellDefence } },
             { Skill.SpikeReflection, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.SpikeFireResist, new HashSet<Skill> { Skill.SpikeReflection } },
-            { Skill.SpikeDefence, new HashSet<Skill> { Skill.SpikeReflection } },
+            { Skill.SpikeMagicalDefence, new HashSet<Skill> { Skill.SpikeReflection } },
             { Skill.HermitNormalAttackDefence, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.HermitAttackerFaint, new HashSet<Skill> { Skill.HermitNormalAttackDefence } },
             { Skill.HermitRecoverBurn, new HashSet<Skill> { Skill.HermitNormalAttackDefence } },
@@ -394,22 +394,22 @@ public class GameManager
             { Skill.WerewolfCriticalRate, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.WerewolfCriticalDamage, new HashSet<Skill> { Skill.WerewolfCriticalRate } },
             { Skill.WerewolfBerserker, new HashSet<Skill> { Skill.WerewolfThunder, Skill.WerewolfCriticalDamage } },
-            { Skill.BombHealth, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.BombAttack, new HashSet<Skill> { Skill.BombHealth } },
-            { Skill.BombBomb, new HashSet<Skill> { Skill.BombAttack } },
+            { Skill.BombBomb, new HashSet<Skill> { Skill.NoSkill } },
+            { Skill.BombDefence, new HashSet<Skill> { Skill.BombBomb } },
+            { Skill.BombMpDown, new HashSet<Skill> { Skill.BombDefence } },
             { Skill.SnowBombFireResist, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.SnowBombAreaAttack, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.SnowBombFrostbite, new HashSet<Skill> { Skill.SnowBombFireResist, Skill.SnowBombAreaAttack } },
             { Skill.SnowBombFrostArmor, new HashSet<Skill> { Skill.SnowBombFrostbite } },
+            { Skill.PoisonBombMagicalAttack, new HashSet<Skill> { Skill.NoSkill } },
+            { Skill.PoisonBombRecoverPoison, new HashSet<Skill> { Skill.PoisonBombMagicalAttack } },
+            { Skill.PoisonBombPoison, new HashSet<Skill> { Skill.PoisonBombMagicalAttack } },
             { Skill.PoisonBombBombRange, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.PoisonBombSelfDestruct, new HashSet<Skill> { Skill.PoisonBombBombRange } },
-            { Skill.PoisonBombPoisonPowerUp, new HashSet<Skill> { Skill.PoisonBombSelfDestruct } },
-            { Skill.PoisonBombExplosionMpDown, new HashSet<Skill> { Skill.PoisonBombPoisonPowerUp } },
             { Skill.CactiDefence, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.CactiDefence2, new HashSet<Skill> { Skill.CactiDefence } },
+            { Skill.CactiFireResist, new HashSet<Skill> { Skill.CactiDefence } },
             { Skill.CactusSpeed, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.CactusPoisonResist, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.CactusReflection, new HashSet<Skill> { Skill.CactusSpeed, Skill.CactusPoisonResist } },
+            { Skill.CactusFireResist, new HashSet<Skill> { Skill.NoSkill } },
+            { Skill.CactusReflection, new HashSet<Skill> { Skill.CactusSpeed, Skill.CactusFireResist } },
             { Skill.CactusReflectionFaint, new HashSet<Skill> { Skill.CactusReflection } },
             { Skill.CactusBossRush, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.CactusBossBreath, new HashSet<Skill> { Skill.CactusBossRush } },
@@ -428,8 +428,8 @@ public class GameManager
             { Skill.SnakeNagaSuperAccuracy, new HashSet<Skill> { Skill.SnakeNagaDrain } },
             { Skill.SnakeNagaMeteor, new HashSet<Skill> { Skill.SnakeNagaCritical, Skill.SnakeNagaSuperAccuracy } },
             { Skill.LurkerSpeed, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.LurkerDefence, new HashSet<Skill> { Skill.NoSkill } },
-            { Skill.LurkerPoisonResist, new HashSet<Skill> { Skill.LurkerSpeed, Skill.LurkerDefence } },
+            { Skill.LurkerMagicalDefence, new HashSet<Skill> { Skill.NoSkill } },
+            { Skill.LurkerPoisonResist, new HashSet<Skill> { Skill.LurkerSpeed, Skill.LurkerMagicalDefence } },
             { Skill.CreeperPoison, new HashSet<Skill> { Skill.NoSkill } },
             { Skill.CreeperRoll, new HashSet<Skill> { Skill.CreeperPoison } },
             { Skill.CreeperNestedPoison, new HashSet<Skill> { Skill.CreeperRoll } },

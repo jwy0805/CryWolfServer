@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -22,10 +23,10 @@ public class Werewolf : Wolf
                     _thunder = true;
                     break;
                 case Skill.WerewolfCriticalDamage:
-                    CriticalMultiplier += 0.33f;
+                    CriticalMultiplier += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.WerewolfCriticalRate:
-                    CriticalChance += 33;
+                    CriticalChance += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.WerewolfBerserker:
                     _berserker = true;
@@ -58,7 +59,6 @@ public class Werewolf : Wolf
         UnitRole = Role.Warrior;
         AttackImpactMoment = 0.5f;
         SkillImpactMoment = 0.3f;
-        DrainParam = 0.18f;
         
         // Player.SkillSubject.SkillUpgraded(Skill.WerewolfThunder);
     }

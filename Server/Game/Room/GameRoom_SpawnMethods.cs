@@ -137,7 +137,7 @@ public partial class GameRoom
     }
     
     public void SpawnEffect(EffectId effectId, GameObject? caster , GameObject? master, 
-        PositionInfo? effectPos = null, bool trailing = false, int duration = 2000)
+        PositionInfo? effectPos = null, bool trailing = false, int duration = 2000, float scale = 1)
     {
         if (Enum.IsDefined(typeof(EffectId), effectId) == false) return;
         if (master == null) return;
@@ -160,7 +160,7 @@ public partial class GameRoom
         effect.Parent = caster;
         effect.Duration = duration;
         effect.Init();
-        Push(EnterGameEffect, effect, master.Id, trailing, duration);
+        Push(EnterGameEffect, effect, master.Id, trailing, duration, scale);
     }
     
     public Projectile SpawnProjectile(ProjectileId projectileId, GameObject? parent, float speed, bool sound = true)

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -10,8 +11,10 @@ public class Horror : Creeper
     private bool _rollPoison;
     private bool _poisonSmog;
     private bool _division;
-    private readonly int _divisionNum = 2;
-    private readonly float _poisonSmogRange = 3;
+    
+    private readonly int _divisionNum = (int)DataManager.SkillDict[(int)Skill.HorrorDivision].Value;
+    private readonly float _poisonSmogRange = DataManager.SkillDict[(int)Skill.HorrorPoisonSmog].Value;
+    
     private PositionInfo _poisonSmogPos = new();
     
     protected override Skill NewSkill
@@ -22,15 +25,15 @@ public class Horror : Creeper
             Skill = value;
             switch (Skill)
             {
-                case Skill.HorrorPoisonSmog:
-                    _poisonSmog = true;
-                    break;
                 case Skill.HorrorPoisonImmunity:
                     _poisonImmunity = true;
-                    PoisonResistParam += 100;
+                    PoisonResistParam += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.HorrorRollPoison:
                     _rollPoison = true;
+                    break;
+                case Skill.HorrorPoisonSmog:
+                    _poisonSmog = true;
                     break;
                 case Skill.HorrorDegeneration:
                     Degeneration = true;
@@ -124,7 +127,7 @@ public class Horror : Creeper
         var targetPos = target.CellPos;
 
         Room.Push(AddBuffAction, BuffId.Addicted,
-            BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+            BuffParamType.Percentage, target, this, PoisonValue, 5000, true);
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         
         if (_poisonSmog == false || Mp < MaxMp) return;
@@ -143,7 +146,7 @@ public class Horror : Creeper
         foreach (var target in targets)
         {
             Room.Push(AddBuffAction, BuffId.Addicted,
-                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+                BuffParamType.Percentage, target, this, PoisonValue, 5000, true);
         }
     }
 
@@ -161,7 +164,7 @@ public class Horror : Creeper
         foreach (var gameObject in targets)
         {
             Room.Push(AddBuffAction, BuffId.Addicted,
-                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+                BuffParamType.Percentage, target, this, PoisonValue, 5000, true);
             Room.Push(gameObject.OnDamaged, this, TotalSkillDamage / 2, Damage.Normal, false);
         }
     }

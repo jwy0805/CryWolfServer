@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -7,7 +8,7 @@ public class Sprout : Seed
     private bool _drain = false;
     private bool _fire = false;
     
-    protected readonly float DrainParam = 0.15f;
+    protected readonly float DrainParam = DataManager.SkillDict[(int)Skill.SproutDrain].Value;
     
     protected override Skill NewSkill
     {
@@ -24,7 +25,7 @@ public class Sprout : Seed
                     _fire = true;
                     break;
                 case Skill.SproutFireResist:
-                    FireResist += 10;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

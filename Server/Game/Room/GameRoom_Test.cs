@@ -160,17 +160,14 @@ public partial class GameRoom
 
     private void UpdateCurrentUnits(Player player, UnitId unitId)
     {
-        Console.Write("Updating current unit: ");
         for (int i = 0; i < player.CurrentUnitIds.Length; i++)
         {
-            Console.Write($"{player.CurrentUnitIds[i]} ");
             if (player.CurrentUnitIds[i] == unitId)
             {
                 player.CurrentUnitIds[i] = unitId + 1;
                 break; 
             }
         }
-        Console.WriteLine();
 
         Console.Write("Updated: ");
         foreach (var id in player.CurrentUnitIds)

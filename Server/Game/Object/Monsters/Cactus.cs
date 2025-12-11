@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Random = System.Random;
 
 namespace Server.Game;
@@ -6,7 +7,7 @@ namespace Server.Game;
 public class Cactus : Cacti
 {
     private bool _reflectionFaint = false;
-    protected readonly int ReflectionFaintRate = 5;
+    protected readonly int ReflectionFaintRate = (int)DataManager.SkillDict[(int)Skill.CactusReflectionFaint].Value;
     
     protected override Skill NewSkill
     {
@@ -17,14 +18,14 @@ public class Cactus : Cacti
             switch (Skill)
             {
                 case Skill.CactusSpeed:
-                    MoveSpeed += 1;
+                    MoveSpeed += DataManager.SkillDict[(int)Skill].Value;
                     break;
-                case Skill.CactusPoisonResist:
-                    PoisonResist += 15;
+                case Skill.CactusFireResist:
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.CactusReflection:
                     Reflection = true;
-                    ReflectionRate = 10;
+                    ReflectionRate = DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.CactusReflectionFaint:
                     _reflectionFaint = true;

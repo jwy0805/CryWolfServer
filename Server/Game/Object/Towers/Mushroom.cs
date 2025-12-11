@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -8,7 +9,7 @@ public class Mushroom : Tower
     private bool _closestAttack;
     private int _currentMushroomId;
     
-    protected readonly int ClosestAttackParam = 4;
+    protected readonly int ClosestAttackParam = (int)DataManager.SkillDict[(int)Skill.MushroomClosestAttack].Value;
     protected HashSet<int> CurrentSet = new();
 
     protected override Skill NewSkill
@@ -20,10 +21,10 @@ public class Mushroom : Tower
             switch (Skill)
             {
                 case Skill.MushroomAttack:
-                    Attack += 3;
+                    Attack += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MushroomRange:
-                    AttackRange += 1;
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MushroomClosestAttack:
                     _closestAttack = true;

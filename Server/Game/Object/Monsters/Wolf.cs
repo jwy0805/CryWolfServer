@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -6,7 +7,7 @@ public class Wolf : WolfPup
 {
     private bool _drain = false;
     private bool _magicalAttack = false;
-    protected float DrainParam = 0.12f;
+    protected readonly float DrainParam = DataManager.SkillDict[(int)Skill.WolfDrain].Value * 0.01f;
     
     public bool LastHitByWolf { get; set; } = false;
     
@@ -19,8 +20,8 @@ public class Wolf : WolfPup
             switch (Skill)
             {
                 case Skill.WolfHealth:
-                    MaxHp += 80;
-                    Hp += 80;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     BroadcastHp();
                     break;
                 case Skill.WolfMagicalAttack:
@@ -30,7 +31,7 @@ public class Wolf : WolfPup
                     _drain = true;
                     break;
                 case Skill.WolfCritical:
-                    CriticalChance += 20;
+                    CriticalChance += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.WolfLastHitDna:
                     LastHitByWolf = true;

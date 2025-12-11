@@ -73,7 +73,7 @@ public class SkillData
     public int Id;
     public string Explanation;
     public int Cost;
-    public int Value;
+    public float Value;
     public float Coefficient;
     public SkillType Type;
 

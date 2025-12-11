@@ -14,11 +14,13 @@ public sealed class BuffManager
         { BuffId.HealBuff, new HealBuffFactory() },
         { BuffId.HealthBuff, new HealthBuffFactory() },
         { BuffId.DefenceBuff, new DefenceBuffFactory() },
+        { BuffId.MagicalDefenceBuff, new MagicalDefenceBuffFactory() },
         { BuffId.MoveSpeedBuff, new MoveSpeedBuffFactory() },
         { BuffId.Invincible, new InvincibleFactory() },
         { BuffId.AttackDebuff, new AttackDebuffFactory() },
         { BuffId.AttackSpeedDebuff, new AttackSpeedDebuffFactory() },
         { BuffId.DefenceDebuff, new DefenceDebuffFactory() },
+        { BuffId.MagicalDefenceDebuff, new MagicalDefenceDebuffFactory() },
         { BuffId.MoveSpeedDebuff, new MoveSpeedDebuffFactory() },
         { BuffId.Curse, new CurseFactory() },
         { BuffId.Addicted, new AddictedFactory() },
@@ -37,11 +39,13 @@ public sealed class BuffManager
     private class HealBuffFactory : IBuffFactory { public Buff CreateBuff() => new HealBuff(); }
     private class HealthBuffFactory : IBuffFactory { public Buff CreateBuff() => new HealthBuff(); }
     private class DefenceBuffFactory : IBuffFactory { public Buff CreateBuff() => new DefenceBuff(); }
+    private class MagicalDefenceBuffFactory : IBuffFactory { public Buff CreateBuff() => new MagicalDefenceBuff(); }
     private class MoveSpeedBuffFactory : IBuffFactory { public Buff CreateBuff() => new MoveSpeedBuff(); }
     private class InvincibleFactory : IBuffFactory { public Buff CreateBuff() => new Invincible(); }
     private class AttackDebuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackDebuff(); }
     private class AttackSpeedDebuffFactory : IBuffFactory { public Buff CreateBuff() => new AttackSpeedDebuff(); }
     private class DefenceDebuffFactory : IBuffFactory { public Buff CreateBuff() => new DefenceDebuff(); }
+    private class MagicalDefenceDebuffFactory : IBuffFactory { public Buff CreateBuff() => new MagicalDefenceDebuff(); }
     private class MoveSpeedDebuffFactory : IBuffFactory { public Buff CreateBuff() => new MoveSpeedDebuff(); }
     private class CurseFactory : IBuffFactory { public Buff CreateBuff() => new Curse(); }
     private class AddictedFactory : IBuffFactory { public Buff CreateBuff() => new Addicted(); }

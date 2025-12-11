@@ -10,7 +10,8 @@ public class MoleRatKing : MoleRat
     private readonly List<GameObjectType> _typeList = new() { GameObjectType.Sheep, GameObjectType.Tower };
     private bool _burrow = false;
     private bool _stealWool = false;
-    private readonly float _stealWoolParam = 0.1f;
+    
+    private readonly float _stealWoolParam = DataManager.SkillDict[(int)Skill.MoleRatKingStealWool].Value;
     
     protected override Skill NewSkill
     {
@@ -22,6 +23,7 @@ public class MoleRatKing : MoleRat
             {
                 case Skill.MoleRatKingBurrow:
                     _burrow = true;
+                    BurrowEvasionParam = (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MoleRatKingStealWool:
                     _stealWool = true;
@@ -138,8 +140,8 @@ public class MoleRatKing : MoleRat
             State = State.Rush;
             if (StateChanged)
             {
-                MoveSpeedParam += 2;
-                EvasionParam += 30; 
+                MoveSpeedParam += BurrowSpeedParam;
+                EvasionParam += BurrowEvasionParam; 
             }
         }
         
@@ -148,8 +150,8 @@ public class MoleRatKing : MoleRat
             State = State.Underground;
             if (StateChanged)
             {
-                MoveSpeedParam += 2;
-                EvasionParam += 40;
+                MoveSpeedParam += BurrowSpeedParam;
+                EvasionParam += BurrowEvasionParam;
             }
         }
 
@@ -157,16 +159,16 @@ public class MoleRatKing : MoleRat
         {
             State = GetRandomState(State.Attack, State.Attack2);
             SyncPosAndDir();
-            MoveSpeedParam -= 2;
-            EvasionParam -= 30;
+            MoveSpeedParam -= BurrowSpeedParam;
+            EvasionParam -= BurrowEvasionParam;
         }
 
         if (state == State.UndergroundToIdle)
         {
             State = GetRandomState(State.Attack, State.Attack2);
             SyncPosAndDir();
-            MoveSpeedParam -= 2;
-            EvasionParam -= 40;
+            MoveSpeedParam -= BurrowSpeedParam;
+            EvasionParam -= BurrowEvasionParam;
         }
     }
     

@@ -1,12 +1,14 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
 public class TargetDummy : PracticeDummy
 {
     private bool _heal = false;
-    protected float HealParam = 0.15f;
+    private bool _aggro = false;
+    protected float HealParam = DataManager.SkillDict[(int)Skill.TargetDummyHealSelf].Value;
     
     protected override Skill NewSkill
     {
@@ -20,11 +22,10 @@ public class TargetDummy : PracticeDummy
                     _heal = true;
                     break;
                 case Skill.TargetDummyPoisonResist:
-                    PoisonResist += 10;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;;
                     break;
                 case Skill.TargetDummyAggro:
-                    Reflection = true;
-                    ReflectionRate = 0.1f;
+                    _aggro = true;
                     break;
             }
         }
@@ -90,6 +91,19 @@ public class TargetDummy : PracticeDummy
             AttackEnded = true;
             Room.SpawnEffect(EffectId.StateHeal, this, this, PosInfo, true);
             Hp += (int)(MaxHp * HealParam);
+            
+            if (_aggro)
+            {
+                var targets = Room.FindTargets(this, 
+                    new[] { GameObjectType.Monster }, TotalSkillRange);
+                foreach (var target in targets)
+                {
+                    if (target.Targetable == false || target.Room != Room || target is not Monster monster) continue;
+                    if (AddBuffAction == null) continue;
+                    Room.Push(AddBuffAction, BuffId.Aggro, 
+                        BuffParamType.None, monster, this, 0, 2000, false);
+                }
+            }
         });
     }
 }

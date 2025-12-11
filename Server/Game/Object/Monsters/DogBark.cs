@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -10,6 +11,8 @@ public class DogBark : DogPup
     private bool _4Hit = false;
     private HashSet<int> _currentSet = new();
     protected short HitCount = 0;
+    
+    private readonly float _crowdAttackSpeedParam = DataManager.SkillDict[(int)Skill.DogBarkAdjacentAttackSpeed].Value / 100f;
     
     protected override Skill NewSkill
     {
@@ -23,7 +26,7 @@ public class DogBark : DogPup
                     _attackSpeedUp = true;
                     break;
                 case Skill.DogBarkFireResist:
-                    FireResist += 15;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.DogBarkFourthAttack:
                     _4Hit = true;
@@ -63,12 +66,12 @@ public class DogBark : DogPup
         // 추가된 유닛에 버프 적용
         foreach (var dogId in newSet.Where(dogId => _currentSet.Contains(dogId) == false))
         {
-            if (Room.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam += 0.05f;
+            if (Room.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam += _crowdAttackSpeedParam;
         }
         // 제거된 유닛에서 버프 제거
         foreach (var dogId in _currentSet.Where(dogId => newSet.Contains(dogId) == false))
         {
-            if (Room.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam -= 0.05f;
+            if (Room.FindGameObjectById(dogId) is Creature creature) creature.AttackSpeedParam -= _crowdAttackSpeedParam;
         }
         // 현재 상태를 새로운 상태로 업데이트
         _currentSet = newSet;

@@ -137,6 +137,14 @@ public partial class GameRoom
         if ((int)upgradeUnitId % 100 % 3 == 0 && GetBaseLevel(faction) < 2)
         {
             SendWarningMessage(player, "warning_in_game_lack_of_base_level");
+            
+            // Tutorial
+            _tutorialTrigger.TryTrigger(player, player.Faction,
+                $"Battle{player.Faction}.InfoUnitUpgradeCondition", 
+                true, 
+                () => true);
+
+            return;
         }
         
         var lackOfGold = faction == Faction.Sheep 

@@ -362,7 +362,7 @@ public partial class Map
 
     public void LoadMap(int mapId = 1)
     {
-        var pathPrefix = Environment.GetEnvironmentVariable("MAP_DATA_PATH") ??
+        var pathPrefix = Environment.GetEnvironmentVariable("Map__Path") ??
                             "/Users/jwy/Documents/Dev/CryWolf/Common/MapData";
         MinX = -100;
         MaxX = 100;

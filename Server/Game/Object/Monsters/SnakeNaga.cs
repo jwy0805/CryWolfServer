@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -9,8 +10,11 @@ public class SnakeNaga : Snake
     private bool _bigFire;
     private bool _drain;
     private bool _meteor;
-    private readonly float _meteorRange = 3f;
-    private readonly float _drainParam = 0.2f;
+    
+    private readonly float _drainParam = DataManager.SkillDict[(int)Skill.SnakeNagaDrain].Value;
+    private readonly float _meteorRange = DataManager.SkillDict[(int)Skill.SnakeNagaMeteor].Value;
+    private int MeteorDamage => (int)(TotalSkillDamage * DataManager.SkillDict[(int)Skill.SnakeNagaMeteor].Coefficient);
+
     private PositionInfo _meteorPos = new();
     
     protected override Skill NewSkill
@@ -22,17 +26,17 @@ public class SnakeNaga : Snake
             switch (Skill)
             {
                 case Skill.SnakeNagaBigFire:
-                    Attack += 20;
+                    Attack += (int)DataManager.SkillDict[(int)Skill].Value;
                     _bigFire = true;
                     break;
                 case Skill.SnakeNagaDrain:
                     _drain = true;
                     break;
                 case Skill.SnakeNagaCritical:
-                    CriticalChance += 30;
+                    CriticalChance += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnakeNagaSuperAccuracy:
-                    Accuracy += 70;
+                    Accuracy += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SnakeNagaMeteor:
                     _meteor = true;
@@ -201,7 +205,7 @@ public class SnakeNaga : Snake
         var targets = Room.FindTargets(meteorPos, types, _meteorRange, 2);
         foreach (var target in targets)
         {
-            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+            Room.Push(target.OnDamaged, this, MeteorDamage, Damage.Magical, false);
             Room.Push(AddBuffAction, BuffId.Burn, BuffParamType.None, target, this, 0, 5000, false);
         }
     }

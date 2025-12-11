@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Threading.Channels;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -16,10 +17,10 @@ public class MothLuna : Tower
             switch (Skill)
             {
                 case Skill.MothLunaAccuracy:
-                    Accuracy += 15;
+                    Accuracy += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.MothLunaRange:
-                    AttackRange += 1;
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

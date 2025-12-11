@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -10,7 +11,7 @@ public class Blossom : Bloom
     private bool _faintCritical = false;
     private bool _powerAttack = false;
     private int _attackRemainder = 0;
-    private readonly int _deathProb = 4;
+    private readonly int _deathProb = (int)DataManager.SkillDict[(int)Skill.BlossomDeath].Value;
     
     protected override Skill NewSkill
     {
@@ -21,7 +22,7 @@ public class Blossom : Bloom
             switch (Skill)
             {
                 case Skill.BlossomAttackSpeed:
-                    AttackSpeed += AttackSpeed * 0.3f;
+                    AttackSpeed += AttackSpeed * (DataManager.SkillDict[(int)Skill].Value / (float)100);
                     break;
                 case Skill.BlossomDeath:
                     _blossomDeath = true;

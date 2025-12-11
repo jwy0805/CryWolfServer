@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -34,7 +35,7 @@ public class SoulMage : Haunt
                     _debuffResist = true;
                     break;
                 case Skill.SoulMageCritical:
-                    CriticalChance += 25;
+                    CriticalChance += (int)DataManager.SkillDict[(int)Skill].Value;
                     CriticalMultiplier = 1.5f;
                     break;
             }
@@ -173,29 +174,43 @@ public class SoulMage : Haunt
     
     private async void StarFallEvents(long impactTime, PositionInfo effectPos)
     {
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
-            if (Room == null) return;
-            
-            var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue };
-            var effectCellPos = new Vector3(effectPos.PosX, effectPos.PosY, effectPos.PosZ);
-            var targets = Room.FindTargets(effectCellPos, types, 3.5f, 2);
-            if (targets.Any() == false) return;
-            
-            foreach (var target in targets)
+            await Scheduler.ScheduleEvent(impactTime, () =>
             {
-                Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
-            }
-        });
+                if (Room == null) return;
+            
+                var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue };
+                var effectCellPos = new Vector3(effectPos.PosX, effectPos.PosY, effectPos.PosZ);
+                var targets = Room.FindTargets(effectCellPos, types, 3.5f, 2);
+                if (targets.Any() == false) return;
+            
+                foreach (var target in targets)
+                {
+                    Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
     
     private async void PurpleBeamEvents(long impactTime)
     {
-        await Scheduler.ScheduleEvent(impactTime, () =>
+        try
         {
-            if (Room == null || _effectTarget == null) return;
-            Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.7), Damage.Magical, false);
-        });
+            await Scheduler.ScheduleEvent(impactTime, () =>
+            {
+                if (Room == null || _effectTarget == null) return;
+                Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.7), Damage.Magical, false);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
     
     public override void ApplyEffectEffect()
@@ -217,10 +232,14 @@ public class SoulMage : Haunt
         var types = new[] { GameObjectType.Monster, GameObjectType.MonsterStatue, GameObjectType.Portal };
         var targets = Room.FindTargetsInRectangle(this,
             types, 2, 8.25f, dir, 2);
+        var damage = 0;
         foreach (var target in targets)
         {
             Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+            damage += TotalSkillDamage - target.TotalMagicalDefence;
         }
+        
+        Hp += (int)(damage * DrainParam);
     }
 
     public override void ApplyEffectEffect(EffectId eid)

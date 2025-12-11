@@ -21,7 +21,6 @@ public class Resource : GameObject
     public override void Init()
     {
         if (Room == null) return;
-        if (Player == null) return;
         DestPos = new Vector3(Player.PosInfo.PosX, Player.PosInfo.PosY, Player.PosInfo.PosZ);
         MoveSpeed = 8;
         CalculateYieldTime();
@@ -36,23 +35,31 @@ public class Resource : GameObject
     
     protected virtual async void IncreaseResource(long time)
     {
-        if (Room == null) return;
-        await Scheduler.ScheduleEvent(time, () =>
+        try
         {
-            Room.Push(() =>
+            if (Room == null) return;
+            await Scheduler.ScheduleEvent(time, () =>
             {
-                if (Room == null) return;
-                if (Player.Faction == Faction.Sheep)
+                Room.Push(() =>
                 {
-                    Room.GameInfo.SheepResource += Yield;
-                }
-                else
-                {
-                    Room.GameInfo.WolfResource += Yield;
-                }
-            });
+                    if (Room == null) return;
+                    if (Player.Faction == Faction.Sheep)
+                    {
+                        Room.GameInfo.SheepResource += Yield;
+                        Room.SheepResourceIncreasedFirst(Player);
+                    }
+                    else
+                    {
+                        Room.GameInfo.WolfResource += Yield;
+                    }
+                });
             
-            Room.Push(Room.LeaveGame, Id);
-        });
+                Room.Push(Room.LeaveGame, Id);
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 }

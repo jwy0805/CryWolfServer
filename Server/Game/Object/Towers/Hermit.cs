@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -10,8 +11,10 @@ public class Hermit : Spike
     private bool _shield;
     private int _damageRemainder;
     private Guid _skillEndTaskId;
-    private readonly float _recoverBurnRange = 3f;
-    private readonly int _reflectionFaintRate = 7;
+    
+    private readonly int _attackDefenceTimeValue = (int)DataManager.SkillDict[(int)Skill.HermitNormalAttackDefence].Value * 1000;
+    private readonly int _reflectionFaintRate = (int)DataManager.SkillDict[(int)Skill.HermitAttackerFaint].Value;
+    private readonly float _shieldTransferRate = DataManager.SkillDict[(int)Skill.HermitShield].Value;
     
     protected override Skill NewSkill
     {
@@ -106,7 +109,7 @@ public class Hermit : Spike
         {
             Room.SpawnEffect(EffectId.HermitRecoverBurn, this, this, PosInfo, true, 2700);
             var types = new[] { GameObjectType.Tower };
-            var targets = Room.FindTargets(this, types, _recoverBurnRange);
+            var targets = Room.FindTargets(this, types, TotalSkillRange);
             foreach (var target in targets.Select(target => target as Creature))
             {
                 if (target is null || target.Hp <= 0) continue;
@@ -125,7 +128,7 @@ public class Hermit : Spike
             State = State.Idle;
             if (_shield)
             {
-                ShieldAdd = _damageRemainder;
+                ShieldAdd = (int)(_damageRemainder * _shieldTransferRate);
                 _damageRemainder = 0;
             }
         });
@@ -142,7 +145,7 @@ public class Hermit : Spike
         if (Room == null || Hp <= 0) return;
         
         SkillImpactEvents(300);
-        SkillEndEvents(3000);
+        SkillEndEvents(_attackDefenceTimeValue);
     }
     
     public override void OnFaint()
@@ -162,7 +165,8 @@ public class Hermit : Spike
         var random = new Random();
 
         if (State == State.Skill && damageType == Damage.Normal)
-        {   // Normal Attack Defence
+        {   
+            // Normal Attack Defence
             _damageRemainder += damage;
             damage = 0;
         }

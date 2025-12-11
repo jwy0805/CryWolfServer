@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -8,7 +9,9 @@ public class TrainingDummy : TargetDummy
 {
     private bool _accuracy = false;
     private bool _faint = false;
-    private readonly int _faintProb = 30;
+    
+    private readonly int _accuracyBuffParam = (int)DataManager.SkillDict[(int)Skill.TrainingDummyAccuracy].Value;
+    private readonly int _faintProb = (int)DataManager.SkillDict[(int)Skill.TrainingDummyFaintAttack].Value;
     
     protected override Skill NewSkill
     {
@@ -18,15 +21,15 @@ public class TrainingDummy : TargetDummy
             Skill = value;
             switch (Skill)
             {
+                case Skill.TrainingDummyFaintAttack:
+                    _faint = true;
+                    break;
                 case Skill.TrainingDummyAccuracy:
                     _accuracy = true;
                     break;
                 case Skill.TrainingDummyHealth:
-                    MaxHp += 200;
-                    Hp += 200;
-                    break;
-                case Skill.TrainingDummyFaintAttack:
-                    _faint = true;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }
@@ -106,6 +109,20 @@ public class TrainingDummy : TargetDummy
             if (Target == null || Target.Targetable == false || Room == null || Hp <= 0) return;
             AttackEnded = true;
             
+            // Heal, Aggro -> Inherited from TargetDummy
+            Room.SpawnEffect(EffectId.StateHeal, this, this, PosInfo, true);
+            Hp += (int)(MaxHp * HealParam);
+            
+            var aggroTargets = Room.FindTargets(this, 
+                new[] { GameObjectType.Monster }, TotalSkillRange);
+            foreach (var target in aggroTargets)
+            {
+                if (target.Targetable == false || target.Room != Room || target is not Monster monster) continue;
+                if (AddBuffAction == null) continue;
+                Room.Push(AddBuffAction, BuffId.Aggro, 
+                    BuffParamType.None, monster, this, 0, 2000, false);
+            }
+            
             // Accuracy Buff
             if (_accuracy)
             {   
@@ -115,13 +132,9 @@ public class TrainingDummy : TargetDummy
                 {
                     if (target.Targetable == false || target.Hp <= 0) continue;
                     Room.Push(AddBuffAction, BuffId.AccuracyBuff,
-                        BuffParamType.Constant, target, this, 20, 5000, false);
+                        BuffParamType.Constant, target, this, _accuracyBuffParam, 5000, false);
                 }
             }
-            
-            // Heal -> Inherited from TargetDummy
-            Room.SpawnEffect(EffectId.StateHeal, this, this, PosInfo, true);
-            Hp += (int)(MaxHp * HealParam);
         });
     }
 }

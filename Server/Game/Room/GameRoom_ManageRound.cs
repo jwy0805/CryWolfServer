@@ -8,6 +8,7 @@ public partial class GameRoom
 {
     private bool _checked;
     private readonly int _forwardParam = 4;
+    private readonly int _upkeepParam = 4;
     private readonly Scheduler _scheduler = new();
 
     private struct PlayerRewardPackets
@@ -38,14 +39,14 @@ public partial class GameRoom
         if (primeSheep != null && _portal != null) return;
         if (primeSheep == null)
         {
-            Console.WriteLine($"{DateTime.Now} - Game Over in Room {RoomId}, Mode: {GameMode}, Wolf win.");
+            Console.WriteLine($"[Room {RoomId}]{DateTime.Now} - Game Over, Mode: {GameMode}, Wolf win.");
             await GameOver(wolfPlayer.Session?.UserId ?? -1, sheepPlayer.Session?.UserId ?? -1);
             return;
         }
         
         if (_portal?.Room == null)
         {
-            Console.WriteLine($"{DateTime.Now} - Game Over in Room {RoomId}, Mode: {GameMode}, Sheep win.");
+            Console.WriteLine($"[Room {RoomId}]{DateTime.Now} - Game Over, Mode: {GameMode}, Sheep win.");
             await GameOver(sheepPlayer.Session?.UserId ?? -1, wolfPlayer.Session?.UserId ?? -1);
         }
     }
@@ -57,34 +58,32 @@ public partial class GameRoom
 
         if (!_notifiedTowerExcess && _towerTracker.HasAnyExcessThisRound)
         {
-            var player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Sheep);
-
-            if (GameMode == GameMode.Tutorial && !_tutorialTags["UpkeepReminder"])
-            {
-                player?.Session?.Send(new S_ShowTutorialTooltip { Tag = "UpkeepReminder" });
-                _tutorialTags["UpkeepReminder"] = true;
-            }
-            else
-            {
-                player?.Session?.Send(new S_SendWarningInGame { MessageKey = "warning_in_game_tower_upkeep" });
-                _notifiedTowerExcess = true;
-            }
+            SendUpkeepWarning(Faction.Sheep);
         }
         
         if (!_notifiedStatueExcess && _statueTracker.HasAnyExcessThisRound)
         {
-            var player = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
+            SendUpkeepWarning(Faction.Wolf);
+        }
+    }
 
-            if (GameMode == GameMode.Tutorial && !_tutorialTags["UpkeepReminder"])
-            {
-                player?.Session?.Send(new S_ShowTutorialTooltip { Tag = "UpkeepReminder" });
-                _tutorialTags["UpkeepReminder"] = true;
-            }
-            else
-            {
-                player?.Session?.Send(new S_SendWarningInGame { MessageKey = "warning_in_game_statue_upkeep" });
-                _notifiedStatueExcess = true;   
-            }
+    private void SendUpkeepWarning(Faction faction)
+    {
+        var player = _players.Values.FirstOrDefault(p => p.Faction == faction);
+        if (player == null) return;
+
+        var messageKey = faction == Faction.Sheep
+            ? "warning_in_game_tower_upkeep"
+            : "warning_in_game_statue_upkeep";
+        player.Session?.Send(new S_SendWarningInGame { MessageKey = messageKey });
+                
+        if (faction == Faction.Wolf)
+        {
+            _notifiedStatueExcess = true;   
+        }
+        else
+        {
+            _notifiedTowerExcess = true;
         }
     }
     
@@ -208,6 +207,17 @@ public partial class GameRoom
             }
 
             GameInfo.FenceMovedThisRound = true;
+            
+            // Tutorial
+            var tutorialPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
+            if (tutorialPlayer != null)
+            {
+                _tutorialTrigger.TryTrigger(tutorialPlayer, Faction.Wolf,
+                    "BattleWolf.AlertExpand",
+                    false,
+                    () => tutorialPlayer.IsNpc == false
+                    );
+            }
         }
         catch (Exception ex)
         {
@@ -257,8 +267,7 @@ public partial class GameRoom
         {
             if (DataManager.UnitDict.TryGetValue((int)towerExcess.UnitId, out var unitData))
             {
-                int upkeepCost = unitData.Stat.RequiredResources;
-                GameInfo.SheepUpkeep += upkeepCost;
+                GameInfo.SheepUpkeep += CalcUpkeepCost(unitData.Id, towerExcess.PeakExcess);
             }
         }
 
@@ -266,10 +275,20 @@ public partial class GameRoom
         {
             if (DataManager.UnitDict.TryGetValue((int)statueExcess.UnitId, out var unitData))
             {
-                int upkeepCost = unitData.Stat.RequiredResources;
-                GameInfo.WolfUpkeep += upkeepCost;
+                GameInfo.WolfUpkeep += CalcUpkeepCost(unitData.Id, statueExcess.PeakExcess);
             }
         }
+    }
+    
+    private int CalcUpkeepCost(int unitId, int excessCount)
+    {
+        if (DataManager.UnitDict.TryGetValue(unitId, out var unitData))
+        {
+            double upkeepCost = unitData.Stat.RequiredResources / (double)_upkeepParam;
+            return (int)(upkeepCost * Math.Pow(3, excessCount - 1));
+        }
+
+        return 0;
     }
 
     #region GameOver&Rewards

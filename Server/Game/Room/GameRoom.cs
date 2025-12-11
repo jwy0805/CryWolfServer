@@ -24,11 +24,12 @@ public partial class GameRoom : JobSerializer, IDisposable
     private readonly ConcurrentDictionary<int, Effect> _effects = new();
     private readonly ConcurrentDictionary<int, Projectile> _projectiles = new();
 
-    private readonly UpkeepTracker<Tower> _towerTracker = new(tower => tower.UnitId);
-    private readonly UpkeepTracker<MonsterStatue> _statueTracker = new(statue => statue.UnitId);
+    private readonly UpkeepTracker<Tower> _towerTracker;
+    private readonly UpkeepTracker<MonsterStatue> _statueTracker;
     private bool _notifiedTowerExcess;
     private bool _notifiedStatueExcess;
     
+    private GameMode _gameMode;
     private readonly Random _random = new();
     private int _round;
     private readonly long _interval = 1000;
@@ -38,11 +39,24 @@ public partial class GameRoom : JobSerializer, IDisposable
     private bool _infoInit;
     private bool _gameOver;
     private Stage? _tutorialWaveModule;
+    private ITutorialTrigger _tutorialTrigger = new IgnoreTutorialTrigger();
     
     private readonly ConcurrentDictionary<Faction, AiController> _aiControllers = new();
     
-    public GameMode GameMode { get; set; }
-    // public Player? Npc { get; set; }
+    public GameMode GameMode
+    {
+        get => _gameMode;
+        set
+        {
+            _gameMode = value;
+
+            _tutorialTrigger = _gameMode switch
+            {
+                GameMode.Tutorial => new TutorialTriggerService(_gameMode),
+                _ => new IgnoreTutorialTrigger()
+            };
+        } 
+    }
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
@@ -52,13 +66,14 @@ public partial class GameRoom : JobSerializer, IDisposable
     public int RoomId { get; set; }
     public int RoundTime { get; private set; } = 24;
     public bool RoomActivated { get; set; }
-    public bool TutorialSpawnFlag { get; set; }
     public Map Map { get; private set; } = new();
     public int MapId { get; set; }
     public GameManager.GameData GameData { get; set; } = new();
     
     // Single Play Properties
     public int StageId { get; set; }
+    // Tutorial Properties
+    public bool TutorialSpawnFlag { get; set; }
     
     public struct TargetDistance
     {
@@ -71,6 +86,12 @@ public partial class GameRoom : JobSerializer, IDisposable
     private int GetPortalLevel() => _portal?.Level ?? 0;
     public int GetNumberOfTowers() => _towers.Count;
     public int GetNumberOfStatues() => _statues.Count;
+
+    public GameRoom()
+    {
+        _towerTracker = new UpkeepTracker<Tower>(tower => tower.UnitId, this, Faction.Sheep);
+        _statueTracker = new UpkeepTracker<MonsterStatue>(statue => statue.UnitId, this, Faction.Wolf);
+    }
     
     public void Init(int mapId)
     {
@@ -133,6 +154,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         {
             CheckMonsters();
         }
+        // --- Single Play ---
         
         _timeSendTime = time;
     }
@@ -288,7 +310,8 @@ public partial class GameRoom : JobSerializer, IDisposable
         }
     }
 
-    private void EnterGameProjectile(GameObject gameObject, Vector3 targetPos, float speed, int parentId, bool sound = true) 
+    private void EnterGameProjectile(
+        GameObject gameObject, Vector3 targetPos, float speed, int parentId, bool sound = true) 
     {
         var projectile = (Projectile)gameObject;
         _projectiles.TryAdd(projectile.Id, projectile);
@@ -301,14 +324,19 @@ public partial class GameRoom : JobSerializer, IDisposable
         Broadcast(spawnPacket);
     }
 
-    private void EnterGameEffect(GameObject gameObject, int parentId, bool trailingParent, int duration = 2000)
+    private void EnterGameEffect(
+        GameObject gameObject, int parentId, bool trailingParent, int duration = 2000, float scale = 1)
     {
         var effect = (Effect)gameObject; 
         _effects.TryAdd(gameObject.Id, effect);
         effect.Room = this;
         var spawnPacket = new S_SpawnEffect
         {
-            Object = gameObject.Info, ParentId = parentId, TrailingParent = trailingParent, Duration = duration
+            Object = gameObject.Info,
+            ParentId = parentId, 
+            TrailingParent = trailingParent, 
+            Duration = duration,
+            Scale = scale
         };
         Broadcast(spawnPacket);
     }

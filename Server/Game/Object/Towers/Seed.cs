@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,10 +14,10 @@ public class Seed : Tower
             switch (Skill)
             {
                 case Skill.SeedEvasion:
-                    Evasion += 10;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SeedRange:
-                    AttackRange += 1;
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

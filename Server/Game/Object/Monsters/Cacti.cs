@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,11 +14,11 @@ public class Cacti : Monster
             switch (Skill)
             {
                 case Skill.CactiDefence:
-                    MaxHp += 40;
-                    Hp += 40;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
-                case Skill.CactiDefence2:
-                    Defence += 2;
+                case Skill.CactiFireResist:
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -16,17 +17,17 @@ public class Haunt : Soul
             Skill = value;
             switch (Skill)
             {
-                case Skill.HauntFireResist:
-                    FireResist += 10;
-                    break;
-                case Skill.HauntPoisonResist:
-                    PoisonResist += 10;
-                    break;
                 case Skill.HauntFire:
                     _fire = true;
                     break;
                 case Skill.HauntRange:
-                    AttackRange += 2.0f;
+                    AttackRange += DataManager.SkillDict[(int)Skill].Value;
+                    break;
+                case Skill.HauntFireResist:
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
+                    break;
+                case Skill.HauntPoisonResist:
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

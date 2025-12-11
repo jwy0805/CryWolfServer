@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -9,7 +10,7 @@ public class MosquitoStinger : MosquitoPester
     private bool _woolStop = false;
     private bool _sheepDeath = false;
     private bool _infection = false;
-    private readonly float _deathRate = 5;
+    private float _deathRate = DataManager.SkillDict[(int)Skill.MosquitoStingerSheepDeath].Value;
 
     protected override Skill NewSkill
     {
@@ -43,7 +44,7 @@ public class MosquitoStinger : MosquitoPester
     {
         if (Room == null) return;
         // Targeting
-        Target = Room.FindClosestPriorityTarget(this, _typeList, Stat.AttackType); 
+        Target = Room.FindClosestPriorityTarget(this, TypeList, Stat.AttackType); 
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;

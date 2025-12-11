@@ -21,7 +21,7 @@ public class Sheep : Creature, ISkillObserver
     public int YieldDecrement { get; set; }
     public bool YieldStop { get; set; }
     public bool Infection { get; set; }
-
+    
     public Sheep()
     {
         ObjectType = GameObjectType.Sheep;

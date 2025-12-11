@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -8,9 +9,9 @@ public class SunflowerFairy : SunBlossom
     private bool _fenceHeal;
     private bool _shield;
     private bool _double;
-    
-    protected readonly int FenceHealParam = 8;
-    protected readonly int ShieldParam = 180;
+
+    protected int FenceHealParam;
+    protected int ShieldParam;
     
     protected override Skill NewSkill
     {
@@ -22,12 +23,14 @@ public class SunflowerFairy : SunBlossom
             {
                 case Skill.SunflowerFairyFenceHeal:
                     _fenceHeal = true;
+                    FenceHealParam = (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SunflowerFairyShield:
                     _shield = true;
+                    ShieldParam = (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SunflowerFairyHealParamUp:
-                    HealParam = 120;
+                    HealParam = (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SunflowerFairyDoubleBuff:
                     _double = true;

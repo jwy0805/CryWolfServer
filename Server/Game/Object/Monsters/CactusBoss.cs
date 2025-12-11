@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 using Random = System.Random;
 
@@ -12,9 +13,11 @@ public class CactusBoss : Cactus
     private bool _breathHeal;
     private bool _breathAggro;
     private bool _rushed;
-    private readonly int _rushSpeed = 3;
-    private int HealParam => 60 + SkillParam;
-    private int SmashDamage => 150 + SkillParam;
+    
+    private readonly int _rushSpeed = (int)DataManager.SkillDict[(int)Skill.CactusBossRush].Value;
+
+    private int SmashDamage => (int)(TotalSkillDamage * DataManager.SkillDict[(int)Skill.CactusBossRush].Coefficient);
+    private int HealParam => (int)(TotalSkillDamage * DataManager.SkillDict[(int)Skill.CactusBossHeal].Coefficient);
     
     protected override Skill NewSkill
     {

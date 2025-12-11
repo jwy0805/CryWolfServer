@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -7,6 +8,8 @@ public class Hare : Rabbit
 {
     private bool _punch = false;
     private bool _defenceDown = false;
+    
+    private readonly int _defenceDecreaseParam = (int)DataManager.SkillDict[(int)Skill.HarePunchDefenceDown].Value;
     
     protected override Skill NewSkill
     {
@@ -23,7 +26,7 @@ public class Hare : Rabbit
                     _defenceDown = true;
                     break;
                 case Skill.HareEvasion:
-                    Evasion += 12;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }
@@ -174,6 +177,10 @@ public class Hare : Rabbit
         {
             if (target is not Creature creature) return;
             Room.Push(AddBuffAction, BuffId.Aggro, BuffParamType.None, creature, this, 0, 2000, false);
+            if (_defenceDown)
+            {
+                creature.DefenceParam -= _defenceDecreaseParam;
+            }
         }
         else
         {

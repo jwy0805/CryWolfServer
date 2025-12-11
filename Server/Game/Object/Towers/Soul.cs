@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -7,7 +8,7 @@ namespace Server.Game;
 public class Soul : Tower
 {
     private bool _drain = false;
-    protected readonly float DrainParam = 0.2f;
+    protected readonly float DrainParam = DataManager.SkillDict[(int)Skill.SoulDrain].Value;
     
     protected override Skill NewSkill
     {
@@ -18,10 +19,10 @@ public class Soul : Tower
             switch (Skill)
             {
                 case Skill.SoulAttack:
-                    Attack += 10;
+                    Attack += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.SoulAttackSpeed:
-                    AttackSpeed += AttackSpeed * 0.1f;
+                    AttackSpeed += AttackSpeed * (DataManager.SkillDict[(int)Skill].Value / (float)100);
                     break;
                 case Skill.SoulDrain:
                     _drain = true;

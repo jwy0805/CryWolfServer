@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Security.Cryptography;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -11,9 +12,9 @@ public class MothMoon : MothLuna
     private bool _sheepDebuffRemove;
     private bool _sheepHeal;
     private bool _sheepShield;
-    
-    protected int HealParam = 80;
-    protected readonly int ShieldParam = 100;
+
+    protected int HealParam = (int)DataManager.SkillDict[(int)Skill.MothMoonSheepHeal].Value;
+    protected readonly int ShieldParam = (int)DataManager.SkillDict[(int)Skill.MothMoonSheepShield].Value;
     
     protected override Skill NewSkill
     {
@@ -33,7 +34,7 @@ public class MothMoon : MothLuna
                     _sheepDebuffRemove = true;
                     break;
                 case Skill.MothMoonAttackSpeed:
-                    AttackSpeed += AttackSpeed * 0.2f;
+                    AttackSpeed += AttackSpeed * (DataManager.SkillDict[(int)Skill].Value / (float)100);
                     break;
             }
         }

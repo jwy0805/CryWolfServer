@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -6,8 +7,8 @@ public class Fungi : Mushroom
 {
     private bool _poison;
     private bool _closestHeal;
-    private readonly float _closestHealRange = 3;
-    private readonly float _closestHealParam = 120;
+    
+    private readonly float _closestHealParam = DataManager.SkillDict[(int)Skill.FungiClosestHeal].Value;
     
     protected override Skill NewSkill
     {
@@ -21,7 +22,7 @@ public class Fungi : Mushroom
                     _poison = true;
                     break;
                 case Skill.FungiPoisonResist:
-                    PoisonResist += 20;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.FungiClosestHeal:
                     _closestHeal = true;
@@ -98,7 +99,7 @@ public class Fungi : Mushroom
         if (_closestHeal)
         {
             var fungus = Room.FindTargetsBySpecies(this, GameObjectType.Tower,
-                new List<UnitId> { UnitId.Mushroom, UnitId.Fungi, UnitId.Toadstool }, _closestHealRange);
+                new List<UnitId> { UnitId.Mushroom, UnitId.Fungi, UnitId.Toadstool }, TotalSkillRange);
             if (fungus.Count == 0) return;
             foreach (var fungi in fungus.Where(fungi => fungi.Id != Id))
             {

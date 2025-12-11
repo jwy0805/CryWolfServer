@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -8,9 +9,11 @@ public class MoleRat : Burrow
     private bool _burrowEvasion = false;
     private bool _drain = false;
     private bool _stealAttack = false;
-    
-    protected readonly float DrainParam = 0.15f;
-    protected readonly float StealAttackParam = 0.15f;
+
+    protected readonly float BurrowSpeedParam = DataManager.SkillDict[(int)Skill.MoleRatBurrowSpeed].Value;
+    protected int BurrowEvasionParam = (int)DataManager.SkillDict[(int)Skill.MoleRatBurrowEvasion].Value;
+    protected readonly float DrainParam = DataManager.SkillDict[(int)Skill.MoleRatDrain].Value;
+    protected readonly float StealAttackParam = DataManager.SkillDict[(int)Skill.MoleRatStealAttack].Value;
     protected int StolenObjectId;
     protected int StolenDamage;
     
@@ -67,16 +70,16 @@ public class MoleRat : Burrow
         if (state == State.IdleToRush)
         {
             State = State.Rush;
-            if (_burrowSpeed && StateChanged) MoveSpeedParam += 2;
-            if (_burrowEvasion && StateChanged) EvasionParam += 30;
+            if (_burrowSpeed && StateChanged) MoveSpeedParam += BurrowSpeedParam;
+            if (_burrowEvasion && StateChanged) EvasionParam += BurrowEvasionParam;
         }
 
         if (state == State.RushToIdle)
         {
             State = State.Attack;
             SyncPosAndDir();
-            if (_burrowSpeed && StateChanged) MoveSpeedParam -= 2;
-            if (_burrowEvasion && StateChanged) EvasionParam -= 30;
+            if (_burrowSpeed && StateChanged) MoveSpeedParam -= BurrowSpeedParam;
+            if (_burrowEvasion && StateChanged) EvasionParam -= BurrowEvasionParam;
         }
     }
     

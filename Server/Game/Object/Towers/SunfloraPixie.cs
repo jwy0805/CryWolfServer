@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -11,7 +12,8 @@ public class SunfloraPixie : SunflowerFairy
     private bool _invincible;
     private bool _debuffRemove;
     private bool _triple;
-    private readonly int _mpRecoverParam = 40;
+    
+    private readonly int _mpRecoverParam = (int)DataManager.SkillDict[(int)Skill.SunfloraPixieRecoverMp].Value;
     
     protected override Skill NewSkill
     {
@@ -217,6 +219,17 @@ public class SunfloraPixie : SunflowerFairy
                 {
                     Room.Push(AddBuffAction, BuffId.Invincible,
                         BuffParamType.None, target, this, 0, 3000, false);
+                }
+            }
+            else
+            {
+                var targets = Room.FindTargets(this, types, TotalSkillRange, AttackType)
+                    .OrderByDescending(target => Way == SpawnWay.North ? target.CellPos.Z : -target.CellPos.Z)
+                    .Take(2)
+                    .ToList();
+                foreach (var target in targets)
+                {
+                    target.ShieldAdd = ShieldParam;
                 }
             }
         });

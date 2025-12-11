@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -14,8 +15,13 @@ public class Creeper : Lurker
     
     protected bool Rushed = false;
     protected float SavedDir;
-    protected readonly int RushSpeed = 4;
-    protected readonly float BounceParam = 1f;
+    
+    protected readonly float RushSpeed = DataManager.SkillDict[(int)Skill.CreeperRoll].Value;
+    protected readonly float BounceParam = 2f;
+    protected readonly float PoisonValue = 0.05f;
+    
+    protected int RushDamage => (int)(TotalSkillDamage * DataManager.SkillDict[(int)Skill.CreeperRoll].Coefficient);
+    protected int UpgradedRushDamage => (int)(RushDamage * DataManager.SkillDict[(int)Skill.CreeperRollDamageUp].Coefficient);
     
     protected override Skill NewSkill
     {
@@ -24,7 +30,7 @@ public class Creeper : Lurker
         {
             Skill = value;
             switch (Skill)
-            {
+            { 
                 case Skill.CreeperPoison:
                     _poison = true;
                     break;
@@ -226,12 +232,12 @@ public class Creeper : Lurker
         if (_poison)
         {
             Room.Push(AddBuffAction, BuffId.Addicted,
-                BuffParamType.Percentage, target, this, 0.05f, 5000, false);
+                BuffParamType.Percentage, target, this, PoisonValue, 5000, false);
         }
         else if (_nestedPoison)
         {
             Room.Push(AddBuffAction, BuffId.Addicted,
-                BuffParamType.Percentage, target, this, 0.05f, 5000, true);
+                BuffParamType.Percentage, target, this, PoisonValue, 5000, true);
         }
         
         Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
@@ -241,13 +247,13 @@ public class Creeper : Lurker
     {
         if (target == null || Room == null) return;
         
-        if (_rollDamageUp)
+        if (_rollDamageUp && target.ObjectType == GameObjectType.Fence)
         {
-            Room.Push(target.OnDamaged, this, TotalSkillDamage * 2, Damage.Normal, false);
+            Room.Push(target.OnDamaged, this, UpgradedRushDamage, Damage.Normal, false);
         }
         else
         {
-            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Normal, false);
+            Room.Push(target.OnDamaged, this, RushDamage, Damage.Normal, false);
         }
     }
     

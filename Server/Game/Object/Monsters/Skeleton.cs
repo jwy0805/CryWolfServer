@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -12,7 +13,8 @@ public class Skeleton : Monster
 
     protected int AdditionalAttackParam;
     protected int PreviousTargetId;
-    protected int DefenceDownParam;
+    protected readonly int DefenceDownParam = (int)DataManager.SkillDict[(int)Skill.SkeletonDefenceDown].Value;
+    protected readonly int DefenceDownNestedParam = (int)DataManager.SkillDict[(int)Skill.SkeletonNestedDebuff].Value;
     
     
     protected override Skill NewSkill
@@ -25,17 +27,15 @@ public class Skeleton : Monster
             {
                 case Skill.SkeletonDefenceDown:
                     _defenceDown = true;
-                    DefenceDownParam = 7;
                     break;
                 case Skill.SkeletonNestedDebuff:
                     _nestedDebuff = true;
-                    DefenceDownParam = 3;
                     break;
                 case Skill.SkeletonAdditionalDamage:
                     _additionalDamage = true;
                     break;
                 case Skill.SkeletonAttackSpeed:
-                    AttackSpeedParam += AttackSpeed * 0.15f;
+                    AttackSpeedParam += DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }
@@ -48,7 +48,9 @@ public class Skeleton : Monster
     }
     
     protected override void UpdateMoving()
-    {   // Targeting
+    {
+        if (Room == null) return;
+        // Targeting
         Target = Room.FindClosestTarget(this, Stat.AttackType);
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   // Target이 없거나 타겟팅이 불가능한 경우
@@ -100,7 +102,7 @@ public class Skeleton : Monster
         {
             if (_nestedDebuff)
             {
-                target.DefenceParam -= DefenceDownParam;
+                target.DefenceParam -= DefenceDownNestedParam;
             }
             else
             {
@@ -114,7 +116,7 @@ public class Skeleton : Monster
         
         if (_additionalDamage)
         {
-            if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownParam;
+            if (target.TotalDefence <= 0) AdditionalAttackParam += DefenceDownNestedParam;
             
             if (AdditionalAttackParam > 0)
             {

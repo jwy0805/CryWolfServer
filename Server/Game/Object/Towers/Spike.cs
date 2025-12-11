@@ -1,5 +1,6 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -17,11 +18,11 @@ public class Spike : Shell
                 case Skill.SpikeReflection:
                     Reflection = true;
                     break;
-                case Skill.SpikeDefence:
-                    Defence += 10;
+                case Skill.SpikeMagicalDefence:
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;;
                     break;
                 case Skill.SpikeFireResist:
-                    FireResist += 25;
+                    FireResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

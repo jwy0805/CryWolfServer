@@ -31,6 +31,18 @@ public partial class GameRoom
         removeBuff.RemoveBuff();
     }
 
+    public void RemoveNestedBuff(BuffId buffId, Creature master)
+    {
+        var removeBuff = (from buff in Buffs 
+            where buff.Master.Id == master.Id && buff.Id == buffId select buff).ToList();
+        if (removeBuff.Count == 0) return;
+        foreach (var buff in removeBuff)
+        {
+            master.Buffs.Remove(buff.Id);
+            buff.RemoveBuff();
+        }
+    }
+
     public void RemoveAllBuffs(Creature master)
     {
         List<Buff> removeBuff = (from buff in Buffs where buff.Master.Id == master.Id select buff).ToList();

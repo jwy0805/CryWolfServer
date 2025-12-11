@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -6,7 +7,8 @@ public class Toadstool : Fungi
 {
     private bool _closestAttackAll;
     private bool _poisonCloud;
-    private readonly int _closestAttackAllParam = 5;
+    
+    private readonly int _closestAttackAllParam = (int)DataManager.SkillDict[(int)Skill.ToadstoolClosestAttackAll].Value;
     
     public bool NestedPoison { get; set; }
     
@@ -22,7 +24,7 @@ public class Toadstool : Fungi
                     _closestAttackAll = true;
                     break;
                 case Skill.ToadstoolPoisonResist:
-                    PoisonResist += 30;
+                    PoisonResist += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
                 case Skill.ToadstoolNestedPoison:
                     NestedPoison = true;

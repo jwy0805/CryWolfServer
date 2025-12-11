@@ -1,11 +1,14 @@
 using System.Numerics;
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
 public class Bomb : Monster
 {
     private bool _bombSkill = false;
+    
+    protected readonly int AttackBuffParam = (int)DataManager.SkillDict[(int)Skill.BombBomb].Value;
     
     protected override Skill NewSkill
     {
@@ -15,16 +18,14 @@ public class Bomb : Monster
             Skill = value;
             switch (Skill)
             {
-                case Skill.BombHealth:
-                    MaxHp += 25;
-                    Hp += 25;
-                    BroadcastHp();
-                    break;
-                case Skill.BombAttack:
-                    Attack += 4;
-                    break;
                 case Skill.BombBomb:
                     _bombSkill = true;
+                    break;
+                case Skill.BombDefence:
+                    Defence += (int)DataManager.SkillDict[(int)Skill].Value;
+                    break;
+                case Skill.BombMpDown:
+                    MaxMp -= (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }
@@ -33,7 +34,7 @@ public class Bomb : Monster
     public override void Init()
     {
         base.Init();
-        UnitRole = Role.Mage;
+        UnitRole = Role.Supporter;
     }
     
     public override void Update()
@@ -140,6 +141,10 @@ public class Bomb : Monster
         {
             if (Room == null) return;
             AttackEnded = true;
+            Target = Room
+                .FindTargets(this, new[] { GameObjectType.Monster }, TotalAttackRange, 2)
+                .OrderBy(go => go.CellPos.Z)
+                .FirstOrDefault(go => go.Id != Id);
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.BombSkill, this, 5f);
@@ -154,10 +159,10 @@ public class Bomb : Monster
         {
             Room.Push(target.OnDamaged, this, TotalAttack, Damage.Normal, false);
         }
-        else
+        else // ProjectileId.BombSkill
         {
             Room.SpawnEffect(EffectId.BombSkillExplosion, this, this, posInfo);
-            Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Magical, false);
+            target.AttackParam += AttackBuffParam;
         }
     }
 

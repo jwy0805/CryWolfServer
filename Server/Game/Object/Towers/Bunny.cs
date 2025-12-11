@@ -1,4 +1,5 @@
 using Google.Protobuf.Protocol;
+using Server.Data;
 
 namespace Server.Game;
 
@@ -13,12 +14,12 @@ public class Bunny : Tower
             switch (Skill)
             {
                 case Skill.BunnyHealth:
-                    MaxHp += 20;
-                    Hp += 20;
+                    MaxHp += (int)DataManager.SkillDict[(int)Skill].Value;
+                    Hp += (int)DataManager.SkillDict[(int)Skill].Value;
                     BroadcastHp();
                     break;
                 case Skill.BunnyEvasion:
-                    Evasion += 5;
+                    Evasion += (int)DataManager.SkillDict[(int)Skill].Value;
                     break;
             }
         }

@@ -100,7 +100,7 @@ public static class AiActions
             var capacityLimit = _heuristics.VerifyCapacity(_blackboard, _policy);
             var score = totalPressure + populationFactor1 + populationFactor2 + resourceFactor + capacityLimit;
             _score = score;
-            // Console.WriteLine($"SpawnUnitActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor1}, PopEval: {populationFactor2}, Resource: {resourceFactor}), Remaining: {_blackboard.MyResource - _cost}");
+            // Console.WriteLine($"[Room {_heuristics.Room.RoomId}]SpawnUnitActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor1}, PopEval: {populationFactor2}, Resource: {resourceFactor}), Remaining: {_blackboard.MyResource - _cost}");
             return _score;
         }
 
@@ -142,7 +142,7 @@ public static class AiActions
             var populationFactor = _heuristics.ComparePopulation(_blackboard, _policy) * SkillUpgradeFactor1;
             var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
             var score = totalPressure + populationFactor + resourceFactor;
-            // Console.WriteLine($"SkillUpgradeActionScore: {score} (Pressure: {totalPressure}, PopComp: {populationFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
+            // Console.WriteLine($"[Room {_heuristics.Room.RoomId}]SkillUpgradeActionScore: {score} (Pressure: {totalPressure}, PopComp: {populationFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
             _score = score;
             return _score;
         }
@@ -180,7 +180,7 @@ public static class AiActions
             var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
             var upgradable = _heuristics.Room.VerifyTechForUnitUpgrade(_blackboard.MyFaction, _unitId);
             _score = totalPressure + populationFactor + valueFactor + resourceFactor;
-            // Console.WriteLine($"UnitUpgradeActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor}, valueFactor: {valueFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
+            // Console.WriteLine($"[Room {_heuristics.Room.RoomId}]UnitUpgradeActionScore: {_score} (Pressure: {totalPressure}, PopComp: {populationFactor}, valueFactor: {valueFactor}, Resource: {resourceFactor},  Remaining: {_blackboard.MyResource - _cost})");
             return upgradable ? _score : -1000;
         }
 
@@ -297,7 +297,7 @@ public static class AiActions
             var score = _heuristics.Room.UpgradeStorageScore(_blackboard);
             var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
             _score = score + resourceFactor;
-            Console.WriteLine($"StorageUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
+            Console.WriteLine($"[Room {_heuristics.Room.RoomId}]StorageUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
             return _score;
         }
 
@@ -327,7 +327,7 @@ public static class AiActions
             var score = _heuristics.Room.UpgradePortalScore(_blackboard);
             var resourceFactor = _heuristics.EvaluateResource(_blackboard, _cost);
             _score = score + resourceFactor;
-            Console.WriteLine($"PortalUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
+            Console.WriteLine($"[Room {_heuristics.Room.RoomId}]PortalUpgradeActionScore: {_score} (Score: {score}, Resource: {resourceFactor}, Remaining: {_blackboard.MyResource - _cost})");
             return _score;
         }
         

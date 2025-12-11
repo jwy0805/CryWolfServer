@@ -36,17 +36,17 @@ public class Projectile : GameObject
             return;
         }
 
-        CalculateAttackTime();
+        _ = CalculateAttackTime();
     }
 
-    private void CalculateAttackTime()
+    private async Task CalculateAttackTime()
     {
         float distance = Vector3.Distance(DestPos, CellPos);
         long attackTime = (long)(distance / MoveSpeed * 1000);
-        AttackImpact(attackTime);
+        await AttackImpact(attackTime);
     }
 
-    protected virtual async void AttackImpact(long impactTime)
+    protected virtual async Task AttackImpact(long impactTime)
     {
         if (Parent == null || Target == null || Target.Targetable == false || Room == null) return;
         await Scheduler.ScheduleEvent(impactTime, () =>

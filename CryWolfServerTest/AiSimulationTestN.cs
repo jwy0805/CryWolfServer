@@ -1,6 +1,7 @@
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Game;
+using Server.Util;
 
 namespace CryWolfServerTest;
 
@@ -10,13 +11,24 @@ public class AiSimulationTestN
     [OneTimeSetUp]
     public void SetUp()
     {
+        try
+        {
+            var logDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "logs");
+            Console.SetOut(new TestLogger(logDir));
+        }
+        catch (Exception e)
+        {
+            TestContext.Progress.WriteLine(e);
+            throw;
+        }
+        
         DataManager.LoadData();
     }
 
     [Test]
     public async Task RunAiGame()
     {
-        const int roomCount = 16;
+        const int roomCount = 100;
         var rooms = new List<GameRoom>(roomCount);
         
         for (int i = 0; i < roomCount; i++)
@@ -32,7 +44,7 @@ public class AiSimulationTestN
         }
 
         var finished = await UpdateAll(() => rooms.All(r => r.RoomActivated == false),
-            10, TimeSpan.FromMinutes(15));
+            10, TimeSpan.FromMinutes(20));
         
         if (!finished)
         {
