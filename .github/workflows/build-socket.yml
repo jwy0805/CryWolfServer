@@ -31,7 +31,7 @@ jobs:
           REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           TAG="${GITHUB_SHA}"
 
-          docker build -t ${REGISTRY}/crywolf/socket:${TAG} -t ${REGISTRY}/crywolf/socket:latest -f Server/DockerfileSocket .
+          docker build -t ${REGISTRY}/crywolf/socket:${TAG} -t ${REGISTRY}/crywolf/socket:latest -f DockerfileSocket .
 
           docker push ${REGISTRY}/crywolf/socket:${TAG}
           docker push ${REGISTRY}/crywolf/socket:latest
