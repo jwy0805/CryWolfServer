@@ -1,0 +1,37 @@
+name: Build & Push Socket Image
+
+on:
+  push:
+    branches: [ "main" ]   # main에 push 될 때마다 실행
+
+env:
+  AWS_REGION: ap-northeast-2
+  AWS_ACCOUNT_ID: 515966508618
+
+jobs:
+  build-and-push-socket:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push socket image
+        run: |
+          REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          TAG="${GITHUB_SHA}"
+
+          docker build -t ${REGISTRY}/crywolf/socket:${TAG} -t ${REGISTRY}/crywolf/socket:latest -f /Server/DockerfileSocket .
+
+          docker push ${REGISTRY}/crywolf/socket:${TAG}
+          docker push ${REGISTRY}/crywolf/socket:latest
