@@ -28,8 +28,8 @@ public partial class GameRoom
             FenceCenter = GameData.InitFenceCenter,
             FenceStartPos = GameData.InitFenceStartPos,
             FenceSize = GameData.InitFenceSize,
-            SheepResource = GameMode == GameMode.Tutorial ? 2400 : 500,
-            WolfResource = GameMode == GameMode.Tutorial ? 2400 : 500
+            SheepResource = GameMode is GameMode.Tutorial or GameMode.Test ? 2000 : 500,
+            WolfResource = GameMode is GameMode.Tutorial or GameMode.Test ? 2000 : 500
         };
 
         SpawnFence(1, 1);

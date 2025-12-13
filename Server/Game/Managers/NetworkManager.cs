@@ -493,7 +493,7 @@ public class NetworkManager
         player.UnitIds = required.UnitIds;
         player.Session = SessionManager.Instance.Find(required.SessionId);
 
-        Console.WriteLine($"{required.SessionId} single play, room {room.RoomId}");
+        Console.WriteLine($"{required.SessionId} single play, room {room.RoomId}, {required.CharacterId} {required.EnemyCharacterId}");
         if (player.Session == null)
         {
             Console.WriteLine($"Session not found for user : {player.Session?.UserId}");

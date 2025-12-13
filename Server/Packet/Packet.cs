@@ -367,8 +367,8 @@ namespace Google.Protobuf.Protocol {
             "RVBfQkxBQ0sQigcqcgoJRW5jaGFudElkEhMKD0VOQ0hBTlRfSURfTk9ORRAA",
             "EhkKFEVOQ0hBTlRfSURfV0lORF9ST0FEEOkHEhkKFEVOQ0hBTlRfSURfRklS",
             "RV9ST0FEEOoHEhoKFUVOQ0hBTlRfSURfRUFSVEhfUk9BRBDrBypMCgtDaGFy",
-            "YWN0ZXJJZBISCg5DSEFSQUNURVJfTk9ORRAAEgkKBEVXQU4Q0Q8SCQoEUklP",
-            "ThDSDxIICgNBTUEQ0w8SCQoERUxJThDUDyrBBgoGVW5pdElkEhAKDFVOS05P",
+            "YWN0ZXJJZBISCg5DSEFSQUNURVJfTk9ORRAAEgkKBEVXQU4QzQgSCQoEUklP",
+            "ThDOCBIICgNBTUEQzwgSCQoERUxJThDQCCrBBgoGVW5pdElkEhAKDFVOS05P",
             "V05fVU5JVBAAEgkKBUJVTk5ZEGUSCgoGUkFCQklUEGYSCAoESEFSRRBnEgwK",
             "CE1VU0hST09NEGgSCQoFRlVOR0kQaRINCglUT0FEU1RPT0wQahIICgRTRUVE",
             "EGsSCgoGU1BST1VUEGwSDgoKRkxPV0VSX1BPVBBtEgcKA0JVRBBuEgkKBUJM",
@@ -458,21 +458,22 @@ namespace Google.Protobuf.Protocol {
             "Eg8KC01hdGNoTWFraW5nEAESEAoMSW5TaW5nbGVHYW1lEAISDwoLSW5NdWx0",
             "aUdhbWUQAxIOCgpJblJhbmtHYW1lEAQSEAoMSW5DdXN0b21HYW1lEAUSDgoK",
             "SW5UdXRvcmlhbBAGEgsKB0luTG9iYnkQBxILCgdPZmZsaW5lEAgqKQoIU3Bh",
-            "d25XYXkSCQoFTk9SVEgQABIJCgVTT1VUSBABEgcKA0FOWRACKnUKC1Byb2R1",
-            "Y3RUeXBlEggKBE5vbmUQABIICgRVbml0EAESDAoITWF0ZXJpYWwQAhILCgdF",
-            "bmNoYW50EAMSCQoFU2hlZXAQBBINCglDaGFyYWN0ZXIQBRIICgRHb2xkEAYS",
-            "CgoGU3BpbmVsEAcSBwoDRXhwEAgqXwoLQ29tbW9uVGV4dHMSCwoHTk9fVEVY",
-            "VBAAEhEKDVJFU09VUkNFX1RFWFQQARIXChNOT1JUSF9DQVBBQ0lUWV9URVhU",
-            "EAMSFwoTU09VVEhfQ0FQQUNJVFlfVEVYVBAEKsECCgZTb3VuZHMSDAoITk9f",
-            "U09VTkQQABIMCghET0dfQklURRABEg0KCVdPTEZfQklURRACEhEKDVdFUkVX",
-            "T0xGX0JJVEUQAxIOCgpEVU1NWV9CTE9XEAQSFAoQQ0FDVFVTX0JPU1NfQkxP",
-            "VxAFEhMKD0RPR19CT1dXT1dfQklURRAGEhQKEERPR19CT1dXT1dfU0tJTEwQ",
-            "BxIXChNUUkFJTklOR19EVU1NWV9CTE9XEAgSDgoKV09MRl9TS0lMTBAJEhIK",
-            "Dk1PTlNURVJfQVRUQUNLEAoSFwoTTU9MRV9SQVRfS0lOR19TVEVBTBALEgsK",
-            "B0dFVF9ETkEQDBIMCghHRVRfR09MRBANEhAKDEVYUEFORF9GRU5DRRAOEhIK",
-            "DlVQR1JBREVfU1RBVFVFEA8SEQoNVVBHUkFERV9UT1dFUhAQKiUKCVNvdW5k",
-            "VHlwZRIGCgJEMxAAEgYKAkQyEAESCAoETE9PUBACQhuqAhhHb29nbGUuUHJv",
-            "dG9idWYuUHJvdG9jb2xiBnByb3RvMw=="));
+            "d25XYXkSCQoFTk9SVEgQABIJCgVTT1VUSBABEgcKA0FOWRACKowBCgtQcm9k",
+            "dWN0VHlwZRINCglDb250YWluZXIQABIICgRVbml0EAESDAoITWF0ZXJpYWwQ",
+            "AhILCgdFbmNoYW50EAMSCQoFU2hlZXAQBBINCglDaGFyYWN0ZXIQBRIICgRH",
+            "b2xkEAYSCgoGU3BpbmVsEAcSBwoDRXhwEAgSEAoMU3Vic2NyaXB0aW9uEAkq",
+            "XwoLQ29tbW9uVGV4dHMSCwoHTk9fVEVYVBAAEhEKDVJFU09VUkNFX1RFWFQQ",
+            "ARIXChNOT1JUSF9DQVBBQ0lUWV9URVhUEAMSFwoTU09VVEhfQ0FQQUNJVFlf",
+            "VEVYVBAEKsECCgZTb3VuZHMSDAoITk9fU09VTkQQABIMCghET0dfQklURRAB",
+            "Eg0KCVdPTEZfQklURRACEhEKDVdFUkVXT0xGX0JJVEUQAxIOCgpEVU1NWV9C",
+            "TE9XEAQSFAoQQ0FDVFVTX0JPU1NfQkxPVxAFEhMKD0RPR19CT1dXT1dfQklU",
+            "RRAGEhQKEERPR19CT1dXT1dfU0tJTEwQBxIXChNUUkFJTklOR19EVU1NWV9C",
+            "TE9XEAgSDgoKV09MRl9TS0lMTBAJEhIKDk1PTlNURVJfQVRUQUNLEAoSFwoT",
+            "TU9MRV9SQVRfS0lOR19TVEVBTBALEgsKB0dFVF9ETkEQDBIMCghHRVRfR09M",
+            "RBANEhAKDEVYUEFORF9GRU5DRRAOEhIKDlVQR1JBREVfU1RBVFVFEA8SEQoN",
+            "VVBHUkFERV9UT1dFUhAQKiUKCVNvdW5kVHlwZRIGCgJEMxAAEgYKAkQyEAES",
+            "CAoETE9PUBACQhuqAhhHb29nbGUuUHJvdG9idWYuUHJvdG9jb2xiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Google.Protobuf.Protocol.MessageId), typeof(global::Google.Protobuf.Protocol.Env), typeof(global::Google.Protobuf.Protocol.Faction), typeof(global::Google.Protobuf.Protocol.State), typeof(global::Google.Protobuf.Protocol.GameObjectType), typeof(global::Google.Protobuf.Protocol.StatType), typeof(global::Google.Protobuf.Protocol.SkillType), typeof(global::Google.Protobuf.Protocol.Damage), typeof(global::Google.Protobuf.Protocol.Direction), typeof(global::Google.Protobuf.Protocol.Asset), typeof(global::Google.Protobuf.Protocol.Skill), typeof(global::Google.Protobuf.Protocol.UnitRegion), typeof(global::Google.Protobuf.Protocol.Role), typeof(global::Google.Protobuf.Protocol.UnitClass), typeof(global::Google.Protobuf.Protocol.SheepId), typeof(global::Google.Protobuf.Protocol.EnchantId), typeof(global::Google.Protobuf.Protocol.CharacterId), typeof(global::Google.Protobuf.Protocol.UnitId), typeof(global::Google.Protobuf.Protocol.Species), typeof(global::Google.Protobuf.Protocol.ProjectileId), typeof(global::Google.Protobuf.Protocol.EffectId), typeof(global::Google.Protobuf.Protocol.ResourceId), typeof(global::Google.Protobuf.Protocol.PlayerServerState), typeof(global::Google.Protobuf.Protocol.UserAct), typeof(global::Google.Protobuf.Protocol.SpawnWay), typeof(global::Google.Protobuf.Protocol.ProductType), typeof(global::Google.Protobuf.Protocol.CommonTexts), typeof(global::Google.Protobuf.Protocol.Sounds), typeof(global::Google.Protobuf.Protocol.SoundType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -1010,10 +1011,10 @@ namespace Google.Protobuf.Protocol {
 
   public enum CharacterId {
     [pbr::OriginalName("CHARACTER_NONE")] CharacterNone = 0,
-    [pbr::OriginalName("EWAN")] Ewan = 2001,
-    [pbr::OriginalName("RION")] Rion = 2002,
-    [pbr::OriginalName("AMA")] Ama = 2003,
-    [pbr::OriginalName("ELIN")] Elin = 2004,
+    [pbr::OriginalName("EWAN")] Ewan = 1101,
+    [pbr::OriginalName("RION")] Rion = 1102,
+    [pbr::OriginalName("AMA")] Ama = 1103,
+    [pbr::OriginalName("ELIN")] Elin = 1104,
   }
 
   public enum UnitId {
@@ -1232,7 +1233,7 @@ namespace Google.Protobuf.Protocol {
   }
 
   public enum ProductType {
-    [pbr::OriginalName("None")] None = 0,
+    [pbr::OriginalName("Container")] Container = 0,
     [pbr::OriginalName("Unit")] Unit = 1,
     [pbr::OriginalName("Material")] Material = 2,
     [pbr::OriginalName("Enchant")] Enchant = 3,
@@ -1241,6 +1242,7 @@ namespace Google.Protobuf.Protocol {
     [pbr::OriginalName("Gold")] Gold = 6,
     [pbr::OriginalName("Spinel")] Spinel = 7,
     [pbr::OriginalName("Exp")] Exp = 8,
+    [pbr::OriginalName("Subscription")] Subscription = 9,
   }
 
   public enum CommonTexts {
@@ -20927,7 +20929,7 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "productType" field.</summary>
     public const int ProductTypeFieldNumber = 2;
-    private global::Google.Protobuf.Protocol.ProductType productType_ = global::Google.Protobuf.Protocol.ProductType.None;
+    private global::Google.Protobuf.Protocol.ProductType productType_ = global::Google.Protobuf.Protocol.ProductType.Container;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::Google.Protobuf.Protocol.ProductType ProductType {
@@ -20975,7 +20977,7 @@ namespace Google.Protobuf.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (ItemId != 0) hash ^= ItemId.GetHashCode();
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) hash ^= ProductType.GetHashCode();
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) hash ^= ProductType.GetHashCode();
       if (Count != 0) hash ^= Count.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -20999,7 +21001,7 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         output.WriteRawTag(16);
         output.WriteEnum((int) ProductType);
       }
@@ -21021,7 +21023,7 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         output.WriteRawTag(16);
         output.WriteEnum((int) ProductType);
       }
@@ -21042,7 +21044,7 @@ namespace Google.Protobuf.Protocol {
       if (ItemId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ProductType);
       }
       if (Count != 0) {
@@ -21063,7 +21065,7 @@ namespace Google.Protobuf.Protocol {
       if (other.ItemId != 0) {
         ItemId = other.ItemId;
       }
-      if (other.ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (other.ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         ProductType = other.ProductType;
       }
       if (other.Count != 0) {
@@ -21191,7 +21193,7 @@ namespace Google.Protobuf.Protocol {
 
     /// <summary>Field number for the "productType" field.</summary>
     public const int ProductTypeFieldNumber = 2;
-    private global::Google.Protobuf.Protocol.ProductType productType_ = global::Google.Protobuf.Protocol.ProductType.None;
+    private global::Google.Protobuf.Protocol.ProductType productType_ = global::Google.Protobuf.Protocol.ProductType.Container;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::Google.Protobuf.Protocol.ProductType ProductType {
@@ -21252,7 +21254,7 @@ namespace Google.Protobuf.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (ItemId != 0) hash ^= ItemId.GetHashCode();
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) hash ^= ProductType.GetHashCode();
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) hash ^= ProductType.GetHashCode();
       if (Count != 0) hash ^= Count.GetHashCode();
       if (Star != 0) hash ^= Star.GetHashCode();
       if (_unknownFields != null) {
@@ -21277,7 +21279,7 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         output.WriteRawTag(16);
         output.WriteEnum((int) ProductType);
       }
@@ -21303,7 +21305,7 @@ namespace Google.Protobuf.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         output.WriteRawTag(16);
         output.WriteEnum((int) ProductType);
       }
@@ -21328,7 +21330,7 @@ namespace Google.Protobuf.Protocol {
       if (ItemId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(ItemId);
       }
-      if (ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) ProductType);
       }
       if (Count != 0) {
@@ -21352,7 +21354,7 @@ namespace Google.Protobuf.Protocol {
       if (other.ItemId != 0) {
         ItemId = other.ItemId;
       }
-      if (other.ProductType != global::Google.Protobuf.Protocol.ProductType.None) {
+      if (other.ProductType != global::Google.Protobuf.Protocol.ProductType.Container) {
         ProductType = other.ProductType;
       }
       if (other.Count != 0) {
