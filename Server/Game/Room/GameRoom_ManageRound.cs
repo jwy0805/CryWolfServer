@@ -111,7 +111,6 @@ public partial class GameRoom
     private async Task MoveForwardTowerAndFence()
     {
         if (_checked) return;
-        _checked = true;
     
         GameInfo.FenceCenter = GameInfo.FenceCenter with { Z = GameInfo.FenceCenter.Z + _forwardParam * 0.5f };
         GameInfo.FenceSize = GameInfo.FenceSize with { Z = GameInfo.FenceSize.Z + _forwardParam };
@@ -193,7 +192,7 @@ public partial class GameRoom
             
             var z = GameInfo.FenceStartPos.Z;
             var statues = _statues.Values
-                .Where(s => z >= s.CellPos.Z - (s.SizeZ - 1) && z <= s.CellPos.Z + (s.SizeZ - 1)).ToList();
+                .Where(s => z >= s.CellPos.Z + (s.SizeZ - 1)).ToList();
             if (statues.Any())
             {
                 var primeSheep = _sheeps.Values.MinBy(s => s.SheepId);
@@ -209,19 +208,37 @@ public partial class GameRoom
             GameInfo.FenceMovedThisRound = true;
             
             // Tutorial
-            var tutorialPlayer = _players.Values.FirstOrDefault(p => p.Faction == Faction.Wolf);
-            if (tutorialPlayer != null)
-            {
-                _tutorialTrigger.TryTrigger(tutorialPlayer, Faction.Wolf,
-                    "BattleWolf.AlertExpand",
-                    false,
-                    () => tutorialPlayer.IsNpc == false
-                    );
-            }
+            await TutorialExpandFenceHandler(z);
+            _checked = true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in MoveForwardTowerAndFence: {ex.Message}");
+        }
+    }
+
+    private async Task TutorialExpandFenceHandler(float fencePosZ)
+    {
+        if (GameMode != GameMode.Tutorial) return;
+        var player = _players.Values.FirstOrDefault(p => !p.IsNpc);
+        if (player == null) return;
+        if (player.Faction == Faction.Sheep)
+        {
+            if (_checked) return;
+            if (fencePosZ >= 10)
+            {
+                await Task.Delay(2000);
+                SpawnTowerOnRelativeZ(UnitId.Toadstool, new Vector3(-3, 0, 2));
+                SpawnTowerOnRelativeZ(UnitId.FlowerPot, new Vector3(3, 0, 2));
+            }
+        }
+        else
+        {
+            _tutorialTrigger.TryTrigger(player, Faction.Wolf,
+                "BattleWolf.AlertExpand",
+                false,
+                () => player.IsNpc == false
+            );
         }
     }
     
@@ -381,7 +398,7 @@ public partial class GameRoom
     {
         var packets = await GetRankReward(winner, loser);
 
-        Console.WriteLine($"{loser.Session?.UserId} vs {winner.Session?.UserId}");
+        Console.WriteLine($"[GetRankRewardHandler] {loser.Session?.UserId} vs {winner.Session?.UserId}");
         
         loser.Session?.Send(packets.LoserPacket);
         winner.Session?.Send(packets.WinnerPacket);

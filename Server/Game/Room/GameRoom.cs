@@ -186,7 +186,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     public void EnterGameNpc(Player npc)
     {
         _players.TryAdd(npc.Id, npc);
-        Console.WriteLine($"NPC Player {npc.Id} entered.");
+        Console.WriteLine($"NPC Player {npc.Id} {npc.Faction} entered.");
         npc.Room = this;
         npc.IsNpc = true;
         npc.Init();
