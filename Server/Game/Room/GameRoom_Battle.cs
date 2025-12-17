@@ -187,10 +187,10 @@ public partial class GameRoom
     {
         var resource = yield switch
         {
-            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver),
-            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden),
-            < 150 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen),
-            < 200 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed),
+            < 30 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarSilver),
+            < 50 => ObjectManager.Instance.Create<Resource>(ResourceId.CoinStarGolden),
+            < 100 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchGreen),
+            < 150 => ObjectManager.Instance.Create<Resource>(ResourceId.PouchRed),
             _ => ObjectManager.Instance.Create<Resource>(ResourceId.ChestGold)
         };
 
