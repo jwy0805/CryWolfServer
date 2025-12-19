@@ -101,6 +101,6 @@ public partial class GameRoom
 
     public double UpgradeEnchantScore()
     {
-        return Util.Util.GetRandomValueByGaussian(_random, 0, 5, 2, 3);
+        return Util.Util.GetRandomValueByGaussian(_random, 0, 3, 1, 3);
     }
 }
