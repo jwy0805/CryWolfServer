@@ -300,11 +300,6 @@ public partial class GameRoom
                 }
             }
         }
-            
-        var frontRoles = new[] { Role.Warrior, Role.Tanker };
-        var backRoles = new[] { Role.Ranger, Role.Mage };
-        var frontRolePriority = frontRoles.OrderByDescending(_ => _random.Next()).ToList();
-        var backRolePriority = backRoles.OrderByDescending(_ => _random.Next()).ToList();
 
         // 자원, 기존 타워 위치들 고려
         var unitPool = blackboard.MyPlayer.CurrentUnitIds;
@@ -326,20 +321,39 @@ public partial class GameRoom
                 }
             }
         }
+
+        var filteredPool = unitPool.Where(id =>
+        {
+            var data = unitDict[(int)id];
+            return faction == Faction.Sheep
+                ? !_towerTracker.AlreadyMaxed((UnitId)data.Id, blackboard.MyMaxPop)
+                : !_statueTracker.AlreadyMaxed((UnitId)data.Id, blackboard.MyMaxPop);
+        }).ToArray();
+        
+        var availableRoles = new HashSet<Role>(filteredPool.Select(id => unitDict[(int)id].UnitRole));
+        var frontRoles = new[] { Role.Warrior, Role.Tanker };
+        var backRoles = new[] { Role.Ranger, Role.Mage };
+        var frontRolePriority = frontRoles.OrderByDescending(_ => _random.Next()).ToList();
+        var backRolePriority = backRoles.OrderByDescending(_ => _random.Next()).ToList();
+        bool preferFront = blackboard.UnitProb <= policy.UnitRoleProb;
+        
+        IReadOnlyCollection<Role> preferredSet = preferFront ? frontRolePriority : backRolePriority;
+        IReadOnlyCollection<Role> fallbackSet = preferFront ? backRolePriority : frontRolePriority;
+
+        var roleFilter = new HashSet<Role>(preferredSet.Where(r => availableRoles.Contains(r)));
+        if (roleFilter.Count == 0)
+        {
+            roleFilter = new HashSet<Role>(fallbackSet.Where(r => availableRoles.Contains(r)));
+            if (roleFilter.Count == 0) roleFilter = availableRoles;
+        }
         
         // 스킬이 많이 업그레이드 된 유닛 우선
-        var candidates = unitPool
+        var candidates = filteredPool
             .Select(id => unitDict[(int)id])
-            .Where(data => blackboard.UnitProb <= policy.UnitRoleProb
-                ? frontRolePriority.Contains(data.UnitRole)
-                : backRolePriority.Contains(data.UnitRole))
-            .Where(data => faction == Faction.Sheep
-                ? !_towerTracker.AlreadyMaxed((UnitId)data.Id, blackboard.MyMaxPop)
-                : !_statueTracker.AlreadyMaxed((UnitId)data.Id, blackboard.MyMaxPop))
+            .Where(data => roleFilter.Contains(data.UnitRole))
             .OrderByDescending(data =>
                 Util.Util.GetAllSubUnitIds((UnitId)data.Id).Count(subId => unitIdsFromSkill.Contains(subId)) +
-                _random.NextDouble() * 2)
-            .ToList();
+                _random.NextDouble() * 2).ToList();
         
         if (candidates.Count > 0)
         {
