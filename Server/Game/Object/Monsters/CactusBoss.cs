@@ -297,9 +297,12 @@ public class CactusBoss : Cactus
         if (Invincible) return;
         
         var random = new Random();
+        S_GetDamage damagePacket;
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {   // Evasion
-            // TODO: Evasion Effect
+        {   
+            // Evasion
+            damagePacket = new S_GetDamage { ObjectId = Id, DamageType = Damage.Miss, Damage = 0 };
+            Room.Broadcast(damagePacket);
             return;
         }
         
@@ -320,7 +323,7 @@ public class CactusBoss : Cactus
 
         totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
-        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)

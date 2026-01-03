@@ -163,6 +163,7 @@ public class Hermit : Spike
         if (Room == null || AddBuffAction == null) return;
         if (Invincible || Targetable == false || Hp <= 0) return;
         var random = new Random();
+        S_GetDamage damagePacket;
 
         if (State == State.Skill && damageType == Damage.Normal)
         {   
@@ -172,8 +173,10 @@ public class Hermit : Spike
         }
         
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
-        {   // Evasion
-            // TODO: Evasion Effect
+        {   
+            // Evasion
+            damagePacket = new S_GetDamage { ObjectId = Id, DamageType = Damage.Miss, Damage = 0 };
+            Room.Broadcast(damagePacket);
             return;
         }
         
@@ -192,7 +195,7 @@ public class Hermit : Spike
 
         totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
-        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)

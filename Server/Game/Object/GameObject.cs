@@ -24,6 +24,7 @@ public partial class GameObject : IGameObject
         get => Info.ObjectId;
         set => Info.ObjectId = value;
     }
+    
     public Player Player { get; set; }
     public List<BuffId> Buffs { get; set; } = new();
     public GameObject? Target { get; set; }
@@ -90,10 +91,12 @@ public partial class GameObject : IGameObject
         if (Invincible || Targetable == false || Hp <= 0) return;
         
         var random = new Random();
+        S_GetDamage damagePacket;
         if (random.Next(100) > attacker.TotalAccuracy - TotalEvasion && damageType is Damage.Normal)
         {   
             // Evasion
-            // TODO: Evasion Effect
+            damagePacket = new S_GetDamage { ObjectId = Id, DamageType = Damage.Miss, Damage = 0 };
+            Room.Broadcast(damagePacket);
             return;
         }
         
@@ -114,7 +117,7 @@ public partial class GameObject : IGameObject
 
         totalDamage = GameManager.Instance.CalcDamage(this, damageType, totalDamage);
         Hp = Math.Max(Hp - totalDamage, 0);
-        var damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
+        damagePacket = new S_GetDamage { ObjectId = Id, DamageType = damageType, Damage = totalDamage };
         Room.Broadcast(damagePacket);
         
         if (Hp <= 0)
@@ -200,19 +203,19 @@ public partial class GameObject : IGameObject
         }
         
         Room?.Broadcast(pathPacket);
-    }   
-    
-    public virtual void BroadcastHp() 
+    }
+
+    protected virtual void BroadcastHp() 
     {
         Room?.Broadcast(new S_ChangeHp { ObjectId = Id, Hp = Hp, MaxHp = MaxHp});
     }
-    
-    public virtual void BroadcastShield()
+
+    protected virtual void BroadcastShield()
     {
         Room?.Broadcast(new S_ChangeShield { ObjectId = Id, ShieldRemain = ShieldRemain, ShieldAdd = ShieldAdd});
     }
-    
-    public virtual void BroadcastMp()
+
+    protected virtual void BroadcastMp()
     {
         Room?.Broadcast(new S_ChangeMp { ObjectId = Id, Mp = Mp, MaxMp = MaxMp});
     }
