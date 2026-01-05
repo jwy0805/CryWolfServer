@@ -111,18 +111,21 @@ public partial class GameRoom
         {
             case GameObjectType.Tower:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
-                bool lackOfTowerCost = VerifyResourceForTowerSpawn(player, spawnPacket.Num);
+                
                 bool lackOfTowerCapacity = VerifyCapacityForTower(spawnPacket.Num, spawnPacket.Way);
-                if (lackOfTowerCost)
-                {
-                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
-                    return;
-                }
                 if (lackOfTowerCapacity)
                 {
                     SendWarningMessage(player, "warning_in_game_capacity_limit_exceeded");
                     return;
                 }
+                
+                bool lackOfTowerCost = VerifyResourceForTowerSpawn(player, spawnPacket.Num);
+                if (lackOfTowerCost)
+                {
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
+                    return;
+                }
+                
                 SpawnTower((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
                 GameInfo.NorthTower++;
                 break;
@@ -134,18 +137,21 @@ public partial class GameRoom
             
             case GameObjectType.MonsterStatue:
                 if (!Enum.IsDefined(typeof(UnitId), spawnPacket.Num)) return;
-                bool lackOfMonsterCost = VerifyResourceForMonsterSpawn(player, spawnPacket.Num);
+                
                 bool lackOfMonsterCapacity = VerifyCapacityForMonster(spawnPacket.Num, spawnPacket.Way);
-                if (lackOfMonsterCost)
-                {
-                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
-                    return;
-                }
                 if (lackOfMonsterCapacity)
                 {
                     SendWarningMessage(player, "warning_in_game_capacity_limit_exceeded");
                     return;
                 }
+                
+                bool lackOfMonsterCost = VerifyResourceForMonsterSpawn(player, spawnPacket.Num);
+                if (lackOfMonsterCost)
+                {
+                    SendWarningMessage(player, "warning_in_game_lack_of_gold");
+                    return;
+                }
+                
                 SpawnMonsterStatue((UnitId)spawnPacket.Num, spawnPacket.PosInfo, player);
                 GameInfo.NorthMonster++;
                 break;
