@@ -12,14 +12,14 @@ public class AiSpawnTest
     private GameRoom _room;
 
     [SetUp]
-    public void SetUp()
+    public async void SetUp()
     {
         DataManager.LoadData();
         
         _sheepPlayer.Faction = Faction.Sheep;
         _wolfPlayer.Faction = Faction.Wolf;
 
-        _room = GameLogic.Instance.CreateGameRoom(1);
+        _room = await GameLogic.Instance.CreateGameRoomAsync(1);
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -4f, PosY = 6, PosZ = 12 });
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -2.5f, PosY = 6, PosZ = 12 });
         _room.Push(_room.SpawnStatueForTest, UnitId.Wolf, new PositionInfo { PosX = -5.5f, PosY = 6, PosZ = 12 });

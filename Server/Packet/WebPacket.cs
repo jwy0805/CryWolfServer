@@ -1,3 +1,5 @@
+using Server.Data;
+
 namespace Google.Protobuf.Protocol;
 
 public class TestApiToSocketRequired
@@ -196,6 +198,19 @@ public class SessionDisconnectPacketRequired
 public class SessionDisconnectPacketResponse
 {
     public bool SessionDisconnectOk { get; set; }
+}
+
+public class SendEventProgressPacketRequired
+{
+    public List<int> UserIds { get; set; }
+    public int RoomId { get; set; }
+    public string EventKey { get; set; }
+    public EventCounterKey CounterKey { get; set; }
+}
+
+public class SendEventProgressPacketResponse
+{
+    public bool SendEventProgressOk { get; set; }
 }
 
 #endregion

@@ -26,8 +26,25 @@ public class GameLogic : JobSerializer
         _rooms.Add(_roomId, room);
         Console.WriteLine($"Game room created: {room.RoomId} for map {mapId}");
         _roomId++;
-
+    
         return room;
+    }
+
+    public Task<GameRoom> CreateGameRoomAsync(int mapId)
+    {
+        var tcs = new TaskCompletionSource<GameRoom>(TaskCreationOptions.RunContinuationsAsynchronously);
+        
+        Push(() =>
+        {
+            var room = new GameRoom();
+            room.Push(room.Init, mapId);
+            room.RoomId = _roomId++;
+            _rooms.Add(room.RoomId, room);
+            Console.WriteLine($"Game room created: {room.RoomId} for map {mapId}");
+            tcs.SetResult(room);
+        });
+
+        return tcs.Task;
     }
     
     public void RemoveGameRoom(int roomId)

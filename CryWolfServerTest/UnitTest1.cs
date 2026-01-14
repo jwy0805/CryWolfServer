@@ -18,9 +18,9 @@ public class GenerateGameRoomByTwoPlayersTest
     }
 
     [Test]
-    public void GenerateGameRoomTest()
+    public async Task GenerateGameRoomTest()
     {
-        var room = GameLogic.Instance.CreateGameRoom(1);
+        var room = await GameLogic.Instance.CreateGameRoomAsync(1);
         room.Push(room.EnterGame, _sheepPlayer);
         room.Push(room.EnterGame, _wolfPlayer);
         room.Flush();

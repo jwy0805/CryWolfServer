@@ -338,7 +338,7 @@ public partial class GameRoom
                 await GetTutorialRewardHandler(winnerPlayer, winnerId);
                 break;
             case GameMode.Friendly:
-                FriendlyEndHandler(winnerPlayer, loserPlayer);
+                await FriendlyEndHandler(winnerPlayer, loserPlayer);
                 break;
         }
         
@@ -482,6 +482,9 @@ public partial class GameRoom
             packet.Star = star;
             winner.Session?.Send(packet);
             LeaveGame(winner.Id);
+            
+            await UserEventManager.Instance.EventProgressHandler(new List<int> { winnerId },
+                RoomId, "single_play_clear_2026", EventCounterKey.single_play_win);
         }
         else
         {
@@ -531,28 +534,36 @@ public partial class GameRoom
             Faction = player.Faction
         };
         
-        var task = NetworkManager.Instance.SendRequestToApiAsync<TutorialRewardPacketResponse>(
+        var res = await NetworkManager.Instance.SendRequestToApiAsync<TutorialRewardPacketResponse>(
             "Match/TutorialReward", rewardPacket, HttpMethod.Put);
-
-        await task;
         
-        if (task.Result == null)
+        if (res == null)
         {
             Console.WriteLine("Game Over: Error in TutorialRewardPacketResponse");
             return UnitId.UnknownUnit;
         }
 
-        return (UnitId)task.Result.Rewards.First().ItemId;
+        return (UnitId)res.Rewards.First().ItemId;
     }
 
-    private void FriendlyEndHandler(Player winner, Player loser)
+    private async Task FriendlyEndHandler(Player winner, Player loser)
     {
         var loserPacket = new S_ShowFriendlyResultPopup { Win = false };
         var winnerPacket = new S_ShowFriendlyResultPopup { Win = true };
+        var userIds = new List<int>
+        {
+            loser.Session?.UserId ?? -1,
+            winner.Session?.UserId ?? -1
+        };
+        
         loser.Session?.Send(loserPacket);
         winner.Session?.Send(winnerPacket);
+        
         LeaveGame(loser.Id);
         LeaveGame(winner.Id);
+
+        await UserEventManager.Instance.EventProgressHandler(
+            userIds, RoomId, "friendly_match_2026", EventCounterKey.friendly_match);
     }
 
     #endregion

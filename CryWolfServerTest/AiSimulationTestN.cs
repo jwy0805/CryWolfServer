@@ -33,7 +33,7 @@ public class AiSimulationTestN
         
         for (int i = 0; i < roomCount; i++)
         {
-            var room = GameLogic.Instance.CreateGameRoom(1);
+            var room = await GameLogic.Instance.CreateGameRoomAsync(1);
             room.GameMode = GameMode.AiTest;
             NetworkManager.Instance.CreateNpcForAiGame(room, Faction.Sheep, CharacterId.Elin, 901);
             NetworkManager.Instance.CreateNpcForAiGame(room, Faction.Wolf, CharacterId.Ama, 1001);

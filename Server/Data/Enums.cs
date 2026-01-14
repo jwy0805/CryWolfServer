@@ -1,3 +1,4 @@
+// ReSharper disable InconsistentNaming
 namespace Server.Data;
 
 public enum GameMode
@@ -29,4 +30,19 @@ public enum AttackType
     Ground = 0,
     Air = 1,
     Both = 2
+}
+
+public enum EventCounterKey
+{
+    friendly_match,
+    first_purchase,
+    single_play_win,
+}
+
+public enum EventRepeatType
+{
+    None,
+    Daily,
+    Weekly,
+    Monthly,
 }
