@@ -362,12 +362,12 @@ public partial class Map
 
     public void LoadMap(int mapId = 1)
     {
-        var pathPrefix = Environment.GetEnvironmentVariable("Map__Path") ??
-                            "/Users/jwy/Documents/Dev/CryWolf/Common/MapData";
-        MinX = -100;
-        MaxX = 100;
-        MinZ = -240;
-        MaxZ = 240;
+        var pathPrefix = Environment.GetEnvironmentVariable("Map__Path") ?? 
+                         "/Users/jwy/Documents/Dev/CryWolf/Common/MapData";
+        MinX = -64;
+        MaxX = 64;
+        MinZ = -144;
+        MaxZ = 144;
 
         int xCount = MaxX - MinX + 1;
         int zCount = MaxZ - MinZ + 1;
@@ -391,9 +391,6 @@ public partial class Map
                 }
             }
         }
-        
-        // Fence, UI Setting
-        
     }
 
     public Vector3 FindSheepSpawnPos(GameObject gameObject)

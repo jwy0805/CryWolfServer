@@ -140,7 +140,6 @@ public class Creature : GameObject
         
         // Target이 있으면 이동
         (Path, Atan) = Room.Map.Move(this);
-        Console.WriteLine($"[Creature] Path Count: {Path.Count}");
         if (Path.Count == 0)
         {
             State = State.Idle;
@@ -148,6 +147,7 @@ public class Creature : GameObject
             UnreachableIds.Add(Target.Id);
             return;
         }
+        
         BroadcastPath();
     }
     
