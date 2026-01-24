@@ -47,6 +47,7 @@ public class MonsterStatue : GameObject
         
         Room.Broadcast(new S_Die { ObjectId = Id});
         Room.GameInfo.TheNumberOfDestroyedStatue++;
+        Room.GameInfo.NorthMonster--;
         Room.DieAndLeave(Id);
     }
 }
