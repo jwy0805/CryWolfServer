@@ -23,8 +23,6 @@ public abstract class PacketSession : Session
             processLen += dataSize;
             buffer = new ArraySegment<byte>(buffer.Array, buffer.Offset + dataSize, buffer.Count - dataSize);
         }
-
-        // if (packetCount > 1) Console.WriteLine($"Packets per time : {packetCount}");
         
         return processLen;
     }

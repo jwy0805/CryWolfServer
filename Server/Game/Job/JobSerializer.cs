@@ -43,8 +43,15 @@ public class JobSerializer : IJobSerializer
         {
             IJob? job = Pop();
             if (job == null) return;
-            
-            job.Execute();
+
+            try
+            {
+                job.Execute();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[JobSerializer] Job Execution Error: {e}");
+            }
         }
     }
 

@@ -93,12 +93,27 @@ public static class Program
     {
         while (true)
         {
-            List<ClientSession> sessions = SessionManager.Instance.GetSessions();
-            foreach (var session in sessions)
+            try
             {
-                session.FlushSend();
+                List<ClientSession> sessions = SessionManager.Instance.GetSessions();
+                foreach (var session in sessions)
+                {
+                    try
+                    {
+                        session.FlushSend();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"[NetworkTask] Session {session.SessionId} Send Error: {e.Message}");
+                        session.Disconnect();
+                    }
+                }
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine($"[NetworkTask] Fatal Error: {e}");
+            }
+            
             Thread.Sleep(10);
         }
     }

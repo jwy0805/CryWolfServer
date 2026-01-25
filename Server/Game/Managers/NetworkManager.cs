@@ -435,9 +435,10 @@ public class NetworkManager
             return player;
         }
         
+        var userId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
         player.Session.MyPlayer = player;
-        player.Session.UserId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
-
+        player.Session.MarkAuthenticated(userId);
+        
         return player;
     }
 
@@ -469,8 +470,9 @@ public class NetworkManager
             return player;
         }
         
+        var userId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
         player.Session.MyPlayer = player;
-        player.Session.UserId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
+        player.Session.MarkAuthenticated(userId);
 
         return player;
     }
@@ -501,7 +503,7 @@ public class NetworkManager
         }
         
         player.Session.MyPlayer = player;
-        player.Session.UserId = required.UserId;
+        player.Session.MarkAuthenticated(required.UserId);
 
         return player;
     }
@@ -532,7 +534,7 @@ public class NetworkManager
         }
         
         player.Session.MyPlayer = player;
-        player.Session.UserId = required.UserId;
+        player.Session.MarkAuthenticated(required.UserId);
 
         return player;
     }
