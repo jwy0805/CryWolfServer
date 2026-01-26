@@ -2,6 +2,7 @@ using System.Numerics;
 using Google.Protobuf.Protocol;
 using Server.Data;
 using Server.Util;
+// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
 namespace Server.Game.Resources;
 
@@ -21,8 +22,11 @@ public class Resource : GameObject
     public override void Init()
     {
         if (Room == null) return;
+        if (Player == null || Player.PosInfo == null)
+            throw new InvalidOperationException($"Resource.Init without Player. Id={Id}, Type={GetType().Name}");   
+        
         DestPos = new Vector3(Player.PosInfo.PosX, Player.PosInfo.PosY, Player.PosInfo.PosZ);
-        MoveSpeed = 8;
+        MoveSpeed = 12;
         CalculateYieldTime();
     }
 
