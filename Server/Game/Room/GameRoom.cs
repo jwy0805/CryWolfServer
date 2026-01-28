@@ -165,8 +165,6 @@ public partial class GameRoom : JobSerializer, IDisposable
         if (RoundTime >= 23) return;
 
         var snapshot = BuildWorldSnapshot();
-
-        Console.WriteLine("--- Ai Module Update Start ---");
         
         if (_aiControllers.TryGetValue(Faction.Sheep, out var aiSheep))
         {

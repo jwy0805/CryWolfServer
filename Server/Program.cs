@@ -78,15 +78,17 @@ public static class Program
     {
         while (true)
         {
-            GameLogic.Instance.Update();
+            try
+            {
+                GameLogic.Instance.Update();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[GameLogicTask] Fatal Error: {e}");
+            }
+            
             Thread.Sleep(10);
         }
-    }
-
-    // Only for test
-    public static void GameLogicTaskForTest()
-    {
-        
     }
 
     private static void NetworkTask()
@@ -116,18 +118,6 @@ public static class Program
             
             Thread.Sleep(10);
         }
-    }
-
-    private static void StartServerInfoTask()
-    {
-        var t = new Timer();
-        t.AutoReset = true;
-        t.Elapsed += new ElapsedEventHandler((s, e) =>
-        {
-            // using SharedDbContext shared = new SharedDbContext();
-        });
-        t.Interval = 10 * 1000;
-        t.Start();
     }
 
     private static void DbTask()
