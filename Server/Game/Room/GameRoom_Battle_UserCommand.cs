@@ -10,7 +10,7 @@ public partial class GameRoom
         if (player == null || _storage == null || _portal == null) return;
         var skill = skillPacket.Skill;
         int cost = CheckBaseSkillCost(player, skill);
-        bool lackOfCost = GameInfo.SheepResource < cost;
+        bool lackOfCost = player.Faction == Faction.Sheep ? GameInfo.SheepResource < cost : GameInfo.WolfResource < cost;
         if (lackOfCost)
         {
             SendWarningMessage(player, "warning_in_game_lack_of_gold");

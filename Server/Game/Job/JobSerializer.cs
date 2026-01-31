@@ -68,4 +68,12 @@ public class JobSerializer : IJobSerializer
             return _jobQueue.Dequeue();
         }
     }
+
+    protected void ClearJobQueue()
+    {
+        _timer = null!;
+        _jobQueue.Clear();
+        _jobQueue = null!;
+        _lock = null!;
+    }
 }

@@ -15,14 +15,14 @@ public partial class GameRoom : JobSerializer, IDisposable
 {
     private readonly object _lock = new();
     
-    private readonly ConcurrentDictionary<int, Player> _players = new();
-    private readonly ConcurrentDictionary<int, Tower> _towers = new();
-    private readonly ConcurrentDictionary<int, Monster> _monsters = new();
-    private readonly ConcurrentDictionary<int, MonsterStatue> _statues = new();
-    private readonly ConcurrentDictionary<int, Sheep> _sheeps = new();
-    private readonly ConcurrentDictionary<int, Fence> _fences = new();
-    private readonly ConcurrentDictionary<int, Effect> _effects = new();
-    private readonly ConcurrentDictionary<int, Projectile> _projectiles = new();
+    private readonly Dictionary<int, Player> _players = new();
+    private readonly Dictionary<int, Tower> _towers = new();
+    private readonly Dictionary<int, Monster> _monsters = new();
+    private readonly Dictionary<int, MonsterStatue> _statues = new();
+    private readonly Dictionary<int, Sheep> _sheeps = new();
+    private readonly Dictionary<int, Fence> _fences = new();
+    private readonly Dictionary<int, Effect> _effects = new();
+    private readonly Dictionary<int, Projectile> _projectiles = new();
 
     private readonly UpkeepTracker<Tower> _towerTracker;
     private readonly UpkeepTracker<MonsterStatue> _statueTracker;
@@ -41,7 +41,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Stage? _tutorialWaveModule;
     private ITutorialTrigger _tutorialTrigger = new IgnoreTutorialTrigger();
     
-    private readonly ConcurrentDictionary<Faction, AiController> _aiControllers = new();
+    private readonly Dictionary<Faction, AiController> _aiControllers = new();
     
     public GameMode GameMode
     {
@@ -60,7 +60,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
-    public GameInfo GameInfo { get; private set; } = new(new ConcurrentDictionary<int, Player>(), 1);
+    public GameInfo GameInfo { get; private set; } = new(new Dictionary<int, Player>(), 1);
     public List<UnitSize> UnitSizeList { get; set; } = new();
     public int Round => _round;
     public int RoomId { get; set; }
@@ -502,6 +502,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     public void Dispose()
     {
         Dispose(true);
+        ClearJobQueue();
         GC.SuppressFinalize(this);
     }
     
@@ -566,7 +567,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         _projectiles.Clear();
         _statues.Clear();
         Buffs.Clear();
-        GameInfo = new GameInfo(new ConcurrentDictionary<int, Player>(), 1);
+        GameInfo = new GameInfo(new Dictionary<int, Player>(), 1);
         Map.Room = null;
         GameData = new GameManager.GameData();
         TutorialSpawnFlag = false;

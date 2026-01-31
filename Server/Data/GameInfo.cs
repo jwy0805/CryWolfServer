@@ -7,7 +7,7 @@ namespace Server.Data;
 
 public class GameInfo // 한 판마다 초기화되는 정보
 {
-    private readonly ConcurrentDictionary<int, Player> _players;
+    private readonly Dictionary<int, Player> _players;
     private int _mapId;
     private int _northMaxTower = 7;
     private int _northTower;
@@ -208,7 +208,7 @@ public class GameInfo // 한 판마다 초기화되는 정보
         }
     }
     
-    public GameInfo(ConcurrentDictionary<int, Player> players, int mapId)
+    public GameInfo(Dictionary<int, Player> players, int mapId)
     {
         _players = players;
         _mapId = mapId;
