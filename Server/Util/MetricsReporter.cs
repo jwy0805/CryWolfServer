@@ -20,8 +20,8 @@ public sealed class MetricsReporter : IDisposable
             try
             {
                 var s = Metrics.TakeSnapshotAndReset();
-                var line = $"[METRIC] t={s.UtcTime:O} activeSessions={s.ActiveSessions} activeRooms={s.ActiveRooms} " +
-                           $"peakRooms={s.PeakRooms} exceptions={s.ExceptionsInterval} loopP95={s.LoopP95Ms:0.0}ms";
+                var line = $"[METRIC] t={s.UtcTime:O} activeSessions={s.ActiveSessions} activeRooms={s.ActiveRooms} "
+                           + $"peakRooms={s.PeakRooms} loopP95={s.LoopP95Ms:0.0}ms";
                 
                 _file.AppendLine(DateTime.UtcNow, line);
             }

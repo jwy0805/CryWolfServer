@@ -1,3 +1,5 @@
+using Server.Util;
+
 namespace Server.Game;
 
 public class GameLogic : JobSerializer
@@ -24,6 +26,7 @@ public class GameLogic : JobSerializer
         room.Push(room.Init, mapId);
         room.RoomId = _roomId;
         _rooms.Add(_roomId, room);
+        Metrics.IncreaseRoom();
         Console.WriteLine($"Game room created: {room.RoomId} for map {mapId}");
         _roomId++;
     
@@ -56,6 +59,7 @@ public class GameLogic : JobSerializer
             try
             {
                 room.Dispose();
+                Metrics.DecreaseRoom();
             }
             catch (Exception e)
             {

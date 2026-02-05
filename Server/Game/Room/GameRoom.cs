@@ -166,18 +166,19 @@ public partial class GameRoom : JobSerializer, IDisposable
 
         var snapshot = BuildWorldSnapshot();
         
+        // AI logging
         if (_aiControllers.TryGetValue(Faction.Sheep, out var aiSheep))
         {
             var blackboardSheep = BuildBlackboard(snapshot, Faction.Sheep, aiSheep.Policy);
             aiSheep.Update(this, blackboardSheep);
-            Console.WriteLine("--- AI Sheep Update End ---");
+            // Console.WriteLine("--- AI Sheep Update End ---");
         }
 
         if (_aiControllers.TryGetValue(Faction.Wolf, out var aiWolf))
         {
             var blackboardWolf = BuildBlackboard(snapshot, Faction.Wolf, aiWolf.Policy);
             aiWolf.Update(this, blackboardWolf);
-            Console.WriteLine("--- AI Wolf Update End ---");
+            // Console.WriteLine("--- AI Wolf Update End ---");
         }
     }
     

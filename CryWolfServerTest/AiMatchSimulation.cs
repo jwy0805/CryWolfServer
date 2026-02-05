@@ -14,7 +14,8 @@ namespace CryWolfServerTest;
 [TestFixture]
 public class AiMatchSimulation
 {
-    private static readonly Env Env = Env.Prod;
+    private static readonly Env Env = Env.Local;
+    private static readonly HttpClient HttpClient = new(new SocketsHttpHandler { MaxConnectionsPerServer = 1024 });
     
     [OneTimeSetUp]
     public void SetUp()
@@ -25,7 +26,7 @@ public class AiMatchSimulation
     [Test]
     public async Task EnqueueAiMatches()
     {
-        const int aiCount = 1000;
+        const int aiCount = 200;
         Dictionary<int, TestSession> aiSessions = new();
         List<Task> sessionTasks = new();
         List<Task> enqueueTasks = new();
@@ -68,7 +69,6 @@ public class AiMatchSimulation
     private static async Task<bool> Enqueue(int sessionId, Faction faction)
     {
         var url = SetUrl(Env);
-        using var httpClient = new HttpClient();
         var requestUrl = $"{url}/api/Match/EnqueueAiMatch";
         var matchRequest = new EnqueueAiMatchPacketRequired
         {
@@ -80,7 +80,7 @@ public class AiMatchSimulation
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
         try
         {
-            await httpClient.PostAsync(requestUrl, content);
+            await HttpClient.PostAsync(requestUrl, content);
         }
         catch (Exception e)
         {

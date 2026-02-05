@@ -113,7 +113,7 @@ public class SnowBomb : Bomb
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine($"snow bomb explode error: {e}");
         }
     }
 

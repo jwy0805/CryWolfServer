@@ -12,7 +12,6 @@ public static class Metrics
 
     private static readonly ConcurrentQueue<double> _loopMs = new();
     private const int LoopWindowMax = 2000;
-    private const int Interval = 60;
     
     public static void IncreaseSession() => Interlocked.Increment(ref _activeSessions);
     public static void DecreaseSession() => Interlocked.Decrement(ref _activeSessions);
@@ -38,10 +37,10 @@ public static class Metrics
         var sessions = (int)Interlocked.Read(ref _activeSessions);
         var rooms = (int)Interlocked.Read(ref _activeRooms);
         var peakRooms = (int)Interlocked.Read(ref _peakRooms);
-        var exceptions = (int)Interlocked.Exchange(ref _exceptionsInterval, 0);
+        // var exceptions = (int)Interlocked.Exchange(ref _exceptionsInterval, 0);
         var p95 = CalcP95(_loopMs);
         
-        return new Snapshot(DateTimeOffset.UtcNow, sessions, rooms, peakRooms, exceptions, p95);
+        return new Snapshot(DateTimeOffset.UtcNow, sessions, rooms, peakRooms, p95);
     }
 
     private static double CalcP95(ConcurrentQueue<double> queue)
@@ -66,5 +65,5 @@ public static class Metrics
     }
 
     public readonly record struct Snapshot(
-        DateTimeOffset UtcTime, int ActiveSessions, int ActiveRooms, int PeakRooms, int ExceptionsInterval, double LoopP95Ms);
+        DateTimeOffset UtcTime, int ActiveSessions, int ActiveRooms, int PeakRooms, double LoopP95Ms);
 }

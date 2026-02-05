@@ -4,6 +4,7 @@ using System.Text;
 using Google.Protobuf;
 using Google.Protobuf.Protocol;
 using Server.Game;
+using Server.Util;
 using ServerCore;
 using GameRoom = Server.Game.GameRoom;
 
@@ -85,6 +86,7 @@ public class ClientSession : PacketSession
     {
         _ = NetworkManager.Instance.OnSessionDisconnected(SessionId);
         SessionManager.Instance.Remove(this);
+        Metrics.DecreaseSession();
 
         var elapsed = _life.Elapsed;
 

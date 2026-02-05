@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Text;
 using System.Timers;
 using Google.Protobuf.Protocol;
@@ -93,8 +94,10 @@ public static class Program
     
     private static void GameLogicTask()
     {
+        var stopwatch = new Stopwatch();
         while (true)
         {
+            stopwatch.Restart();
             try
             {
                 GameLogic.Instance.Update();
@@ -103,6 +106,8 @@ public static class Program
             {
                 Console.WriteLine($"[GameLogicTask] Fatal Error: {e}");
             }
+            stopwatch.Stop();
+            Metrics.RecordLoopMs(stopwatch.Elapsed.TotalMilliseconds);
             
             Thread.Sleep(10);
         }
@@ -139,10 +144,9 @@ public static class Program
     
     private static void MetricsTask()
     {
-        if (NetworkManager.Instance.Environment != Env.Prod) return;
-        
         var metricDir = Environment.GetEnvironmentVariable("METRIC_LOG_DIR");
-        var reporter = new MetricsReporter(metricDir ?? "/app/logs", 60000);
+        var localDir = "./logs";
+        var reporter = new MetricsReporter(metricDir ?? localDir, 30000);
         reporter.Run();
     }
     

@@ -33,15 +33,16 @@ public class AiController
         }
         
         if (bestAction == null) return;
+        // AI logging
         if (bestScore <= Policy.IdleThreshold)
         {
             room.Push(_factory.CreateIdleAction(blackboard).Execute, room);
-            Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> Idle({bestAction.GetType().Name}) (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
+            // Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> Idle({bestAction.GetType().Name}) (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
         }
         else
         {
             room.Push(bestAction.Execute, room);
-            Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> {bestAction.GetType().Name} (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
+            // Console.WriteLine($"Round {room.Round} : {room.RoundTime} - {blackboard.MyFaction}'s action -> {bestAction.GetType().Name} (score: {bestScore} / {actionList.Count}) Resource: {blackboard.MyResource}");
         }
     }
 }

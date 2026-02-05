@@ -169,12 +169,12 @@ public partial class GameRoom
             }
         }
 
-        Console.Write("Updated: ");
-        foreach (var id in player.CurrentUnitIds)
-        {
-            Console.Write($"{id} ");
-        }
-        Console.WriteLine();
+        // Console.Write("Updated: ");
+        // foreach (var id in player.CurrentUnitIds)
+        // {
+        //     Console.Write($"{id} ");
+        // }
+        // Console.WriteLine();
     }
 
     // Only for single play scenario

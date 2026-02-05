@@ -1,0 +1,756 @@
+diff --git a/Server/Game/Managers/NetworkManager.cs b/Server/Game/Managers/NetworkManager.cs
+index 67ce43b..8f3566d 100644
+--- a/Server/Game/Managers/NetworkManager.cs
++++ b/Server/Game/Managers/NetworkManager.cs
+@@ -9,7 +9,7 @@ namespace Server.Game;
+
+ public class NetworkManager
+ {
+-    private readonly INetworkFactory _networkFactory = new NetworkFactory();
++    private readonly IGameSetupHandler _gameSetupHandler = new GameSetupHandler();
+     private HttpListener? _httpListener;
+     private readonly HttpClient _httpClient = new();
+     private const int ApiPortLocal = 5281;
+@@ -49,53 +49,57 @@ public class NetworkManager
+         while (_httpListener.IsListening)
+         {
+             var context = await _httpListener.GetContextAsync();
+-            var request = context.Request;
+-            var response = context.Response;
++            _ = Task.Run(() => ProcessContextAsync(context));
++        }
++    }
++
++    private async Task ProcessContextAsync(HttpListenerContext context)
++    {
++        var request = context.Request;
++        var response = context.Response;
++        try
++        {
++            string responseString;
+
+-            try
+-            {
+-                string responseString;
+-
+-                switch (request.Url?.AbsolutePath)
+-                {
+-                    case "/match":
+-                        responseString = await HandleMatchRequest(request);
+-                        break;
+-                    case "/friendlyMatch":
+-                        responseString = await HandleFriendlyMatchRequest(request);
+-                        break;
+-                    case "/surrender":
+-                        responseString = await HandleSurrenderRequest(request);
+-                        break;
+-                    case "/singlePlay":
+-                        responseString = await HandleSingleGameRequest(request);
+-                        break;
+-                    case "/tutorial":
+-                        responseString = await HandleTutorialRequest(request);
+-                        break;
+-                    case "/test":
+-                        responseString = await HandleTestRequest(request);
+-                        break;
+-                    default:
+-                        response.StatusCode = (int)HttpStatusCode.NotFound;
+-                        response.Close();
+-                        continue;
+-                }
+-
+-                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+-                response.ContentLength64 = buffer.Length;
+-                response.StatusCode = (int)HttpStatusCode.OK;
+-                await response.OutputStream.WriteAsync(buffer);
+-            }
+-            catch (Exception e)
+-            {
+-                Console.WriteLine($"Http Error: {e}");
+-                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+-            }
+-            finally
+-            {
+-                response.Close();
++            switch (request.Url?.AbsolutePath)
++            {
++                case "/match":
++                    responseString = await HandleMatchRequest(request);
++                    break;
++                case "/friendlyMatch":
++                    responseString = await HandleFriendlyMatchRequest(request);
++                    break;
++                case "/surrender":
++                    responseString = await HandleSurrenderRequest(request);
++                    break;
++                case "/singlePlay":
++                    responseString = await HandleSingleGameRequest(request);
++                    break;
++                case "/tutorial":
++                    responseString = await HandleTutorialRequest(request);
++                    break;
++                case "/test":
++                    responseString = await HandleTestRequest(request);
++                    break;
++                default:
++                    response.StatusCode = (int)HttpStatusCode.NotFound;
++                    response.Close();
++                    return;
+             }
++
++            byte[] buffer = Encoding.UTF8.GetBytes(responseString);
++            response.ContentLength64 = buffer.Length;
++            response.StatusCode = (int)HttpStatusCode.OK;
++            await response.OutputStream.WriteAsync(buffer);
++        }
++        catch (Exception e)
++        {
++            Console.WriteLine($"Http Error: {e}");
++            response.StatusCode = 500;
++        }
++        finally
++        {
++            response.Close();
+         }
+     }
+
+@@ -114,8 +118,9 @@ public class NetworkManager
+             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+         }
+
+-        var task = await StartGameAsync(matchRequest);
+-        var matchResponse = new MatchSuccessPacketResponse { IsSuccess = task };
++        _ = _gameSetupHandler.StartRankGame(matchRequest);
++        Console.WriteLine($"match request processed: {matchRequest.SheepUserId} and {matchRequest.WolfUserId}");
++        var matchResponse = new MatchSuccessPacketResponse { IsSuccess = true };
+
+         return JsonConvert.SerializeObject(matchResponse);
+     }
+@@ -135,8 +140,8 @@ public class NetworkManager
+             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+         }
+
+-        var task = await StartFriendlyGameAsync(matchRequest);
+-        var matchResponse = new FriendlyMatchPacketResponse { IsSuccess = task };
++        _ =  _gameSetupHandler.StartFriendlyGame(matchRequest);
++        var matchResponse = new FriendlyMatchPacketResponse { IsSuccess = true };
+
+         return JsonConvert.SerializeObject(matchResponse);
+     }
+@@ -156,7 +161,7 @@ public class NetworkManager
+             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+         }
+
+-        var task = await SurrenderGameAsync(surrenderRequest);
++        var task = await _gameSetupHandler.SurrenderGameAsync(surrenderRequest);
+         var surrenderResponse = new GameResultPacketResponse { GetGameResultOk = task };
+
+         return JsonConvert.SerializeObject(surrenderResponse);
+@@ -177,7 +182,7 @@ public class NetworkManager
+             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+         }
+
+-        var task = await StartTutorialAsync(tutorialRequest);
++        var task = await _gameSetupHandler.StartTutorialAsync(tutorialRequest);
+         var response = new TutorialStartPacketResponse { TutorialStartOk = task };
+
+         return JsonConvert.SerializeObject(response);
+@@ -218,292 +223,12 @@ public class NetworkManager
+             throw new HttpRequestException("Bad Request", null, HttpStatusCode.BadRequest);
+         }
+
+-        var task = await StartSingleGameAsync(singleGameRequest);
++        var task = await _gameSetupHandler.StartSingleGameAsync(singleGameRequest);
+         var response = new SinglePlayStartPacketResponse { SinglePlayStartOk = task };
+
+         return JsonConvert.SerializeObject(response);
+     }
+
+-    # region StartGame
+-
+-    private async Task<bool> StartGameAsync(MatchSuccessPacketRequired packet, DateTime? startTime = null)
+-    {
+-        startTime ??= DateTime.UtcNow;
+-        var tcs = new TaskCompletionSource<bool>();
+-
+-        GameLogic.Instance.Push(() =>
+-        {
+-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+-            if (packet.IsTestGame)
+-            {
+-                var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
+-                var player = _networkFactory.CreatePlayer(room, packet, faction);
+-                var npcCharacterId = faction == Faction.Sheep ? packet.WolfCharacterId : packet.SheepCharacterId;
+-                var npcAssetId = faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId;
+-                var npc = _networkFactory.CreateNpc(room, player, npcCharacterId, npcAssetId);
+-                var matchPacket = new S_MatchMakingSuccess
+-                {
+-                    EnemyUserName = npc.Info.Name,
+-                    EnemyRankPoint = packet.SheepRankPoint,
+-                    EnemyCharacterId = (int)packet.SheepCharacterId,
+-                    EnemyAssetId = player.Faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId,
+-                };
+-
+-                room.GameMode = GameMode.Test;
+-
+-                foreach (var unitId in packet.SheepUnitIds)
+-                {
+-                    matchPacket.EnemyUnitIds.Add((int)unitId);
+-                }
+-
+-                player.Session?.Send(matchPacket);
+-            }
+-            else if (packet.IsAiSimulation)
+-            {
+-                _networkFactory.CreateNpcForAiGame(
+-                    room, Faction.Sheep, packet.SheepSessionId, packet.SheepCharacterId, (int)packet.SheepId);
+-                _networkFactory.CreateNpcForAiGame(
+-                    room, Faction.Wolf, packet.WolfSessionId, packet.WolfCharacterId, (int)packet.EnchantId);
+-                room.GameMode = GameMode.AiSimulation;
+-            }
+-            else
+-            {
+-                var sheepPlayer = _networkFactory.CreatePlayer(room, packet, Faction.Sheep);
+-                var wolfPlayer = _networkFactory.CreatePlayer(room, packet, Faction.Wolf);
+-
+-                if (sheepPlayer.Session == null || wolfPlayer.Session == null)
+-                {
+-                    if ((DateTime.UtcNow - startTime.Value).TotalMilliseconds > 5000)
+-                    {
+-                        Console.WriteLine("Session timeout.");
+-                        tcs.SetResult(false);
+-                        return;
+-                    }
+-
+-                    Console.WriteLine("Session is not ready yet.");
+-                    GameLogic.Instance.PushAfter(400, () => _ = RetryStartGameAsync(packet, startTime, tcs));
+-                    return;
+-                }
+-
+-                room.GameMode = GameMode.Rank;
+-                SendStartGamePacket(sheepPlayer, wolfPlayer, packet);
+-            }
+-
+-            var sendPacket = new SendMatchInfoPacketRequired
+-            {
+-                SheepUserId = packet.SheepUserId,
+-                SheepSessionId = packet.SheepSessionId,
+-                WolfUserId = packet.WolfUserId,
+-                WolfSessionId = packet.WolfSessionId,
+-            };
+-
+-            var requestTask = SendRequestToApiAsync<SendMatchInfoPacketResponse>(
+-                "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
+-            var timeTask = Task.Delay(6000);
+-            var tasks = Task.WhenAll(requestTask, timeTask);
+-            tasks.ContinueWith(_ =>
+-            {
+-                if (requestTask.Result is { SendMatchInfoOk: true })
+-                {
+-                    room.RoomActivated = true;
+-                    Console.WriteLine("Start Game Async - room activated");
+-                    tcs.SetResult(true);
+-                }
+-                else
+-                {
+-                    Console.WriteLine("Start Game Async - room not activated");
+-                    tcs.SetResult(false);
+-                }
+-            });
+-        });
+-
+-        return await tcs.Task;
+-    }
+-
+-    private async Task<bool> StartFriendlyGameAsync(FriendlyMatchPacketRequired packet, DateTime? startTime = null)
+-    {
+-        Console.WriteLine("Start Friendly Game Async");
+-        startTime ??= DateTime.UtcNow;
+-        var tcs = new TaskCompletionSource<bool>();
+-
+-        GameLogic.Instance.Push(() =>
+-        {
+-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+-            var sheepPlayer = _networkFactory.CreatePlayerFriendly(room, packet, Faction.Sheep);
+-            var wolfPlayer = _networkFactory.CreatePlayerFriendly(room, packet, Faction.Wolf);
+-
+-            if (sheepPlayer.Session == null || wolfPlayer.Session == null)
+-            {
+-                if ((DateTime.UtcNow - startTime.Value).TotalMilliseconds > 5000)
+-                {
+-                    Console.WriteLine("Session timeout.");
+-                    tcs.SetResult(false);
+-                    return;
+-                }
+-
+-                Console.WriteLine("Session is not ready yet.");
+-                GameLogic.Instance.PushAfter(400, () => _ = RetryStartGameAsync(packet, startTime, tcs));
+-                return;
+-            }
+-
+-            room.GameMode = GameMode.Friendly;
+-            var sendPacket = new SendMatchInfoPacketRequired
+-            {
+-                SheepUserId = packet.SheepUserId,
+-                SheepSessionId = packet.SheepSessionId,
+-                WolfUserId = packet.WolfUserId,
+-                WolfSessionId = packet.WolfSessionId,
+-            };
+-
+-            var requestTask = SendRequestToApiAsync<SendMatchInfoPacketResponse>(
+-                "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
+-            var timeTask = Task.Delay(6000);
+-            var tasks = Task.WhenAll(requestTask, timeTask);
+-            tasks.ContinueWith(_ =>
+-            {
+-                if (requestTask.Result is { SendMatchInfoOk: true })
+-                {
+-                    room.RoomActivated = true;
+-                    Console.WriteLine("Start Game Async - room activated");
+-                    tcs.SetResult(true);
+-                }
+-                else
+-                {
+-                    Console.WriteLine("Start Game Async - room not activated");
+-                    tcs.SetResult(false);
+-                }
+-            });
+-        });
+-
+-        return await tcs.Task;
+-    }
+-
+-    public async Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet)
+-    {
+-        var tcs = new TaskCompletionSource<bool>();
+-
+-        GameLogic.Instance.Push(() =>
+-        {
+-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+-            var player = _networkFactory.CreatePlayerSingle(room, packet);
+-            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
+-            room.GameMode = GameMode.Single;
+-            room.StageId = packet.StageId;
+-            room.RoomActivated = true;
+-            tcs.SetResult(true);
+-        });
+-
+-        return await tcs.Task;
+-    }
+-
+-    private async Task<bool> StartTutorialAsync(TutorialStartPacketRequired packet)
+-    {
+-        var tcs = new TaskCompletionSource<bool>();
+-
+-        GameLogic.Instance.Push(() =>
+-        {
+-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+-            var player = _networkFactory.CreatePlayerTutorial(room, packet);
+-            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+-            room.GameMode = GameMode.Tutorial;
+-            room.RoomActivated = true;
+-            tcs.SetResult(true);
+-        });
+-
+-        return await tcs.Task;
+-    }
+-
+-    private void SendStartGamePacket(Player sheepPlayer, Player wolfPlayer, MatchSuccessPacketRequired packet)
+-    {
+-        var (matchPacketForSheep, matchPacketForWolf) = MakeMatchPacket(packet);
+-        sheepPlayer.Session?.Send(matchPacketForSheep);
+-        wolfPlayer.Session?.Send(matchPacketForWolf);
+-    }
+-
+-    private Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess> MakeMatchPacket(MatchSuccessPacketRequired packet)
+-    {
+-        var matchPacketForSheep = new S_MatchMakingSuccess
+-        {
+-            EnemyUserName = packet.WolfUserName,
+-            EnemyRankPoint = packet.WolfRankPoint,
+-            EnemyCharacterId = (int)packet.WolfCharacterId,
+-            EnemyAssetId = (int)packet.EnchantId,
+-        };
+-
+-        foreach (var unitId in packet.WolfUnitIds)
+-        {
+-            matchPacketForSheep.EnemyUnitIds.Add((int)unitId);
+-        }
+-
+-        foreach (var achievement in packet.WolfAchievements)
+-        {
+-            matchPacketForSheep.EnemyAchievements.Add(achievement);
+-        }
+-
+-        var matchPacketForWolf = new S_MatchMakingSuccess
+-        {
+-            EnemyUserName = packet.SheepUserName,
+-            EnemyRankPoint = packet.SheepRankPoint,
+-            EnemyCharacterId = (int)packet.SheepCharacterId,
+-            EnemyAssetId = (int)packet.SheepId,
+-        };
+-
+-        foreach (var unitId in packet.SheepUnitIds)
+-        {
+-            matchPacketForWolf.EnemyUnitIds.Add((int)unitId);
+-        }
+-
+-        foreach (var achievement in packet.SheepAchievements)
+-        {
+-            matchPacketForWolf.EnemyAchievements.Add(achievement);
+-        }
+-
+-        return new Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess>(matchPacketForSheep, matchPacketForWolf);
+-    }
+-
+-    private async Task RetryStartGameAsync(MatchSuccessPacketRequired packet, DateTime? startTime,
+-        TaskCompletionSource<bool> tcs)
+-    {
+-        var result = await StartGameAsync(packet, startTime);
+-        tcs.TrySetResult(result);
+-    }
+-
+-    private async Task RetryStartGameAsync(FriendlyMatchPacketRequired packet, DateTime? startTime,
+-        TaskCompletionSource<bool> tcs)
+-    {
+-        var result = await StartFriendlyGameAsync(packet, startTime);
+-        tcs.TrySetResult(result);
+-    }
+-
+-    #endregion
+-
+-    #region Surrender
+-
+-    private async Task<bool> SurrenderGameAsync(GameResultPacketRequired packet)
+-    {
+-        var tcs = new TaskCompletionSource<bool>();
+-        GameLogic.Instance.Push(() =>
+-        {
+-            var room = GameLogic.Instance.FindByUserId(packet.UserId);
+-            if (room == null)
+-            {
+-                Console.WriteLine($"Room not found.");
+-                tcs.SetResult(false);
+-            }
+-            else
+-            {
+-                var winnerId = room.FindPlayer(go =>
+-                    go is Player player && player.Session?.UserId != packet.UserId)?.Session?.UserId ?? -1;
+-                _ = room.GameOver(winnerId, packet.UserId);
+-                tcs.SetResult(true);
+-            }
+-        });
+-
+-        return await tcs.Task;
+-    }
+-
+-    #endregion
+-
+     public async Task OnSessionDisconnected(int sessionId)
+     {
+         var session = SessionManager.Instance.Find(sessionId);
+diff --git a/Server/Game/Services/GameSetupHandler.cs b/Server/Game/Services/GameSetupHandler.cs
+index a19352a..5342aaf 100644
+--- a/Server/Game/Services/GameSetupHandler.cs
++++ b/Server/Game/Services/GameSetupHandler.cs
+@@ -1,6 +1,279 @@
++using Google.Protobuf.Protocol;
++using Server.Data;
++
+ namespace Server.Game;
+
+-public class GameSetupHandler
++public class GameSetupHandler : IGameSetupHandler
+ {
++    private readonly INetworkFactory _networkFactory = new NetworkFactory();
++
++    public Task StartRankGame(MatchSuccessPacketRequired packet, DateTime? startTime = null)
++    {
++        startTime ??= DateTime.UtcNow;
++        GameLogic.Instance.Push(() =>
++        {
++            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
++            if (packet.IsTestGame)
++            {
++                SetupTestGame(room, packet);
++                SendMatchInfo(packet);
++            }
++            else if (packet.IsAiSimulation)
++            {
++                SetupAiSimulation(room, packet);
++            }
++            else
++            {
++                SetupRankGameOrRetry(room, packet, startTime.Value);
++                SendMatchInfo(packet);
++            }
++
++            GameLogic.Instance.PushAfter(6000, () =>
++            {
++                room.RoomActivated = true;
++                Console.WriteLine("RoomActivated = true (after 6s)");
++            });
++        });
++
++        return Task.CompletedTask;
++    }
++
++    public Task StartFriendlyGame(FriendlyMatchPacketRequired packet, DateTime? startTime = null)
++    {
++        startTime ??= DateTime.UtcNow;
++        GameLogic.Instance.Push(() =>
++        {
++            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
++
++            SetupFriendlyGameOrRetry(room, packet, startTime.Value);
++            SendMatchInfo(packet);
++
++            GameLogic.Instance.PushAfter(6000, () =>
++            {
++                room.RoomActivated = true;
++                Console.WriteLine("RoomActivated = true (after 6s)");
++            });
++        });
++
++        return Task.CompletedTask;
++    }
++
++    public async Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet)
++    {
++        var tcs = new TaskCompletionSource<bool>();
++
++        GameLogic.Instance.Push(() =>
++        {
++            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
++            var player = _networkFactory.CreatePlayerSingle(room, packet);
++            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
++            room.GameMode = GameMode.Single;
++            room.StageId = packet.StageId;
++            room.RoomActivated = true;
++            tcs.SetResult(true);
++        });
++
++        return await tcs.Task;
++    }
++
++    public async Task<bool> StartTutorialAsync(TutorialStartPacketRequired packet)
++    {
++        var tcs = new TaskCompletionSource<bool>();
++
++        GameLogic.Instance.Push(() =>
++        {
++            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
++            var player = _networkFactory.CreatePlayerTutorial(room, packet);
++            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
++            room.GameMode = GameMode.Tutorial;
++            room.RoomActivated = true;
++            tcs.SetResult(true);
++        });
++
++        return await tcs.Task;
++    }
++
++    private void SendStartGamePacket(Player sheepPlayer, Player wolfPlayer, MatchSuccessPacketRequired packet)
++    {
++        var (matchPacketForSheep, matchPacketForWolf) = MakeMatchPacket(packet);
++        sheepPlayer.Session?.Send(matchPacketForSheep);
++        wolfPlayer.Session?.Send(matchPacketForWolf);
++    }
++
++    private Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess> MakeMatchPacket(MatchSuccessPacketRequired packet)
++    {
++        var matchPacketForSheep = new S_MatchMakingSuccess
++        {
++            EnemyUserName = packet.WolfUserName,
++            EnemyRankPoint = packet.WolfRankPoint,
++            EnemyCharacterId = (int)packet.WolfCharacterId,
++            EnemyAssetId = (int)packet.EnchantId,
++        };
++
++        foreach (var unitId in packet.WolfUnitIds)
++        {
++            matchPacketForSheep.EnemyUnitIds.Add((int)unitId);
++        }
++
++        foreach (var achievement in packet.WolfAchievements)
++        {
++            matchPacketForSheep.EnemyAchievements.Add(achievement);
++        }
++
++        var matchPacketForWolf = new S_MatchMakingSuccess
++        {
++            EnemyUserName = packet.SheepUserName,
++            EnemyRankPoint = packet.SheepRankPoint,
++            EnemyCharacterId = (int)packet.SheepCharacterId,
++            EnemyAssetId = (int)packet.SheepId,
++        };
++
++        foreach (var unitId in packet.SheepUnitIds)
++        {
++            matchPacketForWolf.EnemyUnitIds.Add((int)unitId);
++        }
++
++        foreach (var achievement in packet.SheepAchievements)
++        {
++            matchPacketForWolf.EnemyAchievements.Add(achievement);
++        }
++
++        return new Tuple<S_MatchMakingSuccess, S_MatchMakingSuccess>(matchPacketForSheep, matchPacketForWolf);
++    }
++
++    public async Task<bool> SurrenderGameAsync(GameResultPacketRequired packet)
++    {
++        var tcs = new TaskCompletionSource<bool>();
++        GameLogic.Instance.Push(() =>
++        {
++            var room = GameLogic.Instance.FindByUserId(packet.UserId);
++            if (room == null)
++            {
++                Console.WriteLine($"Room not found.");
++                tcs.SetResult(false);
++            }
++            else
++            {
++                var winnerId = room.FindPlayer(go =>
++                    go is Player player && player.Session?.UserId != packet.UserId)?.Session?.UserId ?? -1;
++                _ = room.GameOver(winnerId, packet.UserId);
++                tcs.SetResult(true);
++            }
++        });
++
++        return await tcs.Task;
++    }
++
++    private void SetupRankGameOrRetry(GameRoom room, MatchSuccessPacketRequired packet, DateTime startTime)
++    {
++        var sheepPlayer = room.FindPlayer(go => go is Player { Faction: Faction.Sheep }) ??
++                          _networkFactory.CreatePlayer(room, packet, Faction.Sheep);
++        var wolfPlayer = room.FindPlayer(go => go is Player { Faction: Faction.Wolf }) ??
++                         _networkFactory.CreatePlayer(room, packet, Faction.Wolf);
++
++        if (sheepPlayer.Session == null || wolfPlayer.Session == null)
++        {
++            if ((DateTime.UtcNow - startTime).TotalMilliseconds > 5000)
++            {
++                Console.WriteLine("Session timeout.");
++                return;
++            }
++
++            Console.WriteLine("Session is not ready yet.");
++            GameLogic.Instance.PushAfter(400, () => SetupRankGameOrRetry(room, packet, startTime));
++            return;
++        }
++
++        room.GameMode = GameMode.Rank;
++        SendStartGamePacket(sheepPlayer, wolfPlayer, packet);
++    }
++
++    private void SetupFriendlyGameOrRetry(GameRoom room, FriendlyMatchPacketRequired packet, DateTime startTime)
++    {
++        var sheepPlayer = room.FindPlayer(go => go is Player { Faction: Faction.Sheep }) ??
++                          _networkFactory.CreatePlayerFriendly(room, packet, Faction.Sheep);
++        var wolfPlayer = room.FindPlayer(go => go is Player { Faction: Faction.Wolf }) ??
++                         _networkFactory.CreatePlayerFriendly(room, packet, Faction.Wolf);
++
++        if (sheepPlayer.Session == null || wolfPlayer.Session == null)
++        {
++            if ((DateTime.UtcNow - startTime).TotalMilliseconds > 5000)
++            {
++                Console.WriteLine("Session timeout.");
++                return;
++            }
++
++            Console.WriteLine("Session is not ready yet.");
++            GameLogic.Instance.PushAfter(400, () => SetupFriendlyGameOrRetry(room, packet, startTime));
++            return;
++        }
++
++        room.GameMode = GameMode.Friendly;
++    }
++
++    private void SetupTestGame(GameRoom room, MatchSuccessPacketRequired packet)
++    {
++        var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
++        var player = _networkFactory.CreatePlayer(room, packet, faction);
++        var npcCharacterId = faction == Faction.Sheep ? packet.WolfCharacterId : packet.SheepCharacterId;
++        var npcAssetId = faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId;
++        var npc = _networkFactory.CreateNpc(room, player, npcCharacterId, npcAssetId);
++        var matchPacket = new S_MatchMakingSuccess
++        {
++            EnemyUserName = npc.Info.Name,
++            EnemyRankPoint = packet.SheepRankPoint,
++            EnemyCharacterId = (int)packet.SheepCharacterId,
++            EnemyAssetId = player.Faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId,
++        };
++
++        room.GameMode = GameMode.Test;
++
++        foreach (var unitId in packet.SheepUnitIds)
++        {
++            matchPacket.EnemyUnitIds.Add((int)unitId);
++        }
++
++        player.Session?.Send(matchPacket);
++    }
++
++    // API 서버로 매치 정보 전송하긴 하는데 그렇게 중요한 로직은 아님 - 단순 상태 저장
++    private void SendMatchInfo(MatchSuccessPacketRequired packet)
++    {
++        _ = SendMatchInfo(packet.SheepUserId, packet.SheepSessionId, packet.WolfUserId, packet.WolfSessionId);
++    }
++
++    private void SendMatchInfo(FriendlyMatchPacketRequired packet)
++    {
++        _ = SendMatchInfo(packet.SheepUserId, packet.SheepSessionId, packet.WolfUserId, packet.WolfSessionId);
++    }
++
++    private async Task SendMatchInfo(int sheepUserId, int sheepSessionId, int wolfUserId, int wolfSessionId)
++    {
++        var sendPacket = new SendMatchInfoPacketRequired
++        {
++            SheepUserId = sheepUserId,
++            SheepSessionId = sheepSessionId,
++            WolfUserId = wolfUserId,
++            WolfSessionId = wolfSessionId,
++        };
++
++        try
++        {
++            await NetworkManager.Instance.SendRequestToApiAsync<SendMatchInfoPacketResponse>(
++                "Match/SetMatchInfo", sendPacket, HttpMethod.Post);
++        }
++        catch (Exception e)
++        {
++            Console.WriteLine($"SetMatchInfo failed: {e}");
++        }
++    }
+
++    private void SetupAiSimulation(GameRoom room, MatchSuccessPacketRequired packet)
++    {
++        _networkFactory.CreateNpcForAiGame(
++            room, Faction.Sheep, packet.SheepSessionId, packet.SheepCharacterId, (int)packet.SheepId);
++        _networkFactory.CreateNpcForAiGame(
++            room, Faction.Wolf, packet.WolfSessionId, packet.WolfCharacterId, (int)packet.EnchantId);
++        room.GameMode = GameMode.AiSimulation;
++    }
+ }
+\ No newline at end of file
+diff --git a/Server/Game/Services/ServiceInterfaces.cs b/Server/Game/Services/ServiceInterfaces.cs
+index 8e127dd..eecdee4 100644
+--- a/Server/Game/Services/ServiceInterfaces.cs
++++ b/Server/Game/Services/ServiceInterfaces.cs
+@@ -17,4 +17,13 @@ public interface INetworkFactory
+     Player CreateNpc(GameRoom room, Player player, CharacterId characterId, int assetId, UnitId[]? unitIds = null);
+     void CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId);
+     void CreateNpcForAiGame(GameRoom room, Faction faction, int sessionId, CharacterId characterId, int assetId);
++}
++
++public interface IGameSetupHandler
++{
++    Task StartRankGame(MatchSuccessPacketRequired packet, DateTime? startTime = null);
++    Task StartFriendlyGame(FriendlyMatchPacketRequired packet, DateTime? startTime = null);
++    Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet);
++    Task<bool> StartTutorialAsync(TutorialStartPacketRequired packet);
++    Task<bool> SurrenderGameAsync(GameResultPacketRequired packet);
+ }
+\ No newline at end of file

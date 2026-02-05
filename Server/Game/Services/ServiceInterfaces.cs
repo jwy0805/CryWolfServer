@@ -18,3 +18,12 @@ public interface INetworkFactory
     void CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId);
     void CreateNpcForAiGame(GameRoom room, Faction faction, int sessionId, CharacterId characterId, int assetId);
 }
+
+public interface IGameSetupHandler
+{
+    Task StartRankGame(MatchSuccessPacketRequired packet, DateTime? startTime = null);
+    Task StartFriendlyGame(FriendlyMatchPacketRequired packet, DateTime? startTime = null);
+    Task<bool> StartSingleGameAsync(SinglePlayStartPacketRequired packet);
+    Task<bool> StartTutorialAsync(TutorialStartPacketRequired packet);
+    Task<bool> SurrenderGameAsync(GameResultPacketRequired packet);
+}

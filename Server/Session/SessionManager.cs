@@ -1,4 +1,5 @@
 using Server.Game;
+using Server.Util;
 
 namespace Server;
 
@@ -42,7 +43,7 @@ public class SessionManager
             var sessionId = ++_sessionId;
             var session = new ClientSession { SessionId = sessionId };
             _sessions.Add(sessionId, session);
-            
+            Metrics.IncreaseSession();
             return session;
         }
     }

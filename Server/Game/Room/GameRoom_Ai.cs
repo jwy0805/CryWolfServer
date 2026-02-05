@@ -121,7 +121,8 @@ public partial class GameRoom
             PopulationPerKind = Math.Max(1, myCounts.Count),
             TotalPressure = CalcPressure(faction, policy, enemyResource)
         };
-        Console.WriteLine($"blackboard built, pressure : {blackboard.TotalPressure}");
+        // AI Logging
+        // Console.WriteLine($"blackboard built, pressure : {blackboard.TotalPressure}");
         return blackboard;
     }
 
@@ -147,7 +148,8 @@ public partial class GameRoom
         }
 
         double pressureByValue = policy.CalcPressureByValue(myValue, enemyValue);
-        Console.WriteLine($"pressure by value: {pressureByValue}");
+        // AI logging
+        // Console.WriteLine($"pressure by value: {pressureByValue}");
         return pressureByValue + pressureByBattle;
     }
 
