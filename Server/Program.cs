@@ -146,7 +146,7 @@ public static class Program
     {
         var metricDir = Environment.GetEnvironmentVariable("METRIC_LOG_DIR");
         var localDir = "./logs";
-        var reporter = new MetricsReporter(metricDir ?? localDir, 30000);
+        var reporter = new MetricsReporter(metricDir ?? localDir, 15000);
         reporter.Run();
     }
     

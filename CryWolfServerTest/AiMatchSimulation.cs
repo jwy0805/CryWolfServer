@@ -14,7 +14,7 @@ namespace CryWolfServerTest;
 [TestFixture]
 public class AiMatchSimulation
 {
-    private static readonly Env Env = Env.Local;
+    private static readonly Env Env = Env.Prod;
     private static readonly HttpClient HttpClient = new(new SocketsHttpHandler { MaxConnectionsPerServer = 1024 });
     
     [OneTimeSetUp]
@@ -26,17 +26,18 @@ public class AiMatchSimulation
     [Test]
     public async Task EnqueueAiMatches()
     {
-        const int aiCount = 200;
+        const int aiCount = 500;
+        const int firstBatchCount = 400;
         Dictionary<int, TestSession> aiSessions = new();
-        List<Task> sessionTasks = new();
-        List<Task> enqueueTasks = new();
+        List<Task> sessionTasks1 = new();
+        List<Task> enqueueTasks1 = new();
 
-        for (var aiId = 1; aiId <= aiCount; aiId++)
+        for (var aiId = 1; aiId <= firstBatchCount; aiId++)
         {
-            sessionTasks.Add(ConnectGameSession(aiId, aiSessions));
+            sessionTasks1.Add(ConnectGameSession(aiId, aiSessions));
         }
 
-        await Task.WhenAll(sessionTasks);
+        await Task.WhenAll(sessionTasks1);
         await Task.Delay(TimeSpan.FromSeconds(5));
 
         var halfCount = aiCount / 2;
@@ -48,11 +49,31 @@ public class AiMatchSimulation
         for (var aiId = 1; aiId <= aiCount; aiId++)
         {
             var faction = factions[aiId - 1];
-            enqueueTasks.Add(Enqueue(aiSessions[aiId].SessionId, faction));
+            enqueueTasks1.Add(Enqueue(aiSessions[aiId].SessionId, faction));
         }
         
-        await Task.WhenAll(enqueueTasks);
-        await Task.Delay(TimeSpan.FromMinutes(10));
+        await Task.WhenAll(enqueueTasks1);
+        await Task.Delay(TimeSpan.FromSeconds(75));
+        
+        List<Task> sessionTasks2 = new();
+        List<Task> enqueueTasks2 = new();
+        
+        for (var aiId = firstBatchCount + 1; aiId <= aiCount; aiId++)
+        {
+            sessionTasks2.Add(ConnectGameSession(aiId, aiSessions));
+        }
+        
+        await Task.WhenAll(sessionTasks2);
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        
+        for (var aiId = firstBatchCount + 1; aiId <= aiCount; aiId++)
+        {
+            var faction = factions[aiId - 1];
+            enqueueTasks2.Add(Enqueue(aiSessions[aiId].SessionId, faction));
+        }
+        
+        await Task.WhenAll(enqueueTasks2);
+        await Task.Delay(TimeSpan.FromSeconds(400));
     }
 
     private static async Task ConnectGameSession(int aiId, Dictionary<int, TestSession> aiSessions)
