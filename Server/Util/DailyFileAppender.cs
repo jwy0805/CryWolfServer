@@ -34,7 +34,7 @@ public sealed class DailyFileAppender : IDisposable
         _writer?.Dispose();
         _currentDateUtc = dateUtc;
 
-        var path = Path.Combine(_dir, "socket-metric-{_currentDateUtc:yyyy-MM-dd}.log");
+        var path = Path.Combine(_dir, $"socket-metric-{_currentDateUtc:yyyy-MM-dd}.log");
         _writer = new StreamWriter(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read),
             Encoding.UTF8)
         {

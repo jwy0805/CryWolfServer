@@ -14,27 +14,18 @@ namespace CryWolfServerTest;
 [TestFixture]
 public class AiMatchSimulation
 {
-    private static readonly Env Env = Env.Local;
+    private static readonly Env Env = Env.Prod;
     
     [OneTimeSetUp]
     public void SetUp()
     {
-        // try
-        // {
-        //     var logDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "logs");
-        //     Console.SetOut(new TestLogger(logDir));
-        // }
-        // catch (Exception e)
-        // {
-        //     TestContext.Progress.WriteLine(e);
-        //     throw;
-        // }
+        
     }
 
     [Test]
     public async Task EnqueueAiMatches()
     {
-        const int aiCount = 6;
+        const int aiCount = 1000;
         Dictionary<int, TestSession> aiSessions = new();
         List<Task> sessionTasks = new();
         List<Task> enqueueTasks = new();
