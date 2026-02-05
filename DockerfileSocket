@@ -1,7 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 as build
-
 WORKDIR /src
-
 # 전체 소스 복사 (Actions에서 이미 checkout 완료)
 COPY . .
 

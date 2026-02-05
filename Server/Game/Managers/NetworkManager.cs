@@ -9,6 +9,7 @@ namespace Server.Game;
 
 public class NetworkManager
 {
+    private readonly INetworkFactory _networkFactory = new NetworkFactory();
     private HttpListener? _httpListener;
     private readonly HttpClient _httpClient = new();
     private const int ApiPortLocal = 5281;
@@ -236,10 +237,10 @@ public class NetworkManager
             if (packet.IsTestGame)
             {
                 var faction = packet.SheepUserName == "Test" ? Faction.Wolf : Faction.Sheep;
-                var player = CreatePlayer(room, packet, faction);
+                var player = _networkFactory.CreatePlayer(room, packet, faction);
                 var npcCharacterId = faction == Faction.Sheep ? packet.WolfCharacterId : packet.SheepCharacterId;
                 var npcAssetId = faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId;
-                var npc = CreateNpc(room, player, npcCharacterId, npcAssetId);
+                var npc = _networkFactory.CreateNpc(room, player, npcCharacterId, npcAssetId);
                 var matchPacket = new S_MatchMakingSuccess
                 {
                     EnemyUserName = npc.Info.Name,
@@ -257,10 +258,18 @@ public class NetworkManager
 
                 player.Session?.Send(matchPacket);
             }
+            else if (packet.IsAiSimulation)
+            {
+                _networkFactory.CreateNpcForAiGame(
+                    room, Faction.Sheep, packet.SheepSessionId, packet.SheepCharacterId, (int)packet.SheepId);
+                _networkFactory.CreateNpcForAiGame(
+                    room, Faction.Wolf, packet.WolfSessionId, packet.WolfCharacterId, (int)packet.EnchantId);
+                room.GameMode = GameMode.AiSimulation;
+            }
             else
             {
-                var sheepPlayer = CreatePlayer(room, packet, Faction.Sheep);
-                var wolfPlayer = CreatePlayer(room, packet, Faction.Wolf);
+                var sheepPlayer = _networkFactory.CreatePlayer(room, packet, Faction.Sheep);
+                var wolfPlayer = _networkFactory.CreatePlayer(room, packet, Faction.Wolf);
                 
                 if (sheepPlayer.Session == null || wolfPlayer.Session == null)
                 {
@@ -320,8 +329,8 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            var sheepPlayer = CreatePlayerFriendly(room, packet, Faction.Sheep);
-            var wolfPlayer = CreatePlayerFriendly(room, packet, Faction.Wolf);
+            var sheepPlayer = _networkFactory.CreatePlayerFriendly(room, packet, Faction.Sheep);
+            var wolfPlayer = _networkFactory.CreatePlayerFriendly(room, packet, Faction.Wolf);
             
             if (sheepPlayer.Session == null || wolfPlayer.Session == null)
             {
@@ -376,8 +385,8 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            var player = CreatePlayerSingle(room, packet);
-            CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
+            var player = _networkFactory.CreatePlayerSingle(room, packet);
+            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
             room.GameMode = GameMode.Single;
             room.StageId = packet.StageId;
             room.RoomActivated = true;
@@ -394,183 +403,14 @@ public class NetworkManager
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            var player = CreatePlayerTutorial(room, packet);
-            CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+            var player = _networkFactory.CreatePlayerTutorial(room, packet);
+            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
             room.GameMode = GameMode.Tutorial;
             room.RoomActivated = true;
             tcs.SetResult(true);
         });
 
         return await tcs.Task;
-    }    
-    
-    private Player CreatePlayer(GameRoom room, MatchSuccessPacketRequired required, Faction faction)
-    {
-        var player = ObjectManager.Instance.Add<Player>();
-        var position = faction == Faction.Sheep 
-            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
-            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-        var sheepCharacterName = required.SheepCharacterId.ToString();
-        var wolfCharacterName = required.WolfCharacterId.ToString();
-
-        player.Room = room;
-        player.Faction = faction;
-        player.Info.Name = faction == Faction.Sheep ? sheepCharacterName : wolfCharacterName;
-        player.PosInfo = position;
-        player.Info.PosInfo = position;
-        player.CharacterId = faction == Faction.Sheep ? required.SheepCharacterId : required.WolfCharacterId;
-        player.AssetId = faction == Faction.Sheep ? (int)required.SheepId : (int)required.EnchantId;
-        player.WinRankPoint = faction == Faction.Sheep ? required.WinPointSheep : required.WinPointWolf;
-        player.LoseRankPoint = faction == Faction.Sheep ? required.LosePointSheep : required.LosePointWolf;
-        player.RankPoint = faction == Faction.Sheep ? required.SheepRankPoint : required.WolfRankPoint;
-        player.UnitIds = faction == Faction.Sheep ? required.SheepUnitIds : required.WolfUnitIds;
-        player.Session = faction == Faction.Sheep 
-            ? SessionManager.Instance.Find(required.SheepSessionId)
-            : SessionManager.Instance.Find(required.WolfSessionId);
-
-        Console.WriteLine($"Create Player -> {room.RoomId} {required.SheepSessionId} : {required.WolfSessionId}" );
-        if (player.Session == null)
-        {
-            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
-            return player;
-        }
-        
-        var userId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
-        player.Session.MyPlayer = player;
-        player.Session.MarkAuthenticated(userId);
-        
-        return player;
-    }
-
-    private Player CreatePlayerFriendly(GameRoom room, FriendlyMatchPacketRequired required, Faction faction)
-    {
-        var player = ObjectManager.Instance.Add<Player>();
-        var position = faction == Faction.Sheep 
-            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
-            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-        var sheepCharacterName = required.SheepCharacterId.ToString();
-        var wolfCharacterName = required.WolfCharacterId.ToString();
-
-        player.Room = room;
-        player.Faction = faction;
-        player.Info.Name = faction == Faction.Sheep ? sheepCharacterName : wolfCharacterName;
-        player.PosInfo = position;
-        player.Info.PosInfo = position;
-        player.CharacterId = faction == Faction.Sheep ? required.SheepCharacterId : required.WolfCharacterId;
-        player.AssetId = faction == Faction.Sheep ? (int)required.SheepId : (int)required.EnchantId;
-        player.UnitIds = faction == Faction.Sheep ? required.SheepUnitIds : required.WolfUnitIds;
-        player.Session = faction == Faction.Sheep 
-            ? SessionManager.Instance.Find(required.SheepSessionId)
-            : SessionManager.Instance.Find(required.WolfSessionId);
-        
-        Console.WriteLine($"Create Player -> {room.RoomId} {required.SheepSessionId} : {required.WolfSessionId}" );
-        if (player.Session == null)
-        {
-            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
-            return player;
-        }
-        
-        var userId = faction == Faction.Sheep ? required.SheepUserId : required.WolfUserId;
-        player.Session.MyPlayer = player;
-        player.Session.MarkAuthenticated(userId);
-
-        return player;
-    }
-    
-    private Player CreatePlayerSingle(GameRoom room, SinglePlayStartPacketRequired required)
-    {
-        var player = ObjectManager.Instance.Add<Player>();
-        var faction = required.UserFaction;
-        var position = faction == Faction.Sheep 
-            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
-            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-        
-        player.Room = room;
-        player.Faction = faction;
-        player.PosInfo = position;
-        player.Info.PosInfo = position;
-        player.Info.Name = ((CharacterId)required.CharacterId).ToString();
-        player.CharacterId = (CharacterId)required.CharacterId;
-        player.AssetId = required.AssetId;
-        player.UnitIds = required.UnitIds;
-        player.Session = SessionManager.Instance.Find(required.SessionId);
-
-        Console.WriteLine($"{required.SessionId} single play, room {room.RoomId}, {required.CharacterId} {required.EnemyCharacterId}");
-        if (player.Session == null)
-        {
-            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
-            return player;
-        }
-        
-        player.Session.MyPlayer = player;
-        player.Session.MarkAuthenticated(required.UserId);
-
-        return player;
-    }
-
-    private Player CreatePlayerTutorial(GameRoom room, TutorialStartPacketRequired required)
-    {
-        var player = ObjectManager.Instance.Add<Player>();
-        var faction = required.UserFaction;
-        var position = faction == Faction.Sheep 
-            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
-            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-
-        player.Room = room;
-        player.Faction = faction;
-        player.PosInfo = position;
-        player.Info.PosInfo = position;
-        player.Info.Name = ((CharacterId)required.CharacterId).ToString();
-        player.CharacterId = (CharacterId)required.CharacterId;
-        player.AssetId = required.AssetId;
-        player.UnitIds = required.UnitIds;
-        player.Session = SessionManager.Instance.Find(required.SessionId);
-
-        Console.WriteLine($"{required.SessionId} in tutorial");
-        if (player.Session == null)
-        {
-            Console.WriteLine($"Session not found for user : {player.Session?.UserId}");
-            return player;
-        }
-        
-        player.Session.MyPlayer = player;
-        player.Session.MarkAuthenticated(required.UserId);
-
-        return player;
-    }
-
-    private Player CreateNpc(GameRoom room, Player player, CharacterId characterId, int assetId, UnitId[]? unitIds = null)
-    {
-        unitIds ??= Array.Empty<UnitId>();
-        // This is a test NPC, so this has to be changed later when the single play mode is implemented.
-        var npc = ObjectManager.Instance.Add<Player>();
-        var faction = player.Faction == Faction.Sheep ? Faction.Wolf : Faction.Sheep;
-        var position = faction == Faction.Sheep 
-            ? new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = -22, Dir = 0 }
-            : new PositionInfo { State = State.Idle, PosX = 0, PosY = 13.8f, PosZ = 22, Dir = 180 };
-
-        npc.Faction = faction;
-        npc.Info.Name = characterId.ToString();
-        npc.PosInfo = position;
-        npc.Info.PosInfo = position;
-        npc.CharacterId = characterId;
-        npc.AssetId = assetId;
-        npc.UnitIds = unitIds;
-        room.EnterGameNpc(npc);
-
-        Console.WriteLine($"Create NPC -> {npc.Info.Name}");
-        return npc;
-    }
-
-    public void CreateNpcForAiGame(GameRoom room, Faction faction, CharacterId characterId, int assetId)
-    {
-        var npc = ObjectManager.Instance.Add<Player>();
-        npc.Faction = faction;
-        npc.Info.Name = characterId.ToString();
-        npc.CharacterId = characterId;
-        npc.AssetId = assetId;
-        npc.UnitIds = room.GetAiDeck(faction);
-        room.EnterGameNpc(npc);
     }
 
     private void SendStartGamePacket(Player sheepPlayer, Player wolfPlayer, MatchSuccessPacketRequired packet)

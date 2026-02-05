@@ -161,7 +161,7 @@ public partial class GameRoom : JobSerializer, IDisposable
 
     private void UpdateAiModule()
     {
-        if (GameMode != GameMode.Single && GameMode != GameMode.AiTest) return;
+        if (GameMode != GameMode.Single && GameMode != GameMode.AiSimulation) return;
         if (RoundTime >= 23) return;
 
         var snapshot = BuildWorldSnapshot();

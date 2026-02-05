@@ -15,7 +15,7 @@ public partial class GameRoom
             case GameMode.Single:
                 InitSingleModeAi();
                 break;
-            case GameMode.AiTest:
+            case GameMode.AiSimulation:
                 InitAiTestModeAi();
                 SetAssets();
                 break;

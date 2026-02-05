@@ -9,7 +9,7 @@ public enum GameMode
     Single,
     Tutorial,
     Test,
-    AiTest,
+    AiSimulation,
 }
 
 public enum SkillType

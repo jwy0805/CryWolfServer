@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Server.Data;
 using Server.DB;
 using Server.Game;
+using Server.Util;
 using ServerCore;
 using Timer = System.Timers.Timer;
 // ReSharper disable FunctionNeverReturns
@@ -26,7 +27,15 @@ public static class Program
         if (NetworkManager.Instance.Environment == Env.Local)
         {
             var host = Dns.GetHostName();
-            var ipHost = Dns.GetHostEntry(host);
+            IPHostEntry ipHost;
+            try
+            {
+                ipHost = Dns.GetHostEntry(host);
+            }
+            catch (Exception)
+            {
+                ipHost = Dns.GetHostEntry("127.0.0.1");
+            }
 
             foreach (var ip in ipHost.AddressList)
             {
@@ -34,6 +43,11 @@ public static class Program
             }
             
             ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.ToString().Contains("172."));
+            
+            if (ipAddress == null)
+            {
+                ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            }
 
             if (ipAddress == null)
             {
@@ -64,14 +78,17 @@ public static class Program
         Console.WriteLine($"Listening... {endPoint}");
         
         NetworkManager.Instance.StartHttpServer();
-
+        
         var gameLogicTask = new Task(GameLogicTask, TaskCreationOptions.LongRunning);
         gameLogicTask.Start();
 
         var networkTask = new Task(NetworkTask, TaskCreationOptions.LongRunning);
         networkTask.Start();
-
-        DbTask();
+        
+        var metricTask = new Task(MetricsTask, TaskCreationOptions.LongRunning);
+        metricTask.Start();
+        
+        Task.WaitAll(gameLogicTask, networkTask, metricTask);
     }
     
     private static void GameLogicTask()
@@ -119,7 +136,16 @@ public static class Program
             Thread.Sleep(10);
         }
     }
-
+    
+    private static void MetricsTask()
+    {
+        if (NetworkManager.Instance.Environment != Env.Prod) return;
+        
+        var metricDir = Environment.GetEnvironmentVariable("METRIC_LOG_DIR");
+        var reporter = new MetricsReporter(metricDir ?? "/app/logs", 60000);
+        reporter.Run();
+    }
+    
     private static void DbTask()
     {
         while (true)

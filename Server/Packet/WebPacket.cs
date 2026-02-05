@@ -33,6 +33,7 @@ public class SingleRewardInfo
 public class MatchSuccessPacketRequired
 {
     public bool IsTestGame { get; set; }
+    public bool IsAiSimulation { get; set; }
     public int SheepUserId { get; set; }
     public int SheepSessionId { get; set; }
     public string SheepUserName { get; set; }
@@ -211,6 +212,17 @@ public class SendEventProgressPacketRequired
 public class SendEventProgressPacketResponse
 {
     public bool SendEventProgressOk { get; set; }
+}
+
+public class EnqueueAiMatchPacketRequired
+{
+    public int SessionId { get; set; }
+    public Faction Faction { get; set; }
+}
+
+public class EnqueueAiMatchPacketResponse
+{
+    public bool EnqueueAiMatchOk { get; set; }
 }
 
 #endregion
