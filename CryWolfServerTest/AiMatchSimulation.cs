@@ -40,13 +40,13 @@ public class AiMatchSimulation
         await Task.WhenAll(sessionTasks1);
         await Task.Delay(TimeSpan.FromSeconds(5));
 
-        var halfCount = aiCount / 2;
+        var halfCount = firstBatchCount / 2;
         var factions = Enumerable.Repeat(Faction.Sheep, halfCount)
-            .Concat(Enumerable.Repeat(Faction.Wolf, aiCount - halfCount))
+            .Concat(Enumerable.Repeat(Faction.Wolf, firstBatchCount - halfCount))
             .OrderBy(_ => Random.Shared.Next())
             .ToList();
         
-        for (var aiId = 1; aiId <= aiCount; aiId++)
+        for (var aiId = 1; aiId <= firstBatchCount; aiId++)
         {
             var faction = factions[aiId - 1];
             enqueueTasks1.Add(Enqueue(aiSessions[aiId].SessionId, faction));
@@ -66,9 +66,15 @@ public class AiMatchSimulation
         await Task.WhenAll(sessionTasks2);
         await Task.Delay(TimeSpan.FromSeconds(5));
         
+        var halfCount2 = (aiCount - firstBatchCount) / 2;
+        var factions2 = Enumerable.Repeat(Faction.Sheep, halfCount2)
+            .Concat(Enumerable.Repeat(Faction.Wolf, aiCount - firstBatchCount - halfCount2))
+            .OrderBy(_ => Random.Shared.Next())
+            .ToList();
+        
         for (var aiId = firstBatchCount + 1; aiId <= aiCount; aiId++)
         {
-            var faction = factions[aiId - 1];
+            var faction = factions2[aiId - firstBatchCount - 1];
             enqueueTasks2.Add(Enqueue(aiSessions[aiId].SessionId, faction));
         }
         
