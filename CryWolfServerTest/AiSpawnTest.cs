@@ -15,7 +15,7 @@ public class AiSpawnTest
     public async void SetUp()
     {
         DataManager.LoadData();
-        
+         
         _sheepPlayer.Faction = Faction.Sheep;
         _wolfPlayer.Faction = Faction.Wolf;
 
