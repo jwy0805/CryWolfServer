@@ -233,16 +233,4 @@ public class GameInfo // 한 판마다 초기화되는 정보
             new Vector3(FenceCenter.X + FenceSize.X / 2 - 2, 6, FenceCenter.Z + FenceSize.Z / 2 - 2)
         };
     }
-
-    public float GetSpawnRangeMinZ(GameRoom? room, Faction faction)
-    {
-        if (room == null) return 0;
-        return faction == Faction.Sheep ? room.GameData.MinZ : FenceBounds.Max(v => v.Z) + 2;
-    }
-
-    public float GetSpawnRangeMaxZ(GameRoom? room, Faction faction)
-    {
-        if (room == null) return 0;
-        return faction == Faction.Sheep ? FenceBounds.Max(v => v.Z) + 3 : room.GameData.MaxZ;
-    }
 }

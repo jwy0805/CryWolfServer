@@ -8,7 +8,7 @@ public class GameLogic : JobSerializer
 
     private readonly Dictionary<int, GameRoom> _rooms = new();
     private int _roomId = 1;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public void Update()
     { 

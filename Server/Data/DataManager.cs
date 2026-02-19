@@ -27,7 +27,7 @@ public class DataManager
         where TLoader : ILoader<TKey, TValue> where TKey : notnull
     {
         var path = Environment.GetEnvironmentVariable("Data__Path") ??
-                   "/Users/jwy/Documents/Dev/CryWolf/Common";
+                   "/Users/jwy/Documents/00_Dev/00_CryWolf/Common";
         var text = File.ReadAllText($"{path}/{data}.json");
         var settings = new JsonSerializerSettings {
             MissingMemberHandling = MissingMemberHandling.Error,

@@ -153,22 +153,6 @@ public class PacketHandler
         
         room?.Push(room.HandleLeave, player, leavePacket);
     }
-
-    public static void C_GetSpawnableBoundsHandler(PacketSession session, IMessage packet)
-    {
-        var boundsPacket = (C_GetSpawnableBounds)packet;
-        var clientSession = (ClientSession)session;
-        var player = clientSession.MyPlayer;
-        var room = player?.Room;
-        if (room == null) return;
-
-        var sendBoundsPacket = new S_GetSpawnableBounds
-        {
-            MinZ = room.GameInfo.GetSpawnRangeMinZ(room, boundsPacket.Faction),
-            MaxZ = room.GameInfo.GetSpawnRangeMaxZ(room, boundsPacket.Faction)
-        };
-        player?.Session?.Send(sendBoundsPacket);
-    }
     
     public static void C_SetTextUIHandler(PacketSession session, IMessage packet)
     {

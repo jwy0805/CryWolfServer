@@ -70,7 +70,7 @@ public class AiSimulationTest
         room.RoomActivated = true;
         room.Flush();
         
-        var finished = await Update(() => room.RoomActivated == false, 10, TimeSpan.FromMinutes(15));
+        var finished = await Update(() => !room.RoomActivated, 10, TimeSpan.FromMinutes(15));
         
         Assert.That(finished, Is.True, "Ai simulation did not finish in time");
     }
