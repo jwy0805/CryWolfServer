@@ -36,7 +36,7 @@ public class PacketHandler
             return;
         }
         
-        room.RoomActivated = !holdPacket.Hold;
+        room.Push(room.HoldRoom, holdPacket.Hold);
     }
     
     public static void C_SpawnHandler(PacketSession session, IMessage packet)

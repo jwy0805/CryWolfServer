@@ -4,7 +4,7 @@ public class JobSerializer : IJobSerializer
 {
     private JobTimer _timer = new();
     private Queue<IJob> _jobQueue = new();
-    private object _lock = new();
+    private Lock _lock = new();
     private bool _flush = false;
 
     public IJob PushAfter(int tickAfter, Action action) { return PushAfter(tickAfter, new Job(action));}
@@ -17,6 +17,16 @@ public class JobSerializer : IJobSerializer
         _timer.Push(job, tickAfter);
         return job;
     }
+
+    public int PendingCount
+    {
+        get
+        {
+            lock (_lock) return _jobQueue.Count;
+        }
+    }
+    
+    public bool HasPendingJobs => _jobQueue.Count > 0;
     
     public void Push(Action action) { Push(new Job(action));}
     public void Push<T1>(Action<T1> action, T1 t1) { Push(new Job<T1>(action, t1));}

@@ -13,7 +13,9 @@ namespace Server.Game;
 
 public partial class GameRoom : JobSerializer, IDisposable
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
+    internal int _scheduled = 0;
+    internal int _tickPending = 0;
     
     private readonly Dictionary<int, Player> _players = new();
     private readonly Dictionary<int, Tower> _towers = new();
@@ -118,6 +120,11 @@ public partial class GameRoom : JobSerializer, IDisposable
             stat.MergeFrom(unitData?.Stat);
             UnitSizeList.Add(new UnitSize((UnitId)unitId, stat.SizeX, stat.SizeZ));
         }
+    }
+
+    public void HoldRoom(bool hold)
+    {
+        RoomActivated = !hold;
     }
     
     public void Update()
