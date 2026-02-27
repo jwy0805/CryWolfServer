@@ -13,6 +13,7 @@ public class NetworkManager
     private HttpListener? _httpListener;
     private readonly HttpClient _httpClient = new();
     private const int ApiPortLocal = 5281;
+    private const int Port = 8080;
     
     public Env Environment => System.Environment.GetEnvironmentVariable("ENVIRONMENT") switch
     {
@@ -26,9 +27,9 @@ public class NetworkManager
     private string BaseUrl => Environment switch
     {
         Env.Local => $"http://localhost:{ApiPortLocal}/api",
-        Env.Dev => "http://crywolf-api/api",
-        Env.Stage => "http://crywolf-api/api",
-        Env.Prod => "http://crywolf-api/api",
+        Env.Dev => $"http://crywolf-api:{Port}/api",
+        Env.Stage => $"http://crywolf-api:{Port}/api",
+        Env.Prod => $"http://crywolf-api:{Port}/api",
         _ => throw new ArgumentOutOfRangeException()
     };
 
