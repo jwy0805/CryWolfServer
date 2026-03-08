@@ -6,6 +6,8 @@ namespace Server.Util;
 
 public class Util
 {
+    public static readonly Random Random = new();
+    
     public static Vector3 NearestCell(Vector3 worldPosition)
     {
         float tolerance = 0.01f;

@@ -143,9 +143,7 @@ public partial class GameRoom
                     }
                     else
                     {
-                        var oldCellPos = newFenceCellPos with { Z = newFenceCellPos.Z - _forwardParam };
-                        var oldCellPosV2 = Map.Vector3To2(oldCellPos);
-                        if (Map.CanSpawnFence(oldCellPosV2, _towers.Values.ToArray()))
+                        if (Map.CanSpawnFence(Map.Vector3To2(newFenceCellPos), _towers.Values.ToArray()))
                         {
                             fence = SpawnFence(newFenceCellPos);
                         }

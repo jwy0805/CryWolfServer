@@ -52,11 +52,14 @@ public class SnowBomb : Bomb
     protected override void UpdateMoving()
     {
         if (Room == null) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
         
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        if (Target == null || !Target.Targetable || Target.Room != Room)
+        {   
             State = State.Idle;
             return;
         }
@@ -78,7 +81,7 @@ public class SnowBomb : Bomb
         }
         
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
 

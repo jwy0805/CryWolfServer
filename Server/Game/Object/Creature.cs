@@ -107,47 +107,38 @@ public class Creature : GameObject
         }
     }
 
-    protected virtual void UpdateIdle() { }
+    protected virtual void UpdateIdle()
+    {
+        UnreachableIds.Clear();
+    }
 
     protected virtual void UpdateMoving()
     {
         if (Room == null) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
         
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        if (Target == null || !Target.Targetable || Target.Room != Room)
         {   
-            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
-        
-        // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
-        DestPos = Room.Map.GetClosestPoint(this, Target);
-        Vector3 flatDestPos = DestPos with { Y = 0 };
-        Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatDestPos, flatCellPos);
-        double deltaX = DestPos.X - CellPos.X;
-        double deltaZ = DestPos.Z - CellPos.Z;
-        Dir = (float)Math.Round(Math.Atan2(deltaX, deltaZ) * (180 / Math.PI), 2);
-       
-        if (distance <= TotalAttackRange)
+
+        if (Path.Count <= 1)
         {
+            DestPos = Room.Map.GetClosestPoint(this, Target);
+            double dx = DestPos.X - CellPos.X;
+            double dz = DestPos.Z - CellPos.Z;
+            Dir = (float)Math.Round(Math.Atan2(dx, dz) * (180 / Math.PI), 2);
             State = State.Attack;
             SyncPosAndDir();
             return;
         }
         
-        // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
-        if (Path.Count == 0)
-        {
-            State = State.Idle;
-            BroadcastPos();
-            UnreachableIds.Add(Target.Id);
-            return;
-        }
-        
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
     

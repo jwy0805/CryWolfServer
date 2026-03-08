@@ -42,8 +42,14 @@ public class MoleRatKing : MoleRat
     
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestPriorityTarget(this, _typeList);
+        if (Room == null) return;
+        if (Room.TryPickPriorityTargetAndPath(
+                this, _typeList, AttackType, TotalAttackRange, Path, out GameObject? target))
+        {
+            Target = target;
+        }
         if (Target == null) return;
+        
         State = _burrow ? State.IdleToUnderground : State.IdleToRush;
     }
 
@@ -63,8 +69,13 @@ public class MoleRatKing : MoleRat
         if (Room == null) return;
         
         // Targeting 우선순위 - Sheep
-        var targetTypeList = new List<GameObjectType> { GameObjectType.Sheep };
-        Target = Room.FindClosestPriorityTarget(this, targetTypeList, Stat.AttackType, false);
+        var typePriority = new List<GameObjectType> { GameObjectType.Sheep, GameObjectType.Tower };
+        if (Room.TryPickPriorityTargetAndPath(
+                this, typePriority, AttackType, TotalAttackRange, Path, out GameObject? target))
+        {
+            Target = target;
+        }
+        
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우
@@ -85,7 +96,7 @@ public class MoleRatKing : MoleRat
         }
         
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this, false);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
     

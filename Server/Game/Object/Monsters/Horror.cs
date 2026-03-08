@@ -95,10 +95,21 @@ public class Horror : Creeper
     {
         if (Room == null) return;
         
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        int attackType = (int)Data.AttackType.Ground;
+        float rushRange = SizeZ / (float)Room.Map.CellCnt;
+        if (Room.TryPickTargetAndPath(
+                this, attackType, rushRange, Path, out var target, true))
+        {
+            Target = target;
+        }
         
-        if (Rushed == false)
+        if (Target == null || !Target.Targetable || Target.Room != Room)
+        {   
+            State = State.Idle;
+            return;
+        }
+        
+        if (!Rushed)
         {
             MoveSpeed += RushSpeed;
             State = State.Rush; 
@@ -155,11 +166,11 @@ public class Horror : Creeper
         if (target == null || Room == null || AddBuffAction == null) return;
         
         Room.Push(target.OnDamaged, this, TotalSkillDamage, Damage.Normal, false);
-        if (_rollPoison == false) return;
+        if (!_rollPoison) return;
         
         Room.SpawnEffect(EffectId.HorrorRoll, this, this, PosInfo);
         var types = new[] { GameObjectType.Sheep, GameObjectType.Fence, GameObjectType.Tower };
-        var targets = Room.FindTargetsInAngleRange(this, SavedDir, types, 5, 60);
+        var targets = Room.FindTargetsInAngleRange(this, Dir, types, 5, 60);
         
         foreach (var gameObject in targets)
         {

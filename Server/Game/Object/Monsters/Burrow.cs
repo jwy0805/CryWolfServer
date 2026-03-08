@@ -132,19 +132,29 @@ public class Burrow : Monster
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestTarget(this); 
-        if (Target == null) return;
+        UnreachableIds.Clear();
+        if (Room == null) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
+
+        if (Target == null || !Target.Targetable || Target.Room != Room) return;
         State = _halfBurrow ? State.IdleToRush : State.Moving;
     }
 
     protected override void UpdateRush()
     {
         if (Room == null) return;
-        
-        // Targeting
-        Target = Room.FindClosestTarget(this);
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
         {
+            Target = target;
+        }
+        
+        if (Target == null || !Target.Targetable || Target.Room != Room)
+        {   
             State = State.Idle;
             return;
         }
@@ -162,7 +172,7 @@ public class Burrow : Monster
         }
         
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
 

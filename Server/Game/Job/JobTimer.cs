@@ -9,14 +9,15 @@ internal struct JobTimerElem : IComparable<JobTimerElem>
 
     public int CompareTo(JobTimerElem other)
     {
-        return other.ExecTick - ExecTick;
+        long diff = (long)ExecTick - other.ExecTick;
+        return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     }
 }
 
 public class JobTimer
 {
     private readonly PriorityQueue<JobTimerElem> _priorityQueue = new();
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public void Push(IJob job, int tickAfter = 0)
     {

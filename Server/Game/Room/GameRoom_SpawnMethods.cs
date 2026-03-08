@@ -185,7 +185,7 @@ public partial class GameRoom
         projectile.Info.PosInfo = projectile.PosInfo;
         projectile.Info.Name = projectileId.ToString();
         projectile.ProjectileId = projectileId;
-        projectile.DestPos = parent.Target.CellPos;
+        projectile.DestPos = parent.Target.CellPos + new Vector3(0, parent.Target.Stat.SizeY * 0.5f, 0);
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();
@@ -216,7 +216,7 @@ public partial class GameRoom
         projectile.Info.PosInfo = projectile.PosInfo;
         projectile.Info.Name = projectileId.ToString();
         projectile.ProjectileId = projectileId;
-        projectile.DestPos = target.CellPos;
+        projectile.DestPos = target.CellPos + new Vector3(0, target.Stat.SizeY * 0.5f, 0);
         projectile.Attack = parent.TotalAttack;
         projectile.MoveSpeed = speed;
         projectile.Init();

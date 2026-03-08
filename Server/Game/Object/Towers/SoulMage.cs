@@ -12,7 +12,6 @@ public class SoulMage : Haunt
     private bool _magicPortal = false;
     private bool _debuffResist = false;
     private readonly int _debuffParam = 25;
-    private GameObject? _effectTarget;
     
     protected override Skill NewSkill
     {
@@ -99,9 +98,13 @@ public class SoulMage : Haunt
     protected override void UpdateIdle()
     {   
         if (Room == null) return;
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, false))
+        {
+            Target = target;
+        }
+
+        if (Target == null || !Target.Targetable || Target.Room != Room) return;
         
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Room.Map.GetClosestPoint(this, Target) with { Y = 0 };
@@ -160,10 +163,19 @@ public class SoulMage : Haunt
         {
             await Scheduler.ScheduleEvent(impactTime, () =>
             {
-                if (_effectTarget == null || Room == null || AddBuffAction == null) return;
-                Room.Push(AddBuffAction, BuffId.Fainted,
-                    BuffParamType.None, _effectTarget, this, 0, 1300, false);
-                Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.4), Damage.True, false);
+                if (Room == null) return;
+                if (Target == null || !Target.Targetable || Target.Hp <= 0)
+                {
+                    if (Room.TryPickTargetAndPath(
+                            this, AttackType, TotalAttackRange, Path, out GameObject? target, false))
+                    {
+                        Target = target;
+                    }
+                }
+                if (Target == null || !Target.Targetable || Target.Hp <= 0 || AddBuffAction == null) return;
+                
+                Room.Push(AddBuffAction, BuffId.Fainted, BuffParamType.None, Target, this, 0, 1300, false);
+                Room.Push(Target.OnDamaged, this, (int)(TotalSkillDamage * 0.4), Damage.True, false);
             });
         }
         catch (Exception e)
@@ -203,8 +215,18 @@ public class SoulMage : Haunt
         {
             await Scheduler.ScheduleEvent(impactTime, () =>
             {
-                if (Room == null || _effectTarget == null) return;
-                Room.Push(_effectTarget.OnDamaged, this, (int)(TotalSkillDamage * 0.7), Damage.Magical, false);
+                if (Room == null) return;
+                if (Target == null || !Target.Targetable || Target.Hp <= 0)
+                {
+                    if (Room.TryPickTargetAndPath(
+                            this, AttackType, TotalAttackRange, Path, out GameObject? target, false))
+                    {
+                        Target = target;
+                    }
+                }
+                if (Target == null || !Target.Targetable || Target.Hp <= 0) return;
+                
+                Room.Push(Target.OnDamaged, this, (int)(TotalSkillDamage * 0.7), Damage.Magical, false);
             });
         }
         catch (Exception e)
@@ -218,7 +240,7 @@ public class SoulMage : Haunt
         if (Room == null || AddBuffAction == null) return;
 
         float dir;
-        if (Target == null || Target.Targetable == false || Target.Hp <= 0)
+        if (Target == null || !Target.Targetable || Target.Hp <= 0)
         {
             dir = Dir;
         }
@@ -248,24 +270,17 @@ public class SoulMage : Haunt
         if (eid != EffectId.GreenGate) return;
         
         var random = new Random().Next(3);
-        var types = new List<GameObjectType> { GameObjectType.Monster };
-        _effectTarget = Room.FindRandomTarget(this, types, TotalSkillRange, 2);
-        if (_effectTarget == null)
-        {   // 몬스터가 우선순위 1이므로 먼저 찾고 그 다음 석상 탐색
-            types = new List<GameObjectType> { GameObjectType.MonsterStatue };
-            _effectTarget = Room.FindRandomTarget(this, types, TotalSkillRange, 2);
-            if (_effectTarget == null) return;
-        }
-                
+        if (Target == null || !Target.Targetable || Target.Hp <= 0) return;
+        
         var effectPos = new PositionInfo
         { 
-            PosX = _effectTarget.CellPos.X, PosY = _effectTarget.CellPos.Y, PosZ = _effectTarget.CellPos.Z, Dir = Dir
+            PosX = Target.CellPos.X, PosY = Target.CellPos.Y, PosZ = Target.CellPos.Z, Dir = Dir
         };
                 
         switch (random)
         {
             case 0:
-                Room.SpawnEffect(EffectId.NaturalTornado, this, _effectTarget, effectPos, true, 3000);
+                Room.SpawnEffect(EffectId.NaturalTornado, this, Target, effectPos, true, 3000);
                 NaturalTornadoEvents(100);
                 NaturalTornadoEvents(800);
                 NaturalTornadoEvents(1500);
@@ -278,7 +293,7 @@ public class SoulMage : Haunt
                 StarFallEvents(1500, effectPos);
                 break;
             default:
-                Room.SpawnEffect(EffectId.PurpleBeam, this, _effectTarget, effectPos, true, 4000);
+                Room.SpawnEffect(EffectId.PurpleBeam, this, Target, effectPos, true, 4000);
                 PurpleBeamEvents(900);
                 PurpleBeamEvents(1150);
                 PurpleBeamEvents(1400);

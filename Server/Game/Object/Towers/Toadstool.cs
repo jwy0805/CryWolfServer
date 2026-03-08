@@ -56,7 +56,6 @@ public class Toadstool : Fungi
             Mp += 5;
         }
 
-        // Console.WriteLine(State);
         switch (State)
         {
             case State.Die:

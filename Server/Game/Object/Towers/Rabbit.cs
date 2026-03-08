@@ -82,9 +82,13 @@ public class Rabbit : Bunny
     protected override void UpdateIdle()
     {  
         if (Room == null) return;
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, false))
+        {
+            Target = target;
+        }
+
+        if (Target == null || !Target.Targetable || Target.Room != Room) return;
         
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         Vector3 flatTargetPos = Room.Map.GetClosestPoint(this, Target) with { Y = 0 };

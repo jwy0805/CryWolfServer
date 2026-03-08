@@ -69,13 +69,13 @@ public class Sheep : Creature, ISkillObserver
     
     protected override void UpdateIdle()
     {
-        if (_idle == false)
+        if (!_idle)
         {
             _idleTime = Room!.Stopwatch.ElapsedMilliseconds;
             _idle = true;
         }
         
-        if (Room?.Stopwatch.ElapsedMilliseconds > _idleTime + new Random().Next(1000, 2500))
+        if (Room?.Stopwatch.ElapsedMilliseconds > _idleTime + Random.Shared.Next(1000, 2500))
         {
             DestPos = GetRandomDestInFence();
             State = State.Moving;
@@ -89,7 +89,8 @@ public class Sheep : Creature, ISkillObserver
         if (Room == null || AddBuffAction == null) return;
         
         if (Infection)
-        {   // 모기 공격 맞았을 때 독 감염시키는 메서드
+        {   
+            // 모기 공격 맞았을 때 독 감염시키는 메서드
             var sheeps = Room!.FindTargets(this,
                 new List<GameObjectType> { GameObjectType.Sheep }, _infectionDist);
             foreach (var sheep in sheeps.Select(s => s as Creature))
@@ -102,17 +103,29 @@ public class Sheep : Creature, ISkillObserver
             }
         }
         
-        // 이동
-        Vector3 position = CellPos;
-        float distance = Vector3.Distance(DestPos, CellPos);
-        if (distance <= 0.5f)
+        Path.Clear();
+        Atan.Clear();
+
+        var startCell = Room.Map.Vector3To2(CellPos);
+        var destCell  = Room.Map.Vector3To2(DestPos);
+
+        if (!Room.Map.TryFindPath(this, startCell, destCell, Path, 0, false, checkObjects: true))
         {
-            CellPos = position;
             State = State.Idle;
-            BroadcastPos();
+            SyncPosAndDir();
+            return;
         }
-        
-        (Path, Atan) = Room.Map.Move(this);
+
+        Room.Map.RemoveDuplicatedPaths(Path);
+
+        if (Path.Count <= 1)
+        {
+            State = State.Idle;
+            SyncPosAndDir();
+            return;
+        }
+
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
     
@@ -188,26 +201,71 @@ public class Sheep : Creature, ISkillObserver
         }
     }
     
-    protected virtual Vector3 GetRandomDestInFence()
+    protected virtual Vector3 GetRandomDestInFence(float radius = 5f)
     {
-        if (Room == null) return new Vector3();
-        
-        Vector3[] sheepBound = Room.GetSheepBounds();
-        float minX = sheepBound.Select(v => v.X).ToList().Min() + SheepBoundMargin;
-        float maxX = sheepBound.Select(v => v.X).ToList().Max() - SheepBoundMargin;
-        float minZ = sheepBound.Select(v => v.Z).ToList().Min() + SheepBoundMargin;
-        float maxZ = sheepBound.Select(v => v.Z).ToList().Max() - SheepBoundMargin;
+        if (Room == null) return default;
 
-        Random random = new();
-        do
+        Vector3[] b = Room.GetSheepBounds();
+
+        // bounds 계산
+        float minX = float.PositiveInfinity, maxX = float.NegativeInfinity;
+        float minZ = float.PositiveInfinity, maxZ = float.NegativeInfinity;
+
+        for (int i = 0; i < b.Length; i++)
         {
-            Map map = Room.Map;
-            float x = Math.Clamp((float)random.NextDouble() * (maxX - minX) + minX, minX, maxX);
-            float z = Math.Clamp((float)random.NextDouble() * (maxZ - minZ) + minZ, minZ, maxZ);
+            float x = b[i].X;
+            float z = b[i].Z;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (z < minZ) minZ = z;
+            if (z > maxZ) maxZ = z;
+        }
+
+        minX += SheepBoundMargin;
+        maxX -= SheepBoundMargin;
+        minZ += SheepBoundMargin;
+        maxZ -= SheepBoundMargin;
+
+        // bounds가 너무 좁아지면 현재 위치 유지
+        if (minX >= maxX || minZ >= maxZ) return CellPos;
+
+        Map map = Room.Map;
+        var random = Random.Shared;
+
+        // 현재 위치 기준
+        Vector3 origin = CellPos;
+
+        const int maxTry = 64; 
+        float r2Min = 1.5f * 1.5f; // 너무 가까운 건 배제
+        float rad = radius;
+
+        for (int t = 0; t < maxTry; t++)
+        {
+            // 원 내부 균일 샘플링
+            double u = random.NextDouble();
+            double v = random.NextDouble();
+            double rr = Math.Sqrt(u) * rad;
+            double theta = v * (Math.PI * 2.0);
+
+            float dx = (float)(rr * Math.Cos(theta));
+            float dz = (float)(rr * Math.Sin(theta));
+            float x = origin.X + dx;
+            float z = origin.Z + dz;
+
+            if (x < minX || x > maxX || z < minZ || z > maxZ) continue;
+
             Vector3 dest = Util.Util.NearestCell(new Vector3(x, 6.0f, z));
-            bool canGo = map.CanGo(this, map.Vector3To2(dest));
-            float dist = Vector3.Distance(CellPos, dest);
-            if (canGo && dist > 1.5f) return dest;
-        } while (true);
+
+            // 너무 가까운 경우 버림 (월드 거리 기준)
+            Vector3 flatO = origin; flatO.Y = 0;
+            Vector3 flatD = dest;   flatD.Y = 0;
+            float distSq = Vector3.DistanceSquared(flatO, flatD);
+            if (distSq <= r2Min) continue;
+            if (!map.CanGo(this, map.Vector3To2(dest), checkObjects: true)) continue;
+
+            return dest;
+        }
+
+        return CellPos;
     }
 }

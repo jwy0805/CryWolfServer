@@ -45,17 +45,23 @@ public class MosquitoBug : Monster
     protected override void UpdateIdle()
     {
         if (Room == null) return;
-        
-        Target = Room.FindClosestPriorityTarget(this, TypeList, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room) return;
+        if (Room.TryPickPriorityTargetAndPath(
+                this, TypeList, AttackType, TotalAttackRange, Path, out GameObject? target))
+        {
+            Target = target;
+        }
+        if (Target == null || !Target.Targetable || Target.Room != Room) return;
         State = State.Moving;
     }
 
     protected override void UpdateMoving()
     {
         if (Room == null) return;
-        // Targeting
-        Target = Room.FindClosestPriorityTarget(this, TypeList, Stat.AttackType); 
+        if (Room.TryPickPriorityTargetAndPath(
+                this, TypeList, AttackType, TotalAttackRange, Path, out GameObject? target))
+        {
+            Target = target;
+        }
         if (Target == null || Target.Targetable == false || Target.Room != Room)
         {   
             // Target이 없거나 타겟팅이 불가능한 경우
@@ -80,7 +86,7 @@ public class MosquitoBug : Monster
         }
         
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
 

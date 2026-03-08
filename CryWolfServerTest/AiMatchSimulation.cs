@@ -131,7 +131,7 @@ public class AiMatchSimulation
         }
         else
         {
-            host = "crywolf-tcpbalancer-5dadfff82e2ee15a.elb.ap-northeast-2.amazonaws.com";
+            host = "tcp.hamonstudio.net";
             ipHost = await Dns.GetHostEntryAsync(host);
             ipAddress = ipHost.AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
         }

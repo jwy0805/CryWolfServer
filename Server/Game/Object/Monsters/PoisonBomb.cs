@@ -46,25 +46,6 @@ public class PoisonBomb : SnowBomb
         UnitRole = Role.Mage;
     }
 
-    protected override void UpdateRush()
-    {
-        if (Room == null) return;
-        
-        Vector3 flatDestPos = DestPos with { Y = 0 };
-        Vector3 flatCellPos = CellPos with { Y = 0 };
-        float distance = Vector3.Distance(flatDestPos, flatCellPos);
-        if (distance <= 0.8f)
-        {
-            Room.Map.ApplyMap(this, CellPos, false);
-            State = State.Explode;
-            ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
-            return;
-        }
-        
-        Path = Room.Map.MoveIgnoreCollision(this);
-        BroadcastPath();
-    }
-
     protected override void AttackImpactEvents(long impactTime)
     {
         AttackTaskId = Scheduler.ScheduleCancellableEvent(impactTime, () =>
@@ -84,12 +65,13 @@ public class PoisonBomb : SnowBomb
             if (Room == null) return;
             AttackEnded = true;
             Target = Room
-                .FindTargets(this, new[] { GameObjectType.Monster }, TotalAttackRange, 2)
+                .FindTargets(this, [GameObjectType.Monster], TotalAttackRange, 2)
                 .OrderBy(go => go.CellPos.Z)
                 .FirstOrDefault(go => go.Id != Id);
             if (Target == null || Target.Targetable == false || Hp <= 0) return;
             if (State == State.Faint) return;
             Room.SpawnProjectile(ProjectileId.PoisonBombSkill, this, 5f);
+            Mp = 0;
         });
     }
     
@@ -188,18 +170,6 @@ public class PoisonBomb : SnowBomb
             Targetable = false;
             Attacker = attacker;
             if (_recoverPoison)
-            {
-                var target = Room.FindRandomTarget(
-                    this, TotalAttackRange * 3, 0, true);
-                if (target != null)
-                {
-                    CellPos = new Vector3(target.CellPos.X, target.CellPos.Y, target.CellPos.Z);
-                    BroadcastInstantMove();
-                }
-                State = State.Explode;
-                ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));
-            }
-            else
             {
                 State = State.Explode;
                 ExplodeEvents((long)(StdAnimTime * SkillImpactMoment2));

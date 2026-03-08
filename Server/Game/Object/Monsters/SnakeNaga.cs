@@ -94,13 +94,14 @@ public class SnakeNaga : Snake
     protected override void UpdateMoving()
     {
         if (Room == null) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
         
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
+        if (Target == null || !Target.Targetable || Target.Room != Room)
         {   
-            // Target이 없거나 타겟팅이 불가능한 경우
             State = State.Idle;
             return;
         }
@@ -122,7 +123,7 @@ public class SnakeNaga : Snake
         }
         
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         if (Path.Count == 0)
         {
             State = State.Idle;
@@ -160,7 +161,7 @@ public class SnakeNaga : Snake
             {
                 GameObjectType.Sheep, GameObjectType.Tower, GameObjectType.Fence
             };
-            var meteorTarget = Room.FindDensityTargets(searchType, targetType, 
+            var meteorTarget = Room.FindMostDenseTargets(searchType, targetType, 
                 this, TotalSkillRange + _meteorRange, _meteorRange);
             if (meteorTarget == null)
             {

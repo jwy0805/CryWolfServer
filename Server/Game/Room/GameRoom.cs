@@ -103,6 +103,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Map.LoadMap(mapId);
         Map.MapSetting();
         Map.Room = this;
+        
         Console.WriteLine("Room initialized.");
         UnitSizeMapping();
         GameInit();

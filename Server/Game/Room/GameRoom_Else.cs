@@ -8,91 +8,295 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    /// <summary>
-    /// Find a Nearest Target.
-    /// </summary>
-    /// <param name="gameObject"></param>
-    /// <param name="attackType"></param>
-    /// <returns>a Nearest Target GameObject</returns>
-    public GameObject? FindClosestTarget(GameObject gameObject, int attackType = 0)
-    {   
-        // 어그로 끌린 상태면 리턴
-        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target; 
+    private readonly List<GameObject> _candidateBuffer = new(256);
+    private float[] _distSqBuffer = new float[256];
+    private int[] _orderBuffer = new int[256];
 
-        var reachable = ReachableInFence(gameObject);
-        var targetTypeList = GetTargetType(gameObject, reachable);
-        var targetList = new List<GameObject>();
-        foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
-        return MeasureShortestDist(gameObject, targetList, attackType);
-    }
-    
-    public GameObject? FindClosestPriorityTarget(
-        GameObject gameObject, List<GameObjectType> typeList, int attackType = 0, bool check = true)
+    public bool TryPickTargetAndPath(
+        Creature attacker,
+        int attackType,
+        float attackRange,
+        List<Vector3> outPath,
+        out GameObject? target,
+        bool requiredPath, // Tower는 사거리 내면 바로 공격(false), 이동 유닛은 길찾기 성공해야 공격(true)
+        bool checkObjects = true)
     {
-        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
-
-        foreach (var type in typeList)
+        target = null;
+        outPath.Clear();
+        if (attacker.Room?.Map == null) return false;
+        
+        int range = checked((int)Math.Round((double)attackRange * Map.CellCnt, MidpointRounding.AwayFromZero));
+        if (attacker.Buffs.Contains(BuffId.Aggro))
         {
-            var targetList = GetTargets(type).ToList();
-            var finalTarget = MeasureShortestDist(gameObject, targetList, attackType, check);
-            if (finalTarget != null) return finalTarget;
-        } 
-
-        return null;
-    }
-
-    public GameObject? FindRandomTarget(GameObject gameObject, List<GameObjectType> typeList, float dist, int attackType = 0)
-    {
-        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
-
-        var targetList = new List<GameObject>();
-        foreach (var type in typeList) targetList.AddRange(GetTargets(type));
-
-        return GetRandomTarget(gameObject, targetList, dist, attackType);
-    }
-    
-    public GameObject? FindRandomTarget(GameObject gameObject, float dist, int attackType = 0, bool? reachableInFence = null)
-    {   
-        if (gameObject.Buffs.Contains(BuffId.Aggro)) return gameObject.Target;
-
-        var targetTypeList = GetTargetType(gameObject, reachableInFence);
-        var targetList = new List<GameObject>();
-        foreach (var type in targetTypeList) targetList.AddRange(GetTargets(type));
-
-        return GetRandomTarget(gameObject, targetList, dist, attackType);
-    }
-    
-    private List<GameObjectType> GetTargetType(GameObject gameObject, bool? reachableInFence = null)
-    {
-        List<GameObjectType> targetTypeList = new();
-        reachableInFence ??= ReachableInFence(gameObject);
-        switch (gameObject.ObjectType)
-        {
-            case GameObjectType.Monster:
-                if ((bool)reachableInFence)
+            var prevTarget = attacker.Target;
+            if (prevTarget == null) return false;
+            if (!prevTarget.Targetable || prevTarget.Room != attacker.Room) return false;
+            if (!requiredPath)
+            {
+                if (IsInAttackRange(attacker, prevTarget, attackRange))
                 {
-                    targetTypeList = new List<GameObjectType>
-                    {
-                        GameObjectType.Tower, GameObjectType.Sheep
-                    };
+                    target = prevTarget;
+                    return true;
                 }
-                else
-                {
-                    targetTypeList = new List<GameObjectType>
-                    {
-                        GameObjectType.Tower, GameObjectType.Sheep, GameObjectType.Fence
-                    };
-                }
-                break;
-            case GameObjectType.Tower:
-                targetTypeList = new List<GameObjectType>
-                {
-                    GameObjectType.Monster, GameObjectType.MonsterStatue, GameObjectType.Portal
-                };
-                break;
+                
+                return false;
+            }
+
+            if (Map.TryGetPath(attacker, range, prevTarget, outPath, checkObjects))
+            {
+                target = prevTarget;
+                return true;
+            }
+
+            return false;
         }
         
-        return targetTypeList;
+        Span<GameObjectType> targetTypes = stackalloc GameObjectType[8];
+        int typeCount = BuildTargetTypes(attacker, targetTypes);
+        if (typeCount == 0) return false;
+        
+        _candidateBuffer.Clear();
+        
+        for (int i = 0; i < typeCount; i++)
+        {
+            AppendTargets(targetTypes[i], _candidateBuffer);
+        }
+
+        int n = _candidateBuffer.Count;
+        if (n == 0) return false;
+        
+        EnsureCapacity(n);
+        
+        Vector3 attackerPos = attacker.CellPos;
+        attackerPos.Y = 0;
+        for (int i = 0; i < n; i++)
+        {
+            GameObject candidate = _candidateBuffer[i];
+            if (!candidate.Targetable || candidate.Hp <= 0 || candidate.Id == attacker.Id ||
+                (attackType != 2 && candidate.UnitType != attackType))
+            {
+                _distSqBuffer[i] = float.PositiveInfinity;
+                _orderBuffer[i] = 1;
+                continue;
+            }
+            // 이동 유닛만 UnreachableIds 체크
+            if (requiredPath && attacker.UnreachableIds.Contains(candidate.Id))
+            {
+                _distSqBuffer[i] = float.PositiveInfinity;
+                _orderBuffer[i] = 1;
+                continue;
+            }
+            
+            Vector3 closestPoint = Map.GetClosestPoint(attacker, candidate);
+            closestPoint.Y = 0;
+            _distSqBuffer[i] = Vector3.DistanceSquared(attackerPos, closestPoint);
+            // 마킹 버퍼 초기화 (0 = unvisited, 1 = visited)
+            _orderBuffer[i] = 0;
+        }
+
+        float rangeSquared = attackRange * attackRange;
+        for (int attempt = 0; attempt < n; attempt++)
+        {
+            int bestIdx = -1;
+            float bestDist = float.PositiveInfinity;
+            for (int i = 0; i < n; i++)
+            {
+                if (_orderBuffer[i] != 0) continue;
+                float dist = _distSqBuffer[i];
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestIdx = i;
+                }
+            }
+
+            if (bestIdx < 0) break;
+
+            _orderBuffer[bestIdx] = 1;
+            GameObject candidate = _candidateBuffer[bestIdx];
+            // Tower: 사거리 내면 즉시 선택
+            if (!requiredPath)
+            {
+                if (bestDist <= rangeSquared)
+                {
+                    target = candidate;
+                    return true;
+                }
+
+                break;
+            }
+            
+            if (Map.TryGetPath(attacker, range, candidate, outPath, checkObjects))
+            {
+                target = candidate;
+                return true;
+            }
+            
+            attacker.UnreachableIds.Add(candidate.Id);
+        }
+
+        return false;
+    }
+
+    public bool TryPickPriorityTargetAndPath(
+        Creature attacker,
+        IReadOnlyList<GameObjectType> priorityTypes,
+        int attackType,
+        float attackRange,
+        List<Vector3> outPath,
+        out GameObject? target,
+        bool requiredPath = true,
+        bool checkObjects = true)
+    {
+        target = null;
+        outPath.Clear();
+        if (attacker.Room?.Map == null) return false;
+        
+        int range = checked((int)Math.Round((double)attackRange * Map.CellCnt, MidpointRounding.AwayFromZero));
+        if (attacker.Buffs.Contains(BuffId.Aggro))
+        {
+            var prevTarget = attacker.Target;
+            if (prevTarget == null) return false;
+            if (!prevTarget.Targetable || prevTarget.Room != attacker.Room) return false;
+            if (!requiredPath)
+            {
+                if (IsInAttackRange(attacker, prevTarget, attackRange))
+                {
+                    target = prevTarget;
+                    return true;
+                }
+                
+                return false;
+            }
+
+            if (Map.TryGetPath(attacker, range, prevTarget, outPath, checkObjects))
+            {
+                target = prevTarget;
+                return true;
+            }
+
+            return false;
+        }
+        
+        _candidateBuffer.Clear();
+
+        for (int i = 0; i < priorityTypes.Count; i++)
+        {
+            _candidateBuffer.Clear();
+            AppendTargets(priorityTypes[i], _candidateBuffer);
+            
+            int n = _candidateBuffer.Count;
+            if (n == 0) continue;
+            
+            EnsureCapacity(n);
+
+            Vector3 attackerPos = attacker.CellPos;
+            attackerPos.Y = 0;
+            for (int j = 0; j < n; j++)
+            {
+                GameObject candidate = _candidateBuffer[j];
+                if (!candidate.Targetable || candidate.Hp <= 0 || candidate.Id == attacker.Id ||
+                    (attackType != 2 && candidate.UnitType != attackType))
+                {
+                    _distSqBuffer[j] = float.PositiveInfinity;
+                    _orderBuffer[j] = 1;
+                    continue;
+                }
+                // 이동 유닛만 UnreachableIds 체크
+                if (requiredPath && attacker.UnreachableIds.Contains(candidate.Id))
+                {
+                    _distSqBuffer[j] = float.PositiveInfinity;
+                    _orderBuffer[j] = 1;
+                    continue;
+                }
+            
+                Vector3 closestPoint = Map.GetClosestPoint(attacker, candidate);
+                closestPoint.Y = 0;
+                _distSqBuffer[j] = Vector3.DistanceSquared(attackerPos, closestPoint);
+                // 마킹 버퍼 초기화 (0 = unvisited, 1 = visited)
+                _orderBuffer[j] = 0;
+            }
+            
+            float rangeSquared = attackRange * attackRange;
+            for (int attempt = 0; attempt < n; attempt++)
+            {
+                int bestIdx = -1;
+                float bestDist = float.PositiveInfinity;
+                for (int j = 0; j < n; j++)
+                {
+                    if (_orderBuffer[j] != 0) continue;
+                    float dist = _distSqBuffer[j];
+                    if (dist < bestDist)
+                    {
+                        bestDist = dist;
+                        bestIdx = j;
+                    }
+                }
+
+                if (bestIdx < 0) break;
+
+                _orderBuffer[bestIdx] = 1;
+                GameObject candidate = _candidateBuffer[bestIdx];
+                // Tower: 사거리 내면 즉시 선택
+                if (!requiredPath)
+                {
+                    if (bestDist <= rangeSquared)
+                    {
+                        target = candidate;
+                        return true;
+                    }
+
+                    break;
+                }
+                
+                if (Map.TryGetPath(attacker, range, candidate, outPath, checkObjects))
+                {
+                    target = candidate;
+                    return true;
+                }
+                
+                attacker.UnreachableIds.Add(candidate.Id);
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsInAttackRange(Creature attacker, GameObject target, float attackRangeWorld)
+    {
+        Vector3 closestPoint = Map.GetClosestPoint(attacker, target);
+        Vector3 attackerPos = attacker.CellPos;
+        closestPoint.Y = 0;
+        attackerPos.Y = 0;
+        
+        return Vector3.DistanceSquared(closestPoint, attackerPos) <= attackRangeWorld * attackRangeWorld;
+    }
+
+    private void EnsureCapacity(int n)
+    {
+        // 거리/마킹 버퍼 크기 보장
+        if (_distSqBuffer.Length < n) _distSqBuffer = new float[Math.Max(n, _distSqBuffer.Length * 2)];
+        if (_orderBuffer.Length < n) _orderBuffer = new int[Math.Max(n, _orderBuffer.Length * 2)];
+    }
+    
+    private int BuildTargetTypes(Creature attacker, Span<GameObjectType> targetTypes)
+    {
+        int count = 0;
+        bool reachable = ReachableInFence(attacker);
+        if (attacker.ObjectType == GameObjectType.Monster)
+        {
+            targetTypes[count++] = GameObjectType.Tower;
+            if (!reachable) targetTypes[count++] = GameObjectType.Fence;
+            if (reachable) targetTypes[count++] = GameObjectType.Sheep;
+        }
+        else
+        {
+            targetTypes[count++] = GameObjectType.Monster;
+            targetTypes[count++] = GameObjectType.MonsterStatue;
+            targetTypes[count++] = GameObjectType.Portal;
+        }
+
+        return count;
     }
 
     private bool ReachableInFence(GameObject gameObject)
@@ -100,122 +304,41 @@ public partial class GameRoom
         var type = gameObject.ObjectType;
         if (type is GameObjectType.Tower or GameObjectType.Sheep) return true;
         if (type is GameObjectType.Monster && gameObject.Stat.UnitType == 1) return true;
-        
-        var sheep = FindNearestSheep(gameObject);
-        if (sheep == null) return false;
-        if (GameInfo.NorthFenceCnt >= GameInfo.NorthMaxFenceCnt) return false;
-        var destCell = Map.Vector3To2(Map.GetClosestPoint(gameObject, sheep));
-        var path = Map.GetPath(gameObject, true, destCell);
-        
-        return path.Count != 0;
+        return GameInfo.NorthFenceCnt < GameInfo.NorthMaxFenceCnt;
     }
     
-    private IEnumerable<GameObject> GetTargets(GameObjectType type)
+    private void AppendTargets(GameObjectType type, List<GameObject> buffer)
     {
-        List<GameObject> targets = new();
         switch (type)
         {
             case GameObjectType.Monster:
-                targets = _monsters.Values.Cast<GameObject>().ToList();
+                foreach (var m in _monsters.Values) buffer.Add(m);
                 break;
             case GameObjectType.MonsterStatue:
-                targets = _statues.Values.Cast<GameObject>().ToList();
+                foreach (var s in _statues.Values) buffer.Add(s);
                 break;
             case GameObjectType.Tower:
-                targets = _towers.Values.Cast<GameObject>().ToList();
+                foreach (var t in _towers.Values) buffer.Add(t);
                 break;
             case GameObjectType.Sheep:
-                targets = _sheeps.Values.Cast<GameObject>().ToList();
+                foreach (var s in _sheeps.Values) buffer.Add(s);
                 break;
             case GameObjectType.Fence:
-                targets = _fences.Values.Cast<GameObject>().ToList();
+                foreach (var f in _fences.Values) buffer.Add(f);
                 break;
             case GameObjectType.Portal:
-                targets = _portal != null ? new List<GameObject> { _portal } : new List<GameObject>();
+                if (_portal != null) buffer.Add(_portal);
                 break;
         }
-
-        return targets;    
-    }
-    
-    private GameObject? MeasureShortestDist(GameObject gameObject, List<GameObject> targets, int attackType, bool check = true)
-    {
-        PriorityQueue<TargetDistance, float> pq = new();
-        
-        foreach (var target in targets)
-        {
-            if (target.Targetable == false || target.Id == gameObject.Id
-                || (target.UnitType != attackType && attackType != 2)) continue;
-            
-            var targetPos = Map.Vector2To3(Map.FindNearestEmptySpace(
-                Map.Vector3To2(Map.GetClosestPoint(gameObject, target)), gameObject));
-            targetPos = targetPos with { Y = 0 };
-            var cellPos = gameObject.CellPos with { Y = 0 };
-            var distance = Vector3.Distance(targetPos, cellPos);
-            pq.Enqueue(new TargetDistance { Target = target, Distance = distance }, distance);
-        }
-
-        if (gameObject is not Creature creature) return null;
-        if (pq.Count == 0)
-        {
-            creature.UnreachableIds.Clear();
-            return null;
-        }
-        
-        if (gameObject.ObjectType == GameObjectType.Monster)
-        {
-            while (pq.Count > 0)
-            {
-                var target = pq.Dequeue().Target;
-                if (creature.UnreachableIds.Contains(target.Id)) continue;
-                
-                var dist = Vector3.Distance(target.CellPos with { Y = 0 }, gameObject.CellPos with { Y = 0 });
-                if (dist < creature.TotalAttackRange) return target;
-                
-                var path = Map.GetPath(gameObject, check, Map.Vector3To2(target.CellPos));
-                //// Important Annotation
-                // Console.WriteLine($"MeasureShortestDist: {(gameObject as Creature)?.UnitId.ToString() ?? "null"} " + $"Target search {target.ObjectType} {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");  
-                if (path.Count == 0)
-                {
-                    //// Important Annotation
-                    // Console.WriteLine($"MeasureShortestDist: No path found {(target as Creature)?.UnitId.ToString() ?? "null"} {target.Id.ToString()}");
-                    continue;
-                }
-                return target;
-            }
-        }
-        else
-        {
-            var target = pq.Dequeue().Target;
-            return target;
-        }
-
-        return null;
-    }
-    
-    private GameObject? GetRandomTarget(GameObject gameObject, List<GameObject> targets, float dist, int attackType)
-    {
-        List<GameObject> targetList = new();
-        foreach (var target in targets)
-        {
-            if (target.Targetable == false || (target.UnitType != attackType && attackType != 2)
-                || target.Id == gameObject.Id && attackType != 2) continue;
-            var pos = target.PosInfo;
-            var targetPos = new Vector3(pos.PosX, 0, pos.PosZ);
-            var cellPos = gameObject.CellPos with { Y = 0 };
-            var distance = Vector3.Distance(targetPos, cellPos);
-            if (distance < dist) targetList.Add(target);
-        }
-
-        return targetList.Count == 0 ? null : targetList[new Random().Next(targetList.Count)];
     }
 
     public List<GameObject> FindTargetsInRectangle(GameObject gameObject, IEnumerable<GameObjectType> typeList,
         float width, float height, float degree, int attackType = 0)
     {
         // 1. 타겟 리스트 생성
-        var targetList = typeList.SelectMany(GetTargets).ToList();
-        if (targetList.Count == 0) return new List<GameObject>();
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) AppendTargets(type, targetList);
+        if (targetList.Count == 0) return targetList;
         
         // 2. 현재 위치 계산
         Vector3 center = gameObject.CellPos;
@@ -247,7 +370,7 @@ public partial class GameRoom
         // 7. 각 목표물에 대해 조건 검사
         foreach (var obj in targetList)
         {
-            if (obj.Targetable == false || (attackType != 2 && obj.UnitType != attackType)) continue;
+            if (!obj.Targetable || (attackType != 2 && obj.UnitType != attackType)) continue;
 
             Vector3 targetPos = obj.CellPos;
             if (targetPos.X >= minX && targetPos.X <= maxX && targetPos.Z >= minZ && targetPos.Z <= maxZ)
@@ -259,7 +382,7 @@ public partial class GameRoom
         return objectsInRectangle;
     }
     
-    public GameObject? FindDensityTargets(List<GameObjectType> searchType, List<GameObjectType> targetType,
+    public GameObject? FindMostDenseTargets(List<GameObjectType> searchType, List<GameObjectType> targetType,
         GameObject gameObject, float range, float impactRange, int attackType = 0)
     {
         var targets = FindTargets(gameObject, searchType, range, attackType);
@@ -336,8 +459,9 @@ public partial class GameRoom
     public List<GameObject> FindTargets(
         GameObject gameObject, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
-        var targetList = typeList.SelectMany(GetTargets).ToList();
-        if (targetList.Count == 0) return new List<GameObject>();
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) AppendTargets(type, targetList);
+        if (targetList.Count == 0) return targetList;
         
         var objectsInDist = targetList
             .Where(obj => obj.Targetable && (attackType == 2 || obj.UnitType == attackType))
@@ -359,8 +483,9 @@ public partial class GameRoom
     public List<GameObject> FindTargets(
         Vector3 cellPos, IEnumerable<GameObjectType> typeList, float dist = 100, int attackType = 0)
     {
-        var targetList = typeList.SelectMany(GetTargets).ToList();
-        if (targetList.Count == 0) return new List<GameObject>();
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) AppendTargets(type, targetList);
+        if (targetList.Count == 0) return targetList;
         
         var objectsInDist = targetList
             .Where(obj => obj.Stat.Targetable && (attackType == 2 || obj.UnitType == attackType))
@@ -370,21 +495,13 @@ public partial class GameRoom
         return objectsInDist;
     }
     
-    /// <summary>
-    /// Find multiple targets within a certain angle range from the GameObject
-    /// </summary>
-    /// <param name="gameObject">The GameObject from which the angle is measured</param>
-    /// <param name="typeList">The types of GameObjects to search for</param>
-    /// <param name="skillDist">The distance within which to search for targets</param>
-    /// <param name="angle">The half-angle range (in degrees) to search for targets</param>
-    /// <param name="attackType">The specific target type to search for</param>
-    /// <returns>List of GameObjects within the angle range</returns>
     public List<GameObject> FindTargetsInAngleRange(GameObject gameObject, float dir,
         IEnumerable<GameObjectType> typeList, float skillDist = 100, float angle = 30, int attackType = 0)
     {   
         // 1. 타겟 리스트 생성
-        var targetList = typeList.SelectMany(GetTargets).ToList();
-        if (targetList.Count == 0) return new List<GameObject>();
+        var targetList = new List<GameObject>();
+        foreach (var type in typeList) AppendTargets(type, targetList);
+        if (targetList.Count == 0) return targetList;
         
         // 2. 현재 위치와 전방 벡터 계산
         double radians = dir * (Math.PI / 180);
@@ -429,8 +546,9 @@ public partial class GameRoom
     public List<GameObject> FindTargetsBySpecies(GameObject gameObject, 
         GameObjectType type, IEnumerable<UnitId> unitIds, float dist = 100)
     {
-        var targetList = GetTargets(type).ToList();
-        if (targetList.Count == 0) return new List<GameObject>();
+        var targetList = new List<GameObject>();
+        AppendTargets(type, targetList);
+        if (targetList.Count == 0) return targetList;
 
         var objectsInDist = new List<GameObject>();
         switch (type)

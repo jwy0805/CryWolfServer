@@ -50,13 +50,18 @@ public class Skeleton : Monster
     protected override void UpdateMoving()
     {
         if (Room == null) return;
-        // Targeting
-        Target = Room.FindClosestTarget(this, Stat.AttackType);
-        if (Target == null || Target.Targetable == false || Target.Room != Room)
-        {   // Target이 없거나 타겟팅이 불가능한 경우
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
+        
+        if (Target == null || !Target.Targetable || Target.Room != Room)
+        {   
             State = State.Idle;
             return;
-        }
+        } 
+        
         // Target과 GameObject의 위치가 Range보다 짧으면 ATTACK
         DestPos = Room.Map.GetClosestPoint(this, Target);
         Vector3 flatDestPos = DestPos with { Y = 0 };
@@ -73,7 +78,7 @@ public class Skeleton : Monster
             return;
         }
         // Target이 있으면 이동
-        (Path, Atan) = Room.Map.Move(this);
+        Room.Map.MoveAlongPath(this, Path, Atan);
         BroadcastPath();
     }
 

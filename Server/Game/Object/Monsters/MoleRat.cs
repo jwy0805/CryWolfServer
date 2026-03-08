@@ -51,8 +51,14 @@ public class MoleRat : Burrow
 
     protected override void UpdateIdle()
     {
-        Target = Room?.FindClosestTarget(this);
-        if (Target == null) return;
+        if (Room == null) return;
+        if (Room.TryPickTargetAndPath(
+                this, AttackType, TotalAttackRange, Path, out GameObject? target, true))
+        {
+            Target = target;
+        }
+
+        if (Target == null || !Target.Targetable || Target.Room != Room) return;
         State = State.IdleToRush;
     }
 

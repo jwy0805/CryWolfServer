@@ -74,7 +74,7 @@ public class GameManager
         {
             2, new GameData
             {
-                ZCoordinatesOfMap = new[] { 108, 80, 52, 24, 0, -24, -52, -80, -108 },
+                ZCoordinatesOfMap = [108, 80, 52, 24, 0, -24, -52, -80, -108],
                 NorthFenceMax = 12,
                 SouthFenceMax = 12,
                 InitFenceStartPos = new Vector3(-7, 6, 5),
@@ -102,10 +102,10 @@ public class GameManager
         public int RoundTime => 24000;
         public float GroundHeight => 6.0f;
         public float AirHeight => 8.0f;  
-        public string[] FenceNames => new[] { "", "FenceLv1", "FenceLv2", "FenceLv3" };
+        public string[] FenceNames => ["", "FenceLv1", "FenceLv2", "FenceLv3"];
         
         // Vector2Int, Vector3 * 4
-        public int[] ZCoordinatesOfMap { get; init; } = { 80, 60, 40, 20, 0, -20, -40, -60, -80 }; 
+        public int[] ZCoordinatesOfMap { get; init; } = [80, 60, 40, 20, 0, -20, -40, -60, -80]; 
         public int NorthFenceMax { get; init; }
         public int SouthFenceMax { get; init; }
         public Vector3 InitFenceStartPos { get; init; }

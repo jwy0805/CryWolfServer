@@ -2,7 +2,7 @@ namespace ServerCore;
 
 public class PriorityQueue<T> where T : IComparable<T>
 {
-    // Max Heap
+    // Min Heap
     private readonly List<T> _heap = new();
     public int Count => _heap.Count;
     
@@ -13,17 +13,18 @@ public class PriorityQueue<T> where T : IComparable<T>
         int now = _heap.Count - 1;
         while (now > 0)
         {
-            int next = (now - 1) / 2;
-            if (_heap[now].CompareTo(_heap[next]) < 0) break;
+            int parent = (now - 1) / 2;
+            if (_heap[now].CompareTo(_heap[parent]) >= 0) break;
 
-            (_heap[now], _heap[next]) = (_heap[next], _heap[now]);
-            now = next;
+            (_heap[now], _heap[parent]) = (_heap[parent], _heap[now]);
+            now = parent;
         }
     }
 
-    public T Pop()
+    public T? Pop()
     {
-        T ret = _heap[0];
+        if (_heap.Count == 0) return default;
+        T res = _heap[0];
         int lastIndex = _heap.Count - 1;
         _heap[0] = _heap[lastIndex];
         _heap.RemoveAt(lastIndex);
@@ -36,9 +37,9 @@ public class PriorityQueue<T> where T : IComparable<T>
             int right = 2 * now + 2;
             int next = now;
 
-            if (left <= lastIndex && _heap[next].CompareTo(_heap[left]) < 0)
+            if (left <= lastIndex && _heap[next].CompareTo(_heap[left]) > 0)
                 next = left;
-            if (right <= lastIndex && _heap[next].CompareTo(_heap[right]) < 0)
+            if (right <= lastIndex && _heap[next].CompareTo(_heap[right]) > 0)
                 next = right;
             if (next == now) break;
             
@@ -46,11 +47,16 @@ public class PriorityQueue<T> where T : IComparable<T>
             now = next;
         }
 
-        return ret;
+        return res;
     }
 
-    public T Peek()
+    public T? Peek()
     {
-        return _heap.Count == 0 ? default(T) : _heap[0];
+        return _heap.Count == 0 ? default : _heap[0];
+    }
+    
+    public void Clear()
+    {
+        _heap.Clear();
     }
 }
