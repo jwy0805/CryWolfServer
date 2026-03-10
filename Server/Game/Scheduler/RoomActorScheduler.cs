@@ -61,6 +61,7 @@ public class RoomActorScheduler : IDisposable
 
             try
             {
+                if (room.IsShuttingDown) continue;
                 Interlocked.Exchange(ref room._tickPending, 0);
                 room.Update();
             }
@@ -73,6 +74,8 @@ public class RoomActorScheduler : IDisposable
                 Interlocked.Exchange(ref room._scheduled, 0);
             }
 
+            if (room.IsShuttingDown) continue;
+            
             // 실행 중 드랍된 Schedule 요청 복구
             bool tickRequestedWhileRunning = 
                 Interlocked.CompareExchange(ref room._tickPending, 1, 1) == 1;

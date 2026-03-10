@@ -30,8 +30,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private readonly UpkeepTracker<MonsterStatue> _statueTracker;
     private bool _notifiedTowerExcess;
     private bool _notifiedStatueExcess;
-    
-    private GameMode _gameMode;
+
     private readonly Random _random = new();
     private int _round;
     private readonly long _interval = 1000;
@@ -39,26 +38,30 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Storage? _storage;
     private Portal? _portal;
     private bool _infoInit;
+    private int _isShuttingDown = 0; // 0 = alive, 1 = shutting down
     private GameOverState _gameOverState;
     private Stage? _tutorialWaveModule;
     private ITutorialTrigger _tutorialTrigger = new IgnoreTutorialTrigger();
     
     private readonly Dictionary<Faction, AiController> _aiControllers = new();
     
+    public bool IsShuttingDown => Volatile.Read(ref _isShuttingDown) == 1;
+
     public GameMode GameMode
     {
-        get => _gameMode;
-        set
+        get;
+        private set
         {
-            _gameMode = value;
+            field = value;
 
-            _tutorialTrigger = _gameMode switch
+            _tutorialTrigger = field switch
             {
-                GameMode.Tutorial => new TutorialTriggerService(_gameMode),
+                GameMode.Tutorial => new TutorialTriggerService(field),
                 _ => new IgnoreTutorialTrigger()
             };
-        } 
+        }
     }
+
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
@@ -95,14 +98,16 @@ public partial class GameRoom : JobSerializer, IDisposable
         _statueTracker = new UpkeepTracker<MonsterStatue>(statue => statue.UnitId, this, Faction.Wolf);
     }
     
-    public void Init(int mapId)
+    public void Init(int roomId, int mapId, GameMode mode)
     {
+        RoomId = roomId;
         GameData = GameManager.Instance.GameDataCache[mapId];
         Map.GameData = GameData;
         MapId = mapId;
         Map.LoadMap(mapId);
         Map.MapSetting();
         Map.Room = this;
+        GameMode = mode;
         
         Console.WriteLine($"Room {RoomId} initialized.");
         UnitSizeMapping();
@@ -507,6 +512,11 @@ public partial class GameRoom : JobSerializer, IDisposable
                 p.Session?.Send(packet);
             }
         }
+    }
+    
+    public bool TryBeginShutdown()
+    {
+        return Interlocked.Exchange(ref _isShuttingDown, 1) == 0;
     }
     
     public void Dispose()

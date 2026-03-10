@@ -328,8 +328,9 @@ public partial class GameRoom
     {
         if (_gameOverState == GameOverState.Committed) return;
         if (_gameOverState != GameOverState.Pending) return;
-
+        if (!TryBeginShutdown()) return;
         _gameOverState = GameOverState.Committed;
+        
         // 안전하게 플레이어 다시 찾기(스냅샷의 PlayerId 사용)
         _players.TryGetValue(context.WinnerPlayerId, out var winnerPlayer);
         _players.TryGetValue(context.LoserPlayerId, out var loserPlayer);
@@ -413,8 +414,8 @@ public partial class GameRoom
 
         // 룸 종료
         RoomActivated = false;
-
-        // [ACTOR] 전역 변경은 GameLogic job으로 serialize 추천
+        Dispose();
+        // [ACTOR] 전역 변경은 GameLogic job으로 serialized 수행
         GameLogic.Instance.Push(() => GameLogic.Instance.RemoveGameRoom(context.RoomId));
     }
     
@@ -650,10 +651,11 @@ public partial class GameRoom
         }
         else
         {
+            Console.WriteLine("Tutorial: Wolf expanded the fence.");
             _tutorialTrigger.TryTrigger(player, Faction.Wolf,
                 "BattleWolf.AlertExpand",
                 false,
-                () => player.IsNpc == false
+                () => !player.IsNpc
             );
         }
     }
