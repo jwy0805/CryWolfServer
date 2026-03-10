@@ -26,7 +26,7 @@ public class JobSerializer : IJobSerializer
         }
     }
     
-    public bool HasPendingJobs => _jobQueue.Count > 0;
+    public bool HasPendingJobs => PendingCount > 0;
     
     public void Push(Action action) { Push(new Job(action));}
     public void Push<T1>(Action<T1> action, T1 t1) { Push(new Job<T1>(action, t1));}

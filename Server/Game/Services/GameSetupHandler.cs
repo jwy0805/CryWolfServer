@@ -30,7 +30,7 @@ public class GameSetupHandler : IGameSetupHandler
             
             GameLogic.Instance.PushAfter(6000, () =>
             {
-                room.RoomActivated = true;
+                room.Push(room.HoldRoom, false);
                 Console.WriteLine("RoomActivated = true (after 6s)");
             });
         });
@@ -50,7 +50,7 @@ public class GameSetupHandler : IGameSetupHandler
 
             GameLogic.Instance.PushAfter(6000, () =>
             {
-                room.RoomActivated = true;
+                room.Push(room.HoldRoom, false);
                 Console.WriteLine("RoomActivated = true (after 6s)");
             });
         });
@@ -65,12 +65,16 @@ public class GameSetupHandler : IGameSetupHandler
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            var player = _networkFactory.CreatePlayerSingle(room, packet);
-            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
-            room.GameMode = GameMode.Single;
-            room.StageId = packet.StageId;
-            room.RoomActivated = true;
-            tcs.SetResult(true);
+        
+            room.Push(() =>
+            {
+                var player = _networkFactory.CreatePlayerSingle(room, packet);
+                _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
+                room.GameMode = GameMode.Single;
+                room.StageId = packet.StageId;
+                room.RoomActivated = true;
+                tcs.SetResult(true);
+            });
         });
         
         return await tcs.Task;
@@ -83,11 +87,20 @@ public class GameSetupHandler : IGameSetupHandler
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-            var player = _networkFactory.CreatePlayerTutorial(room, packet);
-            _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
-            room.GameMode = GameMode.Tutorial;
-            room.RoomActivated = true;
-            tcs.SetResult(true);
+
+            // 룸 상태 변경/엔티티 생성은 룸 컨텍스트에서
+            room.Push(() =>
+            {
+                var player = _networkFactory.CreatePlayerTutorial(room, packet);
+                _networkFactory.CreateNpc(room, player,
+                    (CharacterId)packet.EnemyCharacterId,
+                    packet.EnemyAssetId);
+
+                room.GameMode = GameMode.Tutorial;
+                room.RoomActivated = true;
+
+                tcs.TrySetResult(true);
+            });
         });
 
         return await tcs.Task;
@@ -151,14 +164,11 @@ public class GameSetupHandler : IGameSetupHandler
             {
                 Console.WriteLine($"Room not found.");
                 tcs.SetResult(false);
+                return;
             }
-            else
-            {
-                var winnerId = room.FindPlayer(go =>
-                    go is Player player && player.Session?.UserId != packet.UserId)?.Session?.UserId ?? -1;
-                _ = room.GameOver(winnerId, packet.UserId);
-                tcs.SetResult(true);
-            }
+            
+            room.Push(room.HandleSurrender, packet.UserId);
+            tcs.TrySetResult(true);
         });
 
         return await tcs.Task;
@@ -180,7 +190,7 @@ public class GameSetupHandler : IGameSetupHandler
             }
 
             Console.WriteLine("Session is not ready yet.");
-            GameLogic.Instance.PushAfter(400, () => SetupRankGameOrRetry(room, packet, startTime));
+            GameLogic.Instance.PushAfter(400, () => room.Push(SetupRankGameOrRetry, room, packet, startTime));
             return;
         }
 
@@ -204,7 +214,7 @@ public class GameSetupHandler : IGameSetupHandler
             }
         
             Console.WriteLine("Session is not ready yet.");
-            GameLogic.Instance.PushAfter(400, () => SetupFriendlyGameOrRetry(room, packet, startTime));
+            GameLogic.Instance.PushAfter(400, () => room.Push(SetupFriendlyGameOrRetry , room, packet, startTime));
             return;
         }
             

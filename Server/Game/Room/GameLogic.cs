@@ -10,13 +10,18 @@ public class GameLogic : JobSerializer
     private int _roomId = 1;
     private readonly Lock _lock = new();
 
+    private readonly RoomActorScheduler _scheduler = new (Math.Max(1, Environment.ProcessorCount - 1));
+    
     public void Update()
     { 
         Flush();
 
+        // 직접 실행하지 않고 워커풀에 스케쥴링만 함
         foreach (var room in _rooms.Values)
         {
-            room.Update();
+            // Tick 무한 누적 방지
+            if (Interlocked.CompareExchange(ref room._tickPending, 1, 0) != 0) continue;
+            _scheduler.Schedule(room);
         }
     }
 

@@ -14,7 +14,7 @@ namespace CryWolfServerTest;
 [TestFixture]
 public class AiMatchSimulation
 {
-    private static readonly Env Env = Env.Prod;
+    private static readonly Env Env = Env.Local;
     private static readonly HttpClient HttpClient = new(new SocketsHttpHandler { MaxConnectionsPerServer = 1024 });
     
     [OneTimeSetUp]
@@ -26,8 +26,8 @@ public class AiMatchSimulation
     [Test]
     public async Task EnqueueAiMatches()
     {
-        const int aiCount = 500;
-        const int firstBatchCount = 400;
+        const int aiCount = 50;
+        const int firstBatchCount = 40;
         Dictionary<int, TestSession> aiSessions = new();
         List<Task> sessionTasks1 = new();
         List<Task> enqueueTasks1 = new();

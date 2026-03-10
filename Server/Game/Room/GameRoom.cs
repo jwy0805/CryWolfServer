@@ -39,7 +39,7 @@ public partial class GameRoom : JobSerializer, IDisposable
     private Storage? _storage;
     private Portal? _portal;
     private bool _infoInit;
-    private bool _gameOver;
+    private GameOverState _gameOverState;
     private Stage? _tutorialWaveModule;
     private ITutorialTrigger _tutorialTrigger = new IgnoreTutorialTrigger();
     
@@ -130,13 +130,14 @@ public partial class GameRoom : JobSerializer, IDisposable
     
     public void Update()
     {
+        Flush();
+
         ManageTutorial();
-        if (RoomActivated == false)
+        if (!RoomActivated)
         {
             return;
         }
 
-        Flush();
         SetTimeAndRound();
         UpdateBuffs();
     } 
@@ -144,9 +145,9 @@ public partial class GameRoom : JobSerializer, IDisposable
     private void SetTimeAndRound()
     {
         long time = Stopwatch.ElapsedMilliseconds;
-        if (time < _timeSendTime + _interval || time < 1000 || _gameOver) return;
-        _ = CheckRegular();
+        if (time < _timeSendTime + _interval || time < 1000 || _gameOverState == GameOverState.Committed) return;
         
+        CheckState();
         Broadcast(new S_Time { Time = RoundTime, Round = _round});
         RoundTime--;
         

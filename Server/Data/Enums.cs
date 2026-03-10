@@ -46,3 +46,10 @@ public enum EventRepeatType
     Weekly,
     Monthly,
 }
+
+public enum GameOverState
+{
+    Running,
+    Pending, // (I/O 진행중)
+    Committed // (룸 종료 처리 완료)
+}
