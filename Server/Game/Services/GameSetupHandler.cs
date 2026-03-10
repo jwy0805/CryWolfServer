@@ -12,27 +12,26 @@ public class GameSetupHandler : IGameSetupHandler
         startTime ??= DateTime.UtcNow;
         GameLogic.Instance.Push(() =>
         {
-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            GameRoom room;
             if (packet.IsTestGame)
             {
+                room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.Test);
                 SetupTestGame(room, packet);
                 SendMatchInfo(packet);
             }
             else if (packet.IsAiSimulation)
             {
+                room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.AiSimulation);
                 SetupAiSimulation(room, packet);
             }
             else
             {
+                room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.Rank);
                 SetupRankGameOrRetry(room, packet, startTime.Value);
                 SendMatchInfo(packet);
             }
             
-            GameLogic.Instance.PushAfter(6000, () =>
-            {
-                room.Push(room.HoldRoom, false);
-                Console.WriteLine("RoomActivated = true (after 6s)");
-            });
+            GameLogic.Instance.PushAfter(6000, () => room.Push(room.HoldRoom, false));
         });
         
         return Task.CompletedTask;
@@ -43,16 +42,12 @@ public class GameSetupHandler : IGameSetupHandler
         startTime ??= DateTime.UtcNow;
         GameLogic.Instance.Push(() =>
         {
-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.Friendly);
             
             SetupFriendlyGameOrRetry(room, packet, startTime.Value);
             SendMatchInfo(packet);
 
-            GameLogic.Instance.PushAfter(6000, () =>
-            {
-                room.Push(room.HoldRoom, false);
-                Console.WriteLine("RoomActivated = true (after 6s)");
-            });
+            GameLogic.Instance.PushAfter(6000, () => room.Push(room.HoldRoom, false));
         });
 
         return Task.CompletedTask;
@@ -64,12 +59,12 @@ public class GameSetupHandler : IGameSetupHandler
         
         GameLogic.Instance.Push(() =>
         {
-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.Single);
             room.Push(() =>
             {
                 var player = _networkFactory.CreatePlayerSingle(room, packet);
-                _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
-                room.GameMode = GameMode.Single;
+                _networkFactory.CreateNpc(
+                    room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
                 room.StageId = packet.StageId;
                 room.RoomActivated = true;
                 tcs.SetResult(true);
@@ -85,19 +80,14 @@ public class GameSetupHandler : IGameSetupHandler
         
         GameLogic.Instance.Push(() =>
         {
-            var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
+            var room = GameLogic.Instance.CreateGameRoom(packet.MapId, GameMode.Tutorial);
 
             // 룸 상태 변경/엔티티 생성은 룸 컨텍스트에서
             room.Push(() =>
             {
                 var player = _networkFactory.CreatePlayerTutorial(room, packet);
-                _networkFactory.CreateNpc(room, player,
-                    (CharacterId)packet.EnemyCharacterId,
-                    packet.EnemyAssetId);
-
-                room.GameMode = GameMode.Tutorial;
+                _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
                 room.RoomActivated = true;
-
                 tcs.TrySetResult(true);
             });
         });
@@ -193,7 +183,6 @@ public class GameSetupHandler : IGameSetupHandler
             return;
         }
 
-        room.GameMode = GameMode.Rank;
         SendStartGamePacket(sheepPlayer, wolfPlayer, packet);
     }
     
@@ -216,8 +205,6 @@ public class GameSetupHandler : IGameSetupHandler
             GameLogic.Instance.PushAfter(400, () => room.Push(SetupFriendlyGameOrRetry , room, packet, startTime));
             return;
         }
-            
-        room.GameMode = GameMode.Friendly;
     }
     
     private void SetupTestGame(GameRoom room, MatchSuccessPacketRequired packet)
@@ -234,8 +221,6 @@ public class GameSetupHandler : IGameSetupHandler
             EnemyCharacterId = (int)packet.SheepCharacterId,
             EnemyAssetId = player.Faction == Faction.Sheep ? (int)packet.EnchantId : (int)packet.SheepId,
         };
-                
-        room.GameMode = GameMode.Test;
         
         foreach (var unitId in packet.SheepUnitIds)
         {
@@ -283,6 +268,5 @@ public class GameSetupHandler : IGameSetupHandler
             room, Faction.Sheep, packet.SheepSessionId, packet.SheepCharacterId, (int)packet.SheepId);
         _networkFactory.CreateNpcForAiGame(
             room, Faction.Wolf, packet.WolfSessionId, packet.WolfCharacterId, (int)packet.EnchantId);
-        room.GameMode = GameMode.AiSimulation;
     }
 }

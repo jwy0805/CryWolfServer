@@ -1,3 +1,4 @@
+using Server.Data;
 using Server.Util;
 
 namespace Server.Game;
@@ -24,11 +25,12 @@ public class GameLogic : JobSerializer
         }
     }
 
-    public GameRoom CreateGameRoom(int mapId)
+    public GameRoom CreateGameRoom(int mapId, GameMode mode)
     {
         var room = new GameRoom();
         room.Push(room.Init, mapId);
         room.RoomId = _roomId;
+        room.GameMode = mode;
         _rooms.Add(_roomId, room);
         Metrics.IncreaseRoom();
         Console.WriteLine($"Game room created: {room.RoomId} for map {mapId}");

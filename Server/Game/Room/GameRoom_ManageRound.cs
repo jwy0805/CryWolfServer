@@ -518,6 +518,7 @@ public partial class GameRoom
         GameInfo.FenceStartPos = GameInfo.FenceStartPos with { Z = GameInfo.FenceStartPos.Z + _forwardParam };
 
         Broadcast(new S_PlaySound { Sound = Sounds.ExpandFence, SoundType = SoundType.D2 });
+        Broadcast(new S_SetLinePos { LinePos = GameInfo.FenceStartPos.Z });
 
         var towerCopyKeys = new HashSet<int>(_towers.Keys);
         for (int i = 0; i < GameData.NorthFenceMax; i++)
