@@ -51,11 +51,6 @@ public class Creeper : Lurker
     {
         base.Init();
         UnitRole = Role.Ranger;
-        
-        foreach (var skill in Enum.GetValues<Skill>())
-        {
-            Player.SkillSubject.SkillUpgraded(skill);
-        }
     }
     
     public override void Update()
