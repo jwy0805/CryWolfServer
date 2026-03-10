@@ -70,8 +70,6 @@ public partial class GameRoom
             .OrderByDescending(p => p.Session?.SessionId)
             .FirstOrDefault()?.Session?.UserId ?? -1;
         
-        if (winnerUserId < 0) return;
-
         _gameOverState = GameOverState.Pending;
         var context = BuildGameOverContext(winnerUserId, loserUserId);
         _ = Task.Run(async () =>
@@ -83,7 +81,7 @@ public partial class GameRoom
             }
             catch (Exception e)
             {
-                Console.WriteLine();
+                Console.WriteLine(e);
             }
 
             Push(CommitGameOver, context, result);
@@ -149,10 +147,17 @@ public partial class GameRoom
         int singleStar = 0;
         bool winnerIsHuman = true;
 
-        if (GameMode == GameMode.Single && winnerPlayer != null)
+        if (GameMode == GameMode.Single)
         {
-            singleStar = CheckStars(winnerPlayer.Faction);
-            winnerIsHuman = !winnerPlayer.IsNpc;
+            if (winnerPlayer == null)
+            {
+                winnerIsHuman = false;
+            }
+            else
+            {
+                singleStar = CheckStars(winnerPlayer.Faction);
+                winnerIsHuman = true;
+            }
         }
 
         return new GameOverContext(

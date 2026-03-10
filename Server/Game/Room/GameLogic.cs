@@ -19,8 +19,7 @@ public class GameLogic : JobSerializer
         // 직접 실행하지 않고 워커풀에 스케쥴링만 함
         foreach (var room in _rooms.Values)
         {
-            // Tick 무한 누적 방지
-            if (Interlocked.CompareExchange(ref room._tickPending, 1, 0) != 0) continue;
+            Interlocked.Exchange(ref room._tickPending, 1);
             _scheduler.Schedule(room);
         }
     }

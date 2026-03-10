@@ -104,7 +104,7 @@ public partial class GameRoom : JobSerializer, IDisposable
         Map.MapSetting();
         Map.Room = this;
         
-        Console.WriteLine("Room initialized.");
+        Console.WriteLine($"Room {RoomId} initialized.");
         UnitSizeMapping();
         GameInit();
         InitAi();

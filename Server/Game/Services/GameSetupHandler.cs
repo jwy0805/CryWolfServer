@@ -65,7 +65,6 @@ public class GameSetupHandler : IGameSetupHandler
         GameLogic.Instance.Push(() =>
         {
             var room = GameLogic.Instance.CreateGameRoom(packet.MapId);
-        
             room.Push(() =>
             {
                 var player = _networkFactory.CreatePlayerSingle(room, packet);
