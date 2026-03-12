@@ -8,20 +8,6 @@ namespace Server.Game;
 
 public partial class GameRoom
 {
-    private void InitAi()
-    {
-        switch (GameMode)
-        {
-            case GameMode.Single:
-                InitSingleModeAi();
-                break;
-            case GameMode.AiSimulation:
-                InitAiTestModeAi();
-                SetAssets();
-                break;
-        }
-    }
-    
     private void InitAiServices(Player npc)
     {
         var policy = new AiPolicy();

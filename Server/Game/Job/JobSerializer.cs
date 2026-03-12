@@ -5,7 +5,6 @@ public class JobSerializer : IJobSerializer
     private JobTimer _timer = new();
     private Queue<IJob> _jobQueue = new();
     private Lock _lock = new();
-    private bool _flush = false;
 
     public IJob PushAfter(int tickAfter, Action action) { return PushAfter(tickAfter, new Job(action));}
     public IJob PushAfter<T1>(int tickAfter, Action<T1> action, T1 t1) { return PushAfter(tickAfter, new Job<T1>(action, t1));}
@@ -69,21 +68,17 @@ public class JobSerializer : IJobSerializer
     {
         lock (_lock)
         {
-            if (_jobQueue.Count == 0)
-            {
-                _flush = false;
-                return null;
-            }
-
-            return _jobQueue.Dequeue();
+            return _jobQueue.Count == 0 ? null : _jobQueue.Dequeue();
         }
     }
 
     protected void ClearJobQueue()
     {
-        _timer = null!;
-        _jobQueue.Clear();
-        _jobQueue = null!;
-        _lock = null!;
+        lock (_lock)
+        {
+            _jobQueue.Clear();
+        }
+
+        _timer.Clear(); 
     }
 }

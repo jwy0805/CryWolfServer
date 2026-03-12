@@ -414,9 +414,10 @@ public partial class GameRoom
 
         // 룸 종료
         RoomActivated = false;
-        Dispose();
+        TryBeginShutdown();
+            
         // [ACTOR] 전역 변경은 GameLogic job으로 serialized 수행
-        GameLogic.Instance.Push(() => GameLogic.Instance.RemoveGameRoom(context.RoomId));
+        GameLogic.Instance.Push(GameLogic.Instance.RemoveGameRoom, RoomId);
     }
     
     private bool TryDecideWinner(out int winnerUserId, out int loserUserId)

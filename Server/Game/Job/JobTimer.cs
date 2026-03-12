@@ -50,4 +50,12 @@ public class JobTimer
             jobElement.Job.Execute();
         }
     }
+    
+    public void Clear()
+    {
+        lock (_lock)
+        {
+            _priorityQueue.Clear();
+        }
+    }
 }

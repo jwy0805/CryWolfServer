@@ -43,8 +43,9 @@ public class GameLogic : JobSerializer
     // Must be called only from GameLogic's serialized context (inside Push/Flush).
     public void RemoveGameRoom(int roomId)
     {
-        if (_rooms.Remove(roomId))
+        if (_rooms.Remove(roomId, out var room))
         {
+            room.Dispose();
             Metrics.DecreaseRoom();
             Console.WriteLine($"Game room removed: {roomId}");
         }

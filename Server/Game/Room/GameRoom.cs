@@ -112,9 +112,23 @@ public partial class GameRoom : JobSerializer, IDisposable
         Console.WriteLine($"Room {RoomId} initialized.");
         UnitSizeMapping();
         GameInit();
-        InitAi();
     }
 
+    public void InitRuntimeSystems()
+    {
+        switch (GameMode)
+        {
+            case GameMode.Single:
+                InitSingleModeAi();
+                break;
+
+            case GameMode.AiSimulation:
+                InitAiTestModeAi();
+                SetAssets();
+                break;
+        }
+    }
+    
     private void UnitSizeMapping()
     {
         int[] unitIds = Enum.GetValues(typeof(UnitId)) as int[] ?? Array.Empty<int>();

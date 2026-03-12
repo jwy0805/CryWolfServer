@@ -31,7 +31,8 @@ public class GameSetupHandler : IGameSetupHandler
                 SendMatchInfo(packet);
             }
             
-            GameLogic.Instance.PushAfter(6000, () => room.Push(room.HoldRoom, false));
+            room.Push(room.InitRuntimeSystems);
+            room.PushAfter(6000, () => room.Push(room.HoldRoom, false));
         });
         
         return Task.CompletedTask;
@@ -47,7 +48,7 @@ public class GameSetupHandler : IGameSetupHandler
             SetupFriendlyGameOrRetry(room, packet, startTime.Value);
             SendMatchInfo(packet);
 
-            GameLogic.Instance.PushAfter(6000, () => room.Push(room.HoldRoom, false));
+            room.PushAfter(6000, () => room.Push(room.HoldRoom, false));
         });
 
         return Task.CompletedTask;
@@ -65,6 +66,7 @@ public class GameSetupHandler : IGameSetupHandler
                 var player = _networkFactory.CreatePlayerSingle(room, packet);
                 _networkFactory.CreateNpc(
                     room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId, packet.EnemyUnitIds);
+                room.InitRuntimeSystems();
                 room.StageId = packet.StageId;
                 room.RoomActivated = true;
                 tcs.SetResult(true);
@@ -87,6 +89,7 @@ public class GameSetupHandler : IGameSetupHandler
             {
                 var player = _networkFactory.CreatePlayerTutorial(room, packet);
                 _networkFactory.CreateNpc(room, player, (CharacterId)packet.EnemyCharacterId, packet.EnemyAssetId);
+                room.InitRuntimeSystems();
                 room.RoomActivated = true;
                 tcs.TrySetResult(true);
             });
