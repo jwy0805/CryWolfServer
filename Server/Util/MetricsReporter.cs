@@ -19,9 +19,15 @@ public sealed class MetricsReporter : IDisposable
         {
             try
             {
-                var s = Metrics.TakeSnapshotAndReset();
-                var line = $"[METRIC] t={s.UtcTime:O} activeSessions={s.ActiveSessions} activeRooms={s.ActiveRooms} "
-                           + $"peakRooms={s.PeakRooms} loopP95={s.LoopP95Ms:0.0}ms";
+                var s = Metrics.TakeSnapshot();
+                var line = $"[METRIC] t={s.UtcTime:O} activeSessions={s.ActiveSessions} activeRooms={s.ActiveRooms} " +
+                           $"peakRooms={s.PeakRooms}" +
+                           $"queueWaitP95={s.QueueWaitP95:F2}ms " +
+                           $"roomExecP95={s.RoomExecP95:F2}ms " +
+                           $"endToEndP95={s.EndToEndP95:F2}ms " +
+                           $"queueWaitMax={s.QueueWaitMax:F2}ms " +
+                           $"roomExecMax={s.RoomExecMax:F2}ms " +
+                           $"endToEndMax={s.EndToEndMax:F2}ms";
                 
                 _file.AppendLine(DateTime.UtcNow, line);
             }

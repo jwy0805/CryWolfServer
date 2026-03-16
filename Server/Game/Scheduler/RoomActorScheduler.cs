@@ -1,4 +1,7 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using Server.Util;
+
 // ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
 
 namespace Server.Game;
@@ -41,6 +44,8 @@ public class RoomActorScheduler : IDisposable
         if (room == null) return;
         if (Interlocked.CompareExchange(ref room._scheduled, 1, 0) != 0) return;
 
+        room.LastScheduledTimeStamp = Stopwatch.GetTimestamp();
+        
         int workerIndex = GetWorkerIndex(room.RoomId);
         _queues[workerIndex].Enqueue(room);
         _signals[workerIndex].Set();
@@ -58,7 +63,15 @@ public class RoomActorScheduler : IDisposable
                 signal.WaitOne(1);
                 continue;
             }
-
+            
+            // 성능 측정
+            long execStart = Stopwatch.GetTimestamp();
+            long scheduled = room.LastScheduledTimeStamp;
+            if (scheduled > 0 && execStart >= scheduled)
+            {
+                Metrics.RecordQueueWait(execStart - scheduled);    
+            }
+            
             try
             {
                 if (room.IsShuttingDown) continue;
@@ -71,6 +84,13 @@ public class RoomActorScheduler : IDisposable
             }
             finally
             {
+                long execEnd = Stopwatch.GetTimestamp();
+                Metrics.RecordRoomExec(execEnd - execStart);
+                if (scheduled > 0 && execEnd >= scheduled)
+                {
+                    Metrics.RecordEndToEnd(execEnd - scheduled);
+                }
+                
                 Interlocked.Exchange(ref room._scheduled, 0);
             }
 

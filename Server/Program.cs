@@ -94,10 +94,8 @@ public static class Program
     
     private static void GameLogicTask()
     {
-        var stopwatch = new Stopwatch();
         while (true)
         {
-            stopwatch.Restart();
             try
             {
                 GameLogic.Instance.Update();
@@ -106,8 +104,6 @@ public static class Program
             {
                 Console.WriteLine($"[GameLogicTask] Fatal Error: {e}");
             }
-            stopwatch.Stop();
-            Metrics.RecordLoopMs(stopwatch.Elapsed.TotalMilliseconds);
             
             Thread.Sleep(10);
         }

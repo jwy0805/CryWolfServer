@@ -62,6 +62,13 @@ public partial class GameRoom : JobSerializer, IDisposable
         }
     }
 
+    // 성능 측정 전용
+    public long LastScheduledTimeStamp
+    {
+        get => Interlocked.Read(ref field);
+        set => Interlocked.Exchange(ref field, value);
+    }
+    
     public readonly Stopwatch Stopwatch = new();
     public HashSet<Buff> Buffs { get; } = new();
     public Enchant? Enchant { get; set; }
