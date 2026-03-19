@@ -71,6 +71,7 @@ public class RoomActorScheduler : IDisposable
             {
                 Metrics.RecordQueueWait(execStart - scheduled);    
             }
+            //
             
             try
             {
@@ -84,12 +85,14 @@ public class RoomActorScheduler : IDisposable
             }
             finally
             {
+                //
                 long execEnd = Stopwatch.GetTimestamp();
                 Metrics.RecordRoomExec(execEnd - execStart);
                 if (scheduled > 0 && execEnd >= scheduled)
                 {
                     Metrics.RecordEndToEnd(execEnd - scheduled);
                 }
+                //
                 
                 Interlocked.Exchange(ref room._scheduled, 0);
             }

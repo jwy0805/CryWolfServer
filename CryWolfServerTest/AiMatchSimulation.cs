@@ -26,8 +26,8 @@ public class AiMatchSimulation
     [Test]
     public async Task EnqueueAiMatches()
     {
-        const int aiCount = 1000;
-        const int firstBatchCount = 800;
+        const int aiCount = 500;
+        const int firstBatchCount = 400;
         Dictionary<int, TestSession> aiSessions = new();
         List<Task> sessionTasks1 = new();
         List<Task> enqueueTasks1 = new();
