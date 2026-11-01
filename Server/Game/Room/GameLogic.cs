@@ -23,7 +23,7 @@ public class GameLogic : JobSerializer
         {
             if (room.IsShuttingDown) continue;
             
-            Interlocked.Exchange(ref room._tickPending, 1);
+            Interlocked.Exchange(ref room.TickPending, 1);
             _scheduler.Schedule(room);
         }
     }
@@ -41,11 +41,11 @@ public class GameLogic : JobSerializer
     }
     
     // Must be called only from GameLogic's serialized context (inside Push/Flush).
+    // Dispose는 룸 스레드(GameRoom.Update)에서 처리하므로 여기서는 목록에서만 제거
     public void RemoveGameRoom(int roomId)
     {
-        if (_rooms.Remove(roomId, out var room))
+        if (_rooms.Remove(roomId))
         {
-            room.Dispose();
             Metrics.DecreaseRoom();
             Console.WriteLine($"Game room removed: {roomId}");
         }

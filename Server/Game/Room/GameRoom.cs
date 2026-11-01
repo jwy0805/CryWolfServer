@@ -14,8 +14,8 @@ namespace Server.Game;
 public partial class GameRoom : JobSerializer, IDisposable
 {
     private readonly Lock _lock = new();
-    internal int _scheduled = 0;
-    internal int _tickPending = 0;
+    internal int Scheduled = 0;
+    internal int TickPending = 0;
     
     private readonly Dictionary<int, Player> _players = new();
     private readonly Dictionary<int, Tower> _towers = new();
@@ -157,6 +157,13 @@ public partial class GameRoom : JobSerializer, IDisposable
     public void Update()
     {
         Flush();
+
+        // 게임 종료가 확정되면 정리는 룸 스레드에서 직접 수행 (GameLogic 스레드와의 경합 방지)
+        if (IsShuttingDown)
+        {
+            Dispose();
+            return;
+        }
 
         ManageTutorial();
         if (!RoomActivated)

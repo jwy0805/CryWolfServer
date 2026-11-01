@@ -42,7 +42,7 @@ public class RoomActorScheduler : IDisposable
     public void Schedule(GameRoom room)
     {
         if (room == null) return;
-        if (Interlocked.CompareExchange(ref room._scheduled, 1, 0) != 0) return;
+        if (Interlocked.CompareExchange(ref room.Scheduled, 1, 0) != 0) return;
 
         room.LastScheduledTimeStamp = Stopwatch.GetTimestamp();
         
@@ -76,7 +76,7 @@ public class RoomActorScheduler : IDisposable
             try
             {
                 if (room.IsShuttingDown) continue;
-                Interlocked.Exchange(ref room._tickPending, 0);
+                Interlocked.Exchange(ref room.TickPending, 0);
                 room.Update();
             }
             catch (Exception e)
@@ -94,14 +94,14 @@ public class RoomActorScheduler : IDisposable
                 }
                 //
                 
-                Interlocked.Exchange(ref room._scheduled, 0);
+                Interlocked.Exchange(ref room.Scheduled, 0);
             }
 
             if (room.IsShuttingDown) continue;
             
             // 실행 중 드랍된 Schedule 요청 복구
             bool tickRequestedWhileRunning = 
-                Interlocked.CompareExchange(ref room._tickPending, 1, 1) == 1;
+                Interlocked.CompareExchange(ref room.TickPending, 1, 1) == 1;
             if (room.HasPendingJobs || tickRequestedWhileRunning)
             {
                 Schedule(room);

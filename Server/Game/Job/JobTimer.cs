@@ -46,8 +46,15 @@ public class JobTimer
 
                 _priorityQueue.Pop();
             }
-            
-            jobElement.Job.Execute();
+
+            try
+            {
+                jobElement.Job.Execute();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[JobTimer] Job Execution Error: {e}");
+            }
         }
     }
     

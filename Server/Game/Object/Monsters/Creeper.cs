@@ -253,7 +253,7 @@ public class Creeper : Lurker
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error in DivideEvents: {e.Message}");
+            Console.WriteLine($"Error in DivideEvents: {e}");
         }
     }
 

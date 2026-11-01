@@ -584,12 +584,14 @@ public partial class GameRoom
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error during tower and fence move forward: {e.Message}");
+            Console.WriteLine($"Error during tower and fence move forward: {e}");
         }
     }
 
     private void FinalizeMoveForward(HashSet<int> towerCopyKeys, float fencePosZAfter)
     {
+        if (_gameOverState != GameOverState.Running) return;
+
         try
         {
             var remainTowers = _towers
@@ -618,12 +620,15 @@ public partial class GameRoom
 
             GameInfo.FenceMovedThisRound = true;
             TutorialExpandFenceHandler(z);
-            
-            _checked = true;
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error in FinalizeMoveForward: {e.Message}");
+            Console.WriteLine($"Error in FinalizeMoveForward: {e}");
+        }
+        finally
+        {
+            // 예외가 나도 다음 초에 확장이 반복되지 않도록 보장
+            _checked = true;
         }
     }
     
